@@ -105,7 +105,7 @@ $(BASEDIR)/win32/all:
 
 # include directive is not available in nmake.exe
 # If you are using gnu-make, uncomment next line.
-#-include .depend.nt
+-include .depend.nt
 ############################################################################
 # END
 ############################################################################
