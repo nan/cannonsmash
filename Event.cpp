@@ -413,13 +413,14 @@ GetExternalData( ExternalData **ext, int sd, long side ) {
   extNow->side = side;
   memset( extNow->data, 0, 256 );
   extNow->next = NULL;
-#else
-  extNow = new ExternalData(side);
-  memset( extNow->data, 0, 256 );
 #endif
 
   if ( !strncmp( buf, "PV", 2 ) ) {
+#if 0
     extNow->dataType = DATA_PV;
+#else
+    extNow = new ExternalPVData(side);
+#endif
     ReadTime( sd, &extNow->sec, &extNow->count );
 
     len = 0;
@@ -429,7 +430,11 @@ GetExternalData( ExternalData **ext, int sd, long side ) {
     }
 //    printf( "Get PV : %d %d\n", extNow->sec, extNow->count );
   } else if ( !strncmp( buf, "PS", 2 ) ) {
+#if 0
     extNow->dataType = DATA_PS;
+#else
+    extNow = new ExternalPSData(side);
+#endif
     ReadTime( sd, &extNow->sec, &extNow->count );
 
     len = 0;
@@ -438,7 +443,11 @@ GetExternalData( ExternalData **ext, int sd, long side ) {
 	break;
     }
   } else if ( !strncmp( buf, "BV", 2 ) ) {
+#if 0
     extNow->dataType = DATA_BV;
+#else
+    extNow = new ExternalBVData(side);
+#endif
     ReadTime( sd, &extNow->sec, &extNow->count );
 
     len = 0;
@@ -625,6 +634,7 @@ Event::ReadData() {
 	  else
 	    exit(1);
 
+#if 0&0
 	  switch ( m_External->dataType ) {
 	  case DATA_PV:
 	    targetPlayer->Warp( m_External->data );
@@ -637,7 +647,7 @@ Event::ReadData() {
 //		    m_External->sec, m_External->count);
 //	    printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n",
 //		    x, y, z, vx, vy, vz );
-	    fflush(0);
+//	    fflush(0);
 	    break;
 	  case DATA_PS:
 	    targetPlayer->ExternalSwing( m_External->data );
@@ -661,6 +671,9 @@ Event::ReadData() {
 //	    fflush(0);
 	    break;
 	  }
+#else
+	  m_External->Apply( thePlayer, fThePlayer, fComPlayer, fTheBall );
+#endif
 	  externalOld = m_External;
 	  m_External = m_External->next;
 	  delete externalOld;

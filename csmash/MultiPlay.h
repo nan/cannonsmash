@@ -35,7 +35,10 @@ void StartClient();
 
 class ExternalData {
 public:
+  ExternalData();
   ExternalData( long side );
+
+  virtual ~ExternalData();
 
   long side;
   long dataType;
@@ -43,25 +46,37 @@ public:
   char count;
   char data[256];
   ExternalData *next;
-  //virtual bool Apply( Player *targetPlayer ) = 0;
+
+  virtual bool Apply( Player *targetPlayer, bool &fThePlayer, bool &fComPlayer,
+		      bool &fTheBall ) = 0;
 };
 
-#if 0
-class ExternalPVData : ExternalData {
+class ExternalPVData : public ExternalData {
 public:
-  //virtual bool Apply( Player *targetPlayer );
+  ExternalPVData();
+  ExternalPVData( long side );
+
+  virtual bool Apply( Player *targetPlayer, bool &fThePlayer, bool &fComPlayer,
+		      bool &fTheBall );
 };
 
-class ExternalPSData : ExternalData {
+class ExternalPSData : public ExternalData {
 public:
-  //virtual bool Apply( Player *targetPlayer );
+  ExternalPSData();
+  ExternalPSData( long side );
+
+  virtual bool Apply( Player *targetPlayer, bool &fThePlayer, bool &fComPlayer,
+		      bool &fTheBall );
 };
 
-class ExternalBVData : ExternalData {
+class ExternalBVData : public ExternalData {
 public:
-  //virtual bool Apply( Player *targetPlayer );
+  ExternalBVData();
+  ExternalBVData( long side );
+
+  virtual bool Apply( Player *targetPlayer, bool &fThePlayer, bool &fComPlayer,
+		      bool &fTheBall );
 };
-#endif
 
 class MultiPlay : public Control {
 public:

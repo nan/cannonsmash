@@ -586,6 +586,15 @@ MultiPlay::LookAt( double &srcX, double &srcY, double &srcZ,
   return true;
 }
 
+ExternalData::ExternalData() {
+  side = 1;
+  dataType = 0;
+  sec = 0;
+  count = 0;
+  memset( data, 0, 256 );
+  next = NULL;
+}
+
 ExternalData::ExternalData( long s ) {
   side = s;
   dataType = 0;
@@ -593,4 +602,80 @@ ExternalData::ExternalData( long s ) {
   count = 0;
   memset( data, 0, 256 );
   next = NULL;
+}
+
+ExternalData::~ExternalData() {
+}
+
+
+ExternalPVData::ExternalPVData() : ExternalData() {
+  dataType = DATA_PV;
+}
+
+ExternalPVData::ExternalPVData( long s ) : ExternalData(s) {
+  dataType = DATA_PV;
+}
+
+bool
+ExternalPVData::Apply( Player *targetPlayer, bool &fThePlayer,
+		       bool &fComPlayer, bool &fTheBall ) {
+  targetPlayer->Warp( data );
+  if ( targetPlayer == thePlayer )
+    fThePlayer = true;
+  else if ( targetPlayer == comPlayer )
+    fComPlayer = true;
+
+//  printf( "PV: sec = %d count = %d\n",
+//	  m_External->sec, m_External->count);
+//  printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n",
+//	  x, y, z, vx, vy, vz );
+//  fflush(0);
+
+  return true;
+}
+
+ExternalPSData::ExternalPSData() : ExternalData() {
+  dataType = DATA_PS;
+}
+
+ExternalPSData::ExternalPSData( long s ) : ExternalData(s) {
+  dataType = DATA_PS;
+}
+
+bool
+ExternalPSData::Apply( Player *targetPlayer, bool &fThePlayer,
+		       bool &fComPlayer, bool &fTheBall ) {
+  targetPlayer->ExternalSwing( data );
+  if ( targetPlayer == thePlayer )
+    fThePlayer = true;
+  else if ( targetPlayer == comPlayer )
+    fComPlayer = true;
+
+//  printf( "PS: sec = %d count = %d swing = %d\n",
+//	  m_External->sec, m_External->count, targetPlayer->GetSwing());
+//  fflush(0);
+  return true;
+}
+
+
+ExternalBVData::ExternalBVData() : ExternalData() {
+  dataType = DATA_BV;
+}
+
+ExternalBVData::ExternalBVData( long s ) : ExternalData(s) {
+  dataType = DATA_BV;
+}
+
+bool
+ExternalBVData::Apply( Player *targetPlayer, bool &fThePlayer,
+		       bool &fComPlayer, bool &fTheBall ) {
+  theBall.Warp( data );
+  fTheBall = true;
+
+//  printf( "BV: sec = %d count = %d\n",
+//	  m_External->sec, m_External->count);
+//  printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n",
+//	  x, y, z, vx, vy, vz );
+//  fflush(0);
+  return true;
 }
