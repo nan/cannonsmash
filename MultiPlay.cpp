@@ -39,6 +39,8 @@ extern long timeAdj;
 extern int theSocket;
 bool endian;
 
+extern void QuitGame();
+
 // endian変換
 double
 SwapDbl( double d ) {
@@ -688,6 +690,8 @@ ExternalData::ReadData( long s ) {
   } else if ( !strncmp( buf, "BV", 2 ) ) {
     extNow = new ExternalBVData(s);
     extNow->Read( theSocket );
+  } else if ( !strncmp( buf, "QT", 2 ) ) {
+    QuitGame();
   } else
     return NULL;
 

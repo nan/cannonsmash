@@ -50,6 +50,8 @@ double backTracks = 0;
 //void CopyPlayerData( struct PlayerData& dest, Player* src );
 void CopyPlayerData( Player& dest, Player* src );
 
+void QuitGame();
+
 Event::Event() {
   m_KeyHistory[0] = 0;
   m_MouseXHistory[0] = BaseView::GetWinWidth()/2;
@@ -279,10 +281,7 @@ void
 Event::KeyboardFunc( unsigned char key, int x, int y ) {
 #if (GLUT_API_VERSION < 4 && GLUT_XLIB_IMPLEMENTATION < 13)
   if ( key == 'Q' ) {
-    printf( "Avg = %f\n", (double)perfs/_perfCount );
-    printf( "BackTrack = %f\n", backTracks/_backTrackCount );
-    ClearObject();
-    exit(0);
+    QuitGame();
   }
 #endif
   theEvent.m_KeyHistory[theEvent.m_Histptr] = key;
@@ -291,10 +290,7 @@ Event::KeyboardFunc( unsigned char key, int x, int y ) {
 void
 Event::KeyUpFunc( unsigned char key, int x, int y ) {
   if ( key == 'Q' ) {
-    printf( "Avg = %f\n", (double)perfs/_perfCount );
-    printf( "BackTrack = %f\n", backTracks/_backTrackCount );
-    ClearObject();
-    exit(0);
+    QuitGame();
   }
 }
 
@@ -578,4 +574,12 @@ Event::ClearBacktrack() {
     theEvent.m_BacktrackBuffer[i].score1 = 0;
     theEvent.m_BacktrackBuffer[i].score2 = 0;
   }
+}
+
+void
+QuitGame() {
+  printf( "Avg = %f\n", (double)perfs/_perfCount );
+  printf( "BackTrack = %f\n", backTracks/_backTrackCount );
+  Event::ClearObject();
+  exit(0);
 }
