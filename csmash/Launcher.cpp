@@ -72,7 +72,8 @@ LauncherHeader::FullScreenFrame() {
   gtk_widget_show (button);
 
   gtk_signal_connect (GTK_OBJECT (button), "clicked",
-		      GTK_SIGNAL_FUNC (LauncherHeader::Toggle), &fullScreen);
+		      GTK_SIGNAL_FUNC (LauncherHeader::ToggleFullScreen),
+		      &fullScreen);
 
   button = gtk_radio_button_new_with_label (list, "Off");
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(button) );
@@ -82,7 +83,8 @@ LauncherHeader::FullScreenFrame() {
   gtk_widget_show (button);
 
   gtk_signal_connect (GTK_OBJECT (button), "clicked",
-		      GTK_SIGNAL_FUNC (LauncherHeader::Toggle), &fullScreen);
+		      GTK_SIGNAL_FUNC (LauncherHeader::ToggleFullScreen),
+		      &fullScreen);
 
   gtk_widget_show (box);
   gtk_container_add (GTK_CONTAINER (frame), box);
@@ -136,6 +138,18 @@ LauncherHeader::GraphicsFrame() {
   gtk_container_add (GTK_CONTAINER (frame), box);
 
   return frame;
+}
+
+void
+LauncherHeader::ToggleFullScreen( GtkWidget *widget, gpointer data ) {
+  GSList *list = gtk_radio_button_group( (GtkRadioButton *)widget );
+
+  if ( gtk_toggle_button_get_active
+       ( (GtkToggleButton *)g_slist_nth_data( list, 0 ) ) ) {
+    fullScreen = false;
+  } else {
+    fullScreen = true;
+  }
 }
 
 void
