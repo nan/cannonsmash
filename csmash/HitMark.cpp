@@ -46,10 +46,16 @@ HitMark::Init() {
       for ( j = 0 ; j < errorImage[0].GetHeight() ; j++ ) {
 	errorImage[0].SetPixel( i, j, 1, 0 );
 	errorImage[0].SetPixel( i, j, 2, 0 );
-	errorImage[0].SetPixel( i, j, 3, 255 );
+	if ( errorImage[0].GetPixel( i, j, 0 ) >= 5 )
+	  errorImage[0].SetPixel( i, j, 3, 255 );
+	else
+	  errorImage[0].SetPixel( i, j, 3, 0 );
 	errorImage[1].SetPixel( i, j, 0, 0 );
 	errorImage[1].SetPixel( i, j, 1, 0 );
-	errorImage[1].SetPixel( i, j, 3, 255 );
+	if ( errorImage[1].GetPixel( i, j, 2 ) >= 5 )
+	  errorImage[1].SetPixel( i, j, 3, 255 );
+	else
+	  errorImage[1].SetPixel( i, j, 3, 0 );
       }
     }
 
