@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of PlayerView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -36,6 +41,9 @@ typedef body_parts partsmotion_t;
 
 class Player;
 
+/**
+ * PlayerView class is a view class of player. 
+ */
 class PlayerView : public View {
 public:
   PlayerView();
@@ -50,27 +58,27 @@ public:
 
   void DrawTargetCircle( double diff );
 private:
-  Player  *m_player;	// Model
+  Player  *m_player;		///< Reference to attached Player object. 
 
-  partsmotion_t *m_Fnormal;
-  partsmotion_t *m_Bnormal;
-  partsmotion_t *m_Fdrive;
-  partsmotion_t *m_Bdrive;
-  partsmotion_t *m_Fcut;
-  partsmotion_t *m_Bcut;
-  partsmotion_t *m_Fpeck;
-  partsmotion_t *m_Bpeck;
-  partsmotion_t *m_Fsmash;
-  partsmotion_t *m_Bsmash;
+  partsmotion_t *m_Fnormal;		///< Motion handler of Fnormal motion. 
+  partsmotion_t *m_Bnormal;		///< Motion handler of Bnormal motion. 
+  partsmotion_t *m_Fdrive;		///< Motion handler of Fdrive motion. 
+  partsmotion_t *m_Bdrive;		///< Motion handler of Bdrive motion. 
+  partsmotion_t *m_Fcut;		///< Motion handler of Fcut motion. 
+  partsmotion_t *m_Bcut;		///< Motion handler of Bcut motion. 
+  partsmotion_t *m_Fpeck;		///< Motion handler of Fpeck motion. 
+  partsmotion_t *m_Bpeck;		///< Motion handler of Bpeck motion. 
+  partsmotion_t *m_Fsmash;		///< Motion handler of Fsmash motion. 
+  partsmotion_t *m_Bsmash;		///< Motion handler of Bsmash motion. 
 
-  static partsmotion_t *motion_Fnormal;
-  static partsmotion_t *motion_Bnormal;
-  static partsmotion_t *motion_Fdrive;
-  static partsmotion_t *motion_Fcut;
-  static partsmotion_t *motion_Bcut;
-  static partsmotion_t *motion_Fpeck;
-  static partsmotion_t *motion_Bpeck;
-  static partsmotion_t *motion_Fsmash;
+  static partsmotion_t *motion_Fnormal;	///< Motion handler of Fnormal motion. 
+  static partsmotion_t *motion_Bnormal;	///< Motion handler of Bnormal motion. 
+  static partsmotion_t *motion_Fdrive;	///< Motion handler of Fdrive motion. 
+  static partsmotion_t *motion_Fcut;	///< Motion handler of Fcut motion. 
+  static partsmotion_t *motion_Bcut;	///< Motion handler of Bcut motion. 
+  static partsmotion_t *motion_Fpeck;	///< Motion handler of Fpeck motion. 
+  static partsmotion_t *motion_Bpeck;	///< Motion handler of Bpeck motion. 
+  static partsmotion_t *motion_Fsmash;	///< Motion handler of Fsmash motion. 
 
   virtual bool SubRedraw();
   double GetHitpointY();
@@ -79,7 +87,7 @@ private:
   void DrawTarget();
   void DrawMeter();
 
-  vector3F m_diff;
+  vector3F m_diff;			///< diff of upper body
 };
 
 #endif	// _PlayerView

@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of PlayerSelect class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -34,12 +39,20 @@ extern bool isComm;
 
 extern long wins;
 
+/**
+ * Default constructor. 
+ * Initialize member variables to 0 or NULL. 
+ */
 PlayerSelect::PlayerSelect() {
   m_rotate = 0;
   m_View = NULL;
   m_selected = 0;
 }
 
+/**
+ * Destructor. 
+ * Detatch m_View and delete it. 
+ */
 PlayerSelect::~PlayerSelect() {
   if ( m_View ){
     BaseView::TheView()->RemoveView( m_View );
@@ -47,6 +60,12 @@ PlayerSelect::~PlayerSelect() {
   }
 }
 
+/**
+ * Initializer method. 
+ * Create PlayerSelectView object and attach it to this object. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 PlayerSelect::Init() {
   m_View = (PlayerSelectView *)View::CreateView( VIEW_PLAYERSELECT );
@@ -58,6 +77,10 @@ PlayerSelect::Init() {
   return true;
 }
 
+/**
+ * PlayerSelect object creater. 
+ * This method creates singleton PlayerSelect object. 
+ */
 void
 PlayerSelect::Create() {
   Control::ClearControl();
@@ -66,6 +89,16 @@ PlayerSelect::Create() {
   m_theControl->Init();
 }
 
+/**
+ * Move player panels as the game player moves mouse. 
+ * 
+ * @param KeyHistory history of keyboard input
+ * @param MouseXHistory history of mouse cursor move
+ * @param MouseYHistory history of mouse cursor move
+ * @param MouseBHistory history of mouse button push/release
+ * @param Histptr current position of histories described above. 
+ * @return returns true if it is neccesary to redraw. 
+ */
 bool
 PlayerSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		    long *MouseYHistory, unsigned long *MouseBHistory,
@@ -163,6 +196,11 @@ PlayerSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     return true;
 }
 
+/**
+ * Get player ID of the player type of which the panel is shown in front. 
+ * 
+ * @return returns player ID
+ */
 long
 PlayerSelect::GetPlayerNum() {
   if ( GetRotate() < 0 )
@@ -171,11 +209,23 @@ PlayerSelect::GetPlayerNum() {
     return (GetRotate()%360)/(360/PLAYERS);
 }
 
+/**
+ * Get player ID of the opponent player type of which the panel is shown in front. 
+ * 
+ * @return returns player ID
+ */
 long
 PlayerSelect::GetOpponentNum() {
   return (GetPlayerNum()+wins+1)%PLAYERS;
 }
 
+/**
+ * Set camera position and direction. 
+ * 
+ * @param srcX location of the camera
+ * @param destX target of the camera
+ * @return returns true if succeeds. 
+ */
 bool
 PlayerSelect::LookAt( vector3d &srcX, vector3d &destX ) {
   srcX = vector3d((const double[]){0.0, -TABLELENGTH-1.2, 1.4});

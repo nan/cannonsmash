@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of PlayerSelectView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
@@ -23,6 +28,9 @@
 class PlayerSelect;
 class ImageData;
 
+/**
+ * PlayerSelectView class is a view class which corresponds to PlayerSelect object. 
+ */
 class PlayerSelectView : public View {
 public:
   PlayerSelectView();
@@ -33,10 +41,9 @@ public:
   virtual bool Redraw();
   virtual bool RedrawAlpha();
 protected:
-  PlayerSelect *m_playerSelect;
-  GLuint       m_offset;
-  GLuint       m_textures[PLAYERS+1];
-  ImageData    *m_selectPlayer;
+  PlayerSelect *m_playerSelect;		///< Attached PlayerSelect object. 
+  GLuint       m_textures[PLAYERS+1];	///< texture handler of player panels. 
+  ImageData    *m_selectPlayer;		///< Image of "Select player". 
 };
 
 #endif	// _PlayerSelectView_

@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of PlayerView class. 
+ * @author KANNA Yoshihiro
+ * $Id$
+ */
 
 // Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
@@ -15,7 +20,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
 
 #include "ttinc.h"
 
@@ -55,6 +59,10 @@ partsmotion_t *PlayerView::motion_Fsmash = NULL;
  *	Class PlayerView
  ***********************************************************************/
 
+/**
+ * Default constructor. 
+ * Initialize member variables to 0 or NULL. 
+ */
 PlayerView::PlayerView() {
   m_player = NULL;
 
@@ -67,9 +75,18 @@ PlayerView::PlayerView() {
   m_diff[0] = m_diff[1] = m_diff[2] = 0.0;
 }
 
+/**
+ * Destructor. 
+ * Do nothing. 
+ */
 PlayerView::~PlayerView() {
 }
 
+/**
+ * Load parts and motion data. 
+ * 
+ * @param dum dummy. not used. 
+ */
 void *
 PlayerView::LoadData(void *dum) {
 #if !defined(CHIYO)
@@ -91,6 +108,13 @@ PlayerView::LoadData(void *dum) {
   return NULL;
 }
 
+/**
+ * Initializer method. 
+ * Load parts and motion data of specified player. 
+ * 
+ * @param player Player object of which this object is attached. 
+ * @return returns true if succeeds. 
+ */
 bool
 PlayerView::Init( Player *player ) {
   m_player = player;
@@ -154,6 +178,11 @@ PlayerView::Init( Player *player ) {
   return true;
 }
 
+/**
+ * Redraw player object. 
+ * 
+ * @return returns true if it is necessary to redraw. 
+ */
 bool
 PlayerView::Redraw() {
   static GLfloat mat_green[] = { 0.1F, 0.1F, 0.1F, 1.0F };
@@ -168,6 +197,11 @@ PlayerView::Redraw() {
   return true;
 }
 
+/**
+ * Redraw transparent player object. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 PlayerView::RedrawAlpha() {
   static GLfloat mat_black[] = { 0.0F, 0.0F, 0.0F, 1.0F };
@@ -187,6 +221,11 @@ PlayerView::RedrawAlpha() {
   return true;
 }
 
+/**
+ * Main body of drawing player model. 
+ * 
+ * @return  returns true if succeeds. 
+ */
 bool
 PlayerView::SubRedraw() {
 
@@ -205,6 +244,9 @@ PlayerView::SubRedraw() {
   return true;
 }
 
+/**
+ * Currently not used. 
+ */
 void
 PlayerView::DrawTargetCircle( double diff ) {
   Ball *tmpBall;
@@ -360,6 +402,9 @@ PlayerView::GetHitpointY() {
   return m_player->GetX()[1]+0.6;
 }
 
+/**
+ * Draw player object. 
+ */
 void
 PlayerView::DrawPlayer() {
   double swing;
@@ -522,6 +567,9 @@ PlayerView::DrawPlayer() {
   glPopMatrix();
 }
 
+/**
+ * Draw target triangle. 
+ */
 void
 PlayerView::DrawTarget() {
   glColor4f( 1.0F, 0.0F, 0.0F, 0.5F );

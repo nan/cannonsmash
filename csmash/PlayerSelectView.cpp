@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of PlayerSelectView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -29,17 +34,31 @@ extern long wins;
 
 extern bool isComm;
 
+/**
+ * Default constructor. 
+ */
 PlayerSelectView::PlayerSelectView() {
-  m_offset = 0;
   m_textures[0] = 0;
   m_selectPlayer = 0;
 }
 
+/**
+ * Destructor. 
+ * Delete image handler. 
+ */
 PlayerSelectView::~PlayerSelectView() {
   if ( m_selectPlayer )
     delete m_selectPlayer;
 }
 
+/**
+ * Initializer method. 
+ * Load "Select player" image texture. 
+ * Create textures of player panels. 
+ * 
+ * @param playerSelect attached PlayerSelect object. 
+ * @return returns true if succeeds. 
+ */
 bool
 PlayerSelectView::Init( PlayerSelect *playerSelect ) {
   ImageData image;
@@ -79,6 +98,11 @@ PlayerSelectView::Init( PlayerSelect *playerSelect ) {
   return true;
 }
 
+/**
+ * Redraw background and player panels. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 PlayerSelectView::Redraw() {
   int i;
@@ -176,6 +200,12 @@ PlayerSelectView::Redraw() {
   return true;
 }
 
+/**
+ * Redraw transparent objects. 
+ * Do nothing. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 PlayerSelectView::RedrawAlpha() {
   return true;
