@@ -18,6 +18,7 @@
 
 #include "ttinc.h"
 #include "LobbyClient.h"
+#include "LobbyClientView.h"
 #include "MultiPlay.h"
 #include "Network.h"
 #include "RCFile.h"
@@ -31,19 +32,12 @@ extern RCFile *theRC;
 extern bool isComm;
 extern long mode;
 
-extern bool isWaiting;
-
 extern void StartGame();
 extern void EventLoop();
 extern void EndGame();
-extern bool PollEvent();
-
-extern void QuitGame();
 
 extern unsigned int listenSocket;
 extern int one;
-
-bool isWaiting = false;		// waiting for opponent player on the internet
 
 // dirty... used by "QP"
 long score1 = 0;
@@ -51,18 +45,15 @@ long score2 = 0;
 
 LobbyClient::LobbyClient() {
   m_playerNum = 0;
-  m_timeout = 0;
-  m_idle = 0;
+  m_canBeServer = false;
 }
 
 LobbyClient::~LobbyClient() {
-  if ( m_timeout > 0 )
-    gtk_timeout_remove( m_timeout );
-  if ( m_idle > 0 )
-    gtk_idle_remove( m_idle );
+  if ( m_view )
+    delete m_view;
 }
 
-void
+bool
 LobbyClient::Init( char *nick, char *message ) {
   char buf[1024];
 
@@ -72,8 +63,7 @@ LobbyClient::Init( char *nick, char *message ) {
   if ( listenSocket == 0 ) {
     if ( (listenSocket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
       xerror("%s(%d) socket", __FILE__, __LINE__);
-      gtk_main_quit();
-      exit(1);
+      return false;
     }
 
     setsockopt( listenSocket, IPPROTO_TCP, TCP_NODELAY,
@@ -84,14 +74,12 @@ LobbyClient::Init( char *nick, char *message ) {
     saddr.sin_port = htons(theRC->csmash_port);
     if ( bind( listenSocket, (struct sockaddr *)&saddr, sizeof(saddr) ) < 0 ) {
       xerror("%s(%d) bind", __FILE__, __LINE__);
-      gtk_main_quit();
-      exit(1);
+      return false;
     }
 
     if ( listen( listenSocket, 1 ) < 0 ) {
       xerror("%s(%d) socket", __FILE__, __LINE__);
-      gtk_main_quit();
-      exit(1);
+      return false;
     }
   }
 
@@ -109,13 +97,11 @@ LobbyClient::Init( char *nick, char *message ) {
   // connect
   if ( (m_socket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
     xerror("%s(%d) socket", __FILE__, __LINE__);
-    gtk_main_quit();
-    exit(1);
+    return false;
   }
   if ( connect( m_socket, (struct sockaddr *)&saddr, sizeof(saddr) ) ) {
     xerror("%s(%d) connect", __FILE__, __LINE__);
-    gtk_main_quit();
-    exit(1);
+    return false;
   }
 
   // Connect to Lobby Server
@@ -143,69 +129,10 @@ LobbyClient::Init( char *nick, char *message ) {
   strncpy( buf, message, 64 );
   send( m_socket, buf, 64, 0 );
 
-  m_timeout = gtk_timeout_add( 1000, LobbyClient::PollServerMessage, this );
+  m_view = new LobbyClientView();
+  m_view->Init( this );
 
-  // display
-  m_window = gtk_dialog_new();
-  gtk_container_border_width (GTK_CONTAINER (m_window), 10);
-
-  gtk_window_set_title( GTK_WINDOW(m_window), _("Cannon Smash"));
-  gtk_widget_show(m_window);
-  gtk_window_set_modal( (GtkWindow *)m_window, true );
-  gtk_widget_set_usize( m_window, 300, 200 );
-
-  GtkWidget *scrolled_window;
-  GtkWidget *button;
-
-  scrolled_window = gtk_scrolled_window_new( NULL, NULL );
-  gtk_container_border_width (GTK_CONTAINER (scrolled_window), 10);
-  gtk_scrolled_window_set_policy( GTK_SCROLLED_WINDOW(scrolled_window),
-				  GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS );
-  gtk_box_pack_start( GTK_BOX(GTK_DIALOG(m_window)->vbox), scrolled_window,
-		      TRUE, TRUE, 0 );
-  gtk_widget_show (scrolled_window);
-
-  gchar *titles[3] = { _("Nickname"), _("Message") };
-  m_table = gtk_clist_new_with_titles( 2, titles );
-
-  gtk_clist_set_shadow_type( GTK_CLIST(m_table), GTK_SHADOW_OUT );
-  gtk_clist_set_column_width( GTK_CLIST(m_table), 0, 150 );
-
-  gtk_scrolled_window_add_with_viewport ( GTK_SCROLLED_WINDOW(scrolled_window),
-					  m_table );
-  gtk_signal_connect (GTK_OBJECT (m_table), "select-row",
-		      GTK_SIGNAL_FUNC (LobbyClient::SelectRow), this);
-  gtk_widget_show(m_table);
-
-  UpdateTable();
-
-  m_connectButton = gtk_button_new_with_label (_("connect"));
-  gtk_signal_connect (GTK_OBJECT (m_connectButton), "clicked",
-		      GTK_SIGNAL_FUNC (LobbyClient::Connect), this);
-  gtk_widget_show (m_connectButton);
-  gtk_widget_set_sensitive (m_connectButton, false);
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (m_window)->action_area),
-		      m_connectButton, TRUE, TRUE, 0);
-
-  m_warmUpButton = gtk_button_new_with_label (_("warm up"));
-  gtk_signal_connect (GTK_OBJECT (m_warmUpButton), "clicked",
-		      GTK_SIGNAL_FUNC (LobbyClient::WarmUp), this);
-  gtk_widget_show (m_warmUpButton);
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (m_window)->action_area),
-		      m_warmUpButton, TRUE, TRUE, 0);
-
-  button = gtk_button_new_with_label (_("close"));
-  gtk_signal_connect (GTK_OBJECT (button), "clicked",
-		      GTK_SIGNAL_FUNC (LobbyClient::Quit), this);
-
-  GTK_WIDGET_SET_FLAGS (button, GTK_CAN_DEFAULT);
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (m_window)->action_area),
-		      button, TRUE, TRUE, 0);
-
-  gtk_widget_grab_default (button);
-  gtk_widget_show (button);
-  
-  gtk_widget_show (m_window);                     
+  return true;
 }
 
 gint
@@ -235,6 +162,11 @@ LobbyClient::PollServerMessage( gpointer data ) {
       acSocket = accept( listenSocket, NULL, NULL );
 
       closesocket( acSocket );
+#if 0
+      lobby->m_canBeServer = true;
+#else
+      lobby->m_canBeServer = false;
+#endif
     } else {
       char buf[1024];
 
@@ -242,7 +174,7 @@ LobbyClient::PollServerMessage( gpointer data ) {
 
       if ( !strncmp( buf, "UI", 2 ) ) {
 	lobby->ReadUI();
-	lobby->UpdateTable();
+	lobby->m_view->UpdateTable();
       } else if ( !strncmp( buf, "PI", 2 ) ) {
 	lobby->ReadPI();
 	//printf( "PI!\n" );
@@ -251,32 +183,24 @@ LobbyClient::PollServerMessage( gpointer data ) {
       } else if ( !strncmp( buf, "AP", 2 ) ) {
 	isComm = true;
 	mode = MODE_SELECT;
-	theRC->serverName[0] = '\0';
-	gtk_widget_set_sensitive (lobby->m_connectButton, true);
-	gtk_widget_set_sensitive (lobby->m_warmUpButton, true);
-	gtk_widget_set_sensitive (lobby->m_table, true);
 
-	send( lobby->m_socket, "SP", 2, 0 );
-	long len = 0;
-	SendLong( lobby->m_socket, len );
+	if ( lobby->m_canBeServer == true ) {	// I can be server
+	  theRC->serverName[0] = '\0';
+	}
+
+	lobby->m_view->SetSensitive( true );
+
+	lobby->SendSP();
 
 	::StartGame();
 	::EventLoop();
 	::EndGame();
 
-	send( lobby->m_socket, "QP", 2, 0 );
-	len = 8;
-	SendLong( lobby->m_socket, len );
-
-	SendLong( lobby->m_socket, score1 );	// Temp
-	SendLong( lobby->m_socket, score2 );
+	lobby->SendQP();
       } else if ( !strncmp( buf, "DP", 2 ) ) {
-	gtk_widget_set_sensitive (lobby->m_connectButton, true);
-	gtk_widget_set_sensitive (lobby->m_warmUpButton, true);
-	gtk_widget_set_sensitive (lobby->m_table, true);
+	lobby->m_view->SetSensitive( true );
       } else {
 	xerror("%s(%d) read header", __FILE__, __LINE__);
-	gtk_main_quit();
 	exit(1);
       }
     }
@@ -284,80 +208,23 @@ LobbyClient::PollServerMessage( gpointer data ) {
 }
 
 void
-LobbyClient::UpdateTable() {
-  gchar *row[3];
-
-  gtk_clist_clear( GTK_CLIST(m_table) );
-
-  for ( int i = 0 ; i < m_playerNum ; i++ ) {
-    row[0] = m_player[i].m_nickname;
-    row[1] = m_player[i].m_message;
-    gtk_clist_append( GTK_CLIST(m_table), row );
-  }
-
-  gtk_clist_columns_autosize( GTK_CLIST(m_table) );
-}
-
-void
-LobbyClient::SelectRow( GtkCList *clist, gint row, gint column,
-			GdkEventButton *event, gpointer data ) {
-  LobbyClient *lobby = (LobbyClient *)data;
-
-  lobby->m_selected = row;
-  gtk_widget_set_sensitive (lobby->m_connectButton, true);
-}
-
-void
 LobbyClient::Connect( GtkWidget *widget, gpointer data ) {
   LobbyClient *lobby = (LobbyClient *)data;
 
-  // Send Private IRC Message(Although it is not IRC at now)
-  send( lobby->m_socket, "PI", 2, 0 );
+  // Get selected player information
+  send( lobby->m_socket, "OR", 2, 0 );
   long len = 4;
   SendLong( lobby->m_socket, len );
   SendLong( lobby->m_socket, lobby->m_player[lobby->m_selected].m_ID );
 
-  gtk_widget_set_sensitive (lobby->m_connectButton, false);
-  gtk_widget_set_sensitive (lobby->m_warmUpButton, false);
-  gtk_widget_set_sensitive (lobby->m_table, false);
+  // Send Private IRC Message(Although it is not IRC at now)
+  send( lobby->m_socket, "PI", 2, 0 );
+  len = 4;
+  SendLong( lobby->m_socket, len );
+  SendLong( lobby->m_socket, lobby->m_player[lobby->m_selected].m_ID );
+
+  lobby->m_view->SetSensitive( false );
   //printf( "%d\n", lobby->m_selected );
-}
-
-void
-LobbyClient::WarmUp( GtkWidget *widget, gpointer data ) {
-  LobbyClient *lobby = (LobbyClient *)data;
-
-  isWaiting = true;
-  ::StartGame();
-
-  lobby->m_idle = gtk_idle_add( LobbyClient::IdleFunc, data );
-}
-
-gint
-LobbyClient::IdleFunc( gpointer data ) {
-  LobbyClient *lobby = (LobbyClient *)data;
-
-  if ( !PollEvent() ) {
-    ::EndGame();
-    return 0;
-    //gtk_idle_remove( lobby->m_idle );
-  }
-
-  return 1;
-}
-
-void
-LobbyClient::Quit( GtkWidget *widget, gpointer data ) {
-  LobbyClient *lobby = (LobbyClient *)data;
-
-  // Send Quit Message
-  send( lobby->m_socket, "QT", 2, 0 );
-  shutdown( lobby->m_socket, 2 );
-  
-  gtk_widget_destroy( lobby->m_window );
-  gtk_timeout_remove( lobby->m_timeout );
-
-  delete lobby;
 }
 
 void
@@ -487,114 +354,46 @@ LobbyClient::ReadOI() {
 
   // At now, Ignore server or client. 
 
-  //printf( "%s %d\n", serverName, theRC->csmash_port );
-}
-
-
-PIDialog::PIDialog() {
-}
-
-PIDialog::PIDialog( LobbyClient *parent ) {
-  m_parent = parent;
-}
-
-PIDialog::~PIDialog() {
+  //printf( "%s %d\n", theRC->serverName, theRC->csmash_port );
 }
 
 void
-PIDialog::PopupDialog( long uniqID ) {
-  GtkWidget *label, *button;
-  char buf[256];
-
-  if ( isWaiting ) {
-    QuitGame();
-  }
-
-  m_uniqID = uniqID;
-
-  m_window = gtk_dialog_new();
-  gtk_window_set_title( GTK_WINDOW(m_window), _("Cannon Smash"));
-  gtk_container_border_width (GTK_CONTAINER (m_window), 10);
-  gtk_window_set_modal( (GtkWindow *)m_window, true );
-
-  PlayerInfo *p = m_parent->GetPlayerInfo();
-
-  int i;
-  for ( i = 0 ; i < m_parent->GetPlayerNum() ; i++ ) {
-    if ( p[i].m_ID == m_uniqID ) {
-      sprintf( buf, _("\"%s\" (message: %s)want to play with you. OK?\n"),
-	       p[i].m_nickname, p[i].m_message );
-      break;
-    }
-  }
-
-  label = gtk_label_new( buf );
-  gtk_label_set_line_wrap( GTK_LABEL(label), true );
-  gtk_widget_show( label );
-
-  gtk_box_pack_start( GTK_BOX(GTK_DIALOG(m_window)->vbox), label, 
-		      TRUE, TRUE, 0 );
-
-  gtk_widget_show (m_window);
-
-  button = gtk_button_new_with_label (_("OK!"));
-  gtk_signal_connect (GTK_OBJECT (button), "clicked",
-		      GTK_SIGNAL_FUNC (PIDialog::PIOK), this);
-
-  GTK_WIDGET_SET_FLAGS (button, GTK_CAN_DEFAULT);
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (m_window)->action_area),
-		      button, TRUE, TRUE, 0);
-
-  gtk_widget_grab_default (button);
-  gtk_widget_show (button);
-
-  button = gtk_button_new_with_label (_("No!"));
-  gtk_signal_connect (GTK_OBJECT (button), "clicked",
-		      GTK_SIGNAL_FUNC (PIDialog::PINo), this);
-
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (m_window)->action_area),
-		      button, TRUE, TRUE, 0);
-  gtk_widget_show (button);
-}
-
-void
-PIDialog::PIOK( GtkWidget *widget, gpointer data ) {
-  PIDialog *piDialog = (PIDialog *)data;
-  gtk_widget_destroy( GTK_WIDGET(piDialog->m_window) );
-
-  isComm = true;
-  mode = MODE_SELECT;
-
-  send( piDialog->m_parent->GetSocket(), "AP", 2, 0 );
+LobbyClient::SendAP( long uniqID ) {
+  send( m_socket, "AP", 2, 0 );
   long len = 4;
-  SendLong( piDialog->m_parent->GetSocket(), len );
-  SendLong( piDialog->m_parent->GetSocket(), piDialog->m_uniqID );
-
-  send( piDialog->m_parent->GetSocket(), "SP", 2, 0 );
-  len = 0;
-  SendLong( piDialog->m_parent->GetSocket(), len );
-
-  ::StartGame();
-  ::EventLoop();
-  ::EndGame();
-
-  send( piDialog->m_parent->GetSocket(), "QP", 2, 0 );
-  len = 8;
-  SendLong( piDialog->m_parent->GetSocket(), len );
-
-  SendLong( piDialog->m_parent->GetSocket(), score1 );	// Temp
-  SendLong( piDialog->m_parent->GetSocket(), score2 );
+  SendLong( m_socket, len );
+  SendLong( m_socket, uniqID );
 }
 
 void
-PIDialog::PINo( GtkWidget *widget, gpointer data ) {
-  PIDialog *piDialog = (PIDialog *)data;
-  gtk_widget_destroy( GTK_WIDGET(piDialog->m_window) );
+LobbyClient::SendSP() {
+  send( m_socket, "SP", 2, 0 );
+  long len = 0;
+  SendLong( m_socket, len );
+}
 
-  send( piDialog->m_parent->GetSocket(), "DP", 2, 0 );
+void
+LobbyClient::SendQP() {
+  send( m_socket, "QP", 2, 0 );
+  long len = 8;
+  SendLong( m_socket, len );
+
+  SendLong( m_socket, score1 );	// Temp
+  SendLong( m_socket, score2 );
+}
+
+void
+LobbyClient::SendDP( long uniqID ) {
+  send( m_socket, "DP", 2, 0 );
   long len = 4;
-  SendLong( piDialog->m_parent->GetSocket(), len );
-  SendLong( piDialog->m_parent->GetSocket(), piDialog->m_uniqID );
+  SendLong( m_socket, len );
+  SendLong( m_socket, uniqID );
+}
+
+void
+LobbyClient::SendQT() {
+  send( m_socket, "QT", 2, 0 );
+  shutdown( m_socket, 2 );
 }
 
 
