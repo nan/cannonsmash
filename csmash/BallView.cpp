@@ -184,8 +184,8 @@ BallView::Redraw() {
 	glPushMatrix();
 	glTranslatef( (float)tmpBall->GetX(), (float)tmpBall->GetY(), (float)tmpBall->GetZ() );
 
-	gluQuadricDrawStyle( m_quad, GLU_FILL );
-	gluQuadricNormals( m_quad, GLU_SMOOTH );
+	gluQuadricDrawStyle( m_quad, (GLenum)GLU_FILL );
+	gluQuadricNormals( m_quad, (GLenum)GLU_SMOOTH );
 	gluSphere( m_quad, BALL_R/8, 3, 3 );
 
 	glPopMatrix();
