@@ -385,7 +385,7 @@ Ball::TargetToVS( vector2d target, double level,
   x[0] = m_x[0]; x[1] = m_x[1];
 
   for ( bound[1] = -TABLELENGTH/2 ; bound[1] < TABLELENGTH/2 ; bound[1] += TICK ) {
-    if ( bound[1]*m_x[1] < 0 )
+    if ( bound[1]*m_x[1] <= 0.0 )
       continue;
 
     double vMin = 0.1;
@@ -450,12 +450,17 @@ Ball::TargetToVS( vector2d target, double level,
 	vMin = vXY;
     }
 
+    if ( fabs(z) > 0.01 )
+      continue;
+
     t3 = getTimeToReachY( boundX, 0, bound, sCurrent, vCurrent );
+
     z = -( vCurrent[2]+GRAVITY(spin[1]*0.8)/PHY)*exp(-PHY*t3)/PHY
       - GRAVITY(spin[1]*0.8)/PHY*t3
       + (vCurrent[2]+GRAVITY(spin[1]*0.8)/PHY)/PHY;
     if ( z > NETHEIGHT+(1.0-level)*0.1 ) {	// temporary
       if ( vXY > hypot(tmpV[0], tmpV[1] ) ) {
+
 	t2 = getTimeToReachTarget( bound-x, vXY, spin, tmpV );
 	tmpV[2] = getVz0ToReachTarget( TABLEHEIGHT-m_x[2], spin, t2 );
       }
@@ -478,11 +483,25 @@ Ball::BallDead() {
     if ( Control::TheControl()->IsPlaying() && &theBall == this ) {
       ((PlayGame *)Control::TheControl())->ChangeScore();
 
-      m_status = -1;
+      if ( mode == MODE_MULTIPLAY ) {
+	if ( Control::TheControl()->GetThePlayer()->GetSide() > 0 ) {
+	  if ( theBall.GetStatus() == 2 || theBall.GetStatus() == 3 ||
+	       theBall.GetStatus() == 5 || theBall.GetStatus() == 6 ) {
+	    m_status = -1;
+	    Event::TheEvent()->SendBall();
+	  }
+	} else {
+	  if ( theBall.GetStatus() == 0 || theBall.GetStatus() == 1 ||
+	       theBall.GetStatus() == 4 || theBall.GetStatus() == 7 ) {
+	    m_status = -1;
+	    Event::TheEvent()->SendBall();
+	  }
+	}
 
-      if ( mode == MODE_MULTIPLAY &&
-	   Control::TheControl()->GetThePlayer()->GetSide() > 0 ) {
-	Event::TheEvent()->SendBall();
+	if ( theBall.GetStatus() == 8 ) {
+	  m_status = -1;
+	  Event::TheEvent()->SendBall();
+	}
 
 	if ( LobbyClient::TheLobbyClient() )
 	  LobbyClient::TheLobbyClient()->
@@ -573,6 +592,7 @@ Ball::Reset() {
     }
 
     // To Fix the possibility of score mismatch
+    /*
     if ( mode == MODE_MULTIPLAY && &theBall == this &&
 	 Control::TheControl()->GetThePlayer()->GetSide() > 0 ) {
       m_lastSendCount++;
@@ -581,6 +601,7 @@ Ball::Reset() {
 	m_lastSendCount = 0;
       }
     }
+    */
   } else {
     m_x[0] = control->GetThePlayer()->GetX()[0]+0.3;
     m_x[1] = control->GetThePlayer()->GetX()[1];
