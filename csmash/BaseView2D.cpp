@@ -32,9 +32,6 @@ extern long mode;
 
 extern Ball theBall;
 
-extern bool isLighting;
-extern bool isPolygon;
-
 extern RCFile *theRC;
 
 // x --- x axis is the bottom line of the net. The plane x=0 represents

@@ -32,8 +32,6 @@ extern Player* thePlayer;
 extern Player *comPlayer;
 extern long mode;
 
-extern bool isLighting;
-
 GLuint BallView::m_number[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 BallView::BallView() {
@@ -90,9 +88,7 @@ BallView::Redraw() {
     glColor4f(1.0F+theBall.GetSpin(), 0.8F+theBall.GetSpin()*0.8F,
 	      -theBall.GetSpin(), 0.0F);
 #endif
-  if ( isLighting ) {
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_yel);
-  }
+  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_yel);
 
   glPushMatrix();
     glTranslatef( (float)theBall.GetX(), (float)theBall.GetY(), (float)theBall.GetZ() );
@@ -151,10 +147,8 @@ BallView::Redraw() {
       t2++;
       if ( t1-10 == t2 ){
 	glColor4f(1.0F, 0.0F, 0.0F, 0.0F);
-	if ( isLighting ) {
-	  const static GLfloat mat_red[] = { 1.0F, 0.0F, 0.0F, 0.0F };
-	  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_red);
-	}
+	const static GLfloat mat_red[] = { 1.0F, 0.0F, 0.0F, 0.0F };
+	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_red);
 	glPushMatrix();
 	glTranslatef( (float)tmpBall->GetX(), (float)tmpBall->GetY(), (float)tmpBall->GetZ() );
 
@@ -165,8 +159,7 @@ BallView::Redraw() {
 	glPopMatrix();
       } else if ( t1 == t2 ){
 	glColor4f(1.0F, 0.8F, 0.0F, 0.0F);
-	if ( isLighting )
-	  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_yel);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_yel);
 	glPushMatrix();
 	glTranslatef( (float)tmpBall->GetX(), (float)tmpBall->GetY(), (float)tmpBall->GetZ() );
 
@@ -177,10 +170,8 @@ BallView::Redraw() {
 	glPopMatrix();
       } else if ( (t2%5) == (t1%5) ){
 	glColor4f(0.8F, 0.8F, 0.8F, 0.0F);
-	if ( isLighting ) {
-	  const static GLfloat mat_white[] = { 0.8F, 0.8F, 0.8F, 0.0F };
-	  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_white);
-	}
+	const static GLfloat mat_white[] = { 0.8F, 0.8F, 0.8F, 0.0F };
+	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_white);
 	glPushMatrix();
 	glTranslatef( (float)tmpBall->GetX(), (float)tmpBall->GetY(), (float)tmpBall->GetZ() );
 

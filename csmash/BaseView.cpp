@@ -35,9 +35,6 @@ extern long mode;
 
 extern Ball theBall;
 
-extern bool isLighting;
-extern bool isPolygon;
-
 long BaseView::m_winWidth = WINXSIZE;
 long BaseView::m_winHeight = WINYSIZE;
 

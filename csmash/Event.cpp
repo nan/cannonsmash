@@ -47,8 +47,6 @@ Event* Event::m_theEvent = NULL;
 
 extern int theSocket;
 
-extern bool isWaiting;
-
 extern long wins;
 
 extern bool isComm;
@@ -172,9 +170,6 @@ Event::IdleFunc() {
       m_lastTime.time++;
       m_lastTime.millitm -= 1000;
     }
-  }
-
-  if ( isWaiting ) {
   }
 
   if ( mode == MODE_MULTIPLAY ) {

@@ -51,6 +51,8 @@ extern void QuitGame();
 extern int listenSocket;
 extern int one;
 
+bool isWaiting = false;		// waiting for opponent player on the internet
+
 // dirty... used by "QP"
 long score1 = 0;
 long score2 = 0;

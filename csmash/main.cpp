@@ -43,11 +43,6 @@ Player *comPlayer = NULL;
 int theSocket = -1;
 bool isComm = false;		// Network Play?
 
-bool isLighting	= true;
-bool isPolygon	= true;
-
-bool isWaiting = false;		// waiting for opponent player on the internet
-
 long wins	= 0;
 
 RCFile *theRC = RCFile::GetRCFile();

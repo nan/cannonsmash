@@ -23,8 +23,6 @@
 
 extern RCFile *theRC;
 
-extern bool isLighting;
-
 FieldView::FieldView() {
 }
 
@@ -212,37 +210,35 @@ FieldView::Redraw() {
       glVertex3f(  AREAXSIZE*2, -AREAYSIZE*2, AREAZSIZE);
     glEnd();
 
-    if ( isLighting ) {
-      glColor4f(0.0F, 0.2F, 0.0F, 0.0F);
-      static GLfloat mat_board[] = { 0.0F, 0.2F, 0.0F, 0.0F };
-      glMaterialfv(GL_FRONT, GL_SPECULAR, mat_board);
+    glColor4f(0.0F, 0.2F, 0.0F, 0.0F);
+    static GLfloat mat_board[] = { 0.0F, 0.2F, 0.0F, 0.0F };
+    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_board);
 
-      glBegin(GL_QUADS);			// Draw ball stopper
-        glNormal3f( 1.0F, 0.0F, 0.0F );
-	glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, 0.0F );
-	glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, 0.0F );
-	glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
-	glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
+    glBegin(GL_QUADS);			// Draw ball stopper
+      glNormal3f( 1.0F, 0.0F, 0.0F );
+      glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, 0.0F );
+      glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, 0.0F );
+      glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
+      glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
 
-	glNormal3f( -1.0F, 0.0F, 0.0F );
-	glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, 0.0F );
-	glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, 0.0F );
-	glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
-	glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
+      glNormal3f( -1.0F, 0.0F, 0.0F );
+      glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, 0.0F );
+      glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, 0.0F );
+      glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
+      glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
 
-	glNormal3f( 0.0F, -1.0F, 0.0F );
-	glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, 0.0F );
-	glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, 0.0F );
-	glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
-	glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
+      glNormal3f( 0.0F, -1.0F, 0.0F );
+      glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, 0.0F );
+      glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, 0.0F );
+      glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
+      glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
 
-	glNormal3f( 0.0F, 1.0F, 0.0F );
-	glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, 0.0F );
-	glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, 0.0F );
-	glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
-	glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
-      glEnd();
-    }
+      glNormal3f( 0.0F, 1.0F, 0.0F );
+      glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, 0.0F );
+      glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, 0.0F );
+      glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
+      glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
+    glEnd();
   }
 
   glColor4f(0.4F, 0.4F, 0.4F, 0.0F);
@@ -346,7 +342,7 @@ FieldView::RedrawAlpha() {
 
   glDepthMask(0);
   glBegin(GL_QUADS);			// Draw table
-  if ( isLighting && theRC->gmode != GMODE_SIMPLE ) {
+  if ( theRC->gmode != GMODE_SIMPLE ) {
     glNormal3f( 0.0F, 0.0F, -1.0 );
     glVertex3f( -TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
     glVertex3f( -TABLEWIDTH/2,  TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
@@ -389,40 +385,38 @@ FieldView::RedrawAlpha() {
   static GLfloat mat_default[] = { 0.0F, 0.0F, 0.0F, 1.0F };
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_default);
 
-  if ( isLighting ) {
-    glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+  glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-    glBegin(GL_QUADS);		// Draw white line
-      glNormal3f( 0.0F, 0.0F, 1.0F );
-      glVertex3f( -TABLEWIDTH/2,       TABLELENGTH/2, TABLEHEIGHT );
-      glVertex3f( -TABLEWIDTH/2,      -TABLELENGTH/2, TABLEHEIGHT );
-      glVertex3f( -TABLEWIDTH/2+0.02F, -TABLELENGTH/2+0.02F, TABLEHEIGHT );
-      glVertex3f( -TABLEWIDTH/2+0.02F,  TABLELENGTH/2-0.02F, TABLEHEIGHT );
+  glBegin(GL_QUADS);		// Draw white line
+    glNormal3f( 0.0F, 0.0F, 1.0F );
+    glVertex3f( -TABLEWIDTH/2,       TABLELENGTH/2, TABLEHEIGHT );
+    glVertex3f( -TABLEWIDTH/2,      -TABLELENGTH/2, TABLEHEIGHT );
+    glVertex3f( -TABLEWIDTH/2+0.02F, -TABLELENGTH/2+0.02F, TABLEHEIGHT );
+    glVertex3f( -TABLEWIDTH/2+0.02F,  TABLELENGTH/2-0.02F, TABLEHEIGHT );
 
-      glNormal3f( 0.0F, 0.0F, 1.0F );
-      glVertex3f( -TABLEWIDTH/2,      -TABLELENGTH/2, TABLEHEIGHT );
-      glVertex3f(  TABLEWIDTH/2,      -TABLELENGTH/2, TABLEHEIGHT );
-      glVertex3f(  TABLEWIDTH/2-0.02F, -TABLELENGTH/2+0.02F, TABLEHEIGHT );
-      glVertex3f( -TABLEWIDTH/2+0.02F, -TABLELENGTH/2+0.02F, TABLEHEIGHT );
+    glNormal3f( 0.0F, 0.0F, 1.0F );
+    glVertex3f( -TABLEWIDTH/2,      -TABLELENGTH/2, TABLEHEIGHT );
+    glVertex3f(  TABLEWIDTH/2,      -TABLELENGTH/2, TABLEHEIGHT );
+    glVertex3f(  TABLEWIDTH/2-0.02F, -TABLELENGTH/2+0.02F, TABLEHEIGHT );
+    glVertex3f( -TABLEWIDTH/2+0.02F, -TABLELENGTH/2+0.02F, TABLEHEIGHT );
 
-      glNormal3f( 0.0F, 0.0F, 1.0F );
-      glVertex3f(  TABLEWIDTH/2,      -TABLELENGTH/2, TABLEHEIGHT );
-      glVertex3f(  TABLEWIDTH/2,       TABLELENGTH/2, TABLEHEIGHT );
-      glVertex3f(  TABLEWIDTH/2-0.02F,  TABLELENGTH/2-0.02F, TABLEHEIGHT );
-      glVertex3f(  TABLEWIDTH/2-0.02F, -TABLELENGTH/2+0.02F, TABLEHEIGHT );
+    glNormal3f( 0.0F, 0.0F, 1.0F );
+    glVertex3f(  TABLEWIDTH/2,      -TABLELENGTH/2, TABLEHEIGHT );
+    glVertex3f(  TABLEWIDTH/2,       TABLELENGTH/2, TABLEHEIGHT );
+    glVertex3f(  TABLEWIDTH/2-0.02F,  TABLELENGTH/2-0.02F, TABLEHEIGHT );
+    glVertex3f(  TABLEWIDTH/2-0.02F, -TABLELENGTH/2+0.02F, TABLEHEIGHT );
 
-      glNormal3f( 0.0F, 0.0F, 1.0F );
-      glVertex3f(  TABLEWIDTH/2,       TABLELENGTH/2, TABLEHEIGHT );
-      glVertex3f( -TABLEWIDTH/2,       TABLELENGTH/2, TABLEHEIGHT );
-      glVertex3f( -TABLEWIDTH/2+0.02F,  TABLELENGTH/2-0.02F, TABLEHEIGHT );
-      glVertex3f(  TABLEWIDTH/2-0.02F,  TABLELENGTH/2-0.02F, TABLEHEIGHT );
-    glEnd();
+    glNormal3f( 0.0F, 0.0F, 1.0F );
+    glVertex3f(  TABLEWIDTH/2,       TABLELENGTH/2, TABLEHEIGHT );
+    glVertex3f( -TABLEWIDTH/2,       TABLELENGTH/2, TABLEHEIGHT );
+    glVertex3f( -TABLEWIDTH/2+0.02F,  TABLELENGTH/2-0.02F, TABLEHEIGHT );
+    glVertex3f(  TABLEWIDTH/2-0.02F,  TABLELENGTH/2-0.02F, TABLEHEIGHT );
+  glEnd();
 
-    glBegin(GL_LINES);
-      glVertex3f( 0.0F, -TABLELENGTH/2, TABLEHEIGHT );
-      glVertex3f( 0.0F,  TABLELENGTH/2, TABLEHEIGHT );
-    glEnd();
-  }
+  glBegin(GL_LINES);
+    glVertex3f( 0.0F, -TABLELENGTH/2, TABLEHEIGHT );
+    glVertex3f( 0.0F,  TABLELENGTH/2, TABLEHEIGHT );
+  glEnd();
 
   glColor4f(0.0F, 0.2F, 0.0F, 0.9F);
 
@@ -437,18 +431,16 @@ FieldView::RedrawAlpha() {
   glEnd();
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_default);
 
-  if ( isLighting ) {
-    glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+  glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-    glBegin(GL_QUADS);
-      glNormal3f( 0.0F, 1.0F, 0.0F );
-      glVertex3f( -TABLEWIDTH/2-NETHEIGHT, 0.0F, TABLEHEIGHT+NETHEIGHT );
-      glVertex3f( -TABLEWIDTH/2-NETHEIGHT, 0.0F, TABLEHEIGHT+NETHEIGHT-0.01F );
-      glVertex3f(  TABLEWIDTH/2+NETHEIGHT, 0.0F, TABLEHEIGHT+NETHEIGHT-0.01F );
-      glVertex3f(  TABLEWIDTH/2+NETHEIGHT, 0.0F, TABLEHEIGHT+NETHEIGHT );
-    glEnd();
-    glColor4f( 0.2F, 1.0F, 0.2F, 1.0F );	// Why? But my RIVA128 need it.
-  }
+  glBegin(GL_QUADS);
+    glNormal3f( 0.0F, 1.0F, 0.0F );
+    glVertex3f( -TABLEWIDTH/2-NETHEIGHT, 0.0F, TABLEHEIGHT+NETHEIGHT );
+    glVertex3f( -TABLEWIDTH/2-NETHEIGHT, 0.0F, TABLEHEIGHT+NETHEIGHT-0.01F );
+    glVertex3f(  TABLEWIDTH/2+NETHEIGHT, 0.0F, TABLEHEIGHT+NETHEIGHT-0.01F );
+    glVertex3f(  TABLEWIDTH/2+NETHEIGHT, 0.0F, TABLEHEIGHT+NETHEIGHT );
+  glEnd();
+  glColor4f( 0.2F, 1.0F, 0.2F, 1.0F );	// Why? But my RIVA128 need it.
 
 //  glBlendFunc(GL_ONE, GL_SRC_ALPHA);
 

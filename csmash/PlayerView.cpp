@@ -26,9 +26,6 @@
 
 extern RCFile *theRC;
 
-extern bool isPolygon;
-extern bool isLighting;
-
 extern SDL_mutex *loadMutex;
 
 partsmotion *PlayerView::motion_Fnormal = NULL;
@@ -98,12 +95,8 @@ PlayerView::Redraw() {
   static GLfloat mat_green[] = { 0.1F, 0.1F, 0.1F, 1.0F };
 
   if ( m_player == comPlayer ) {
-    if ( isLighting ) {
-      glColor4f( 0.4F, 0.4F, 0.4F, 0.0F );
-      glMaterialfv(GL_FRONT, GL_SPECULAR, mat_green);
-    } else {
-      glColor4f( 0.3F, 0.3F, 0.3F, 1.0F );
-    }
+    glColor4f( 0.4F, 0.4F, 0.4F, 0.0F );
+    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_green);
 
     return SubRedraw();
   }
@@ -116,15 +109,11 @@ PlayerView::RedrawAlpha() {
   static GLfloat mat_black[] = { 0.0F, 0.0F, 0.0F, 1.0F };
 
   if ( m_player == thePlayer ) {
-    if ( isLighting ) {
-      if ( theRC->isWireFrame ) {
-	glColor4f( 1.0F, 1.0F, 1.0F, 1.0F );
-      } else {
-	glColor4f( 0.05F, 0.05F, 0.05F, 1.0F );
-	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_black);
-      }
+    if ( theRC->isWireFrame ) {
+      glColor4f( 1.0F, 1.0F, 1.0F, 1.0F );
     } else {
-      glColor4f( 0.1F, 0.1F, 0.1F, 1.0F );
+      glColor4f( 0.05F, 0.05F, 0.05F, 1.0F );
+      glMaterialfv(GL_FRONT, GL_SPECULAR, mat_black);
     }
 
     return SubRedraw();
@@ -140,155 +129,71 @@ PlayerView::SubRedraw() {
   double ydiff;
 
   glPushMatrix();
-  if ( isPolygon )
-    glTranslatef( m_player->GetX()-0.3F*m_player->GetSide(),
-		  m_player->GetY(), 0 );
-  else
-    glTranslatef( m_player->GetX()-0.3F*m_player->GetSide(),
-		  m_player->GetY(), m_player->GetZ() );
+  glTranslatef( m_player->GetX()-0.3F*m_player->GetSide(),
+		m_player->GetY(), 0 );
 
   glRotatef( -atan2( m_player->GetTargetX()-m_player->GetX(),
 		     m_player->GetTargetY()-m_player->GetY() )*180/3.141592F, 
 	     0.0F, 0.0F, 1.0F );
 
-  if ( isPolygon ) {
-    int swing;
-    partsmotion *motion;
+  int swing;
+  partsmotion *motion;
 
-    swing = m_player->GetSwing();
-    switch( m_player->GetSwingType() ) {
-    case SWING_NORMAL:
-      if ( m_player->ForeOrBack() )
-	motion = m_Fnormal;
-      else
-	motion = m_Bnormal;
-      break;
-    case SWING_POKE:
-      if ( m_player->ForeOrBack() )
-	motion = m_Fpeck ? m_Fpeck : m_Fnormal;
-      else
-	motion = m_Bpeck ? m_Bpeck : m_Bnormal;
-      break;
-    case SWING_SMASH:
-      if ( m_player->ForeOrBack() )
-	motion = m_Fsmash ? m_Fsmash : m_Fnormal;
-      else
-	motion = m_Bsmash ? m_Bsmash : m_Bnormal;
-      break;
-    case SWING_DRIVE:
-      if ( m_player->ForeOrBack() )
-	motion = m_Fdrive ? m_Fdrive : m_Fnormal;
-      else
-	motion = m_Bdrive ? m_Bdrive : m_Bnormal;
-      break;
-    case SWING_CUT:
-      if ( m_player->ForeOrBack() )
-	motion = m_Fcut ? m_Fcut : m_Fnormal;
-      else
-	motion = m_Bcut ? m_Bcut : m_Bnormal;
-      break;
-    default:
-      return false;
-    }
-
-    if ( theRC->gmode == GMODE_SIMPLE )
-      motion->renderWire(swing);
-    else {
-      if (m_player == comPlayer) {
-	motion->render(swing);
-      }
-      if (m_player == thePlayer) {
-	if ( theRC->isWireFrame )
-	  motion->renderWire(swing);
-	else {
-	  glEnable(GL_CULL_FACE);
-	  glDisable(GL_DEPTH_TEST);
-	  glDepthMask(0);
-	  motion->render(swing);
-	  glDepthMask(1);
-	  glEnable(GL_DEPTH_TEST);
-	  glDisable(GL_CULL_FACE);
-	}
-      }
-    }
-
-
-  } else {
-    m_player->GetShoulder( x, y, deg );
-
-    glTranslatef( -0.15F, 0.0F, 0.0F );
-
-    // Head
-    glPushMatrix();
-    glTranslatef( x, 0.0F, 0.0F );
-    if ( m_player->GetSide() < 0 ) {
-      //glutWireSphere( 0.15F, 8, 8 );
-    }
-    glPopMatrix();
-
-    // Body
-    glRotatef( deg, 0.0F, 0.0F, 1.0F );
-
-    // On the table
-    if ( m_player->GetY() > -TABLELENGTH/2 &&
-	 m_player->GetY() <= -TABLELENGTH/2+0.5 &&
-	 m_player->GetX() > -TABLEWIDTH/2 &&
-	 m_player->GetX() < TABLEWIDTH/2 )
-      ydiff = -m_player->GetY() - TABLELENGTH/2;
-    else if ( m_player->GetY() < TABLELENGTH/2 &&
-	      m_player->GetY() >= TABLELENGTH/2-0.5 &&
-	      m_player->GetX() > -TABLEWIDTH/2 &&
-	      m_player->GetX() < TABLEWIDTH/2 )
-      ydiff = m_player->GetY() - TABLELENGTH/2;
+  swing = m_player->GetSwing();
+  switch( m_player->GetSwingType() ) {
+  case SWING_NORMAL:
+    if ( m_player->ForeOrBack() )
+      motion = m_Fnormal;
     else
-      ydiff = 0.0;
+      motion = m_Bnormal;
+    break;
+  case SWING_POKE:
+    if ( m_player->ForeOrBack() )
+      motion = m_Fpeck ? m_Fpeck : m_Fnormal;
+    else
+      motion = m_Bpeck ? m_Bpeck : m_Bnormal;
+    break;
+  case SWING_SMASH:
+    if ( m_player->ForeOrBack() )
+      motion = m_Fsmash ? m_Fsmash : m_Fnormal;
+    else
+      motion = m_Bsmash ? m_Bsmash : m_Bnormal;
+    break;
+  case SWING_DRIVE:
+    if ( m_player->ForeOrBack() )
+      motion = m_Fdrive ? m_Fdrive : m_Fnormal;
+    else
+      motion = m_Bdrive ? m_Bdrive : m_Bnormal;
+    break;
+  case SWING_CUT:
+    if ( m_player->ForeOrBack() )
+      motion = m_Fcut ? m_Fcut : m_Fnormal;
+    else
+      motion = m_Bcut ? m_Bcut : m_Bnormal;
+    break;
+  default:
+    return false;
+  }
 
-    glBegin(GL_LINE_LOOP);
-      glVertex3f( 0.15F, ydiff, -0.15F-0.3F+y );
-      glVertex3f( -0.15F, ydiff, -0.15F-0.3F+y );
-      glVertex3f( -0.15F+x, 0.0F, 0.15F-0.3F+y );
-      glVertex3f( 0.15F+x, 0.0F, 0.15F-0.3F+y );
-    glEnd();
-
-    // Left arm
-    glBegin(GL_LINE_STRIP);
-      glVertex3f( -0.15F+x, 0.0F, 0.15F-0.3F+y );
-      glVertex3f( -0.15F-0.10F+x, 0.0F, 0.15F-0.3F-0.25F+y );
-      glVertex3f( -0.15F-0.10F+x, 0.30F, 0.15F-0.3F-0.25F+y );
-    glEnd();
-
-    // Right arm
-    // origin = right shoulder
-    glTranslatef( 0.15F+x, 0.0F, -0.15F+y );
-
-    m_player->GetElbow( degx, degy );
-    glRotatef( degx, 1.0F, 0.0F, 0.0F );
-    glRotatef( degy, 0.0F, 1.0F, 0.0F );
-
-    glBegin(GL_LINE_STRIP);
-      glVertex3f( 0.0F, 0.0F, 0.0F );
-      glVertex3f( 0.0F, 0.0F, -UPPERARM );
-    glEnd();
-
-    glTranslatef( 0.0F, 0.0F, -UPPERARM );
-
-    m_player->GetHand( degx, degy, degz );
-    glRotatef( degz, 0.0F, 0.0F, 1.0F );
-    glRotatef( degx, 1.0F, 0.0F, 0.0F );
-    glRotatef( degy, 0.0F, 1.0F, 0.0F );
-
-    glBegin(GL_LINE_STRIP);
-      glVertex3f( 0.0F, 0.0F, 0.0F );
-      glVertex3f( 0.0F, FOREARM, 0.0F );
-    glEnd();
-
-    // Racket
-    glBegin(GL_LINE_LOOP);
-      glVertex3f( 0.0F, FOREARM, -0.05F );
-      glVertex3f( 0.0F, FOREARM, 0.05F );
-      glVertex3f( 0.0F, FOREARM+0.2F, 0.05F );
-      glVertex3f( 0.0F, FOREARM+0.2F, -0.05F );
-    glEnd();
+  if ( theRC->gmode == GMODE_SIMPLE )
+    motion->renderWire(swing);
+  else {
+    if (m_player == comPlayer) {
+      motion->render(swing);
+    }
+    if (m_player == thePlayer) {
+      if ( theRC->isWireFrame )
+	motion->renderWire(swing);
+      else {
+	glEnable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(0);
+	motion->render(swing);
+	glDepthMask(1);
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+      }
+    }
   }
 
   glPopMatrix();
@@ -296,10 +201,8 @@ PlayerView::SubRedraw() {
   // Target
   glColor4f( 0.5F, 0.0F, 0.0F, 1.0F );
 
-  if ( isLighting ) {
-    static GLfloat mat_default[] = { 0.0F, 0.0F, 0.0F, 1.0F };
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_default);
-  }
+  static GLfloat mat_default[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_default);
 
   if ( m_player == thePlayer ) {
     double targetX, targetY;
