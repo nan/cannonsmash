@@ -817,12 +817,18 @@ Ball::getTimeToReachTarget( vector2d target, double velocity, vector2d spin, vec
     v[0] = target[0]/target.len()*velocity;
     v[1] = target[1]/target.len()*velocity;
 
-    return -LOG(1-PHY*target.len()/velocity) / PHY;
+    if ( 1-PHY*target.len()/velocity < 0 ) {	// Never reaches the target
+      return 100000;
+    }
+    return -LOG(1-PHY*target.len()/velocity)/PHY;
   } else {
     double theta = asin(target.len()*spin[0]/(2*velocity));
     v[0] = target[0]/target.len()*velocity*cos(-theta) - target[1]/target.len()*velocity*sin(-theta);
     v[1] = target[0]/target.len()*velocity*sin(-theta) + target[1]/target.len()*velocity*cos(-theta);
 
+    if ( 1-2*PHY/spin[0]*theta < 0 ) {	// Never reaches the target
+      return 100000;
+    }
     return -LOG(1-2*PHY/spin[0]*theta)/PHY;
   }
 }
