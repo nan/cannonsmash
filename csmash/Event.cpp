@@ -778,13 +778,15 @@ Event::ReadSelectData() {
 
 void
 Event::ClearBacktrack() {
+  Ball aBall;
+
   for ( int i = 0 ; i < MAX_HISTORY ; i++ ) {
     Event::TheEvent()->m_MouseXHistory[i] = 0;
     Event::TheEvent()->m_MouseYHistory[i] = 0;
     Event::TheEvent()->m_MouseBHistory[i] = 0;
     Event::TheEvent()->m_BacktrackBuffer[i].sec = m_lastTime.time;
     Event::TheEvent()->m_BacktrackBuffer[i].count = m_lastTime.millitm/10;
-    Event::TheEvent()->m_BacktrackBuffer[i].theBall = theBall;
+    Event::TheEvent()->m_BacktrackBuffer[i].theBall = aBall;
     CopyPlayerData( Event::TheEvent()->m_BacktrackBuffer[i].thePlayer, 
 		    Control::GetThePlayer() );
     CopyPlayerData( Event::TheEvent()->m_BacktrackBuffer[i].comPlayer,
