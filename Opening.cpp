@@ -52,7 +52,6 @@ Opening::~Opening() {
     kill ( m_pid, SIGKILL );
   }
 #endif
-
 }
 
 bool
@@ -80,6 +79,9 @@ Opening::Init() {
 
 #ifdef HAVE_LIBESD
   m_pid = theSound.InitBGM( SOUND_OPENING );
+#endif
+#ifdef WIN32
+  theSound.InitBGM( SOUND_OPENING );
 #endif
 
   return true;
