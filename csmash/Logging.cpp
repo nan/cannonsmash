@@ -22,6 +22,7 @@
 #include "Event.h"
 #include "Ball.h"
 #include "Player.h"
+#include "Network.h"
 #include "Logging.h"
 
 Logging* Logging::m_logging = NULL;
@@ -270,8 +271,11 @@ Logging::LogRecvPTMessage( ExternalPTData *pt ) {
             "recv PT: %d.%3d ", (int)pt->sec, (int)pt->count );
   Log( LOG_COMMISC, buf );
 
-  snprintf( buf, sizeof(buf), "fixed=%d type=%d\n", pt->data[0],
-	    *((long *)(&(pt->data[1]))) );
+  long rotate;
+  ReadLong( &(pt->data[1]), rotate );
+
+  snprintf( buf, sizeof(buf), "fixed=%d type=%ld\n", pt->data[0],
+	    rotate );
   Log( LOG_COMMISC, buf );
 
   return true;

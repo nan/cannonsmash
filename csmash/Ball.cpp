@@ -570,22 +570,23 @@ Ball::BallDead() {
     if ( Control::TheControl()->IsPlaying() && &theBall == this ) {
       ((PlayGame *)Control::TheControl())->ChangeScore();
 
-      if ( mode == MODE_MULTIPLAY ) {
-	if ( (Control::TheControl()->GetThePlayer()->GetSide() > 0 && m_status == 3) ||
-	     (Control::TheControl()->GetThePlayer()->GetSide() < 0 && m_status == 1) ) {
-	  m_status = -1;
-	  Event::TheEvent()->SendBall();
-	  if ( LobbyClient::TheLobbyClient() )
-	    LobbyClient::TheLobbyClient()->
-	      SendSC( ((PlayGame *)Control::TheControl())->GetScore(1), 
-		      ((PlayGame *)Control::TheControl())->GetScore(-1) );
-	}
+      m_status = -1;
+
+      if ( mode == MODE_MULTIPLAY &&
+	   Control::TheControl()->GetThePlayer()->GetSide() > 0 ) {
+	Event::TheEvent()->SendBall();
+
+	if ( LobbyClient::TheLobbyClient() )
+	  LobbyClient::TheLobbyClient()->
+	    SendSC( ((PlayGame *)Control::TheControl())->GetScore(1), 
+		    ((PlayGame *)Control::TheControl())->GetScore(-1) );
       }
     }
 
     m_status = -1;
   }
 }
+
 
 char *
 Ball::Send( char *buf ) {
