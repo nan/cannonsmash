@@ -155,10 +155,12 @@ ReadTime( int sd, struct timeb* tb ) {
   char buf[256];
   long len;
 
-  if ( recv( sd, buf, 2, 0 ) != 2 ) {
-    xerror("%s(%d) recv", __FILE__, __LINE__);
-    throw NetworkError();
+  len = 0;
+  while (1) {
+    if ( (len+=recv( sd, buf+len, 2-len, 0 )) == 2 )
+      break;
   }
+
   len = 0;
   while (1) {
     if ( (len+=recv( sd, buf+len, 8-len, 0 )) == 8 )
@@ -259,9 +261,10 @@ ReadBI() {
   char buf[256];
 
   // Read Ball Data
-  if ( recv( theSocket, buf, 2, 0 ) != 2 ) {
-    xerror("%s(%d) recv", __FILE__, __LINE__);
-    throw NetworkError();
+  len = 0;
+  while (1) {
+    if ( (len+=recv( theSocket, buf+len, 2-len, 0 )) == 2 )
+      break;
   }
 
   if ( strncmp( buf, "BI", 2 ) ) {
