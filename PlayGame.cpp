@@ -99,7 +99,7 @@ PlayGame::ChangeScore() {
     }
   }
 
-  printf( "%d %d\n", m_Score1, m_Score2 );
+  printf( "%d %d\n", GetScore(thePlayer), GetScore(comPlayer) );
 }
 
 void
