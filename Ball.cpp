@@ -27,8 +27,6 @@ extern BaseView theView;
 extern long mode;
 extern Sound theSound;
 
-extern int theSocket;
-
 extern long gameMode;
 extern long wins;
 
@@ -357,7 +355,7 @@ Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
   }
 
   // 外部Playerはボールに影響を与えない. BVプロトコルを使用する. 
-  if ( player == comPlayer && theSocket >= 0 ) {
+  if ( player == comPlayer && mode == MODE_MULTIPLAY ) {
     return true;
   }
 
@@ -377,9 +375,9 @@ Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
   m_vy = vy;
   m_vz = vz;
 
-  if ( player == thePlayer && theSocket >= 0 ) {
-    theEvent.SendPlayer( theSocket, player );
-    theEvent.SendBall( theSocket );
+  if ( player == thePlayer && mode == MODE_MULTIPLAY ) {
+    theEvent.SendPlayer( player );
+    theEvent.SendBall();
   }
 
   return true;
@@ -394,9 +392,9 @@ Ball::Toss( Player *player , long power ) {
   else
     m_status = 7;
 
-  if ( player == thePlayer && theSocket >= 0 ) {
-    theEvent.SendPlayer( theSocket, player );
-    theEvent.SendBall( theSocket );
+  if ( player == thePlayer && mode == MODE_MULTIPLAY ) {
+    theEvent.SendPlayer( player );
+    theEvent.SendBall();
   }
 
   return true;
@@ -565,7 +563,7 @@ Ball::TargetToVS( double targetX, double targetY, double level, double spin,
 
 void
 Ball::EndGame() {
-  if ( /*mode == MODE_DEMO ||*/ mode == MODE_TITLE || mode == MODE_HOWTO ) {
+  if ( mode == MODE_TITLE || mode == MODE_HOWTO ) {
     mode = MODE_TITLE;
   } else {
     // 再初期化する
@@ -586,7 +584,7 @@ Ball::EndGame() {
 
 void
 Ball::ChangeScore() {
-  if ( mode == MODE_PLAY || /*mode == MODE_DEMO ||*/ mode == MODE_TITLE ){
+  if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY || mode == MODE_TITLE ){
     if ( m_status == 0 || m_status == 3 || m_status == 4 || m_status == 6 ) {
       if ( thePlayer->GetSide() > 0 )
 	m_Score2++;
@@ -638,14 +636,14 @@ Ball::BallDead() {
 
 bool
 Ball::Send( int sd ) {
-  SendDouble( theSocket, m_x );
-  SendDouble( theSocket, m_y );
-  SendDouble( theSocket, m_z );
-  SendDouble( theSocket, m_vx );
-  SendDouble( theSocket, m_vy );
-  SendDouble( theSocket, m_vz );
+  SendDouble( sd, m_x );
+  SendDouble( sd, m_y );
+  SendDouble( sd, m_z );
+  SendDouble( sd, m_vx );
+  SendDouble( sd, m_vy );
+  SendDouble( sd, m_vz );
 
-  SendDouble( theSocket, m_spin );
-  SendLong( theSocket, m_status );
+  SendDouble( sd, m_spin );
+  SendLong( sd, m_status );
   return true;
 }

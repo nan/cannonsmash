@@ -19,10 +19,6 @@
 #include "ttinc.h"
 
 extern Ball   theBall;
-extern Player *thePlayer;
-
-extern int theSocket;
-extern Event theEvent;
 
 TrainingPenDrive::TrainingPenDrive() : PenDrive() {
 }

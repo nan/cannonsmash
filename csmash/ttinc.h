@@ -76,13 +76,13 @@
 #define MAX_HISTORY (1024)
 
 // モード
-#define MODE_PLAY   (1)		// Play
-#define MODE_SELECT (2)		// Player Select
-#define MODE_DEMO   (3)		// Demo Play
-#define MODE_TITLE  (4)		// Title
-#define MODE_HOWTO  (5)		// How to Play
+#define MODE_SOLOPLAY       (1)	// Play VS COM
+#define MODE_MULTIPLAY      (2)	// Play VS MAN
+#define MODE_SELECT         (3)	// Player Select
+#define MODE_TITLE          (4)	// Title
+#define MODE_HOWTO          (5)	// How to Play
 #define MODE_TRAININGSELECT (6)	// Training Select
-#define MODE_TRAINING (7)	// Training
+#define MODE_TRAINING       (7)	// Training
 
 // サウンド
 #define SOUND_RACKET (0)

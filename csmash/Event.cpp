@@ -37,8 +37,6 @@ extern bool isLighting;
 extern bool isFog;
 extern bool isTexture;
 extern bool isPolygon;
-extern long winWidth;
-extern long winHeight;
 
 extern long wins;
 
@@ -52,8 +50,8 @@ bool GetExternalData( ExternalData *&ext, int sd, long side );
 
 Event::Event() {
   m_KeyHistory[0] = 0;
-  m_MouseXHistory[0] = winWidth/2;
-  m_MouseYHistory[0] = winHeight/2;
+  m_MouseXHistory[0] = BaseView::GetWinWidth()/2;
+  m_MouseYHistory[0] = BaseView::GetWinHeight()/2;
   m_MouseBHistory[0] = 0;
   m_Histptr = 0;
 
@@ -66,6 +64,7 @@ Event::~Event() {
 bool
 Event::Init() {
   switch ( mode ){
+#if 0
   case MODE_PLAY:
     if (isComm) {
       theControl = MultiPlay::Create( 0, RAND(2) );
@@ -73,6 +72,14 @@ Event::Init() {
       theControl = SoloPlay::Create( 0, RAND(2) );
     }
     break;
+#else
+  case MODE_SOLOPLAY:
+    theControl = SoloPlay::Create( 0, RAND(2) );
+    break;
+  case MODE_MULTIPLAY:
+    theControl = MultiPlay::Create( 0, RAND(2) );
+    break;
+#endif
   case MODE_SELECT:
     theControl = PlayerSelect::Create();
     break;
@@ -166,7 +173,7 @@ Event::IdleFunc() {
     }
   }
 
-  if ( theSocket >= 0 )
+  if ( mode == MODE_MULTIPLAY )
     theEvent.ReadData();
 
   if ( mode != MODE_TITLE )
@@ -188,7 +195,8 @@ Event::Move() {
   if ( mode != preMode ){	// モード変更あり
     long p;
 
-    switch ( mode ){
+    switch ( mode ) {
+#if 0
     case MODE_PLAY:
       p = ((PlayerSelect *)theControl)->GetPlayerNum();
       if (isComm) {
@@ -197,6 +205,16 @@ Event::Move() {
 	theControl = SoloPlay::Create( p, (p+wins+1)%PLAYERS );
       }
       break;
+#else
+    case MODE_SOLOPLAY:
+      p = ((PlayerSelect *)theControl)->GetPlayerNum();
+      theControl = SoloPlay::Create( p, (p+wins+1)%PLAYERS );
+      break;
+    case MODE_MULTIPLAY:
+      p = ((PlayerSelect *)theControl)->GetPlayerNum();
+      theControl = MultiPlay::Create( p, 0 );
+      break;
+#endif
     case MODE_SELECT:
       theControl = PlayerSelect::Create();
       break;
@@ -237,7 +255,7 @@ Event::Record() {
   if ( m_Histptr == MAX_HISTORY )
     m_Histptr = 0;
 
-  if ( mode == MODE_PLAY && theControl && !isComm &&
+  if ( mode == MODE_SOLOPLAY && theControl &&
        ((SoloPlay *)theControl)->GetSmashPtr() >= 0 )
     return;
 
@@ -246,11 +264,14 @@ Event::Record() {
     m_MouseXHistory[m_Histptr] = x;
     m_MouseYHistory[m_Histptr] = y;
   } else if ( mode == MODE_SELECT || mode == MODE_TRAININGSELECT ) {
-    m_MouseXHistory[m_Histptr] = winWidth/2 + (x-winWidth/2)*15/16;
+    m_MouseXHistory[m_Histptr] = BaseView::GetWinWidth()/2 +
+      (x-BaseView::GetWinWidth()/2)*15/16;
     m_MouseYHistory[m_Histptr] = y;
   } else {
-    m_MouseXHistory[m_Histptr] = winWidth/2 + (x-winWidth/2)*15/16;
-    m_MouseYHistory[m_Histptr] = winHeight/2 + (y-winHeight/2)*15/16;
+    m_MouseXHistory[m_Histptr] = BaseView::GetWinWidth()/2 +
+      (x-BaseView::GetWinWidth()/2)*15/16;
+    m_MouseYHistory[m_Histptr] = BaseView::GetWinHeight()/2 +
+      (y-BaseView::GetWinHeight()/2)*15/16;
   }
   m_MouseBHistory[m_Histptr] = btn;
 
@@ -403,40 +424,40 @@ GetExternalData( ExternalData *&ext, int sd, long side ) {
 }
 
 bool
-Event::SendSwing( int sd, Player *player ) {
-  if ( m_backtrack || mode != MODE_PLAY )
+Event::SendSwing( Player *player ) {
+  if ( m_backtrack || mode != MODE_MULTIPLAY )
     return false;
 
-  send( sd, "PS", 2, 0 );
-  SendTime( sd );
+  send( theSocket, "PS", 2, 0 );
+  SendTime( theSocket );
 
-  player->SendSwing( sd );
+  player->SendSwing( theSocket );
 
   return true;
 }
 
 bool
-Event::SendPlayer( int sd, Player *player ) {
-  if ( m_backtrack || mode != MODE_PLAY )
+Event::SendPlayer( Player *player ) {
+  if ( m_backtrack || mode != MODE_MULTIPLAY )
     return false;
 
-  send( sd, "PV", 2, 0 );
-  SendTime( sd );
+  send( theSocket, "PV", 2, 0 );
+  SendTime( theSocket );
 
-  player->SendLocation( sd );
+  player->SendLocation( theSocket );
 
   return true;
 }
 
 bool
-Event::SendBall( int sd ) {
-  if ( m_backtrack || mode != MODE_PLAY )
+Event::SendBall() {
+  if ( m_backtrack || mode != MODE_MULTIPLAY )
     return false;
 
-  send( sd, "BV", 2, 0 );
-  SendTime( sd );
+  send( theSocket, "BV", 2, 0 );
+  SendTime( theSocket );
 
-  theBall.Send( sd );
+  theBall.Send( theSocket );
 
   return true;
 }
@@ -446,7 +467,7 @@ Event::ClearObject() {
   if ( thePlayer && wins == 0 ) {
     delete thePlayer;
     thePlayer = NULL;
-    if ( theSocket != -1 ) {
+    if ( theSocket >= 0 ) {
       send( theSocket, "QT", 2, 0 );
       closesocket( theSocket );
       theSocket = -1;

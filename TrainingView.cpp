@@ -19,7 +19,6 @@
 #include "ttinc.h"
 
 extern Ball   theBall;
-//extern long trainingCount;
 
 TrainingView::TrainingView() {
 }

@@ -29,6 +29,7 @@ public:
   bool Init();
 
   static void DisplayFunc();
+  static void ReshapeFunc( int width, int height );
 
   bool RedrawAll();
   bool Redraw();
@@ -39,11 +40,17 @@ public:
   bool RemoveView( View *view );
 
   void EndGame();
+
+  static long GetWinWidth() { return m_winWidth; };
+  static long GetWinHeight() { return m_winHeight; };
 protected:
   double         m_centerX;
   double         m_centerY;
   double         m_centerZ;
   View           *m_View;
+
+  static long    m_winWidth;
+  static long    m_winHeight;
 
   GLuint       m_offset;
   GLuint       m_floor;

@@ -23,7 +23,6 @@ extern Player *thePlayer;
 extern Player *comPlayer;
 
 extern long    gameLevel;
-//extern long    trainingCount;
 
 ComTrainingPenAttack::ComTrainingPenAttack() : ComPenAttack() {
 }

@@ -21,8 +21,8 @@
 extern Ball   theBall;
 extern Player *thePlayer;
 
-extern int theSocket;
 extern Event theEvent;
+extern long mode;
 
 PenAttack::PenAttack() {
   m_playerType = PLAYER_PENATTACK;
@@ -94,8 +94,8 @@ PenAttack::Swing( long spin ) {
 
   delete tmpBall;
 
-  if ( thePlayer == this && theSocket >= 0 )
-    theEvent.SendSwing( theSocket, this );
+  if ( thePlayer == this && mode == MODE_MULTIPLAY )
+    theEvent.SendSwing( this );
 
   return true;
 }
@@ -124,8 +124,8 @@ PenAttack::StartSwing( long spin ) { // 引数はサーブ時のみ有効
 	(theBall.GetStatus() == 7 && m_side == -1) ){	// サーブ
       m_swingType = SWING_POKE;
       m_spin = -spin*0.25;
-      if ( thePlayer == this && theSocket >= 0 )
-	theEvent.SendSwing( theSocket, this );
+      if ( thePlayer == this && mode == MODE_MULTIPLAY )
+	theEvent.SendSwing( this );
     } else
       SwingType( tmpBall, spin );
 

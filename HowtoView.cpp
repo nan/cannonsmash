@@ -18,9 +18,6 @@
 
 #include "ttinc.h"
 
-extern long winWidth;
-extern long winHeight;
-
 GLuint HowtoView::m_textures[4] = {0, 0, 0, 0};
 
 HowtoView::HowtoView() {
@@ -160,7 +157,8 @@ HowtoView::RedrawAlpha() {
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
-  gluOrtho2D( 0.0, (GLfloat)winWidth, 0.0, (GLfloat)winHeight );
+  gluOrtho2D( 0.0, (GLfloat)BaseView::GetWinWidth(),
+	      0.0, (GLfloat)BaseView::GetWinHeight() );
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 

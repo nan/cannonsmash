@@ -21,8 +21,6 @@
 extern BaseView theView;
 extern long mode;
 
-extern long winWidth;
-extern long winHeight;
 extern Sound theSound;
 
 extern long gameLevel;
@@ -92,18 +90,21 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   switch ( m_selectMode ) {
   case MENU_MAIN:
-    m_selected = MouseYHistory[Histptr]*GetMenuNum( MENU_MAIN )/winHeight;
+    m_selected = MouseYHistory[Histptr]*GetMenuNum( MENU_MAIN )/
+      BaseView::GetWinHeight();
     break;
   case MENU_CONFIG:
-    if ( MouseXHistory[Histptr] < winWidth/2 ) {
+    if ( MouseXHistory[Histptr] < BaseView::GetWinWidth()/2 ) {
       m_selected = MouseYHistory[Histptr]*
-	GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )/(winHeight-100);
+	GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )/
+	(BaseView::GetWinHeight()-100);
       if ( m_selected >= GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )-1 )
 	m_selected = GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )-2;
     } else {
       m_selected = MouseYHistory[Histptr]*
 	(GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )
-	 +GetMenuNum( MENU_CONFIG, MENU_CONFIG_SOUND ))/(winHeight-100)
+	 +GetMenuNum( MENU_CONFIG, MENU_CONFIG_SOUND ))/
+	(BaseView::GetWinHeight()-100)
 	+GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL );
       if ( m_selected >= GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )+
 	                 GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )+
@@ -113,7 +114,7 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	  GetMenuNum( MENU_CONFIG, MENU_CONFIG_SOUND )-1;
     }
 
-    if ( MouseYHistory[Histptr] > winHeight-100 )
+    if ( MouseYHistory[Histptr] > BaseView::GetWinHeight()-100 )
       m_selected = GetMenuNum( MENU_CONFIG, MENU_ALL )-1;
   }
 

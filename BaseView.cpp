@@ -36,10 +36,11 @@ extern bool isLighting;
 extern bool isFog;
 extern bool isTexture;
 extern bool isPolygon;
-extern long winWidth;
-extern long winHeight;
 
 extern bool isComm;
+
+long BaseView::m_winWidth = WINXSIZE;
+long BaseView::m_winHeight = WINYSIZE;
 
 // x --- x座標軸はネットの底辺とその延長. x=0は, センターラインを含み
 //       台に垂直な平面. 
@@ -62,7 +63,7 @@ BaseView::Init() {
 // Windowの生成, 初期化
   glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH );
 //  glutInitDisplayMode( GLUT_RGBA | GLUT_DEPTH );
-  glutInitWindowSize(winWidth, winHeight);
+  glutInitWindowSize(m_winWidth, m_winHeight);
   glutInitWindowPosition(0, 0);
   glutCreateWindow("CannonSmash");
 
@@ -253,7 +254,7 @@ BaseView::RedrawAll() {
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
-  gluOrtho2D( 0.0, (GLfloat)winWidth, 0.0, (GLfloat)winHeight );
+  gluOrtho2D( 0.0, (GLfloat)m_winWidth, 0.0, (GLfloat)m_winHeight );
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
@@ -265,13 +266,13 @@ BaseView::RedrawAll() {
   glBindTexture(GL_TEXTURE_2D, m_title );
   glBegin(GL_QUADS);
   glTexCoord2f(0.0, 1.0);
-  glVertex2i( winWidth-256, 0 );
+  glVertex2i( m_winWidth-256, 0 );
   glTexCoord2f(1.0, 1.0);
-  glVertex2i( winWidth, 0 );
+  glVertex2i( m_winWidth, 0 );
   glTexCoord2f(1.0, 0.0);
-  glVertex2i( winWidth, 256 );
+  glVertex2i( m_winWidth, 256 );
   glTexCoord2f(0.0, 0.0);
-  glVertex2i( winWidth-256, 256 );
+  glVertex2i( m_winWidth-256, 256 );
   glEnd();
 
   glDisable(GL_TEXTURE_2D);
@@ -626,9 +627,10 @@ BaseView::SetLookAt() {
     destY = m_centerY;
   destZ = m_centerZ;
 
+#if 0
   switch ( mode ){
-  case MODE_PLAY:
-  /*case MODE_DEMO:*/
+  case MODE_SOLOPLAY:
+  case MODE_MULTIPLAY:
   case MODE_TRAINING:
   case MODE_SELECT:
   case MODE_TRAININGSELECT:
@@ -637,6 +639,9 @@ BaseView::SetLookAt() {
     theControl->LookAt( srcX, srcY, srcZ, destX, destY, destZ );
     break;
   }
+#else
+  theControl->LookAt( srcX, srcY, srcZ, destX, destY, destZ );
+#endif
 
   gluLookAt( srcX, srcY, srcZ, destX, destY, destZ, 0.0, 0.0, 0.5 );
   /* 視点, 視線設定. 視点x, y, z, 視点(視線ベクトルの通る点)x, y, z, 
@@ -689,7 +694,7 @@ BaseView::EndGame() {
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
-  gluOrtho2D( 0.0, (GLfloat)winWidth, 0.0, (GLfloat)winHeight );
+  gluOrtho2D( 0.0, (GLfloat)m_winWidth, 0.0, (GLfloat)m_winHeight );
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
@@ -738,4 +743,12 @@ BaseView::EndGame() {
 #else
   sleep(3);
 #endif
+}
+
+void
+BaseView::ReshapeFunc( int width, int height ) {
+  m_winWidth = width;
+  m_winHeight = height;
+
+  glViewport( 0, 0, m_winWidth, m_winHeight );
 }

@@ -25,7 +25,6 @@ extern bool isComm;
 
 extern Player *thePlayer;
 
-extern long winWidth;
 extern Sound theSound;
 
 extern long wins;
@@ -87,7 +86,10 @@ PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
   }
 
   if ( m_selected > 500 ) {
-    mode = MODE_PLAY;
+    if (isComm)
+      mode = MODE_MULTIPLAY;
+    else
+      mode = MODE_SOLOPLAY;
     return true;
   }
 
@@ -99,7 +101,10 @@ PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
       m_selected = 1;
       theSound.Play( SOUND_CLICK );
     } else if ( m_selected > 100 ) {
-      mode = MODE_PLAY;
+      if (isComm)
+	mode = MODE_MULTIPLAY;
+      else
+	mode = MODE_SOLOPLAY;
       return true;
     }
   }
@@ -110,10 +115,10 @@ PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
   }
 
   if ( lastRotate == 0 ) {
-    if ( MouseXHistory[Histptr] - winWidth/2 > 10 ) {
+    if ( MouseXHistory[Histptr] - BaseView::GetWinWidth()/2 > 10 ) {
       nothing = 0;
       lastRotate = 2;
-    } else if ( MouseXHistory[Histptr] - winWidth/2 < -10 ) {
+    } else if ( MouseXHistory[Histptr] - BaseView::GetWinWidth()/2 < -10 ) {
       nothing = 0;
       lastRotate = -2;
     } else

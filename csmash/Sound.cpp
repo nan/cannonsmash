@@ -27,7 +27,7 @@
 #include <io.h>
 #endif
 
-extern int theSocket;
+extern long mode;
 
 Sound::Sound() {
 #ifdef HAVE_LIBESD
@@ -183,7 +183,7 @@ Sound::Init() {
 
 bool
 Sound::Play( char *sndData, long size ) {
-  if ( theSocket < 0 ) {
+  if ( mode != MODE_MULTIPLAY ) {
 #ifdef HAVE_LIBESD
     switch ( m_soundMode ) {
     case SOUND_ESD:
@@ -204,7 +204,7 @@ Sound::Play( char *sndData, long size ) {
 
 bool
 Sound::Play( long soundID ) {
-  if ( theSocket < 0 ) {
+  if ( mode != MODE_MULTIPLAY ) {
 #ifdef WIN32
     char *data;
 

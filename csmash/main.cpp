@@ -18,8 +18,6 @@
 
 #include "ttinc.h"
 
-void Reshape( int width, int height );
-
 void *LoadData( void *dum );
 
 Ball theBall;
@@ -35,16 +33,12 @@ int theSocket = -1;
 bool isComm = false;		// 通信対戦か
 char serverName[256];
 
-bool fullScreen = false;
-
 long timeAdj = 0;
 
 bool isLighting	= true;
 bool isFog	= true;
 bool isTexture	= true;
 bool isPolygon	= true;
-long winWidth	= WINXSIZE;
-long winHeight	= WINYSIZE;
 
 long wins	= 0;		// 勝ち抜き数
 long gameLevel  = LEVEL_NORMAL;	// 強さ
@@ -54,7 +48,6 @@ Control*      theControl = NULL;
 
 long mode = MODE_TITLE;
 
-//long trainingCount = 0;
 #undef HAVE_LIBPTHREAD
 
 #if HAVE_LIBPTHREAD
@@ -84,6 +77,7 @@ int WINAPI WinMain_(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #else
 int main(int argc, char** argv) {
 #endif
+  bool fullScreen = false;
 
     int c;
     while(EOF != (c = getopt(argc, argv, "schf"))) {
@@ -173,25 +167,18 @@ int main(int argc, char** argv) {
   theView.Init();
   theEvent.Init();
 
-  glutReshapeFunc(Reshape);
+  glutReshapeFunc(BaseView::ReshapeFunc);
 
   if (fullScreen) {
     glutFullScreen();
     glutSetCursor( GLUT_CURSOR_NONE );
   }
 
-  glutWarpPointer( winWidth/2, winHeight/2 );
+  //glutWarpPointer( winWidth/2, winHeight/2 );
+  glutWarpPointer( BaseView::GetWinWidth()/2, BaseView::GetWinHeight()/2 );
 
   glutMainLoop();
   return 0;
-}
-
-void
-Reshape( int width, int height ) {
-  winWidth = width;
-  winHeight = height;
-
-  glViewport( 0, 0, winWidth, winHeight );
 }
 
 // 後でSoundもここから追い出して廃止する. 

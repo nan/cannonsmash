@@ -21,11 +21,7 @@
 extern Ball   theBall;
 extern BaseView theView;
 
-extern long winWidth;
-extern long winHeight;
-
 extern Player *thePlayer;
-extern int theSocket;
 extern Event theEvent;
 
 extern long mode;
@@ -350,7 +346,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   // ボールに向かってホーミングするサービス. 
   // 人間にのみ適用. 
-  if ( mode == MODE_PLAY && KeyHistory ) {
+  if ( (mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY) && KeyHistory ) {
     if ( m_swing > 10 && m_swing < 20 ) {
       Ball *tmpBall;
 
@@ -471,7 +467,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   KeyCheck( KeyHistory, MouseXHistory, MouseYHistory, MouseBHistory,Histptr );
 
-  if ( thePlayer == this && theSocket >= 0 ) {
+  if ( thePlayer == this && mode == MODE_MULTIPLAY ) {
     lastSendX += lastSendVX*TICK;
     lastSendY += lastSendVY*TICK;
     lastSendZ += lastSendVZ*TICK;
@@ -479,7 +475,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( fabs(lastSendX-m_x) >= 0.1   || fabs(lastSendY-m_y) >= 0.1 ||
 	 fabs(lastSendZ-m_z) >= 0.1   || fabs(lastSendVX-m_vx) >= 1.0 ||
 	 fabs(lastSendVY-m_vy) >= 1.0 || fabs(lastSendVZ-m_vz) >= 1.0 ) {
-      if ( theEvent.SendPlayer( theSocket, this ) ) {
+      if ( theEvent.SendPlayer( this ) ) {
 	lastSendX = m_x;
 	lastSendY = m_y;
 	lastSendZ = m_z;
@@ -588,8 +584,10 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
     }
   }
 
-  m_vx = (MouseXHistory[Histptr] - winWidth/2) / (winWidth/40)*GetSide();
-  m_vy = -(MouseYHistory[Histptr] - winHeight/2) / (winHeight/40)*GetSide();
+  m_vx = (MouseXHistory[Histptr] - BaseView::GetWinWidth()/2) /
+    (BaseView::GetWinWidth()/40)*GetSide();
+  m_vy = -(MouseYHistory[Histptr] - BaseView::GetWinHeight()/2) /
+    (BaseView::GetWinHeight()/40)*GetSide();
   m_vx /= 4;
   m_vy /= 4;	// 0.25刻み
 

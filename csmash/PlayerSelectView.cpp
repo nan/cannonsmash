@@ -18,8 +18,6 @@
 
 #include "ttinc.h"
 
-extern long winWidth;
-extern long winHeight;
 extern long wins;
 
 extern bool isComm;
@@ -159,7 +157,8 @@ PlayerSelectView::Redraw() {
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    gluOrtho2D( 0.0, (GLfloat)winWidth, 0.0, (GLfloat)winHeight );
+    gluOrtho2D( 0.0, (GLfloat)BaseView::GetWinWidth(),
+		0.0, (GLfloat)BaseView::GetWinHeight() );
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 

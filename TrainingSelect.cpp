@@ -23,7 +23,6 @@ extern long mode;
 
 extern Player *thePlayer;
 
-extern long winWidth;
 extern Sound theSound;
 
 extern long wins;
@@ -98,10 +97,10 @@ TrainingSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
   }
 
   if ( lastRotate == 0 ) {
-    if ( MouseXHistory[Histptr] - winWidth/2 > 10 ) {
+    if ( MouseXHistory[Histptr] - BaseView::GetWinWidth()/2 > 10 ) {
       nothing = 0;
       lastRotate = 2;
-    } else if ( MouseXHistory[Histptr] - winWidth/2 < -10 ) {
+    } else if ( MouseXHistory[Histptr] - BaseView::GetWinWidth()/2 < -10 ) {
       nothing = 0;
       lastRotate = -2;
     } else
@@ -131,7 +130,6 @@ TrainingSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   if ( nothing > 1000 ) {
     nothing = 0;
-    //mode = MODE_DEMO;
     mode = MODE_TITLE;
   }
 
