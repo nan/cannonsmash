@@ -228,7 +228,6 @@ Player::operator=(Player& p) {
   m_dragY = p.m_dragY;
 
   m_View = NULL;
-  m_hitMark = NULL;
 }
 
 Player*
@@ -287,7 +286,8 @@ Player::Init() {
 
   theView->AddView( m_View );
 
-  HitMark::Init();
+  if ( gmode != GMODE_2D )
+    HitMark::Init();
 
   return true;
 }

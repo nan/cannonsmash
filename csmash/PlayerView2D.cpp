@@ -72,6 +72,15 @@ PlayerView2D::SubRedraw() {
     rect.w = m_playerBMP->w;
     rect.h = m_playerBMP->h;
 
+    if ( rect.x > BaseView::GetWinWidth() )
+      rect.x = BaseView::GetWinWidth();
+    if ( rect.x+rect.w > BaseView::GetWinWidth() )
+      rect.w = BaseView::GetWinWidth()-rect.x;
+    if ( rect.y > BaseView::GetWinHeight() )
+      rect.y = BaseView::GetWinHeight();
+    if ( rect.y+rect.h > BaseView::GetWinHeight() )
+      rect.h = BaseView::GetWinHeight()-rect.y;
+
     SDL_BlitSurface(m_playerBMP, NULL, theView->GetSurface(), &rect);
   }
 
@@ -83,21 +92,44 @@ PlayerView2D::GetDamageRect() {
   static SDL_Rect rect = {0, 0, 0, 0};
   if ( m_player->GetY() > -3.5 ) {
     int x, y;
+    SDL_Rect _rect;
 
-    RenderPoint( m_player->GetX(), m_player->GetY(), 1.7, &x, &y );
+    GetDrawRect( &_rect );
 
-    if ( rect.x != x-m_playerBMP->w/2 || rect.y != y ||
-	 rect.w != m_playerBMP->w || rect.h != m_playerBMP->h ) {
+    if ( rect.x != _rect.x || rect.y != _rect.y || rect.w != _rect.w ||
+	 rect.h != _rect.h ) {
       ((BaseView2D *)theView)->AddUpdateRect( &rect );
 
-      rect.x = x-m_playerBMP->w/2;
-      rect.y = y;
-      rect.w = m_playerBMP->w;
-      rect.h = m_playerBMP->h;
+      rect = _rect;
 
       ((BaseView2D *)theView)->AddUpdateRect( &rect );
     }
   }
 
   return true;
+}
+
+bool
+PlayerView2D::GetDrawRect( SDL_Rect *drawRect ) {
+  drawRect->x = drawRect->y = drawRect->w = drawRect->h = 0;
+
+  if ( m_player->GetY() > -3.5 ) {
+    int x, y;
+
+    RenderPoint( m_player->GetX(), m_player->GetY(), 1.7, &x, &y );
+
+    drawRect->x = x-m_playerBMP->w/2;
+    drawRect->y = y;
+    drawRect->w = m_playerBMP->w;
+    drawRect->h = m_playerBMP->h;
+
+    if ( drawRect->x > BaseView::GetWinWidth() )
+      drawRect->x = BaseView::GetWinWidth();
+    if ( drawRect->x+drawRect->w > BaseView::GetWinWidth() )
+      drawRect->w = BaseView::GetWinWidth()-drawRect->x;
+    if ( drawRect->y > BaseView::GetWinHeight() )
+      drawRect->y = BaseView::GetWinHeight();
+    if ( drawRect->y+drawRect->h > BaseView::GetWinHeight() )
+      drawRect->h = BaseView::GetWinHeight()-drawRect->y;
+  }
 }

@@ -171,8 +171,6 @@ protected:
 
   PlayerView* m_View;
 
-  HitMark *m_hitMark;
-
   double m_lastSendX;
   double m_lastSendY;
   double m_lastSendZ;

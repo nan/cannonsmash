@@ -32,6 +32,7 @@ public:
   virtual bool Redraw();
   virtual bool RedrawAlpha();
   virtual bool GetDamageRect();
+  virtual bool GetDrawRect( SDL_Rect *drawRect );
 
 private:
   Player  *m_player;	// Model
