@@ -55,8 +55,6 @@ long mode = MODE_OPENING;
 
 SDL_mutex *loadMutex;
 
-iconv_t ic = (iconv_t)-1;
-
 extern void QuitGame();
 void StartGame();
 void EventLoop();
@@ -128,16 +126,6 @@ int main(int argc, char** argv) {
 #else
     bindtextdomain (PACKAGE, LOCALEDIR);
     textdomain (PACKAGE);
-#endif
-
-#if 0
-#if (GTK_MAJOR_VERSION == 1) && (GTK_MINOR_VERSION >= 3)
-    ic = iconv_open("UTF-8", _("UTF-8"));
-    if ( ic == (iconv_t)-1 ) {
-      perror( _("iconv_open failed\n") );
-      exit(1);
-    }
-#endif
 #endif
 
     int c;
@@ -372,27 +360,4 @@ LoadData( void *dum ) {
   SDL_mutexV( loadMutex );
 
   return 0;
-}
-
-char *
-gettext_iconv( char *buf ) {
-  static char* tobuf = 0;
-  char *frombuf, *toaddr;
-  const char *fromaddr;
-  unsigned int fromsize, tosize;
-
-  if ( ic == (iconv_t)-1 )
-    return gettext( buf );
-
-  frombuf = gettext(buf);
-  fromsize = strlen( frombuf );
-  fromaddr = frombuf;
-  if ( tobuf )
-    free(tobuf);
-  tobuf = (char *)malloc(fromsize*4);
-  memset( tobuf, 0, fromsize*4 );
-  toaddr = tobuf;
-  tosize = fromsize*4;
-  iconv( ic, &fromaddr, &fromsize, &toaddr, &tosize );
-  return tobuf;
 }
