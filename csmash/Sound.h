@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001, 2002  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
+// Copyright (C) 2000-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 #ifndef _Sound_
 #define _Sound_
 
+#define SOUND_QUEUESIZE 16
+
 struct buffer {
   unsigned char const *start;
   unsigned long length;
@@ -35,6 +37,8 @@ public:
 
   //bool Play( char *sndData, long count );
   bool Play( long soundID, double x, double y );
+  bool PlayScore( long score1, long score2 );
+  bool PlayNumber( long number );
 
   long GetSoundMode();
 
@@ -47,13 +51,24 @@ public:
 
 #ifdef HAVE_LIBSDL_MIXER
   Mix_Chunk *m_sound[16];
+  Mix_Chunk *m_score[31];
   Mix_Music *m_opening;
+
+  static void PlayFinishHandler( int channel );
 #endif
 
   long m_soundMode;
 private:
   Sound();
   static Sound *m_theSound;
+
+#ifdef HAVE_LIBSDL_MIXER
+  Mix_Chunk *m_chunkqueue[SOUND_QUEUESIZE];
+  int m_queuehead;
+  int m_queuetail;
+
+  bool PlayBlocking( int channel, Mix_Chunk *chunk );
+#endif
 };
 
 #endif // _Sound_

@@ -21,6 +21,7 @@
 #include "Player.h"
 #include "Ball.h"
 #include "BaseView.h"
+#include "Sound.h"
 #include "RCFile.h"
 
 extern RCFile *theRC;
@@ -145,6 +146,8 @@ PlayGame::ChangeScore() {
       m_Score1++;
     }
   }
+
+  Sound::TheSound()->PlayScore( m_Score1, m_Score2 );
 
   if ( theRC->gmode == GMODE_SIMPLE )
     printf( _("You : %d -  %d : Opponent\n"), GetScore(m_thePlayer),
