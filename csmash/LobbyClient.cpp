@@ -265,7 +265,7 @@ LobbyClient::PollServerMessage( gpointer data ) {
 	StartGame();
 	EventLoop();
 
-	send( lobby->m_socket, "SP", 2, 0 );
+	send( lobby->m_socket, "QP", 2, 0 );
 	len = 8;
 	SendLong( lobby->m_socket, len );
 
