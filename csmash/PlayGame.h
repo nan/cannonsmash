@@ -16,37 +16,35 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#ifndef _ShakeCut_
-#define _ShakeCut_
+#ifndef _PlayGame_
+#define _PlayGame_
 
-// 右シェーク, カットの定義
-
-class ShakeCut : public Player {
+// SoloPlay, MultiPlay, Trainingの親. 
+class PlayGame : public Control {
 public:
-  ShakeCut();
-  ShakeCut(long side);
-  ShakeCut( long playerType, long side, double x, double y, double z, 
-	    double vx, double vy, double vz,long status, long swing, 
-	    long swingType, long afterSwing, long swingError, 
-	    double targetX, double targetY, double eyeX, double eyeY,
-	    double eyeZ, long pow, double spin, double stamina );
-  virtual ~ShakeCut();
+  PlayGame();
+  virtual ~PlayGame();
 
-  virtual bool AddStatus( long diff );
+  virtual bool Init() = 0;
 
   virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,
-		     int Histptr );
+		     int Histptr ) = 0;
+  virtual bool LookAt( double &srcX, double &srcY, double &srcZ,
+		       double &destX, double &destY, double &destZ ) = 0;
 
-  virtual bool GetModifiedTarget( double &targetX, double &targetY );
+  virtual bool IsPlaying() { return true; };
+
+  long GetService();
+  long GetScore( Player *p );	// スコア取得. 
+
+  bool IsGameEnd();	// ゲーム終了チェック
+  void EndGame();
+  void ChangeScore();
 protected:
-  virtual bool Swing( long spin );
-  virtual bool StartSwing( long spin );
 
-  virtual bool HitBall();
-
-private:
-  bool SwingType( Ball *ball, long spin );
+  long m_Score1;	// 手前プレイヤーの得点, Training時にはカウンタ
+  long m_Score2;	// 奥プレイヤーの得点
 };
 
-#endif // _ShakeCut_
+#endif	// _PlayGame_

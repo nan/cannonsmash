@@ -42,9 +42,6 @@ public:
 
   long GetStatus();
 
-  long GetService();
-  long GetScore( Player *p );	// スコア取得. 
-
   bool Move();	// 1turn後(0.01秒)の状態に移行する
 
   bool Hit( double vx, double vy, double vz, double spin, Player *player );
@@ -63,12 +60,8 @@ public:
   bool TargetToVS( double targetX, double targetY, double height, double spin, 
 		   double &vx, double &vy, double &vz );
 
-  bool IsGameEnd();	// ゲーム終了チェック
-  void EndGame();
-
   bool Send( int sd );
 
-  long m_count;		// Training用カウンタ
 protected:
   double m_x;		// ballの位置
   double m_y;
@@ -92,11 +85,6 @@ protected:
 
   BallView* m_View;
 
-  // スコア変更
-  void ChangeScore();
-
-  long m_Score1;	// 手前プレイヤーの得点
-  long m_Score2;	// 奥プレイヤーの得点
 private:
   void BallDead();
 };

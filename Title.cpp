@@ -139,15 +139,18 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
     case MENU_MAIN:
       switch ( m_selected ) {
       case 0:	// Start
-	theBall.EndGame();
+	//theBall.EndGame();
+	theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
 	mode = MODE_SELECT;
 	break;
       case 1:	// Training
-	theBall.EndGame();
+	//theBall.EndGame();
+	theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
 	mode = MODE_TRAININGSELECT;
 	break;
       case 2:	// Howto
-	theBall.EndGame();
+	//theBall.EndGame();
+	theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
 	mode = MODE_HOWTO;
 	break;
       case 3:	// Config...

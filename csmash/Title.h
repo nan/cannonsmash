@@ -31,6 +31,7 @@
 
 class TitleView;
 
+//class Title : public Control {
 class Title : public Control {
 public:
   Title();
@@ -51,6 +52,8 @@ public:
 
   virtual bool LookAt( double &srcX, double &srcY, double &srcZ,
 		       double &destX, double &destY, double &destZ );
+
+  virtual bool IsPlaying() { return false; };
 protected:
   TitleView *m_View;
   long m_selected;	// 選択された : m_selected > 0

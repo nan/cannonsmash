@@ -62,22 +62,12 @@ Event::~Event() {
 bool
 Event::Init() {
   switch ( mode ){
-#if 0
-  case MODE_PLAY:
-    if (isComm) {
-      theControl = MultiPlay::Create( 0, RAND(2) );
-    } else {
-      theControl = SoloPlay::Create( 0, RAND(2) );
-    }
-    break;
-#else
   case MODE_SOLOPLAY:
     theControl = SoloPlay::Create( 0, RAND(2) );
     break;
   case MODE_MULTIPLAY:
     theControl = MultiPlay::Create( 0, RAND(2) );
     break;
-#endif
   case MODE_SELECT:
     theControl = PlayerSelect::Create();
     break;
@@ -194,16 +184,6 @@ Event::Move() {
     long p;
 
     switch ( mode ) {
-#if 0
-    case MODE_PLAY:
-      p = ((PlayerSelect *)theControl)->GetPlayerNum();
-      if (isComm) {
-	theControl = MultiPlay::Create( p, 0 );
-      } else {
-	theControl = SoloPlay::Create( p, (p+wins+1)%PLAYERS );
-      }
-      break;
-#else
     case MODE_SOLOPLAY:
       p = ((PlayerSelect *)theControl)->GetPlayerNum();
       theControl = SoloPlay::Create( p, (p+wins+1)%PLAYERS );
@@ -212,7 +192,6 @@ Event::Move() {
       p = ((PlayerSelect *)theControl)->GetPlayerNum();
       theControl = MultiPlay::Create( p, 0 );
       break;
-#endif
     case MODE_SELECT:
       theControl = PlayerSelect::Create();
       break;

@@ -19,7 +19,7 @@
 #ifndef _SoloPlay_
 #define _SoloPlay_
 
-class SoloPlay : public Control {
+class SoloPlay : public PlayGame {
 public:
   SoloPlay();
   virtual ~SoloPlay();

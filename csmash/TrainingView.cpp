@@ -70,8 +70,8 @@ TrainingView::RedrawAlpha() {
   glTexCoord2f(1.0, 80.0/256.0); glVertex3f( 0.2, 0.0, 0.2 );
   glEnd();
 
-  if ( theBall.m_count < 10 ) {
-    glBindTexture(GL_TEXTURE_2D, BallView::m_number[theBall.m_count] );
+  if ( m_training->GetTrainingCount() < 10 ) {
+    glBindTexture(GL_TEXTURE_2D, BallView::m_number[m_training->GetTrainingCount()] );
     glBegin(GL_QUADS);
     glTexCoord2f(0.0, 1.0); glVertex3f( 0.2, 0.0, 0.0 );
     glTexCoord2f(0.0, 0.0); glVertex3f( 0.2, 0.0, 0.2 );
@@ -79,14 +79,14 @@ TrainingView::RedrawAlpha() {
     glTexCoord2f(1.0, 1.0); glVertex3f( 0.4, 0.0, 0.0 );
     glEnd();
   } else {	/* Y2K :-) */
-    glBindTexture(GL_TEXTURE_2D, BallView::m_number[(theBall.m_count/10)%10] );
+    glBindTexture(GL_TEXTURE_2D, BallView::m_number[(m_training->GetTrainingCount()/10)%10] );
     glBegin(GL_QUADS);
     glTexCoord2f(0.0, 1.0); glVertex3f( 0.2, 0.0, 0.0 );
     glTexCoord2f(0.0, 0.0); glVertex3f( 0.2, 0.0, 0.2 );
     glTexCoord2f(1.0, 0.0); glVertex3f( 0.3, 0.0, 0.2 );
     glTexCoord2f(1.0, 1.0); glVertex3f( 0.3, 0.0, 0.0 );
     glEnd();
-    glBindTexture(GL_TEXTURE_2D, BallView::m_number[theBall.m_count%10] );
+    glBindTexture(GL_TEXTURE_2D, BallView::m_number[m_training->GetTrainingCount()%10] );
     glBegin(GL_QUADS);
     glTexCoord2f(0.0, 1.0); glVertex3f( 0.3, 0.0, 0.0 );
     glTexCoord2f(0.0, 0.0); glVertex3f( 0.3, 0.0, 0.2 );
@@ -94,9 +94,9 @@ TrainingView::RedrawAlpha() {
     glTexCoord2f(1.0, 1.0); glVertex3f( 0.4, 0.0, 0.0 );
     glEnd();
   }
-  if ( m_training->GetTrainingCount() < 10 ) {
+  if ( m_training->GetTrainingMax() < 10 ) {
     glBindTexture(GL_TEXTURE_2D,
-		  BallView::m_number[m_training->GetTrainingCount()] );
+		  BallView::m_number[m_training->GetTrainingMax()] );
     glBegin(GL_QUADS);
     glTexCoord2f(0.0, 1.0); glVertex3f( 0.2, 0.0, 0.2 );
     glTexCoord2f(0.0, 0.0); glVertex3f( 0.2, 0.0, 0.4 );
@@ -105,7 +105,7 @@ TrainingView::RedrawAlpha() {
     glEnd();
   } else {	/* Y2K :-) */
     glBindTexture(GL_TEXTURE_2D,
-		  BallView::m_number[(m_training->GetTrainingCount()/10)%10] );
+		  BallView::m_number[(m_training->GetTrainingMax()/10)%10] );
     glBegin(GL_QUADS);
     glTexCoord2f(0.0, 1.0); glVertex3f( 0.2, 0.0, 0.2 );
     glTexCoord2f(0.0, 0.0); glVertex3f( 0.2, 0.0, 0.4 );
@@ -113,7 +113,7 @@ TrainingView::RedrawAlpha() {
     glTexCoord2f(1.0, 1.0); glVertex3f( 0.3, 0.0, 0.2 );
     glEnd();
     glBindTexture(GL_TEXTURE_2D,
-		  BallView::m_number[m_training->GetTrainingCount()%10] );
+		  BallView::m_number[m_training->GetTrainingMax()%10] );
     glBegin(GL_QUADS);
     glTexCoord2f(0.0, 1.0); glVertex3f( 0.3, 0.0, 0.2 );
     glTexCoord2f(0.0, 0.0); glVertex3f( 0.3, 0.0, 0.4 );

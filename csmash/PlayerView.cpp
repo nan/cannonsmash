@@ -298,9 +298,11 @@ PlayerView::SubRedraw() {
   glPopMatrix();
 
   // 落下目標位置
+#if 0
   if ( m_player->GetStatus() > 100 )
     glColor4f( 0.2, 0.0, 0.0, 1.0 );
   else
+#endif
     glColor4f( 0.5, 0.0, 0.0, 1.0 );
 
   if ( isLighting ) {
@@ -311,24 +313,32 @@ PlayerView::SubRedraw() {
   if ( m_player == thePlayer ) {
     double rad, Xdiff, Ydiff;
 
+    double targetX, targetY;
+    if ( theBall.GetStatus() == 2 || theBall.GetStatus() == 3 )
+      m_player->GetModifiedTarget( targetX, targetY );
+    else {
+      targetX = m_player->GetTargetX();
+      targetY = m_player->GetTargetY();
+    }
+
     Xdiff = TABLEWIDTH/4*(220-m_player->GetStatus())/220;
     Ydiff = TABLELENGTH/8*(220-m_player->GetStatus())/220;
     glBegin(GL_POLYGON);
       for ( rad = 0.0 ; rad < 3.141592*2 ; rad += 3.141592/8.0 )
-	glVertex3f( m_player->GetTargetX()+Xdiff*cos(rad),
-		    m_player->GetTargetY()+Ydiff*sin(rad),
+	glVertex3f( targetX+Xdiff*cos(rad),
+		    targetY+Ydiff*sin(rad),
 		    TABLEHEIGHT+0.01 );
     glEnd();
+
+    targetX = thePlayer->GetTargetX();
+    targetY = thePlayer->GetTargetY();
 
     glColor4f( 1.0, 0.0, 0.0, 0.0 );
     glBegin(GL_POLYGON);
       glNormal3f( 0.0, 1.0, 0.0 );
-      glVertex3f( m_player->GetTargetX()-0.08, m_player->GetTargetY(),
-		  TABLEHEIGHT+1.7320508*0.08 );
-      glVertex3f( m_player->GetTargetX()+0.08, m_player->GetTargetY(),
-		  TABLEHEIGHT+1.7320508*0.08 );
-      glVertex3f( m_player->GetTargetX(), m_player->GetTargetY(),
-		  TABLEHEIGHT );
+      glVertex3f( targetX-0.08, targetY, TABLEHEIGHT+1.7320508*0.08 );
+      glVertex3f( targetX+0.08, targetY, TABLEHEIGHT+1.7320508*0.08 );
+      glVertex3f( targetX, targetY, TABLEHEIGHT );
     glEnd();
   }
 

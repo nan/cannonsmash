@@ -18,6 +18,8 @@
 
 #include "ttinc.h"
 
+extern Control *theControl;
+
 extern Ball   theBall;
 extern Player *thePlayer;
 extern Player *comPlayer;
@@ -127,7 +129,9 @@ ComPenDrive::Think() {
 
 // トス
   if ( theBall.GetStatus() == 8 &&
-       theBall.GetService() == GetSide() &&
+       ( (theControl->IsPlaying() &&
+	  ((PlayGame *)theControl)->GetService() == GetSide()) ||
+	 GetSide() == 1 ) &&
        fabs(m_vx) < 0.1 && fabs(m_vy) < 0.1 &&
        fabs(m_x+m_side*0.3-_hitX) < 0.1 && fabs(m_y-_hitY) < 0.1 &&
        m_swing == 0 ){
@@ -224,16 +228,19 @@ ComPenDrive::Hitarea( double &hitX, double &hitY ) {
       hitY = maxY;
     }
   } else if ( theBall.GetStatus() == 8 ) {
-    if ( theBall.GetService() == GetSide() ) {
-    if ( RAND(2) )
-      hitX = m_targetX;
-    else
-      hitX = -m_targetX;
+    if ( (theControl->IsPlaying() &&
+	  ((PlayGame *)theControl)->GetService() == GetSide()) ||
+	 GetSide() == 1 ) {
+      if ( RAND(2) )
+	hitX = m_targetX;
+      else
+	hitX = -m_targetX;
     } else
       hitX = 0.0;
     hitY = -(TABLELENGTH/2+0.2)*m_side;
   }
-    return true;
+
+  return true;
 }
 
 bool

@@ -43,6 +43,8 @@ public:
 
   virtual bool LookAt( double &srcX, double &srcY, double &srcZ,
 		       double &destX, double &destY, double &destZ );
+
+  virtual bool IsPlaying() { return false; };
 protected:
   HowtoView *m_View;
   long m_mode;

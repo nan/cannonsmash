@@ -20,6 +20,7 @@
 
 extern Ball   theBall;
 extern BaseView theView;
+extern Control *theControl;
 
 extern Player *thePlayer;
 extern Event theEvent;
@@ -434,7 +435,8 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
     m_y += m_vy*TICK;
 
 // サーブ時にはエンドラインの後ろまで下がる
-  if ( theBall.GetStatus() == 8 && theBall.GetService() == GetSide() ) {
+  if ( theControl->IsPlaying() && theBall.GetStatus() == 8 &&
+       ((PlayGame *)theControl)->GetService() == GetSide() ) {
     if ( m_side > 0 && m_y > -TABLELENGTH/2 )
       m_y = -TABLELENGTH/2;
     else if ( m_side < 0 && m_y < TABLELENGTH/2 )
@@ -655,7 +657,8 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
     lastmouse = MouseBHistory[Histptr-1];
 
   if ( (mouse & BUTTON_RIGHT) && !(lastmouse & BUTTON_RIGHT) ){
-    if ( theBall.GetStatus() == 8 && theBall.GetService() == GetSide() ) {
+    if ( theBall.GetStatus() == 8 &&
+	 ((PlayGame *)theControl)->GetService() == GetSide() ) {
       theBall.Toss( this, 3 );
       StartSwing( 3 );
     } else {
@@ -664,7 +667,8 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
     }
   }
   else if ( (mouse & BUTTON_MIDDLE) && !(lastmouse & BUTTON_MIDDLE) ){
-    if ( theBall.GetStatus() == 8 && theBall.GetService() == GetSide() ) {
+    if ( theBall.GetStatus() == 8 &&
+	 ((PlayGame *)theControl)->GetService() == GetSide() ) {
       theBall.Toss( this, 2 );
       StartSwing( 2 );
     } else {
@@ -673,7 +677,8 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
     }
   }
   else if ( (mouse & BUTTON_LEFT) && !(lastmouse & BUTTON_LEFT) ){
-    if ( theBall.GetStatus() == 8 && theBall.GetService() == GetSide() ) {
+    if ( theBall.GetStatus() == 8 &&
+	 ((PlayGame *)theControl)->GetService() == GetSide() ) {
       theBall.Toss( this, 1 );
       StartSwing( 1 );
     } else {

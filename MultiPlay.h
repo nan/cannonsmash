@@ -98,7 +98,7 @@ public:
 };
 
 
-class MultiPlay : public Control {
+class MultiPlay : public PlayGame {
 public:
   MultiPlay();
   virtual ~MultiPlay();

@@ -116,16 +116,18 @@ ShakeCut::StartSwing( long spin ) {
 
     if ( (theBall.GetStatus() == 6 && m_side == 1) ||
 	(theBall.GetStatus() == 7 && m_side == -1) ){	// サーブ
-      m_swingType = SWING_POKE;
-      switch ( spin ) {
+      switch ( spin-1 ) {
       case 0:
 	m_spin = 0.2;	// straight
+	m_swingType = SWING_NORMAL;
 	break;
       case 1:
 	m_spin = -0.1;	// knuckle
+	m_swingType = SWING_POKE;
 	break;
       case 2:
 	m_spin = -1.0;
+	m_swingType = SWING_POKE;
 	break;
       }
       if ( thePlayer == this && mode == MODE_MULTIPLAY )
@@ -167,6 +169,10 @@ ShakeCut::HitBall() {
 
     theBall.Hit( vx, vy, vz, m_spin, this );
   } else {
+    double targetX, targetY;
+
+    GetModifiedTarget( targetX, targetY );
+
     if ( ((m_side == 1 && theBall.GetStatus() == 3) ||
 	  (m_side ==-1 && theBall.GetStatus() == 1)) &&
 	 fabs(m_x-theBall.GetX()) < 0.6 &&
@@ -182,11 +188,11 @@ ShakeCut::HitBall() {
       SwingError();
 
       if ( m_swingType == SWING_CUT || m_swingType == SWING_POKE )
-	level = 1 - fabs(m_targetY)/(TABLELENGTH/16)/40/2 -
-	  diff*fabs(m_targetY)/(TABLELENGTH/16)*0.5;
+	level = 1 - fabs(targetY)/(TABLELENGTH/16)/40/2 -
+	  diff*fabs(targetY)/(TABLELENGTH/16)*0.5;
       else
-	level = 1 - fabs(m_targetY)/(TABLELENGTH/16)/40 -
-	  diff*fabs(m_targetY)/(TABLELENGTH/16)*1.2;
+	level = 1 - fabs(targetY)/(TABLELENGTH/16)/40 -
+	  diff*fabs(targetY)/(TABLELENGTH/16)*1.2;
 
       level -= (1-level)*m_spin/2;
 
@@ -253,8 +259,8 @@ ShakeCut::HitBall() {
 
       rad = RAND(360)*3.141592/180.0;
 
-      theBall.TargetToV( m_targetX + Xdiff*cos(rad),
-			 m_targetY + Ydiff*sin(rad),
+      theBall.TargetToV( targetX + Xdiff*cos(rad),
+			 targetY + Ydiff*sin(rad),
 			 level, m_spin, vx, vy, vz, 0.1, maxVy );
 
       // ボールの強さによって体勢ゲージを減らす
@@ -314,3 +320,22 @@ ShakeCut::SwingType( Ball *ball, long spin ) {
 
   return true;
 }
+
+// 回転によって修正されたtargetを表示する
+#if 0
+bool
+ShakeCut::GetModifiedTarget( double &targetX, double &targetY ) {
+  targetX = m_targetX;
+  targetY = m_targetY + theBall.GetSpin()*m_side*0.2;
+
+  return true;
+}
+#else	// しばらく封印
+bool
+ShakeCut::GetModifiedTarget( double &targetX, double &targetY ) {
+  targetX = m_targetX;
+  targetY = m_targetY;
+
+  return true;
+}
+#endif

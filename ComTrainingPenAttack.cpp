@@ -22,6 +22,8 @@ extern Ball   theBall;
 extern Player *thePlayer;
 extern Player *comPlayer;
 
+extern Control *theControl;
+
 extern long    gameLevel;
 
 ComTrainingPenAttack::ComTrainingPenAttack() : ComPenAttack() {
@@ -121,7 +123,7 @@ ComTrainingPenAttack::Think() {
 
 // トス
   if ( theBall.GetStatus() == 8 &&
-       theBall.GetService() == GetSide() &&
+       ((PlayGame *)theControl)->GetService() == GetSide() &&
        fabs(m_vx) < 0.1 && fabs(m_vy) < 0.1 &&
        fabs(m_x+m_side*0.3-_hitX) < 0.1 && fabs(m_y-_hitY) < 0.1 &&
        m_swing == 0 ){
@@ -170,10 +172,10 @@ ComTrainingPenAttack::HitBall() {
   } else {
     if ( ((m_side == 1 && theBall.GetStatus() == 3) ||
 	  (m_side ==-1 && theBall.GetStatus() == 1)) ) {
-      theBall.m_count++;
+      ((Training *)theControl)->AddTrainingCount();
 
       level = 1.0 -
-	1.0/((double)theBall.m_count/10.0+1.5);
+	1.0/((double)((Training *)theControl)->GetTrainingCount()/10.0+1.5);
       theBall.TargetToV( -TABLEWIDTH/5*2*m_side, TABLELENGTH/5*2*m_side,
 			 level, m_spin, vx, vy, vz, 0.1, 20.0 );
 
@@ -217,7 +219,7 @@ ComTrainingPenAttack::Hitarea( double &hitX, double &hitY ) {
     delete tmpBall;
 
   } else if ( theBall.GetStatus() == 8 ) {
-    if ( theBall.GetService() == GetSide() ) {
+    if ( ((PlayGame *)theControl)->GetService() == GetSide() ) {
     if ( RAND(2) )
       hitX = m_targetX;
     else

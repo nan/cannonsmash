@@ -18,11 +18,11 @@
 
 #include "ttinc.h"
 
-extern double maglate;
 extern Player* thePlayer;
 extern Player* comPlayer;
 extern Ball theBall;
 extern Event theEvent;
+extern Control* theControl;
 extern BaseView theView;
 extern long mode;
 extern Sound theSound;
@@ -33,7 +33,6 @@ extern long wins;
 Ball::Ball() {
   m_x = m_y = m_vx = m_vy = m_spin = 0.0;
   m_status = -1000;
-  m_Score1 = m_Score2 = 0;
 
   m_View = NULL;
 }
@@ -49,10 +48,7 @@ Ball::Ball( double x, double y, double z, double vx, double vy, double vz,
   m_spin = spin;
   m_status = status;
 
-  m_Score1 = m_Score2 = 0;
   m_View = NULL;
-
-  m_count = 0;
 }
 
 Ball::~Ball() {
@@ -113,41 +109,6 @@ Ball::GetStatus() {
   return m_status;
 }
 
-long
-Ball::GetService() {
-  switch ( gameMode ) {
-  case GAME_5PTS:
-    return ((m_Score1+m_Score2) & 1 ? -1 : 1);
-  case GAME_11PTS:
-    if ( m_Score1 > 9 && m_Score2 > 9 ) {	// Deuce
-      return ((m_Score1+m_Score2) & 1 ? -1 : 1);
-    } else {
-      if ( (m_Score1 + m_Score2)%10 >= 5 )
-	return -1;
-      else
-	return 1;
-    }
-  case GAME_21PTS:
-    if ( m_Score1 > 19 && m_Score2 > 19 ) {	// Deuce
-      return ((m_Score1+m_Score2) & 1 ? -1 : 1);
-    } else {
-      if ( (m_Score1 + m_Score2)%10 >= 5 )
-	return -1;
-      else
-	return 1;
-    }
-  }
-  return 0;
-}
-
-long
-Ball::GetScore( Player *p ) {
-  if ( p->GetSide() > 0 )
-    return m_Score1;
-  else
-    return m_Score2;
-}
-
 bool
 Ball::Move() {
   double netT , tableT;         /* ネット、テーブルの衝突判定フラグ */
@@ -159,32 +120,45 @@ Ball::Move() {
     m_status--;
 
   if ( m_status < -100 || m_status == 8 ){
-    Player *player;
-    if ( GetService() == thePlayer->GetSide() )
-      player = thePlayer;
-    else
-      player = comPlayer;
+    if ( theControl->IsPlaying() ) {
+      Player *player;
 
-    if ( GetService() > 0 ) {
-      m_x = player->GetX()+0.3;
-      m_y = player->GetY();
+      if ( ((PlayGame *)theControl)->GetService() == thePlayer->GetSide() )
+	player = thePlayer;
+      else
+	player = comPlayer;
+
+      if ( ((PlayGame *)theControl)->GetService() > 0 ) {
+	m_x = player->GetX()+0.3;
+	m_y = player->GetY();
+      } else {
+	m_x = player->GetX()-0.3;
+	m_y = player->GetY();
+      }
+
+      m_z = TABLEHEIGHT + 0.15;
+      m_vx = 0.0;
+      m_vy = 0.0;
+      m_vz = 0.0;
+
+      m_status = 8;
+
+      if ( ((PlayGame *)theControl)->IsGameEnd() == true ){
+	theView.EndGame();
+	((PlayGame *)theControl)->EndGame();
+      }
     } else {
-      m_x = player->GetX()-0.3;
-      m_y = player->GetY();
+      m_x = thePlayer->GetX()+0.3;
+      m_y = thePlayer->GetY();
+
+      m_z = TABLEHEIGHT + 0.15;
+      m_vx = 0.0;
+      m_vy = 0.0;
+      m_vz = 0.0;
+
+      m_status = 8;
     }
-
-    m_z = TABLEHEIGHT + 0.15;
-    m_vx = 0.0;
-    m_vy = 0.0;
-    m_vz = 0.0;
-
-    m_status = 8;
-
-    if ( IsGameEnd() == true ){
-      theView.EndGame();
-      EndGame();
-    }
-
+      
     return true;
   }
 
@@ -237,8 +211,8 @@ Ball::Move() {
 	break;
       default:
 	if ( m_status >= 0 ) {
-	  if ( &theBall == this )
-	    ChangeScore();
+	  if ( theControl->IsPlaying() && &theBall == this )
+	    ((PlayGame *)theControl)->ChangeScore();
 	  m_status = -1;
 	}
       }
@@ -449,6 +423,23 @@ Ball::TargetToV( double targetX, double targetY, double level, double spin,
   } else
     y = m_y;
 
+  if ( targetY*y >= 0 ) {	// ネットを越えない
+    vy = vyMax*level*0.5;
+
+    // ボールがtargetYに到達するまでの時間t2を求める. 
+    t2 = -log( 1- PHY*(targetY-y)/vy ) / PHY;
+
+    // t2時に, z=TABLEHEIGHTとなるvzを求める. 
+    vz = (PHY*(TABLEHEIGHT-m_z)+GRAVITY(spin)*t2)/(1-exp(-PHY*t2)) -
+      GRAVITY(spin)/PHY;
+
+    vx = PHY*(targetX-m_x) / (1-exp(-PHY*t2));
+
+    if ( y != m_y )
+      vy = -vy;
+
+    return true;
+  }
 
   while (vyMax-vyMin > 0.001) {
     vy = (vyMin+vyMax)/2;
@@ -562,74 +553,10 @@ Ball::TargetToVS( double targetX, double targetY, double level, double spin,
 }
 
 void
-Ball::EndGame() {
-  if ( mode == MODE_TITLE || mode == MODE_HOWTO ) {
-    mode = MODE_TITLE;
-  } else {
-    // 再初期化する
-    if ( theBall.GetScore(thePlayer) > theBall.GetScore(comPlayer) )
-      wins++;
-    else
-      wins = 0;
-
-    if ( wins > 0 )
-      mode = MODE_SELECT;
-   else
-      mode = MODE_TITLE;
-  }
-
-  m_Score1 = m_Score2 = 0;
-  m_status = -1000;
-}
-
-void
-Ball::ChangeScore() {
-  if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY || mode == MODE_TITLE ){
-    if ( m_status == 0 || m_status == 3 || m_status == 4 || m_status == 6 ) {
-      if ( thePlayer->GetSide() > 0 )
-	m_Score2++;
-      else
-	m_Score1++;
-    } else {
-      if ( thePlayer->GetSide() > 0 )
-	m_Score1++;
-      else
-	m_Score2++;
-    }
-  }
-}
-
-bool
-Ball::IsGameEnd() {
-  if ( this != &theBall )
-    return false;
-
-  switch ( gameMode ) {
-  case GAME_5PTS:
-    if ( (m_Score1 > 4 || m_Score2 > 4) )
-      return true;
-    else
-      return false;
-  case GAME_11PTS:
-    if ( (m_Score1 > 10 || m_Score2 > 10) && abs( m_Score1-m_Score2 ) > 1 )
-      return true;
-    else
-      return false;
-  case GAME_21PTS:
-    if ( (m_Score1 > 20 || m_Score2 > 20) && abs( m_Score1-m_Score2 ) > 1 )
-      return true;
-    else
-      return false;
-  }
-
-  return false;
-}
-
-void
 Ball::BallDead() {
   if ( m_status >= 0 ) {
-    if ( &theBall == this )
-      ChangeScore();
+    if ( theControl->IsPlaying() && &theBall == this )
+      ((PlayGame *)theControl)->ChangeScore();
     m_status = -1;
   }
 }

@@ -23,6 +23,8 @@ extern Player* thePlayer;
 extern Player *comPlayer;
 extern long mode;
 
+extern Control* theControl;
+
 extern bool isLighting;
 
 GLuint BallView::m_number[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -73,7 +75,15 @@ BallView::Redraw() {
   const static GLfloat mat_yel[] = { 1.0, 0.8, 0.0, 0.0 };
 
   // Ball自体の描画
+#if 1
   glColor4f(1.0, 0.8, 0.0, 0.0);
+#else
+  if ( theBall.GetSpin() > 0.0 )
+    glColor4f(1.0, 0.8-theBall.GetSpin()*0.8, 0.0, 0.0);
+  else
+    glColor4f(1.0+theBall.GetSpin(), 0.8+theBall.GetSpin()*0.8,
+	      -theBall.GetSpin(), 0.0);
+#endif
   if ( isLighting ) {
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_yel);
   }
@@ -92,8 +102,7 @@ BallView::Redraw() {
 		    theBall.GetY()+BALL_R*sin(rad),
 		    TABLEHEIGHT+0.01 );
     glEnd();
-  }
-  else{
+  } else {
     glBegin(GL_POLYGON);
       for ( rad = 0.0 ; rad < 3.141592*2 ; rad += 3.141592/4.0 )
 	glVertex3f( theBall.GetX()+BALL_R*cos(rad),
@@ -178,8 +187,8 @@ BallView::RedrawAlpha() {
     glEnable(GL_TEXTURE_2D);
     glColor3f( 0.0, 0.0, 0.0 );
 
-    if ( theBall.GetScore(thePlayer) < 10 ) {
-      glBindTexture(GL_TEXTURE_2D, m_number[theBall.GetScore(thePlayer)] );
+    if ( ((PlayGame *)theControl)->GetScore(thePlayer) < 10 ) {
+      glBindTexture(GL_TEXTURE_2D, m_number[((PlayGame *)theControl)->GetScore(thePlayer)] );
       glBegin(GL_QUADS);
       glTexCoord2f(0.0, 1.0); glVertex3f( 0.0, -0.4, 0.0 );
       glTexCoord2f(0.0, 0.0); glVertex3f( 0.0, -0.4, 0.2 );
@@ -187,14 +196,14 @@ BallView::RedrawAlpha() {
       glTexCoord2f(1.0, 1.0); glVertex3f( 0.0, -0.2, 0.0 );
       glEnd();
     } else {	/* Y2K :-) */
-      glBindTexture(GL_TEXTURE_2D, m_number[theBall.GetScore(thePlayer)/10] );
+      glBindTexture(GL_TEXTURE_2D, m_number[((PlayGame *)theControl)->GetScore(thePlayer)/10] );
       glBegin(GL_QUADS);
       glTexCoord2f(0.0, 1.0); glVertex3f( 0.0, -0.4, 0.0 );
       glTexCoord2f(0.0, 0.0); glVertex3f( 0.0, -0.4, 0.2 );
       glTexCoord2f(1.0, 0.0); glVertex3f( 0.0, -0.3, 0.2 );
       glTexCoord2f(1.0, 1.0); glVertex3f( 0.0, -0.3, 0.0 );
       glEnd();
-      glBindTexture(GL_TEXTURE_2D, m_number[theBall.GetScore(thePlayer)%10] );
+      glBindTexture(GL_TEXTURE_2D, m_number[((PlayGame *)theControl)->GetScore(thePlayer)%10] );
       glBegin(GL_QUADS);
       glTexCoord2f(0.0, 1.0); glVertex3f( 0.0, -0.3, 0.0 );
       glTexCoord2f(0.0, 0.0); glVertex3f( 0.0, -0.3, 0.2 );
@@ -203,8 +212,8 @@ BallView::RedrawAlpha() {
       glEnd();
     }
 
-    if ( theBall.GetScore(comPlayer) < 10 ) {
-      glBindTexture(GL_TEXTURE_2D, m_number[theBall.GetScore(comPlayer)] );
+    if ( ((PlayGame *)theControl)->GetScore(comPlayer) < 10 ) {
+      glBindTexture(GL_TEXTURE_2D, m_number[((PlayGame *)theControl)->GetScore(comPlayer)] );
       glBegin(GL_QUADS);
       glTexCoord2f(0.0, 1.0); glVertex3f( 0.0, 0.2, 0.0 );
       glTexCoord2f(0.0, 0.0); glVertex3f( 0.0, 0.2, 0.2 );
@@ -212,14 +221,14 @@ BallView::RedrawAlpha() {
       glTexCoord2f(1.0, 1.0); glVertex3f( 0.0, 0.4, 0.0 );
       glEnd();
     } else {	/* Y2K :-) */
-      glBindTexture(GL_TEXTURE_2D, m_number[theBall.GetScore(comPlayer)/10] );
+      glBindTexture(GL_TEXTURE_2D, m_number[((PlayGame *)theControl)->GetScore(comPlayer)/10] );
       glBegin(GL_QUADS);
       glTexCoord2f(0.0, 1.0); glVertex3f( 0.0, 0.2, 0.0 );
       glTexCoord2f(0.0, 0.0); glVertex3f( 0.0, 0.2, 0.2 );
       glTexCoord2f(1.0, 0.0); glVertex3f( 0.0, 0.3, 0.2 );
       glTexCoord2f(1.0, 1.0); glVertex3f( 0.0, 0.3, 0.0 );
       glEnd();
-      glBindTexture(GL_TEXTURE_2D, m_number[theBall.GetScore(comPlayer)%10] );
+      glBindTexture(GL_TEXTURE_2D, m_number[((PlayGame *)theControl)->GetScore(comPlayer)%10] );
       glBegin(GL_QUADS);
       glTexCoord2f(0.0, 1.0); glVertex3f( 0.0, 0.3, 0.0 );
       glTexCoord2f(0.0, 0.0); glVertex3f( 0.0, 0.3, 0.2 );

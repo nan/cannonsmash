@@ -37,6 +37,8 @@ public:
   virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,
 		     int Histptr );
+
+  virtual bool GetModifiedTarget( double &targetX, double &targetY );
 protected:
   virtual bool Swing( long spin );
   virtual bool StartSwing( long spin );

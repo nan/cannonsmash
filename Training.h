@@ -21,7 +21,7 @@
 
 class TrainingView;
 
-class Training : public Control {
+class Training : public PlayGame {
 public:
   Training();
   virtual ~Training();
@@ -35,12 +35,15 @@ public:
 		     int Histptr );
 
   long GetTrainingCount() { return m_trainingCount; };
+  long GetTrainingMax() { return m_trainingMax; };
+  void AddTrainingCount();
 
   virtual bool LookAt( double &srcX, double &srcY, double &srcZ,
 		       double &destX, double &destY, double &destZ );
 protected:
   TrainingView *m_View;
   long          m_trainingCount;
+  long          m_trainingMax;
 };
 
 #endif	// _Training_

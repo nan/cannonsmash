@@ -42,6 +42,8 @@ public:
 
   virtual bool LookAt( double &srcX, double &srcY, double &srcZ,
 		       double &destX, double &destY, double &destZ );
+
+  virtual bool IsPlaying() { return false; };
 protected:
   PlayerSelectView *m_View;
   long m_rotate;	// 表示画面の回転角度

@@ -174,6 +174,7 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 #include "PlayerSelectView.h"
 #include "TrainingSelect.h"
 #include "TrainingSelectView.h"
+#include "PlayGame.h"
 #include "SoloPlay.h"
 #include "MultiPlay.h"
 #include "Title.h"

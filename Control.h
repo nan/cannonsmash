@@ -30,6 +30,8 @@ public:
 		     int Histptr ) = 0;
   virtual bool LookAt( double &srcX, double &srcY, double &srcZ,
 		       double &destX, double &destY, double &destZ ) = 0;
+
+  virtual bool IsPlaying() = 0;
 };
 
 #endif	// _Control_

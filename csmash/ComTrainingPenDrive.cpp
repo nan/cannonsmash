@@ -22,6 +22,8 @@ extern Ball   theBall;
 extern Player *thePlayer;
 extern Player *comPlayer;
 
+extern Control *theControl;
+
 extern long    gameLevel;
 
 ComTrainingPenDrive::ComTrainingPenDrive() : ComPenDrive() {
@@ -121,7 +123,7 @@ ComTrainingPenDrive::Think() {
 
 // トス
   if ( theBall.GetStatus() == 8 &&
-       theBall.GetService() == GetSide() &&
+       ((PlayGame *)theControl)->GetService() == GetSide() &&
        fabs(m_vx) < 0.1 && fabs(m_vy) < 0.1 &&
        fabs(m_x+m_side*0.3-_hitX) < 0.1 && fabs(m_y-_hitY) < 0.1 &&
        m_swing == 0 ){
@@ -178,10 +180,10 @@ ComTrainingPenDrive::HitBall() {
   } else {
     if ( ((m_side == 1 && theBall.GetStatus() == 3) ||
 	  (m_side ==-1 && theBall.GetStatus() == 1)) ) {
-      theBall.m_count++;
+      ((Training *)theControl)->AddTrainingCount();
 
-      level = 1.0 - 1.0/((double)theBall.m_count/20.0+1.5);
-      theBall.TargetToV( -TABLEWIDTH/5*2+TABLEWIDTH/5*4*(theBall.m_count%2),
+      level = 1.0 - 1.0/((double)((Training *)theControl)->GetTrainingCount()/20.0+1.5);
+      theBall.TargetToV( -TABLEWIDTH/5*2+TABLEWIDTH/5*4*(((Training *)theControl)->GetTrainingCount()%2),
 			 TABLELENGTH/5*2*m_side, level, m_spin,
 			 vx, vy, vz, 0.1, 20.0 );
 

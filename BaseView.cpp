@@ -319,7 +319,9 @@ BaseView::EndGame() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  if ( theBall.GetScore(thePlayer) > theBall.GetScore(comPlayer) ) {
+  if ( theControl->IsPlaying() && 
+       ((PlayGame *)theControl)->GetScore(thePlayer) >
+       ((PlayGame *)theControl)->GetScore(comPlayer) ) {
 #ifndef HAVE_LIBZ
     if ( (fp = fopen(&file[0][0], "r")) == NULL )
       return;

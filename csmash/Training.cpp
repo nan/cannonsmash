@@ -24,11 +24,10 @@ extern Player* thePlayer;
 extern Player* comPlayer;
 extern Ball theBall;
 
-extern long trainingCount;
-
 Training::Training() {
   m_View = NULL;
   m_trainingCount = 0;
+  m_trainingMax = 0;
 }
 
 Training::~Training() {
@@ -83,9 +82,9 @@ Training::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   if ( ballStatus != theBall.GetStatus() ) {
     if ( theBall.GetStatus() == 8 ) {
-      if ( theBall.m_count > m_trainingCount )
-	m_trainingCount = theBall.m_count;
-      theBall.m_count = 0;
+      if ( m_trainingCount > m_trainingMax )
+	m_trainingMax = m_trainingCount;
+      m_trainingCount = 0;
     }
   }
 
@@ -105,4 +104,9 @@ Training::LookAt( double &srcX, double &srcY, double &srcZ,
   }
 
   return true;
+}
+
+void
+Training::AddTrainingCount() {
+  m_trainingCount++;
 }
