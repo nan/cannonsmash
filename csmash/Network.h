@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -44,7 +44,9 @@ void ReadTime( int sd, struct timeb* tb );
 
 void getcurrenttime( struct timeb *tb );
 void ReadBI();
-void findhostname( struct addrinfo *saddr );
+#ifdef ENABLE_IPV6
+struct addrinfo* findhostname();
+#endif
 void findhostname( struct sockaddr_in *saddr );
 
 void ClearSocket();

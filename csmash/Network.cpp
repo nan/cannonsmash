@@ -346,36 +346,33 @@ ReadBI() {
 }
 
 #ifdef ENABLE_IPV6
-void
-findhostname( struct addrinfo *saddr ) {
+struct addrinfo *
+findhostname() {
   if (1 == theRC->serverName[0]) { // Broadcast mode
       printf( "Broadcast is not supported\n" );
       exit(1);
-  } else {
-    struct addrinfo hent, *res;
-    int error;
-
-    memset(&hent, 0, sizeof(hent));
-    if ( theRC->protocol == IPv6 )
-      hent.ai_family = PF_UNSPEC;
-    else
-      hent.ai_family = PF_INET;
-
-    hent.ai_socktype = SOCK_STREAM;
-
-    error = getaddrinfo( theRC->serverName, NULL, &hent, &res );
-    if (error) {
-      xerror("%s: %s(%d) getaddrinfo",
-	     gai_strerror(error), __FILE__, __LINE__);
-      exit(1);
-    }
-
-    saddr->ai_addr = (struct sockaddr *)malloc(res->ai_addrlen);
-    memcpy( saddr->ai_addr, res->ai_addr, res->ai_addrlen );
-    freeaddrinfo(res);
   }
+  struct addrinfo hent, *res;
+  int error;
+
+  memset(&hent, 0, sizeof(hent));
+  if ( theRC->protocol == IPv6 )
+    hent.ai_family = PF_UNSPEC;
+  else
+    hent.ai_family = PF_INET;
+
+  hent.ai_socktype = SOCK_STREAM;
+
+  error = getaddrinfo( theRC->serverName, NULL, &hent, &res );
+  if (error) {
+    xerror("%s: %s(%d) getaddrinfo",
+	   gai_strerror(error), __FILE__, __LINE__);
+    exit(1);
+  }
+
+  return res;
 }
-#endif
+#else
 
 void
 findhostname( struct sockaddr_in *saddr ) {
@@ -439,6 +436,7 @@ findhostname( struct sockaddr_in *saddr ) {
     memcpy( &saddr->sin_addr, hent->h_addr, hent->h_length );
   }
 }
+#endif
 
 void
 ClearSocket() {
