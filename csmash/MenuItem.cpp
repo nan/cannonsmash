@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of MenuItem class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
@@ -26,6 +31,10 @@
 
 extern RCFile *theRC;
 
+/**
+ * Default constructor. 
+ * Initialize member variables to 0 or false. 
+ */
 MenuItem::MenuItem() {
   m_View = NULL;
   m_selected = false;
@@ -35,6 +44,9 @@ MenuItem::MenuItem() {
   m_height = 0;
 }
 
+/**
+ * Destructor. 
+ */
 MenuItem::~MenuItem() {
   if ( m_View ){
     if ( m_parent )
@@ -43,6 +55,18 @@ MenuItem::~MenuItem() {
   }
 }
 
+/**
+ * Initializer method. 
+ * This method sets location, size and texture of this MenuItem. 
+ * 
+ * @param x x-location of this MenuItem. 
+ * @param y y-location of this MenuItem. 
+ * @param width width of this MenuItem. 
+ * @param height height of this MenuItem. 
+ * @param fileName file name of menu item texture. 
+ * @param parent parent Title object. 
+ * @return returns true if succeeds. 
+ */
 bool
 MenuItem::Init( long x, long y, long width, long height, char *fileName,
 		Title *parent ) {
@@ -66,6 +90,12 @@ MenuItem::Init( long x, long y, long width, long height, char *fileName,
   return true;
 }
 
+/**
+ * Set this MenuItem selected or deselected. 
+ * 
+ * @param select if this parameter is true, this MenuItem is selected. Otherwise it is deselected. 
+ * @return returns m_selected. This must be equals to select parameter. 
+ */
 bool
 MenuItem::SetSelected( bool select ) {
   m_selected = select;

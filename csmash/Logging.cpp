@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of Logging class. 
+ * @author KANNA Yoshihiro
+ * $Id$
+ */
 
 // Copyright (C) 2001-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
@@ -27,16 +32,29 @@
 
 Logging* Logging::m_logging = NULL;
 
+/**
+ * Default constructor. 
+ * Initialize member variables. 
+ */
 Logging::Logging() {
     memset(m_fp, 0, sizeof(m_fp));
 }
 
+/**
+ * Destructor. 
+ * Delete file pointers. 
+ */
 Logging::~Logging() {
   for ( int i = 0 ; i < 8 ; i++ ) {
     if (m_fp[i]) fclose( m_fp[i] );
   }
 }
 
+/**
+ * Get singleton Logging object. 
+ * 
+ * @return returns singleton Logging object. 
+ */
 Logging*
 Logging::GetLogging() {
   if ( !Logging::m_logging )
@@ -45,6 +63,12 @@ Logging::GetLogging() {
   return Logging::m_logging;
 }
 
+/**
+ * Initializer method. 
+ * This method opens log file. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 Logging::Init() {
   static const char* fname[] = {
@@ -66,6 +90,15 @@ Logging::Init() {
   return true;
 }
 
+/**
+ * Write log message to specified file. 
+ * This is the basic log writing API. 
+ * 
+ * @param logType type of log message. This specifies log file. 
+ * @param logString string which is written to log file. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 Logging::Log( long logType, char *logString ) {
     if (m_fp[logType]) {
@@ -75,6 +108,11 @@ Logging::Log( long logType, char *logString ) {
   return true;
 }
 
+/**
+ * Write startup message to each log file. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 Logging::StartLog() {
   struct timeb tb;
@@ -102,6 +140,14 @@ Logging::StartLog() {
   return true;
 }
 
+/**
+ * Write time information to log file. 
+ * 
+ * @param logType type of log message
+ * @param tb time information
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 Logging::LogTime( long logType, struct timeb *tb ) {
   char buf[64];
@@ -112,6 +158,12 @@ Logging::LogTime( long logType, struct timeb *tb ) {
   return true;
 }
 
+/**
+ * Write current time to log file. 
+ * 
+ * @param logType type of log message
+ * @return returns true if succeeds. 
+ */
 bool
 Logging::LogTime( long logType ) {
   char buf[64];
@@ -126,6 +178,14 @@ Logging::LogTime( long logType ) {
   return true;
 }
 
+/**
+ * Write ball information to log file. 
+ * Ball location, velocity, spin are logged to log file. 
+ * 
+ * @param logType type of log message. 
+ * @param ball Ball object which is logged to log file. 
+ * @return returns true if succeeds. 
+ */
 bool
 Logging::LogBall( long logType, Ball *ball ) {
   char buf[1024];
@@ -143,6 +203,14 @@ Logging::LogBall( long logType, Ball *ball ) {
   return true;
 }
 
+/**
+ * Write player information to log file. 
+ * Player type, side, location, velocity, status, etc. are logged to log file. 
+ * 
+ * @param logType type of log message. 
+ * @param player Player object which is logged to log file. 
+ * @return returns true if succeeds. 
+ */
 bool
 Logging::LogPlayer( long logType, Player *player ) {
   char buf[1024];
@@ -172,6 +240,36 @@ Logging::LogPlayer( long logType, Player *player ) {
   return true;
 }
 
+/**
+ * Write BV message to log file when it is sent. 
+ * BV message represents ball location, velocity, spin and status. 
+ * 
+ * @param ball Ball object of which BV message is written. 
+ * @return returns true if succeeds. 
+ */
+bool
+Logging::LogSendBVMessage( Ball *ball ) {
+  char buf[256];
+
+  LogTime( LOG_COMBALL );
+  snprintf( buf, sizeof(buf),
+            "x=%4.2f y=%4.2f z=%4.2f "
+            "vx=%4.2f vy=%4.2f vz=%4.2f spinY=%3.2f status=%2d\n",
+	   ball->GetX()[0], ball->GetX()[1], ball->GetX()[2], 
+	   ball->GetV()[0], ball->GetV()[1], ball->GetV()[2], 
+	   ball->GetSpin()[1], (int)ball->GetStatus() );
+  Log( LOG_COMBALL, buf );
+
+  return true;
+}
+
+/**
+ * Write BV message to log file when it is received. 
+ * BV message represents ball location, velocity, spin and status. 
+ * 
+ * @param bv BV message which is logged to log file. 
+ * @return returns true if succeeds. 
+ */
 bool
 Logging::LogRecvBVMessage( ExternalBVData *bv ) {
   char buf[256];
@@ -193,6 +291,13 @@ Logging::LogRecvBVMessage( ExternalBVData *bv ) {
   return true;
 }
 
+/**
+ * Write PV message to log file when it is sent. 
+ * PV message represents player location and velocity. 
+ * 
+ * @param player Player object of which PV message is written. 
+ * @return returns true if succeeds. 
+ */
 bool
 Logging::LogSendPVMessage( Player *player ) {
   char buf[256];
@@ -207,6 +312,13 @@ Logging::LogSendPVMessage( Player *player ) {
   return true;
 }
 
+/**
+ * Write PV message to log file when it is received. 
+ * PV message represents player location and velocity. 
+ * 
+ * @param pv PV message which is logged to log file. 
+ * @return returns true if succeeds. 
+ */
 bool
 Logging::LogRecvPVMessage( ExternalPVData *pv ) {
   char buf[256];
@@ -227,6 +339,13 @@ Logging::LogRecvPVMessage( ExternalPVData *pv ) {
   return true;
 }
 
+/**
+ * Write PS message to log file when it is sent. 
+ * PS message represents player swing information. 
+ * 
+ * @param player Player object of which PS message is written. 
+ * @return returns true if succeeds. 
+ */
 bool
 Logging::LogSendPSMessage( Player *player ) {
   char buf[256];
@@ -243,6 +362,13 @@ Logging::LogSendPSMessage( Player *player ) {
   return true;
 }
 
+/**
+ * Write PS message to log file when it is received. 
+ * PS message represents player swing information. 
+ * 
+ * @param ps PS message which is logged to log file. 
+ * @return returns true if succeeds. 
+ */
 bool
 Logging::LogRecvPSMessage( ExternalPSData *ps ) {
   char buf[256];
@@ -264,6 +390,13 @@ Logging::LogRecvPSMessage( ExternalPSData *ps ) {
   return true;
 }
 
+/**
+ * Write PT message to log file when it is received. 
+ * PT message represents player type. 
+ * 
+ * @param pt PT message which is logged to log file. 
+ * @return returns true if succeeds. 
+ */
 bool
 Logging::LogRecvPTMessage( ExternalPTData *pt ) {
   char buf[256];

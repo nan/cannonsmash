@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of MenuItemView class. 
+ * @author KANNA Yoshihiro
+ * $Id$
+ */
 
 // Copyright (C) 2000, 2001, 2002  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
@@ -25,15 +30,29 @@
 
 extern RCFile *theRC;
 
+/**
+ * Constructor. 
+ */
 MenuItemView::MenuItemView() {
   m_image = NULL;
 }
 
+/**
+ * Destructor. 
+ */
 MenuItemView::~MenuItemView() {
   if ( m_image )
     delete m_image;
 }
 
+/**
+ * Initializer method. 
+ * This method loads texture image of this menu item. 
+ * 
+ * @param menu corresponding MenuItem object. 
+ * @param fileName texture file name. 
+ * @return returns true if succeeds. 
+ */
 bool
 MenuItemView::Init( MenuItem *menu, char *fileName ) {
   char fname[256];
@@ -47,11 +66,19 @@ MenuItemView::Init( MenuItem *menu, char *fileName ) {
   return true;
 }
 
+/**
+ * Redraw method. 
+ * Do nothing. 
+ */
 bool
 MenuItemView::Redraw() {
   return true;
 }
 
+/**
+ * Redraw method for transparent object. 
+ * Redraw menu item texture. 
+ */
 bool
 MenuItemView::RedrawAlpha() {
   glColor4f( 1.0F, 1.0F, 1.0F, 1.0F );

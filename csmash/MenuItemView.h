@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of MenuItemView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
@@ -23,6 +28,9 @@
 class MenuItem;
 class ImageData;
 
+/**
+ * MenuItemView is a View class for MenuItem. 
+ */
 class MenuItemView : public View {
 public:
   MenuItemView();
@@ -34,8 +42,8 @@ public:
   virtual bool RedrawAlpha();
 
 protected:
-  MenuItem    *m_menuItem;
-  ImageData   *m_image;
+  MenuItem    *m_menuItem;	///< MenuItem object of which this MenuItemView is attached. 
+  ImageData   *m_image;		///< Texture image of this MenuItemView. 
 };
 
 #endif	// _MenuItemView_

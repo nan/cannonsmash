@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of MenuItem class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
 //
@@ -22,6 +27,9 @@
 class Title;
 class MenuItemView;
 
+/**
+ * MenuItem class represents each menu shown in title. 
+ */
 class MenuItem {
 public:
   MenuItem();
@@ -30,25 +38,25 @@ public:
   virtual bool Init( long x, long y, long width, long height, char *fileName,
 		     Title *parent );
 
-  bool GetSelected() { return m_selected; }
-  long GetX() { return m_x; }
-  long GetY() { return m_y; }
-  long GetWidth() { return m_width; }
-  long GetHeight() { return m_height; }
+  bool GetSelected() { return m_selected; }	///< Returns whether this menu is selected or not. 
+  long GetX() { return m_x; }			///< Returns x-location of this menu. 
+  long GetY() { return m_y; }			///< Returns y-location of this menu. 
+  long GetWidth() { return m_width; }		///< Returns width of this menu. 
+  long GetHeight() { return m_height; }		///< Returns height of this menu. 
   bool SetSelected( bool select );
-  MenuItemView *GetView() { return m_View; }
+  MenuItemView *GetView() { return m_View; }	///< Returns corresponding MenuItemView object. 
 
 protected:
-  MenuItemView *m_View;
+  MenuItemView *m_View;		///< Corresponding MenuItemView object. 
 
-  Title *m_parent;
+  Title *m_parent;		///< Title object of which this MenuItem is attached. 
 
-  bool m_selected;	// Selected?
+  bool m_selected;		///< True if this MenuItem is selected. 
 
-  long m_x;
-  long m_y;
-  long m_width;
-  long m_height;
+  long m_x;			///< x-location of this MenuItem. 
+  long m_y;			///< y-location of this MenuItem. 
+  long m_width;			///< width of this MenuItem. 
+  long m_height;		///< height of this MenuItem. 
 };
 
 #endif	// _MenuItem_

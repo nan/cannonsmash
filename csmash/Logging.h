@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of Logging class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2001, 2002, 2003  神南 吉宏(Kanna Yoshihiro)
 //
@@ -35,6 +40,10 @@ class ExternalPVData;
 class ExternalPSData;
 class ExternalPTData;
 
+/**
+ * Logger class. 
+ * This class writes logg message, especially for internet play log. 
+ */
 class Logging {
 public:
   ~Logging();
@@ -58,9 +67,9 @@ public:
 private:
   Logging();
 
-  static Logging *m_logging;
+  static Logging *m_logging;		///< Singleton Logging object. 
 
-  FILE *m_fp[8];
+  FILE *m_fp[8];			///< File pointers for logging. 
 };
 
 #endif
