@@ -19,8 +19,11 @@
 #include "ttinc.h"
 
 extern bool isTexture;
+extern bool isWireFrame;
 extern bool fullScreen;
 extern long gmode;
+extern long gameLevel;
+extern long gameMode;
 
 extern char serverName[256];
 extern char nickname[32];
@@ -65,6 +68,19 @@ ReadRCFile() {
 	*p = '\0';
       else if ( (p = strchr( message, '\n' )) )
 	*p = '\0';
+    } else if ( strncmp( buf, "wireframe=", 10 ) == 0 ) {
+      if ( buf[10] == '1' )
+	isWireFrame = true;
+      else
+	isWireFrame = false;
+    } else if ( strncmp( buf, "gamelevel=", 10 ) == 0 ) {
+      gameLevel = buf[10]-'0';
+      if ( gameLevel > LEVEL_HARD || gameLevel < LEVEL_EASY )
+	gameLevel = LEVEL_EASY;
+    } else if ( strncmp( buf, "gamemode=", 9 ) == 0 ) {
+      gameMode = buf[9]-'0';
+      if ( gameMode > GAME_21PTS || gameMode < GAME_5PTS )
+	gameMode = GAME_21PTS;
     }
   }
 
@@ -88,10 +104,12 @@ WriteRCFile() {
     fprintf( fp, "full\n" );
 
   fprintf( fp, "server=%s\n", serverName );
-
   fprintf( fp, "nickname=%s\n", nickname );
-
   fprintf( fp, "message=%s\n", message );
+
+  fprintf( fp, "wireframe=%d\n", isWireFrame ? 1 : 0 );
+  fprintf( fp, "gamelevel=%d\n", gameLevel );
+  fprintf( fp, "gamemode=%d\n", gameMode );
 
   fclose( fp );
 
