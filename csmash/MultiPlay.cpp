@@ -543,10 +543,14 @@ StartClient() {
   setsockopt( theSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(int) );
 
   int i;
-  for ( int i = 0 ; i < 10 ; i++ ) {
+  for ( i = 0 ; i < 10 ; i++ ) {
     if ( !connect( theSocket, (struct sockaddr *)&saddr, sizeof(saddr) ) )
       break;
+#ifdef WIN32
+    Sleep(3000);
+#else
     sleep(3);
+#endif
   }
 
   if ( i == 10 ) {

@@ -184,15 +184,17 @@ LobbyClient::PollServerMessage( gpointer data ) {
 	lobby->UpdateTable();
       } else if ( !strncmp( buf, "PI", 2 ) ) {
 	lobby->ReadPI();
-	printf( "PI!\n" );
+	//printf( "PI!\n" );
       } else if ( !strncmp( buf, "OI", 2 ) ) {
 	lobby->ReadOI();
       } else if ( !strncmp( buf, "AP", 2 ) ) {
 	isComm = true;
 	mode = MODE_SELECT;
 	serverName[0] = '\0';
+	gtk_widget_set_sensitive (lobby->m_connectButton, true);
 	StartGame();
       } else if ( !strncmp( buf, "DP", 2 ) ) {
+	gtk_widget_set_sensitive (lobby->m_connectButton, true);
       } else {
 	xerror("%s(%d) read header", __FILE__, __LINE__);
 	gtk_main_quit();
@@ -233,7 +235,9 @@ LobbyClient::Connect( GtkWidget *widget, gpointer data ) {
   long len = 4;
   SendLong( lobby->m_socket, len );
   SendLong( lobby->m_socket, lobby->m_player[lobby->m_selected].m_ID );
-  printf( "%d\n", lobby->m_selected );
+
+  gtk_widget_set_sensitive (lobby->m_connectButton, false);
+  //printf( "%d\n", lobby->m_selected );
 }
 
 void
@@ -376,7 +380,7 @@ LobbyClient::ReadOI() {
 
   // server or client はとりあえず無視. 
 
-  printf( "%s %d\n", serverName, csmash_port );
+  //printf( "%s %d\n", serverName, csmash_port );
 }
 
 
