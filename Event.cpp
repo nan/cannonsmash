@@ -474,6 +474,7 @@ Event::ReadData() {
   tb1.time = tv1.tv_sec;
   tb1.millitm = tv1.tv_usec/1000;
 #endif
+  bool flag = false;
 
   while (1) {
     FD_ZERO( &rdfds );
@@ -483,6 +484,8 @@ Event::ReadData() {
 
     if ( select( theSocket+1, &rdfds, NULL, NULL, &to ) > 0 ) {
       GetExternalData( m_External, comPlayer->GetSide() );
+      printf( "* " );
+      flag = true;
     } else
       break;
     //printf( "External\n" );
@@ -503,7 +506,8 @@ Event::ReadData() {
   tb2.millitm = tv2.tv_usec/1000;
 #endif
 
-  printf( "%d\n", (tb2.time-tb1.time)*1000+tb2.millitm-tb1.millitm );
+  if ( flag )
+    printf( "%d\n", (tb2.time-tb1.time)*1000+tb2.millitm-tb1.millitm );
 
   // externalDataの先頭までbacktrackする
   long btCount;
