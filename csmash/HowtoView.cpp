@@ -131,9 +131,9 @@ HowtoView::Init( Howto *howto ) {
   image.LoadPPM( "images/Keyboard.ppm" );
   for ( j = 0 ; j < image.GetWidth() ; j++ ) {
     for ( k = 0 ; k < image.GetHeight() ; k++ ) {
-      if ( image.GetPixel( j, k, 0 ) == 255 ||
-	   image.GetPixel( j, k, 1 ) == 255 ||
-	   image.GetPixel( j, k, 2 ) == 255 )
+      if ( image.GetPixel( j, k, 0 ) >= 5 ||
+	   image.GetPixel( j, k, 1 ) >= 5 ||
+	   image.GetPixel( j, k, 2 ) >= 5 )
 	image.SetPixel( j, k, 3 , 255 );
       else
 	image.SetPixel( j, k, 3 , 0 );
