@@ -212,12 +212,20 @@ bool parts::loadfile(const char *str)
 	++lineno;
 	int l = strlen(line);
 	int addline = 0;
-	while ('\\' == line[l-2]) {	// fgets() does not chop '\n'
+
+	while (l > 0 && (line[l-1] == '\r' || line[l-1] == '\n')) {
+	    line[--l] = '\0';
+	}
+
+	while ('\\' == line[l-1]) {
             // concat next line(s)
 	    int bufsize = clamp(0U, sizeof(line)-l, sizeof(line)-1);
 	    fgets(&line[l-2], bufsize, fp);
 	    if (feof((FILE*)fp)) break;
 	    l = strlen(line);
+	    while (l > 0 && (line[l-1] == '\r' || line[l-1] == '\n')) {
+		line[--l] = '\0';
+	    }
 	    ++addline;
 	}
 
