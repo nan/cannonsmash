@@ -319,9 +319,6 @@ PenDrive::HitBall() {
     theBall.Hit( v, m_spin, this );
   } else {
     m_swingError = SWING_MISS;
-    if ( Control::TheControl()->GetThePlayer() == this &&
-	 mode == MODE_MULTIPLAY )
-      Event::TheEvent()->SendBall();
   }
 
   return true;
