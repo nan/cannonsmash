@@ -444,6 +444,7 @@ PIDialog::PopupDialog( long uniqID ) {
 void
 PIDialog::PIOK( GtkWidget *widget, gpointer data ) {
   PIDialog *piDialog = (PIDialog *)data;
+  gtk_widget_destroy( GTK_WIDGET(piDialog->m_window) );
 
   isComm = true;
   mode = MODE_SELECT;

@@ -248,6 +248,7 @@ StartGame() {
 	Event::ClearObject();
 	theView.QuitGame();
 	theSound.Clear();
+
 	HitMark::m_textures[0] = 0;
 	HowtoView::m_textures[0] = 0;
 

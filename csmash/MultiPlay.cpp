@@ -39,6 +39,8 @@ typedef int socklen_t;		/* mimic Penguin's typedef */
 
 #endif
 
+extern long mode;
+
 extern Ball theBall;
 extern Player *thePlayer;
 extern Player *comPlayer;
@@ -540,7 +542,14 @@ StartClient() {
 
   setsockopt( theSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(int) );
 
-  if ( connect( theSocket, (struct sockaddr *)&saddr, sizeof(saddr) ) ) {
+  int i;
+  for ( int i = 0 ; i < 10 ; i++ ) {
+    if ( !connect( theSocket, (struct sockaddr *)&saddr, sizeof(saddr) ) )
+      break;
+    sleep(3);
+  }
+
+  if ( i == 10 ) {
     xerror("%s(%d) connect", __FILE__, __LINE__);
     exit(1);
   }
@@ -551,7 +560,6 @@ StartClient() {
   struct timeval tv;
   struct timezone tz;
 #endif
-  int i;
 
   for ( i = 0 ; i < 16 ; i++ ) {
     ReadTime( theSocket, &tb );	// 捨てる
@@ -692,6 +700,7 @@ MultiPlay::SendTime( char *buf ) {
 void
 MultiPlay::EndGame() {
   QuitGame();
+  mode = MODE_TITLE;
 }
 
 

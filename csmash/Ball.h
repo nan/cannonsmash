@@ -63,6 +63,7 @@ public:
 
   char * Send( char *buf );
 
+  BallView *GetView() { return m_View; };
 protected:
   double m_x;		// ballの位置
   double m_y;
