@@ -103,7 +103,7 @@ MultiPlay::Create( long player, long com ) {
   m_theControl = new MultiPlay();
   m_theControl->Init();
 
-  theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
+  theBall.Warp( vector3d(0.0), vector3d(0.0), vector2d(0.0), -1000 );
 
   if ( !(theRC->serverName[0]) )
     side = 1;	// server side
@@ -140,15 +140,10 @@ MultiPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 }
 
 bool
-MultiPlay::LookAt( double &srcX, double &srcY, double &srcZ,
-		   double &destX, double &destY, double &destZ ) {
+MultiPlay::LookAt( vector3d &srcX, vector3d &destX ) {
   if (m_thePlayer) {
-    srcX = m_thePlayer->GetX() + m_thePlayer->GetEyeX();
-    srcY = m_thePlayer->GetY() + m_thePlayer->GetEyeY();
-    srcZ = m_thePlayer->GetZ() + m_thePlayer->GetEyeZ();
-    destX = m_thePlayer->GetLookAtX();
-    destY = m_thePlayer->GetLookAtY();
-    destZ = m_thePlayer->GetLookAtZ();
+    srcX = m_thePlayer->GetX() + m_thePlayer->GetEye();
+    destX = m_thePlayer->GetLookAt();
   }
 
   return true;

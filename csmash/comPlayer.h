@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 #ifndef _comPlayer_
 #define _comPlayer_
 
+#include "Player.h"
+
 #define LEVELMARGIN	(0.30/(theRC->gameLevel*theRC->gameLevel*2+1))
 //#define LEVELMARGIN	(0.15-gameLevel*0.05)
 
@@ -32,12 +34,11 @@ protected:
 
 // Valuable for Think()
   int _prevBallstatus;		// previous ball status
-  double _hitX;			// hit point
-  double _hitY;
+  vector2d _hitX;		// hit point
 
 // Calc hit point
-  virtual bool Hitarea( double &hitX, double &hitY) = 0;
-  virtual double GetBallTop( double &maxX, double &maxY, Player *p );
+  virtual bool Hitarea( vector2d &hitX ) = 0;
+  virtual double GetBallTop( vector2d &maxX, Player *p );
 };
 
 #endif // _comPlayer_

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001, 2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@ PlayerView2D::RedrawAlpha() {
 bool
 PlayerView2D::SubRedraw() {
   SDL_Rect destRect;
-  if ( m_player->GetY() > -3.5 ) {
+  if ( m_player->GetX()[1] > -3.5 ) {
     GetDrawRect( &destRect );
 
     SDL_BlitSurface(m_playerBMP, NULL, BaseView::TheView()->GetSurface(),
@@ -79,7 +79,7 @@ PlayerView2D::SubRedraw() {
 
 bool
 PlayerView2D::GetDamageRect() {
-  if ( m_player->GetY() > -3.5 ) {
+  if ( m_player->GetX()[1] > -3.5 ) {
     SDL_Rect _rect;
 
     GetDrawRect( &_rect );
@@ -101,10 +101,10 @@ bool
 PlayerView2D::GetDrawRect( SDL_Rect *drawRect ) {
   drawRect->x = drawRect->y = drawRect->w = drawRect->h = 0;
 
-  if ( m_player->GetY() > -3.5 ) {
+  if ( m_player->GetX()[1] > -3.5 ) {
     int x, y;
 
-    RenderPoint( m_player->GetX(), m_player->GetY(), 1.7, &x, &y );
+    RenderPoint( m_player->GetX()[0], m_player->GetX()[1], 1.7, &x, &y );
 
     drawRect->x = x-m_playerBMP->w/2;
     drawRect->y = y;

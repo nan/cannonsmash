@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ extern Ball theBall;
 extern long mode;
 
 extern void Timer( int value );
-struct timeb Event::m_lastTime = {0, 0, 0, 0};	// Ä¾Á°¤ËTimerEvent¤¬¸Æ¤Ð¤ì¤¿¤È¤­¤Î»þ¹ï
+struct timeb Event::m_lastTime = {0, 0, 0, 0};	// $BD>A0$K(BTimerEvent$B$,8F$P$l$?$H$-$N;~9o(B
 
 Event* Event::m_theEvent = NULL;
 
@@ -315,9 +315,9 @@ Event::Record() {
 	   sec, cnt,
 	   m_BacktrackBuffer[m_Histptr].score1, 
 	   m_BacktrackBuffer[m_Histptr].score2, 
-	   m_BacktrackBuffer[m_Histptr].theBall.GetX(), 
-	   m_BacktrackBuffer[m_Histptr].theBall.GetY(),
-	   m_BacktrackBuffer[m_Histptr].theBall.GetZ(),
+	   m_BacktrackBuffer[m_Histptr].theBall.GetX()[0], 
+	   m_BacktrackBuffer[m_Histptr].theBall.GetX()[1],
+	   m_BacktrackBuffer[m_Histptr].theBall.GetX()[2],
 	   m_BacktrackBuffer[m_Histptr].theBall.GetStatus() );
   Logging::GetLogging()->Log( LOG_ACTBALL, buf );
 
@@ -328,8 +328,8 @@ Event::Record() {
     prevPlayer = &m_BacktrackBuffer[m_Histptr-1].thePlayer;
   player = &m_BacktrackBuffer[m_Histptr].thePlayer;
 
-  if ( prevPlayer->GetVX() != player->GetVX() ||
-       prevPlayer->GetVY() != player->GetVY() ||
+  if ( prevPlayer->GetV()[0] != player->GetV()[0] ||
+       prevPlayer->GetV()[1] != player->GetV()[1] ||
        prevPlayer->GetSwing() != player->GetSwing() ) {
     sprintf( buf, "%d.%2d: ", sec, cnt );
     Logging::GetLogging()->Log( LOG_ACTTHEPLAYER, buf );
@@ -343,15 +343,15 @@ Event::Record() {
 	      "lookAtX=%4.2f lookAtY=%4.2f lookAtZ=%4.2f "
 	      "pow=%1d spinX=%3.2f spinY=%3.2f stamina=%2.0f dragX=%2d dragY=%2d\n",
 	      (int)player->GetPlayerType(), (int)player->GetSide(), 
-	      player->GetX(), player->GetY(), player->GetZ(), 
-	      player->GetVX(), player->GetVY(), player->GetVZ(), 
+	      player->GetX()[0], player->GetX()[1], player->GetX()[2], 
+	      player->GetV()[0], player->GetV()[1], player->GetV()[2], 
 	      (int)player->GetStatus(), (int)player->GetSwing(),
 	      (int)player->GetSwingType(), (int)player->GetSwingSide(),
 	      (int)player->GetAfterSwing(), (int)player->GetSwingError(), 
-	      player->GetTargetX(), player->GetTargetY(),
-	      player->GetEyeX(), player->GetEyeY(), player->GetEyeZ(),
-	      player->GetLookAtX(), player->GetLookAtY(), player->GetLookAtZ(),
-	      (int)player->GetPower(), player->GetSpinX(), player->GetSpinY(),
+	      player->GetTarget()[0], player->GetTarget()[1],
+	      player->GetEye()[0], player->GetEye()[1], player->GetEye()[2],
+	      player->GetLookAt()[0], player->GetLookAt()[1], player->GetLookAt()[2],
+	      (int)player->GetPower(), player->GetSpin()[0], player->GetSpin()[1],
 	      player->GetStamina(),
 	      (int)player->GetDragX(), (int)player->GetDragY() );
     Logging::GetLogging()->Log( LOG_ACTTHEPLAYER, buf );
@@ -363,8 +363,8 @@ Event::Record() {
     prevPlayer = &m_BacktrackBuffer[m_Histptr-1].comPlayer;
   player = &m_BacktrackBuffer[m_Histptr].comPlayer;
 
-  if ( prevPlayer->GetVX() != player->GetVX() ||
-       prevPlayer->GetVY() != player->GetVY() ||
+  if ( prevPlayer->GetV()[0] != player->GetV()[0] ||
+       prevPlayer->GetV()[1] != player->GetV()[1] ||
        prevPlayer->GetSwing() != player->GetSwing() ) {
     sprintf( buf, "%d.%2d: ", sec, cnt );
     Logging::GetLogging()->Log( LOG_ACTCOMPLAYER, buf );
@@ -378,15 +378,15 @@ Event::Record() {
 	      "lookAtX=%4.2f lookAtY=%4.2f lookAtZ=%4.2f "
 	      "pow=%1d spinX=%3.2f spinY=%3.2f stamina=%2.0f dragX=%2d dragY=%2d\n",
 	      (int)player->GetPlayerType(), (int)player->GetSide(), 
-	      player->GetX(), player->GetY(), player->GetZ(), 
-	      player->GetVX(), player->GetVY(), player->GetVZ(), 
+	      player->GetX()[0], player->GetX()[1], player->GetX()[2], 
+	      player->GetV()[0], player->GetV()[1], player->GetV()[2], 
 	      (int)player->GetStatus(), (int)player->GetSwing(),
 	      (int)player->GetSwingType(), (int)player->GetSwingSide(),
 	      (int)player->GetAfterSwing(), (int)player->GetSwingError(), 
-	      player->GetTargetX(), player->GetTargetY(),
-	      player->GetEyeX(), player->GetEyeY(), player->GetEyeZ(),
-	      player->GetLookAtX(), player->GetLookAtY(), player->GetLookAtZ(),
-	      (int)player->GetPower(), player->GetSpinX(), player->GetSpinY(),
+	      player->GetTarget()[0], player->GetTarget()[1],
+	      player->GetEye()[0], player->GetEye()[1], player->GetEye()[2],
+	      player->GetLookAt()[0], player->GetLookAt()[1], player->GetLookAt()[2],
+	      (int)player->GetPower(), player->GetSpin()[0], player->GetSpin()[1],
 	      player->GetStamina(),
 	      (int)player->GetDragX(), (int)player->GetDragY() );
     Logging::GetLogging()->Log( LOG_ACTCOMPLAYER, buf );
@@ -470,7 +470,7 @@ Event::KeyboardFunc( SDL_Event key, int x, int y ) {
 
 void
 Event::KeyUpFunc( SDL_Event key, int x, int y ) {
-  // ÇÑ»ß¤·¤Æ¤â¤è¤¤
+  // $BGQ;_$7$F$b$h$$(B
 #if 0
   if ( key.key.keysym.unicode == 'Q' ) {
     QuitGame();
@@ -638,11 +638,11 @@ Event::ReadData() {
 
   SDL_mutexP( networkMutex );
 
-  // externalData¤ÎÀèÆ¬¤Þ¤Çbacktrack¤¹¤ë. 
+  // externalData$B$N@hF,$^$G(Bbacktrack$B$9$k(B. 
   long btCount = 0;
   ExternalData *externalOld;
   long btHistptr;
-  while ( !(m_External->isNull()) ) {	// ¸Å¤¹¤®¤ë¾ðÊó¤ò¼Î¤Æ¤ë. 
+  while ( !(m_External->isNull()) ) {	// $B8E$9$.$k>pJs$r<N$F$k(B. 
     btCount = (m_lastTime.time-m_External->sec)*100 + 
       (m_lastTime.millitm/10-m_External->count);
     if ( btCount > MAX_HISTORY ) {
@@ -675,7 +675,7 @@ Event::ReadData() {
 
     BackTrack( btHistptr );
 
-    // Å¬ÍÑ¤¹¤ë -> ¿Ê¤á¤ë¤òbtCount·«¤êÊÖ¤¹
+    // $BE,MQ$9$k(B -> $B?J$a$k$r(BbtCount$B7+$jJV$9(B
     while (1) {
       if ( fTheBall )
 	theBall.Move();
@@ -875,9 +875,9 @@ Event::RemainingLog() {
     sprintf( buf, "sec = %d msec = %d %d - %d  x = %4.2f y = %4.2f z = %4.2f st = %d %d\n",
              sec, cnt,
              bt->score1, bt->score2,
-             bt->theBall.GetX(),
-             bt->theBall.GetY(),
-             bt->theBall.GetZ(),
+             bt->theBall.GetX()[0],
+             bt->theBall.GetX()[1],
+             bt->theBall.GetX()[2],
              bt->theBall.GetStatus(), m_Histptr );
     Logging::GetLogging()->Log( LOG_ACTBALL, buf );
   }

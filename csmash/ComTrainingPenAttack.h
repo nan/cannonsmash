@@ -24,23 +24,19 @@ class ComTrainingPenAttack : public ComPenAttack {
 public:
   ComTrainingPenAttack();
   ComTrainingPenAttack(long side);
-  ComTrainingPenAttack( long playerType, long side,
-			double x, double y, double z, 
-			double vx, double vy, double vz,
-			long status, long swing, 
-			long swingType, bool swingSide,
-			long afterSwing, long swingError, 
-			double targetX, double targetY,
-			double eyeX, double eyeY, double eyeZ,
-			long pow, double spinX, double spinY,
-			double stamina, long statusMax );
+  ComTrainingPenAttack( long playerType, long side, const vector3d x,
+			const vector3d v, long status, long swing, 
+			long swingType, bool swingSide, long afterSwing,
+			long swingError, const vector2d target, 
+			const vector3d eye, long pow, const vector2d spin, 
+			double stamina,long statusMax );
 
   virtual ~ComTrainingPenAttack();
 
 protected:
   virtual bool Think();
 
-  virtual bool Hitarea( double &hitX, double &hitY);
+  virtual bool Hitarea( vector2d &hitX );
 
   virtual bool HitBall();
 };

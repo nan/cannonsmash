@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -83,8 +83,6 @@ BallView::Init() {
  
 bool
 BallView::Redraw() {
-  const static GLfloat mat_yel[] = { 1.0F, 0.8F, 0.0F, 0.0F };
-
   DrawBall();
   DrawShadow();
 
@@ -94,8 +92,7 @@ BallView::Redraw() {
 bool
 BallView::RedrawAlpha() {
   Ball* tmpBall;
-  const static GLfloat mat_yel[] = { 1.0F, 0.8F, 0.0F, 0.0F };
-  static float tx = 0.0, ty = 0.0, tz = TABLEHEIGHT+NETHEIGHT;
+  static vector3d tx = vector3d((const double[]){0.0, 0.0, TABLEHEIGHT+NETHEIGHT});
 
   Player *thePlayer = Control::TheControl()->GetThePlayer();
 
@@ -113,9 +110,9 @@ BallView::RedrawAlpha() {
     // get time until the ball reaches hit point
     while ( tmpBall->GetStatus() != -1 ){
       tmpBall->Move();
-      if ( (thePlayer->GetSide() > 0 && tmpBall->GetY() < thePlayer->GetY()
+      if ( (thePlayer->GetSide() > 0 && tmpBall->GetX()[1] < thePlayer->GetX()[1]
 	   && tmpBall->GetStatus() == 3) ||
-	   (thePlayer->GetSide() < 0 && tmpBall->GetY() > thePlayer->GetY()
+	   (thePlayer->GetSide() < 0 && tmpBall->GetX()[1] > thePlayer->GetX()[1]
 	   && tmpBall->GetStatus() == 1) )
 	break;
       t1++;
@@ -123,7 +120,7 @@ BallView::RedrawAlpha() {
     if ( tmpBall->GetStatus() == -1 )
       t1 += 100000;	// Not red ball
 
-    t1x = tmpBall->GetX();
+    t1x = tmpBall->GetX()[0];
 
     delete tmpBall;
 
@@ -133,21 +130,18 @@ BallView::RedrawAlpha() {
     const static GLfloat mat_white[] = { 0.8F, 0.8F, 0.8F, 0.0F };
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_white);
 
-    float prev[3], diff[3];
+    vector3d prev, diff;
 
-    prev[0] = (float)tmpBall->GetX();
-    prev[1] = (float)tmpBall->GetY();
-    prev[2] = (float)tmpBall->GetZ();
+    prev = tmpBall->GetX();
 
     while ( tmpBall->GetStatus() >= 0 && t1-10 > t2 ) {
       tmpBall->Move();
       t2++;
 
       glPushMatrix();
-        glTranslatef( prev[0], prev[1], prev[2] );
-	diff[0] = (float)tmpBall->GetX()-prev[0];
-	diff[1] = (float)tmpBall->GetY()-prev[1];
-	diff[2] = (float)tmpBall->GetZ()-prev[2];
+        glTranslated( prev[0], prev[1], prev[2] );
+
+	diff = tmpBall->GetX()-prev;
 
 	glBegin(GL_QUADS);
 	for ( double rad = 0.0 ; rad < 3.141592*2 ; rad += 3.141592/3 ) {
@@ -162,9 +156,7 @@ BallView::RedrawAlpha() {
 	glEnd();
       glPopMatrix();
 
-      prev[0] = (float)tmpBall->GetX();
-      prev[1] = (float)tmpBall->GetY();
-      prev[2] = (float)tmpBall->GetZ();
+      prev = tmpBall->GetX();
     }
 
     if ( t1-10 == t2 ) {
@@ -172,30 +164,30 @@ BallView::RedrawAlpha() {
       const static GLfloat mat_red[] = { 1.0F, 0.0F, 0.0F, 1.0F };
       glMaterialfv(GL_FRONT, GL_SPECULAR, mat_red);
       glPushMatrix();
-        glTranslatef( (float)tmpBall->GetX(),
-		      (float)tmpBall->GetY(),
-		      (float)tmpBall->GetZ() );
+        glTranslatef( (float)tmpBall->GetX()[0],
+		      (float)tmpBall->GetX()[1],
+		      (float)tmpBall->GetX()[2] );
 	gluQuadricDrawStyle( m_quad, (GLenum)GLU_FILL );
 	gluQuadricNormals( m_quad, (GLenum)GLU_SMOOTH );
 	gluSphere( m_quad, BALL_R, 12, 12 );
 
       glPopMatrix();
 
-      tx = tmpBall->GetX()-t1x;
-      ty = (float)tmpBall->GetY() - thePlayer->GetY();
-      tz = (float)tmpBall->GetZ() - thePlayer->GetZ();
+      vector3d px = thePlayer->GetX();
+      px[0] = t1x;
+      tx = tmpBall->GetX() - px;
 
       glPushMatrix();
-        glTranslatef( tx+thePlayer->GetX()+0.3,
-		      ty+thePlayer->GetY(),
-		      tz+thePlayer->GetZ() );
+        glTranslatef( tx[0]+thePlayer->GetX()[0]+0.3,
+		      tx[1]+thePlayer->GetX()[1],
+		      tx[2]+thePlayer->GetX()[2] );
 	DrawTargetCircle();
       glPopMatrix();
 
       glPushMatrix();
-        glTranslatef( tx+thePlayer->GetX()-0.3,
-		      ty+thePlayer->GetY(),
-		      tz+thePlayer->GetZ() );
+        glTranslatef( tx[0]+thePlayer->GetX()[0]-0.3,
+		      tx[1]+thePlayer->GetX()[1],
+		      tx[2]+thePlayer->GetX()[2] );
 	DrawTargetCircle();
       glPopMatrix();
     } else {
@@ -204,16 +196,16 @@ BallView::RedrawAlpha() {
       glMaterialfv(GL_FRONT, GL_SPECULAR, mat_red);
 
       glPushMatrix();
-        glTranslatef( tx+thePlayer->GetX()+0.3,
-		      ty+thePlayer->GetY(),
-		      tz+thePlayer->GetZ() );
+        glTranslatef( tx[0]+thePlayer->GetX()[0]+0.3,
+		      tx[1]+thePlayer->GetX()[1],
+		      tx[2]+thePlayer->GetX()[2] );
 	DrawTargetCircle();
       glPopMatrix();
 
       glPushMatrix();
-        glTranslatef( tx+thePlayer->GetX()-0.3,
-		      ty+thePlayer->GetY(),
-		      tz+thePlayer->GetZ() );
+        glTranslatef( tx[0]+thePlayer->GetX()[0]-0.3,
+		      tx[1]+thePlayer->GetX()[1],
+		      tx[2]+thePlayer->GetX()[2] );
 	DrawTargetCircle();
       glPopMatrix();
     }
@@ -223,8 +215,8 @@ BallView::RedrawAlpha() {
     while ( tmpBall->GetStatus() >= 0 ) {
       tmpBall->Move();
 
-      glVertex3f( (float)tmpBall->GetX(), (float)tmpBall->GetY(),
-		  (float)tmpBall->GetZ() );
+      glVertex3f( (float)tmpBall->GetX()[0], (float)tmpBall->GetX()[1],
+		  (float)tmpBall->GetX()[2] );
     }
     glEnd();
       
@@ -235,16 +227,16 @@ BallView::RedrawAlpha() {
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_red);
 
     glPushMatrix();
-      glTranslatef( tx+thePlayer->GetX()+0.3,
-		    ty+thePlayer->GetY(),
-		    tz+thePlayer->GetZ() );
+      glTranslatef( tx[0]+thePlayer->GetX()[0]+0.3,
+		    tx[1]+thePlayer->GetX()[1],
+		    tx[2]+thePlayer->GetX()[2] );
       DrawTargetCircle();
     glPopMatrix();
 
     glPushMatrix();
-      glTranslatef( tx+thePlayer->GetX()-0.3,
-		    ty+thePlayer->GetY(),
-		    tz+thePlayer->GetZ() );
+      glTranslatef( tx[0]+thePlayer->GetX()[0]-0.3,
+		    tx[1]+thePlayer->GetX()[1],
+		    tx[2]+thePlayer->GetX()[2] );
       DrawTargetCircle();
     glPopMatrix();
   }
@@ -332,9 +324,9 @@ BallView::DrawBall() {
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_yel);
 
   glPushMatrix();
-    glTranslatef( (float)theBall.GetX(),
-		  (float)theBall.GetY(),
-		  (float)theBall.GetZ() );
+    glTranslatef( (float)theBall.GetX()[0],
+		  (float)theBall.GetX()[1],
+		  (float)theBall.GetX()[2] );
 
     gluSphere( m_quad, BALL_R, 12, 12 );
   glPopMatrix();
@@ -346,7 +338,7 @@ BallView::DrawShadow() {
   double rad;
   float height;
 
-  if ( theBall.GetY() > -TABLELENGTH/2 && theBall.GetY() < TABLELENGTH/2 )
+  if ( theBall.GetX()[1] > -TABLELENGTH/2 && theBall.GetX()[1] < TABLELENGTH/2 )
     height = TABLEHEIGHT+0.01F;
   else
     height = 0.01F;
@@ -355,8 +347,8 @@ BallView::DrawShadow() {
 
   glBegin(GL_POLYGON);
     for ( rad = 0.0F ; rad < 3.141592F*2 ; rad += 3.141592F/4 )
-      glVertex3f( (float)(theBall.GetX()+BALL_R*cos(rad)),
-		  (float)(theBall.GetY()+BALL_R*sin(rad)),
+      glVertex3f( (float)(theBall.GetX()[0]+BALL_R*cos(rad)),
+		  (float)(theBall.GetX()[1]+BALL_R*sin(rad)),
 		  height );
   glEnd();
 }

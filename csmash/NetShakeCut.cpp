@@ -29,18 +29,15 @@ NetShakeCut::NetShakeCut() : ShakeCut() {
 NetShakeCut::NetShakeCut(long side) : ShakeCut(side) {
 }
 
-NetShakeCut::NetShakeCut( long playerType, long side,
-			  double x, double y, double z,
-			  double vx, double vy, double vz,
-			  long status, long swing, long swingType,
-			  bool swingSide, long afterSwing, long swingError,
-			  double targetX, double targetY,
-			  double eyeX, double eyeY, double eyeZ,
-			  long pow, double spinX, double spinY, 
-			  double stamina, long statusMax ) :
-  ShakeCut( playerType, side, x, y, z, vx, vy, vz, status, swing, swingType,
-	    swingSide, afterSwing, swingError, targetX, targetY,
-	    eyeX, eyeY, eyeZ, pow, spinX, spinY, stamina, statusMax ) {
+NetShakeCut::NetShakeCut( long playerType, long side, const vector3d x, 
+			  const vector3d v, long status, long swing, 
+			  long swingType, bool swingSide, long afterSwing,
+			  long swingError, const vector2d target, 
+			  const vector3d eye, long pow, const vector2d spin, 
+			  double stamina, long statusMax ) : 
+  ShakeCut( playerType, side, x, v, status, swing, swingType, swingSide,
+	    afterSwing, swingError, target, eye, pow, spin, stamina,
+	    statusMax ) {
 }
 
 NetShakeCut::~NetShakeCut() {
@@ -56,30 +53,29 @@ NetShakeCut::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   // Calc the ball location of 0.1 second later. 
   // This part seems to be the same as Swing(). Consider again. 
   Ball *tmpBall;
-  double tmpBallX, tmpBallY, tmpBallZ;
-  double tmpX, tmpY;
+  vector3d tmpBallX;
+  vector2d tmpX;
 
   tmpBall = new Ball(&theBall);
 
   for ( int i = 0 ; i < 9 ; i++ )
     tmpBall->Move();
-  tmpX = m_x+m_vx*0.08;
-  tmpY = m_y+m_vy*0.08;
+  tmpX[0] = m_x[0]+m_v[0]*0.08;
+  tmpX[1] = m_x[1]+m_v[1]*0.08;
 
   if ( ((tmpBall->GetStatus() == 3 && m_side == 1) ||
 	(tmpBall->GetStatus() == 1 && m_side == -1)) &&
-       (tmpY-tmpBall->GetY())*m_side < 0.3 &&
-       (tmpY-tmpBall->GetY())*m_side > -0.6 &&
+       (tmpX[1]-tmpBall->GetX()[1])*m_side < 0.3 &&
+       (tmpX[1]-tmpBall->GetX()[1])*m_side > -0.6 &&
        m_swing <= 10 ) {
 
     tmpBallX = tmpBall->GetX();
-    tmpBallY = tmpBall->GetY();
-    tmpBallZ = tmpBall->GetZ();
 
     // If the ball location becomes better at 1/100 second later, wait. 
     tmpBall->Move();
-    if ( fabs(tmpY+m_vy*0.01-tmpBall->GetY()) > fabs(tmpY-tmpBallY) ) {
-      if ( (m_x-tmpBallX)*m_side < 0 )
+    if ( fabs(tmpX[1]+m_v[1]*0.01-tmpBall->GetX()[1]) >
+	 fabs(tmpX[1]-tmpBallX[1]) ) {
+      if ( (m_x[0]-tmpBallX[0])*m_side < 0 )
 	Swing(3);
       else
 	Swing(1);

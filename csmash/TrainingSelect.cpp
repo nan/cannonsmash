@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -83,7 +83,8 @@ TrainingSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     nothing = 0;
     if ( m_selected == 0 ) {
       m_selected = 1;
-      Sound::TheSound()->Play( SOUND_CLICK, 0, 0 );
+      Sound::TheSound()->Play( SOUND_CLICK,
+			       vector3d((const double[]){0.0, 0.0, 0.0}) );
     } else if ( m_selected > 100 ) {
       mode = MODE_TRAINING;
       return true;
@@ -122,7 +123,8 @@ TrainingSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_rotate = (nextRotate+360/TRAININGPLAYERS/2)/(360/TRAININGPLAYERS)*
 	(360/TRAININGPLAYERS);
       lastRotate = 0;
-      Sound::TheSound()->Play( SOUND_CLICK, 0, 0 );
+      Sound::TheSound()->Play( SOUND_CLICK,
+			       vector3d((const double[]){0.0, 0.0, 0.0}) );
     } else
       m_rotate = nextRotate;
   }

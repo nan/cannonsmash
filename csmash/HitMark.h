@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,12 +20,16 @@
 #define _HitMark_
 #include "View.h"
 
+#include <vector>
+#include "matrix"
+typedef Vector<3, double> vector3d;
+typedef Vector<2, double> vector2d;
+
 class HitMark : public View {
 public:
   HitMark();
   static bool Init();
-  bool Hit( double x, double y, double z, double vx, double vy, double vz,
-	     long swingError );
+  bool Hit( vector3d x, vector3d v, long swingError );
   virtual ~HitMark();
 
   virtual bool Redraw();
@@ -33,12 +37,8 @@ public:
 
   static GLuint       m_textures[2];
 private:
-  double m_x;
-  double m_y;
-  double m_z;
-  double m_vx;
-  double m_vy;
-  double m_vz;
+  vector3d m_x;
+  vector3d m_v;
   long m_swingError;
 
   struct timeb startTime;

@@ -175,22 +175,22 @@ Title::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       switch ( m_selected ) {
       case 0:	// Start
 	//theBall.EndGame();
-	theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
+	theBall.Warp( vector3d(0.0), vector3d(0.0), vector2d(0.0), -1000 );
 	mode = MODE_SELECT;
 	break;
       case 1:	// Practice
 	//theBall.EndGame();
-	theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
+	theBall.Warp( vector3d(0.0), vector3d(0.0), vector2d(0.0), -1000 );
 	mode = MODE_PRACTICESELECT;
 	break;
       case 2:	// Training
 	//theBall.EndGame();
-	theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
+	theBall.Warp( vector3d(0.0), vector3d(0.0), vector2d(0.0), -1000 );
 	mode = MODE_TRAININGSELECT;
 	break;
       case 3:	// Howto
 	//theBall.EndGame();
-	theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
+	theBall.Warp( vector3d(0.0), vector3d(0.0), vector2d(0.0), -1000 );
 	mode = MODE_HOWTO;
 	break;
       case 4:	// Config...
@@ -262,11 +262,10 @@ Title::GetMenuNum( long major, long minor ) {
 }
 
 bool
-Title::LookAt( double &srcX, double &srcY, double &srcZ,
-	       double &destX, double &destY, double &destZ ) {
-  srcX = TABLELENGTH*2*cos(GetCount()*3.14159265/720.0);
-  srcY = TABLELENGTH*2*sin(GetCount()*3.14159265/720.0) + TABLELENGTH/2;
-  srcZ = TABLEHEIGHT*4;
+Title::LookAt( vector3d &srcX, vector3d &destX ) {
+  srcX[0] = TABLELENGTH*2*cos(GetCount()*3.14159265/720.0);
+  srcX[1] = TABLELENGTH*2*sin(GetCount()*3.14159265/720.0) + TABLELENGTH/2;
+  srcX[2] = TABLEHEIGHT*4;
 
   return true;
 }

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2002, 2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,8 +25,7 @@ extern RCFile *theRC;
 
 GLuint HitMark::m_textures[2] = {0, 0};
 
-HitMark::HitMark() {
-  m_x = m_y = m_z = m_vx = m_vy = m_vz = 0.0;
+HitMark::HitMark() : m_x(0.0), m_v(0.0) {
   m_swingError = SWING_PERFECT;
 }
 
@@ -79,14 +78,10 @@ HitMark::Init() {
 }
 
 bool
-HitMark::Hit( double x, double y, double z, double vx, double vy, double vz,
-	       long swingError ) {
+HitMark::Hit( const vector3d x, const vector3d v, long swingError ) {
   m_x = x;
-  m_y = y;
-  m_z = z;
-  m_vx = vx;
-  m_vy = vy;
-  m_vz = vz;
+  m_v = v;
+
   m_swingError = swingError;
 
 #ifndef WIN32
@@ -146,7 +141,7 @@ HitMark::RedrawAlpha() {
   glDepthMask(0);
   
   glPushMatrix();
-  glTranslatef( (float)m_x, (float)m_y, TABLEHEIGHT+0.5F );
+  glTranslatef( (float)m_x[0], (float)m_x[1], TABLEHEIGHT+0.5F );
 
   switch ( m_swingError ) {
   case SWING_PERFECT:

@@ -21,6 +21,11 @@
 #include "PlayerView.h"
 #include "PlayerView2D.h"
 
+#include <vector>
+#include "matrix"
+typedef Vector<3, double> vector3d;
+typedef Vector<2, double> vector2d;
+
 // m_playerType
 #define PLAYER_PROTO		0	// Prototype player
 #define PLAYER_PENATTACK	1	// Pen Attack
@@ -48,12 +53,10 @@ class Player {
 public:
   Player();
   Player( long side );
-  Player( long playerType, long side, double x, double y, double z, 
-	  double vx, double vy, double vz,long status, long swing, 
-	  long swingType, bool swingSide, long afterSwing, long swingError, 
-	  double targetX, double targetY, double eyeX, double eyeY,
-	  double eyeZ, long pow, double spinX, double spinY,
-	  double stamina, long statusMax );
+  Player( long playerType, long side, const vector3d x, const vector3d v,
+	  long status, long swing, long swingType, bool swingSide, long afterSwing,
+	  long swingError, const vector2d target, const vector3d eye,
+	  long pow, const vector2d spin, double stamina, long statusMax );
 
   virtual ~Player();
 
@@ -77,23 +80,13 @@ public:
   virtual long   GetSide() { return m_side; }
   virtual long   GetPlayerType() { return m_playerType; }
 
-  virtual double GetX() { return m_x; }
-  virtual double GetY() { return m_y; }
-  virtual double GetZ() { return m_z; }
-  virtual double GetVX() { return m_vx; }
-  virtual double GetVY() { return m_vy; }
-  virtual double GetVZ() { return m_vz; }
+  virtual vector3d GetX() { return m_x; }
+  virtual vector3d GetV() { return m_v; }
   virtual long   GetPower() { return m_pow; }
-  virtual double GetSpinX() { return m_spinX; }
-  virtual double GetSpinY() { return m_spinY; }
-  virtual double GetTargetX() { return m_targetX; }
-  virtual double GetTargetY() { return m_targetY; }
-  virtual double GetEyeX() { return m_eyeX; }
-  virtual double GetEyeY() { return m_eyeY; }
-  virtual double GetEyeZ() { return m_eyeZ; }
-  virtual double GetLookAtX() { return m_lookAtX; }
-  virtual double GetLookAtY() { return m_lookAtY; }
-  virtual double GetLookAtZ() { return m_lookAtZ; }
+  virtual vector2d GetSpin() { return m_spin; }
+  virtual vector2d GetTarget() { return m_target; }
+  virtual vector3d GetEye() { return m_eye; }
+  virtual vector3d GetLookAt() { return m_lookAt; }
   virtual double GetStamina() { return m_stamina; }
   virtual long   GetStatus() { return m_status; }
   virtual long   GetSwing() { return m_swing; }
@@ -105,17 +98,12 @@ public:
   virtual long   GetDragX() { return m_dragX; }
   virtual long   GetDragY() { return m_dragY; }
 
-  virtual bool   GetShoulder( double &x, double &y, double &deg );
-  virtual bool   GetElbow( double &degx, double& degy );
-  virtual bool   GetHand( double &degx, double &degy, double &degz );
-
   // true  -> forehand
   // false -> backhand
   virtual bool ForeOrBack();
 
-  virtual bool Warp( double x, double y, double z,
-		     double vx, double vy, double vz );
-  virtual bool ExternalSwing( long pow, double spinX, double spinY,
+  virtual bool Warp( const vector3d &x, const vector3d &v );
+  virtual bool ExternalSwing( long pow, const vector2d &spin,
 			      long swingType, long swing );
 
   virtual bool Warp( char *buf );
@@ -125,7 +113,7 @@ public:
   virtual char * SendLocation( char *buf );
   virtual bool SendAll( int sd );
 
-  virtual bool GetModifiedTarget( double &targetX, double &targetY );
+  virtual bool GetModifiedTarget( vector2d &target );
 
   virtual void CalcLevel( Ball *ball, double &diff, double &level, double &maxVy );
 
@@ -136,12 +124,8 @@ protected:
   long m_side;		// 1  --- ( y < 0 )
 			// -1 --- ( y > 0 )
 
-  double m_x;		// player location
-  double m_y;
-  double m_z;
-  double m_vx;		// player velocity
-  double m_vy;
-  double m_vz;
+  vector3d m_x;		// player location
+  vector3d m_v;		// player velocity
 
   long m_status;	// status gauge
   long m_swing;		// swing status
@@ -154,20 +138,14 @@ protected:
                         // 2 --- Good
                         // 3 --- Boo
                         // 4 --- Miss
-  double m_targetX;	// location of target circle
-  double m_targetY;	// location of target circle
+  vector2d m_target;	// location of target circle
 
-  double m_eyeX;	// Viewpoint
-  double m_eyeY;
-  double m_eyeZ;
+  vector3d m_eye;	// Viewpoint
 
-  double m_lookAtX;
-  double m_lookAtY;
-  double m_lookAtZ;
+  vector3d m_lookAt;
 
   long m_pow;		// power
-  double m_spinX;	// sidespin
-  double m_spinY;	// topspin/backspin
+  vector2d m_spin;	// {sidespin, topspin/backspin}
 
   double m_stamina;
 
@@ -178,12 +156,8 @@ protected:
 
   PlayerView* m_View;
 
-  double m_lastSendX;
-  double m_lastSendY;
-  double m_lastSendZ;
-  double m_lastSendVX;
-  double m_lastSendVY;
-  double m_lastSendVZ;
+  vector3d m_lastSendX;
+  vector3d m_lastSendV;
   long m_lastSendCount;
 
   virtual bool KeyCheck( SDL_keysym *KeyHistory, long *MouseXHistory,
@@ -198,7 +172,7 @@ protected:
 
   void UpdateLastSend();
 
-  void AddError( double &vx, double &vy, double &vz );
+  void AddError( vector3d &v );
 };
 
 #endif // _Player_

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -125,7 +125,7 @@ SoloPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 
   // Check smash replay
   if ( theBall.GetStatus() == 1 && prevStatus != 1 ) {
-    if ( hypot( theBall.GetVY(), theBall.GetVZ() ) > 8.0 ) {
+    if ( hypot( theBall.GetV()[1], theBall.GetV()[2] ) > 8.0 ) {
       m_smash = true;
     } else
       m_smash = false;
@@ -140,39 +140,32 @@ SoloPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 }
 
 bool
-SoloPlay::LookAt( double &srcX, double &srcY, double &srcZ,
-		  double &destX, double &destY, double &destZ ) {
+SoloPlay::LookAt( vector3d &srcX, vector3d &destX ) {
   if (m_thePlayer) {
     if ( m_smashPtr >= 0 ) {	// Smash replay
       switch (m_smashCount) {
       case 0:
-	srcX = 0;
-	srcY = TABLELENGTH*m_thePlayer->GetSide();
-	srcZ = 1.6;
+	srcX[0] = 0.0;
+	srcX[1] = TABLELENGTH*m_thePlayer->GetSide();
+	srcX[2] = 1.6;
 
-	destX = 0;
-	destY = -TABLELENGTH/2*m_thePlayer->GetSide();
-	destZ = TABLEHEIGHT;
+	destX[0] = 0;
+	destX[1] = -TABLELENGTH/2*m_thePlayer->GetSide();
+	destX[2] = TABLEHEIGHT;
 	break;
       case 1:
-	srcX = -TABLEWIDTH;
-	srcY = 0;
-	srcZ = 1.6;
+	srcX[0] = -TABLEWIDTH;
+	srcX[1] = 0;
+	srcX[2] = 1.6;
 
 	destX = theBall.GetX();
-	destY = theBall.GetY();
-	destZ = theBall.GetZ();
 	break;
       default:
 	printf( "%d\n", (int)m_smashCount );
       }
     } else {
-      srcX = m_thePlayer->GetX() + m_thePlayer->GetEyeX();
-      srcY = m_thePlayer->GetY() + m_thePlayer->GetEyeY();
-      srcZ = m_thePlayer->GetZ() + m_thePlayer->GetEyeZ();
-      destX = m_thePlayer->GetLookAtX();
-      destY = m_thePlayer->GetLookAtY();
-      destZ = m_thePlayer->GetLookAtZ();
+      srcX = m_thePlayer->GetX() + m_thePlayer->GetEye();
+      destX = m_thePlayer->GetLookAt();
     }
   }
 

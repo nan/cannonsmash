@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@ extern Ball   theBall;
 
 ComPlayer::ComPlayer() {
   _prevBallstatus = 0;
-  _hitX = 0;
-  _hitY = -TABLELENGTH/3;
+  _hitX[0] = 0;
+  _hitX[1] = -TABLELENGTH/3;
 }
 
 ComPlayer::~ComPlayer() {
@@ -34,7 +34,7 @@ ComPlayer::~ComPlayer() {
 
 // Calculate top of the ball
 double
-ComPlayer::GetBallTop( double &maxX, double &maxY, Player *p ) {
+ComPlayer::GetBallTop( vector2d &maxX, Player *p ) {
   Ball *tmpBall;
   double max = -1.0;             /* highest point of the ball */
 
@@ -43,12 +43,12 @@ ComPlayer::GetBallTop( double &maxX, double &maxY, Player *p ) {
   while ( tmpBall->GetStatus() != -1 ) {
     if ( (tmpBall->GetStatus() == 3 && p->GetSide() == 1) ||
 	 (tmpBall->GetStatus() == 1 && p->GetSide() == -1) ) {
-      if ( tmpBall->GetZ() > max &&
-	   fabs(tmpBall->GetY()) < TABLELENGTH/2+1.0 &&
-	   fabs(tmpBall->GetY()) > TABLELENGTH/2-0.5 ) {
-	max = tmpBall->GetZ();
-	maxX = tmpBall->GetX();
-	maxY = tmpBall->GetY();
+      if ( tmpBall->GetX()[2] > max &&
+	   fabs(tmpBall->GetX()[1]) < TABLELENGTH/2+1.0 &&
+	   fabs(tmpBall->GetX()[1]) > TABLELENGTH/2-0.5 ) {
+	maxX[0] = tmpBall->GetX()[0];
+	maxX[1] = tmpBall->GetX()[1];
+	max = tmpBall->GetX()[2];
       }
     }
     tmpBall->Move();

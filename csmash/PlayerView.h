@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2002, 2003  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,6 +19,12 @@
 #ifndef _PlayerView_
 #define _PlayerView_
 #include "View.h"
+
+#include <algorithm>
+#include <vector>
+#include "float"
+#include "matrix"
+#include "affine"
 
 #if !defined(CHIYO)
 class partsmotion;
@@ -73,9 +79,7 @@ private:
   void DrawTarget();
   void DrawMeter();
 
-  float m_xdiff;
-  float m_ydiff;
-  float m_zdiff;
+  vector3F m_diff;
 };
 
 #endif	// _PlayerView

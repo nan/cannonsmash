@@ -34,19 +34,15 @@ ComPenAttack::ComPenAttack() : PenAttack(), ComPlayer() {
 ComPenAttack::ComPenAttack(long side) : PenAttack(side), ComPlayer() {
 }
 
-ComPenAttack::ComPenAttack( long playerType, long side,
-			    double x, double y, double z,
-			    double vx, double vy, double vz,
-			    long status, long swing,
-			    long swingType, bool swingSide,
-			    long afterSwing, long swingError,
-			    double targetX, double targetY,
-			    double eyeX, double eyeY, double eyeZ,
-			    long pow, double spinX, double spinY,
-			    double stamina, long statusMax ) :
-  PenAttack( playerType, side, x, y, z, vx, vy, vz, status, swing, swingType,
-	     swingSide, afterSwing, swingError, targetX, targetY,
-	     eyeX, eyeY, eyeZ, pow, spinX, spinY, stamina, statusMax ), ComPlayer() {
+ComPenAttack::ComPenAttack( long playerType, long side, const vector3d x,
+			    const vector3d v, long status, long swing, 
+			    long swingType, bool swingSide, long afterSwing,
+			    long swingError, const vector2d target, 
+			    const vector3d eye, long pow, const vector2d spin, 
+			    double stamina,long statusMax ) :
+  PenAttack( playerType, side, x, v, status, swing, swingType,
+	     swingSide, afterSwing, swingError, target, 
+	     eye, pow, spin, stamina, statusMax ), ComPlayer() {
 }
 
 ComPenAttack::~ComPenAttack() {
@@ -56,8 +52,8 @@ bool
 ComPenAttack::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		 long *MouseYHistory, unsigned long *MouseBHistory,
 		 int Histptr ) {
-  double prevVx = m_vx;
-  double prevVy = m_vy;
+  vector3d prevV;
+  prevV = m_v;
 
   PenAttack::Move( KeyHistory, MouseXHistory, MouseYHistory, MouseBHistory,
 		Histptr );
@@ -65,7 +61,7 @@ ComPenAttack::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   Think();
 
 // Calc status
-  if ( hypot( m_vx-prevVx, m_vy-prevVy ) > 0.8-theRC->gameLevel*0.1 ) {
+  if ( (m_v-prevV).len() > 0.8-theRC->gameLevel*0.1 ) {
     AddStatus(-1);
   }
 
@@ -78,56 +74,56 @@ ComPenAttack::Think() {
   double mx;
 
   // If the ball status changes, change _hitX, _hitY
-  if ( _prevBallstatus != theBall.GetStatus() && theBall.GetStatus() >= 0 ){
-    Hitarea( _hitX, _hitY );
+  if ( _prevBallstatus != theBall.GetStatus() && theBall.GetStatus() >= 0 ) {
+    Hitarea( _hitX );
 
     _prevBallstatus = theBall.GetStatus();
   }
 
-  if ( theBall.GetVY() != 0.0 )
-    hitT = (_hitY - theBall.GetY())/theBall.GetVY()-TICK;
+  if ( theBall.GetV()[1] != 0.0 )
+    hitT = (_hitX[1] - theBall.GetX()[1])/theBall.GetV()[1]-TICK;
   else
     hitT = -1.0;
 
   if ( theBall.GetStatus() == 8 ||
-       fabs( _hitX-(m_x+m_side*0.3) ) < fabs( _hitX-(m_x-m_side*0.3) ) )
-    mx = m_x+m_side*0.3;
+       fabs(_hitX[0]-(m_x[0]+m_side*0.3)) < fabs(_hitX[0]-(m_x[0]-m_side*0.3)))
+    mx = m_x[0]+m_side*0.3;
   else
-    mx = m_x-m_side*0.3;
+    mx = m_x[0]-m_side*0.3;
 
   if ( m_swing > 10 && m_swing <= 20 ) {
   } else {
     if ( hitT > 0.0 ) {
-      double vx = (_hitX-mx)/hitT;
-      if ( vx > m_vx+0.1 )
-	m_vx += 0.1;
-      else if ( vx < m_vx-0.1 )
-	m_vx -= 0.1;
+      double vx = (_hitX[0]-mx)/hitT;
+      if ( vx > m_v[0]+0.1 )
+	m_v[0] += 0.1;
+      else if ( vx < m_v[0]-0.1 )
+	m_v[0] -= 0.1;
       else
-	m_vx = vx;
+	m_v[0] = vx;
     } else {
-      if ( m_vx*fabs(m_vx*0.1)/2 < _hitX - mx )
-	m_vx += 0.1;
+      if ( m_v[0]*fabs(m_v[0]*0.1)/2 < _hitX[0] - mx )
+	m_v[0] += 0.1;
       else
-	m_vx -= 0.1;
+	m_v[0] -= 0.1;
     }
   }
 
   if ( m_swing > 10 && m_swing <= 20 ) {
   } else {
     if ( hitT > 0.0 ) {
-      double vy = (_hitY-m_y)/hitT;
-      if ( vy > m_vy+0.1 )
-	m_vy += 0.1;
-      else if ( vy < m_vy-0.1 )
-	m_vy -= 0.1;
+      double vy = (_hitX[1]-m_x[1])/hitT;
+      if ( vy > m_v[1]+0.1 )
+	m_v[1] += 0.1;
+      else if ( vy < m_v[1]-0.1 )
+	m_v[1] -= 0.1;
       else
-	m_vy = vy;
+	m_v[1] = vy;
     } else {
-      if ( m_vy*fabs(m_vy*0.1)/2 < _hitY - m_y )
-	m_vy += 0.1;
+      if ( m_v[1]*fabs(m_v[1]*0.1)/2 < _hitX[1] - m_x[1] )
+	m_v[1] += 0.1;
       else
-	m_vy -= 0.1;
+	m_v[1] -= 0.1;
     }
   }
 
@@ -147,19 +143,18 @@ ComPenAttack::Think() {
        (theBall.GetStatus() == 3 && m_side == 1) ||
        (theBall.GetStatus() == 4 && m_side == -1) ||
        (theBall.GetStatus() == 5 && m_side == 1) ) {
-    if ( m_vx > 5.0 )
-      m_vx = 5.0;
-    else if ( m_vx < -5.0 )
-      m_vx = -5.0;
-    if ( m_vy > 5.0 )
-      m_vy = 5.0;
-    else if ( m_vy < -5.0 )
-      m_vy = -5.0;
+    if ( m_v[0] > 5.0 )
+      m_v[0] = 5.0;
+    else if ( m_v[0] < -5.0 )
+      m_v[0] = -5.0;
+    if ( m_v[1] > 5.0 )
+      m_v[1] = 5.0;
+    else if ( m_v[1] < -5.0 )
+      m_v[1] = -5.0;
   } else {
-    if ( hypot( m_vx, m_vy ) >= 1.0 ) {
-      double v = hypot( m_vx, m_vy );
-      m_vx = m_vx/v*1.0;
-      m_vy = m_vy/v*1.0;
+    if ( m_v.len() >= 1.0 ) {
+      double v = m_v.len();
+      m_v = m_v/v*1.0;
     }
   }
 
@@ -168,69 +163,68 @@ ComPenAttack::Think() {
   if ( theBall.GetStatus() == 8 &&
        ( (Control::TheControl()->IsPlaying() &&
 	  ((PlayGame *)Control::TheControl())->GetService() == GetSide()) ) &&
-       fabs(m_vx) < 0.1 && fabs(m_vy) < 0.1 &&
-       fabs(m_x+m_side*0.3-_hitX) < 0.1 && fabs(m_y-_hitY) < 0.1 &&
-       m_swing == 0 ){
+       fabs(m_v[0]) < 0.1 && fabs(m_v[1]) < 0.1 &&
+       fabs(m_x[0]+m_side*0.3-_hitX[0]) < 0.1 && fabs(m_x[1]-_hitX[1]) < 0.1 &&
+       m_swing == 0 ) {
 #else
   if ( theBall.GetStatus() == 8 &&
        ( (Control::TheControl()->IsPlaying() &&
 	  ((PlayGame *)Control::TheControl())->GetService() == GetSide()) ||
 	 (!Control::TheControl()->IsPlaying() && GetSide() == 1) ) &&
-       fabs(m_vx) < 0.1 && fabs(m_vy) < 0.1 &&
-       fabs(m_x+m_side*0.3-_hitX) < 0.1 && fabs(m_y-_hitY) < 0.1 &&
-       m_swing == 0 ){
+       fabs(m_v[0]) < 0.1 && fabs(m_v[1]) < 0.1 &&
+       fabs(m_x[0]+m_side*0.3-_hitX[0]) < 0.1 && fabs(m_x[1]-_hitX[1]) < 0.1 &&
+       m_swing == 0 ) {
 #endif
     theBall.Toss( this, 2 );
     StartSwing( 3 );
-    m_targetY = TABLELENGTH/6*m_side;
+    m_target[1] = TABLELENGTH/6*m_side;
 
     return true;
   }
 
-  if ( fabs( theBall.GetY()+theBall.GetVY()*0.1 - _hitY ) < 0.2 /*&&
+  if ( fabs( theBall.GetX()[1]+theBall.GetV()[1]*0.1 - _hitX[1] ) < 0.2 /*&&
        m_swing == 0*/ ){
     // Calc the ball location of 0.1 second later. 
     // This part seems to be the same as Swing(). Consider again. 
     Ball *tmpBall;
-    double tmpBallX, tmpBallY, tmpBallZ;
-    double tmpX, tmpY;
+    vector3d  tmpBallX;
+    vector2d tmpX;
 
     tmpBall = new Ball(&theBall);
 
     for ( int i = 0 ; i < 9 ; i++ )
       tmpBall->Move();
-    tmpX = m_x+m_vx*0.08;
-    tmpY = m_y+m_vy*0.08;
+    tmpX[0] = m_x[0]+m_v[0]*0.08;
+    tmpX[1] = m_x[1]+m_v[1]*0.08;
 
     if ( ((tmpBall->GetStatus() == 3 && m_side == 1) ||
 	  (tmpBall->GetStatus() == 1 && m_side == -1)) &&
-	 (tmpY-tmpBall->GetY())*m_side < 0.3 &&
-	 (tmpY-tmpBall->GetY())*m_side > -0.6 &&
+	 (tmpX[1]-tmpBall->GetX()[1])*m_side < 0.3 &&
+	 (tmpX[1]-tmpBall->GetX()[1])*m_side > -0.6 &&
 	 m_swing <= 10 ) {
 
       tmpBallX = tmpBall->GetX();
-      tmpBallY = tmpBall->GetY();
-      tmpBallZ = tmpBall->GetZ();
 
       // If the ball location becomes better at 1/100 second later, wait. 
       tmpBall->Move();
-      if ( fabs(tmpY+m_vy*0.01-tmpBall->GetY()) < fabs(tmpY-tmpBallY) &&
-	   fabs(tmpY-tmpBallY) > LEVELMARGIN ) {
+      if ( fabs(tmpX[1]+m_v[1]*0.01-tmpBall->GetX()[1]) <
+	   fabs(tmpX[1]-tmpBallX[1]) &&
+	   fabs(tmpX[1]-tmpBallX[1]) > LEVELMARGIN ) {
 	delete tmpBall;
 	return true;
       }
 
-      _hitX = tmpBallX;
-      _hitY = tmpBallY;
+      _hitX[0] = tmpBallX[0];
+      _hitX[1] = tmpBallX[1];
 
-      if ( (tmpBallZ-TABLEHEIGHT)/fabs(tmpBallY-m_targetY) < 0.0 )
-	m_targetY = TABLELENGTH/4*m_side;
-      else if ( (tmpBallZ-TABLEHEIGHT)/fabs(tmpBallY-m_targetY) < 0.1 )
-	m_targetY = TABLELENGTH/3*m_side;
+      if ( (tmpBallX[2]-TABLEHEIGHT)/fabs(tmpBallX[1]-m_target[1]) < 0.0 )
+	m_target[1] = TABLELENGTH/4*m_side;
+      else if ( (tmpBallX[2]-TABLEHEIGHT)/fabs(tmpBallX[1]-m_target[1]) < 0.1 )
+	m_target[1] = TABLELENGTH/3*m_side;
       else
-	m_targetY = TABLELENGTH/16*6*m_side;
+	m_target[1] = TABLELENGTH/16*6*m_side;
 
-      if ( (m_x-tmpBallX)*m_side < 0 )
+      if ( (m_x[0]-tmpBallX[0])*m_side < 0 )
 	Swing(3);
       else
 	Swing(1);
@@ -247,9 +241,9 @@ ComPenAttack::Think() {
 // (1) If the ball hasn't bound, calc bound point
 // (2) Calc hit point from current ball location or bound location
 bool
-ComPenAttack::Hitarea( double &hitX, double &hitY ) {
+ComPenAttack::Hitarea( vector2d &hitX ) {
   double max = -1.0;             /* highest point of the ball */
-  double maxX = 0.0, maxY = 0.0;
+  vector2d maxX = vector2d(0.0);
 
   if ( (theBall.GetStatus() == 3 && m_side == 1) ||
        (theBall.GetStatus() == 2 && m_side == 1) ||
@@ -257,26 +251,25 @@ ComPenAttack::Hitarea( double &hitX, double &hitY ) {
        (theBall.GetStatus() == 1 && m_side == -1) ||
        (theBall.GetStatus() == 4 && m_side == -1) ||
        (theBall.GetStatus() == 5 && m_side == 1) ) {
-    max = GetBallTop( maxX, maxY, this );
+    max = GetBallTop( maxX, this );
 
     if ( max > 0 ) {
       hitX = maxX;
-      hitY = maxY;
     }
   } else if ( theBall.GetStatus() == 8 ) {
     if ( (Control::TheControl()->IsPlaying() &&
 	  ((PlayGame *)Control::TheControl())->GetService() == GetSide()) ||
 	 GetSide() == 1 ) {
       if ( RAND(2) )
-	hitX = m_targetX;
+	hitX[0] = m_target[0];
       else
-	hitX = -m_targetX;
+	hitX[0] = -m_target[0];
     } else
-      hitX = 0.0;
-    hitY = -(TABLELENGTH/2+0.2)*m_side;
+      hitX[0] = 0.0;
+    hitX[1] = -(TABLELENGTH/2+0.2)*m_side;
   } else if ( theBall.GetStatus() < 6 ) {
-    hitX = 0.0;
-    hitY = -(TABLELENGTH/2+0.5)*m_side;
+    hitX[0] = 0.0;
+    hitX[1] = -(TABLELENGTH/2+0.5)*m_side;
   }
 
   return true;
@@ -304,73 +297,73 @@ ComPenAttack::SetTargetX( Player *opponent ) {
   if ( opponent->GetPlayerType() == PLAYER_PENDRIVE ) {
     switch ( RAND(4) ) {
     case 0:
-      m_targetX = -width*7/16;
+      m_target[0] = -width*7/16;
       break;
     case 1:
-      m_targetX = -width*5/16;
+      m_target[0] = -width*5/16;
       break;
     case 2:
-      m_targetX = -width*3/16;
+      m_target[0] = -width*3/16;
       break;
     case 3:
-      m_targetX = -width*1/16;
+      m_target[0] = -width*1/16;
       break;
     }
   } else {
     switch ( RAND(8) ) {
     case 0:
-      m_targetX = -width*7/16;
+      m_target[0] = -width*7/16;
       break;
     case 1:
-      m_targetX = -width*5/16;
+      m_target[0] = -width*5/16;
       break;
     case 2:
-      m_targetX = -width*3/16;
+      m_target[0] = -width*3/16;
       break;
     case 3:
-      m_targetX = -width*1/16;
+      m_target[0] = -width*1/16;
       break;
     case 4:
-      m_targetX = width*1/16;
+      m_target[0] = width*1/16;
       break;
     case 5:
-      m_targetX = width*3/16;
+      m_target[0] = width*3/16;
       break;
     case 6:
-      m_targetX = width*5/16;
+      m_target[0] = width*5/16;
       break;
     case 7:
-      m_targetX = width*7/16;
+      m_target[0] = width*7/16;
       break;
     }
   }
 
   if ( theRC->gameLevel == LEVEL_TSUBORISH ) {
-    if ( opponent->GetX()+opponent->GetVX()*0.5 < 0.0 ) {
-      m_targetX = width*7/16;
+    if ( opponent->GetX()[0]+opponent->GetV()[0]*0.5 < 0.0 ) {
+      m_target[0] = width*7/16;
     } else {
-      m_targetX = -width*7/16;
+      m_target[0] = -width*7/16;
     }
 
     if ( RAND(4) == 0 ) {
-      m_targetX = -m_targetX;
+      m_target[0] = -m_target[0];
     }
   }
 
-  if ( m_vx > 1.5 ) {
-    m_targetX += TABLEWIDTH/2;
-  } else if ( m_vx > 0.5 ) {
-    m_targetX += TABLEWIDTH/4;
-  } else if ( m_vx < -1.5 ) {
-    m_targetX -= TABLEWIDTH/2;
-  } else if ( m_vx < -0.5 ) {
-    m_targetX -= TABLEWIDTH/4;
+  if ( m_v[0] > 1.5 ) {
+    m_target[0] += TABLEWIDTH/2;
+  } else if ( m_v[0] > 0.5 ) {
+    m_target[0] += TABLEWIDTH/4;
+  } else if ( m_v[0] < -1.5 ) {
+    m_target[0] -= TABLEWIDTH/2;
+  } else if ( m_v[0] < -0.5 ) {
+    m_target[0] -= TABLEWIDTH/4;
   }
 
-  if ( m_targetX > TABLEWIDTH/2 )
-    m_targetX = TABLEWIDTH*7/16;
-  if ( m_targetX < -TABLEWIDTH/2 )
-    m_targetX = -TABLEWIDTH*7/16;
+  if ( m_target[0] > TABLEWIDTH/2 )
+    m_target[0] = TABLEWIDTH*7/16;
+  if ( m_target[0] < -TABLEWIDTH/2 )
+    m_target[0] = -TABLEWIDTH*7/16;
 
   return true;
 }

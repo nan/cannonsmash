@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,8 +35,7 @@ public:
 
   long GetSmashPtr() { return m_smashPtr; };
 
-  virtual bool LookAt( double &srcX, double &srcY, double &srcZ,
-		       double &destX, double &destY, double &destZ );
+  virtual bool LookAt( vector3d &srcX, vector3d &destX );
   long SmashEffect( bool start, long histPtr );
 
 protected:

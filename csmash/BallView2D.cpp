@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001, 2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -48,11 +48,11 @@ BallView2D::Redraw() {
   static SDL_Rect rect = {0, 0, 0, 0};
 
   // Draw the Ball itself
-  if ( theBall.GetY() > -3.5 ) {
-    RenderRect( theBall.GetX()-BALL_R/2, theBall.GetY()-BALL_R/2,
-		theBall.GetZ()-BALL_R/2, 
-		theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2,
-		theBall.GetZ()+BALL_R/2, 
+  if ( theBall.GetX()[1] > -3.5 ) {
+    RenderRect( theBall.GetX()[0]-BALL_R/2, theBall.GetX()[1]-BALL_R/2,
+		theBall.GetX()[2]-BALL_R/2, 
+		theBall.GetX()[0]+BALL_R/2, theBall.GetX()[1]+BALL_R/2,
+		theBall.GetX()[2]+BALL_R/2, 
 		&rect );
 
     SDL_FillRect( BaseView::TheView()->GetSurface(), &rect, 
@@ -60,15 +60,20 @@ BallView2D::Redraw() {
 			      255, 144, 47 ) );
 
     // Draw the ball shadow
-    if ( theBall.GetY() > -TABLELENGTH/2 && theBall.GetY() < TABLELENGTH/2 ){
-      RenderRect(theBall.GetX()-BALL_R/2, theBall.GetY()-BALL_R/2, TABLEHEIGHT,
-		 theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2, TABLEHEIGHT,
+    if ( theBall.GetX()[1] > -TABLELENGTH/2 &&
+	 theBall.GetX()[1] < TABLELENGTH/2 ) {
+      RenderRect(theBall.GetX()[0]-BALL_R/2,
+		 theBall.GetX()[1]-BALL_R/2,
+		 TABLEHEIGHT,
+		 theBall.GetX()[0]+BALL_R/2,
+		 theBall.GetX()[1]+BALL_R/2,
+		 TABLEHEIGHT,
 		 &rect );
 
       SDL_FillRect( BaseView::TheView()->GetSurface(), &rect, 0 );
     } else {
-      RenderRect(theBall.GetX()-BALL_R/2, theBall.GetY()-BALL_R/2, 0.0,
-		 theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2, 0.0,
+      RenderRect(theBall.GetX()[0]-BALL_R/2, theBall.GetX()[1]-BALL_R/2, 0.0,
+		 theBall.GetX()[0]+BALL_R/2, theBall.GetX()[1]+BALL_R/2, 0.0,
 		 &rect );
 
       SDL_FillRect( BaseView::TheView()->GetSurface(), &rect, 0 );
@@ -92,13 +97,13 @@ BallView2D::GetDamageRect() {
   static SDL_Rect rect = {0, 0, 0, 0}, rectShadow = {0, 0, 0, 0};
 
   // Draw the Ball itself
-  if ( theBall.GetY() > -3.5 ) {
+  if ( theBall.GetX()[1] > -3.5 ) {
     SDL_Rect _rect, _rectShadow;
 
-    RenderRect( theBall.GetX()-BALL_R/2, theBall.GetY()-BALL_R/2,
-		theBall.GetZ()-BALL_R/2, 
-		theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2,
-		theBall.GetZ()+BALL_R/2, 
+    RenderRect( theBall.GetX()[0]-BALL_R/2, theBall.GetX()[1]-BALL_R/2,
+		theBall.GetX()[2]-BALL_R/2, 
+		theBall.GetX()[0]+BALL_R/2, theBall.GetX()[1]+BALL_R/2,
+		theBall.GetX()[2]+BALL_R/2, 
 		&_rect );
 
     if ( rect.x != _rect.x || rect.y != _rect.y ||
@@ -108,13 +113,18 @@ BallView2D::GetDamageRect() {
       rect = _rect;
     }
 
-    if ( theBall.GetY() > -TABLELENGTH/2 && theBall.GetY() < TABLELENGTH/2 ){
-      RenderRect(theBall.GetX()-BALL_R/2, theBall.GetY()-BALL_R/2, TABLEHEIGHT,
-		 theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2, TABLEHEIGHT,
+    if ( theBall.GetX()[1] > -TABLELENGTH/2 &&
+	 theBall.GetX()[1] < TABLELENGTH/2 ){
+      RenderRect(theBall.GetX()[0]-BALL_R/2,
+		 theBall.GetX()[1]-BALL_R/2,
+		 TABLEHEIGHT,
+		 theBall.GetX()[0]+BALL_R/2,
+		 theBall.GetX()[1]+BALL_R/2,
+		 TABLEHEIGHT,
 		 &_rectShadow );
     } else {
-      RenderRect(theBall.GetX()-BALL_R/2, theBall.GetY()-BALL_R/2, 0.0,
-		 theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2, 0.0,
+      RenderRect(theBall.GetX()[0]-BALL_R/2, theBall.GetX()[1]-BALL_R/2, 0.0,
+		 theBall.GetX()[0]+BALL_R/2, theBall.GetX()[1]+BALL_R/2, 0.0,
 		 &_rectShadow );
     }
 

@@ -64,7 +64,7 @@ PlayerView::PlayerView() {
   m_Fpeck   = m_Bpeck   = NULL;
   m_Fsmash  = m_Bsmash  = NULL;
 
-  m_xdiff = m_ydiff = m_zdiff = 0.0;
+  m_diff[0] = m_diff[1] = m_diff[2] = 0.0;
 }
 
 PlayerView::~PlayerView() {
@@ -208,7 +208,7 @@ PlayerView::SubRedraw() {
 void
 PlayerView::DrawTargetCircle( double diff ) {
   Ball *tmpBall;
-  double vx, vy, vz;
+  vector3d v;
   double rad;
   static double ballHeight = 1.4F;
   static bool count = true;
@@ -226,82 +226,83 @@ PlayerView::DrawTargetCircle( double diff ) {
        (m_player->GetSide() == -1 &&
 	(theBall.GetStatus() == 0 || theBall.GetStatus() == 1 || 
        theBall.GetStatus() == 4)) ) {
-    ballHeight = theBall.GetZ();
+    ballHeight = theBall.GetX()[2];
     tmpBall = new Ball(&theBall);
 
     while ( tmpBall->GetStatus() >= 0 &&
-	    tmpBall->GetY()*m_player->GetSide() >
-	    m_player->GetY()*m_player->GetSide() )
+	    tmpBall->GetX()[1]*m_player->GetSide() >
+	    m_player->GetX()[1]*m_player->GetSide() )
       tmpBall->Move();
 
-    if ( tmpBall->GetStatus() < 0 )
-      tmpBall->Warp( m_player->GetX()+0.3F*m_player->GetSide(),
-		     m_player->GetY(), ballHeight, 
-		     0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 3 );
+    if ( tmpBall->GetStatus() < 0 ) {
+      vector3d x;
+      x[0] = m_player->GetX()[0]+0.3*m_player->GetSide();
+      x[1] = m_player->GetX()[1];
+      x[2] = ballHeight;
+      tmpBall->Warp( x, vector3d(0.0), vector2d(0.0), 3 );
+    }
   } else {
-    tmpBall = new Ball( m_player->GetX()+0.3F*m_player->GetSide(),
-			m_player->GetY(), ballHeight, 
-			0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 3 );
+    vector3d x;
+    x[0] = m_player->GetX()[0]+0.3*m_player->GetSide();
+    x[1] = m_player->GetX()[1];
+    x[2] = ballHeight;
+
+    tmpBall = new Ball( x, vector3d(0.0), vector2d(0.0), 3 );
   }
 
   // Calc initial speed of the ball when the player hit the ball
   double dum, level, maxVy;
 
   m_player->CalcLevel( tmpBall, dum, level, maxVy );
-  tmpBall->TargetToV( m_player->GetTargetX(), m_player->GetTargetY(), 
-		      level, m_player->GetSpinX(), m_player->GetSpinY(),
-		      vx, vy, vz, 0.1F, maxVy );
+  tmpBall->TargetToV( m_player->GetTarget(), level, m_player->GetSpin(), 
+		      v, 0.1F, maxVy );
 
   // Add difference to the initial speed. Calc bound location
-  double v, v1x, v1y, v1z;
-  double n1x, n1y, n1z, n2x, n2y, n2z;
-  double bx = tmpBall->GetX(), by = tmpBall->GetY(), bz = tmpBall->GetZ();
+  double vl;
+  vector3d v1;
+  vector3d n1, n2;
+  vector3d bx = tmpBall->GetX();
   double polygon1[64][3], polygon2[64][3];
   int polyNum1 = 0, polyNum2 = 0;
   int i;
 
-  v = sqrt(vx*vx+vy*vy+vz*vz);
-  n1x = vy/hypot(vx, vy) * v*tan(diff);
-  n1y = -vx/hypot(vx, vy) * v*tan(diff);
-  n1z = 0;
-  n2x = vx*vz/(v*hypot(vx, vy)) * v*tan(diff);
-  n2y = vy*vz/(v*hypot(vx, vy)) * v*tan(diff);
-  n2z = (vx*vx+vy*vy)/(v*hypot(vx, vy)) * v*tan(diff);
+  vl = v.len();
+  n1[0] =  v[1]/hypot(v[0], v[1]) * vl*tan(diff);
+  n1[1] = -v[0]/hypot(v[0], v[1]) * vl*tan(diff);
+  n1[2] = 0;
+  n2[0] =             v[0]*v[2]/(vl*hypot(v[0], v[1])) * vl*tan(diff);
+  n2[1] =             v[1]*v[2]/(vl*hypot(v[0], v[1])) * vl*tan(diff);
+  n2[2] = (v[0]*v[0]+v[1]*v[1])/(vl*hypot(v[0], v[1])) * vl*tan(diff);
 
   for ( rad = 0.0 ; rad < 3.141592F*2 ; rad += 3.141592F/32 ) {
-    v1x = vx+n1x*cos(rad)+n2x*sin(rad);
-    v1y = vy+n1y*cos(rad)+n2y*sin(rad);
-    v1z = vz+n1z*cos(rad)+n2z*sin(rad);
+    v1 = v + n1*cos(rad) + n2*sin(rad);
 
     if ( m_player->GetSide() > 0 ) {
-      tmpBall->Warp( bx, by, bz, 
-		     v1x, v1y, v1z,
-		     m_player->GetSpinX(), m_player->GetSpinY(), 0 );
-      while ( tmpBall->GetZ() > TABLEHEIGHT &&
-	      tmpBall->GetZ()+tmpBall->GetVZ()*TICK > TABLEHEIGHT &&
-	      tmpBall->GetVY() > 0.0 &&	// When the ball hits the net
+      tmpBall->Warp( bx, v1, m_player->GetSpin(), 0 );
+
+      while ( tmpBall->GetX()[2] > TABLEHEIGHT &&
+	      tmpBall->GetX()[2]+tmpBall->GetV()[2]*TICK > TABLEHEIGHT &&
+	      tmpBall->GetV()[1] > 0.0 &&	// When the ball hits the net
 	      tmpBall->GetStatus() == 0 )
 	tmpBall->Move();
     } else {
-      tmpBall->Warp( bx, by, bz, 
-		     v1x, v1y, v1z,
-		     m_player->GetSpinX(), m_player->GetSpinY(), 2 );
-      while ( tmpBall->GetZ() > TABLEHEIGHT &&
-	      tmpBall->GetZ()+tmpBall->GetVZ()*TICK > TABLEHEIGHT &&
-	      tmpBall->GetVY() < 0.0 &&	// When the ball hits the net
+      tmpBall->Warp( bx, v1, m_player->GetSpin(), 2 );
+      while ( tmpBall->GetX()[2] > TABLEHEIGHT &&
+	      tmpBall->GetX()[2]+tmpBall->GetV()[2]*TICK > TABLEHEIGHT &&
+	      tmpBall->GetV()[1] < 0.0 &&	// When the ball hits the net
 	      tmpBall->GetStatus() == 2 )
 	tmpBall->Move();
     }
 
-    if ( tmpBall->GetY()*m_player->GetSide() > 0.0 ) {
-      polygon1[polyNum1][0] = tmpBall->GetX();
-      polygon1[polyNum1][1] = tmpBall->GetY();
+    if ( tmpBall->GetX()[1]*m_player->GetSide() > 0.0 ) {
+      polygon1[polyNum1][0] = tmpBall->GetX()[0];
+      polygon1[polyNum1][1] = tmpBall->GetX()[1];
       polygon1[polyNum1][2] = TABLEHEIGHT+0.01F;
       polyNum1++;
     } else {
-      polygon2[polyNum2][0] = tmpBall->GetX();
-      polygon2[polyNum2][1] = tmpBall->GetY();
-      polygon2[polyNum2][2] = tmpBall->GetZ();
+      polygon2[polyNum2][0] = tmpBall->GetX()[0];
+      polygon2[polyNum2][1] = tmpBall->GetX()[1];
+      polygon2[polyNum2][2] = tmpBall->GetX()[2];
       polyNum2++;
     }
   }
@@ -332,15 +333,15 @@ PlayerView::GetHitpointY() {
     tmpBall = new Ball(&theBall);
     long t1 = 0, t2 = 0;
     // get time until the ball reaches hit point
-    while ( tmpBall->GetStatus() != -1 ){
+    while ( tmpBall->GetStatus() != -1 ) {
       tmpBall->Move();
-      if ( tmpBall->GetY() < Control::TheControl()->GetThePlayer()->GetY() &&
+      if ( tmpBall->GetX()[1] < Control::TheControl()->GetThePlayer()->GetX()[1] &&
 	   tmpBall->GetStatus() == 3 )
 	break;
       t1++;
     }
     if ( tmpBall->GetStatus() == -1 )
-      return m_player->GetY()+0.6;
+      return m_player->GetX()[1]+0.6;
 
     delete tmpBall;
 
@@ -350,13 +351,13 @@ PlayerView::GetHitpointY() {
       tmpBall->Move();
       t2++;
       if ( t1-10 == t2 ){
-	return tmpBall->GetY();
+	return tmpBall->GetX()[1];
       }
     }
     delete tmpBall;
   }
 
-  return m_player->GetY()+0.6;
+  return m_player->GetX()[1]+0.6;
 }
 
 void
@@ -400,7 +401,8 @@ PlayerView::DrawPlayer() {
     return;
   }
 
-  float xdiff = 0.0, ydiff = 0.0, zdiff = 0.0;
+  vector3F diff;
+  diff[0] = diff[1] = diff[2] = 0.0;
 
   if ( m_player->GetSwing() > 10 && m_player->GetSwing() < 20 ) {
     Ball *tmpBall;
@@ -413,62 +415,58 @@ PlayerView::DrawPlayer() {
     if ( ((tmpBall->GetStatus() == 3 && m_player->GetSide() == 1) ||
 	  (tmpBall->GetStatus() == 1 && m_player->GetSide() == -1)) ) {
       double hitpointX = m_player->GetSwingSide() ?
-	m_player->GetX()+0.3*m_player->GetSide() :
-	m_player->GetX()-0.3*m_player->GetSide();
+	m_player->GetX()[0]+0.3*m_player->GetSide() :
+	m_player->GetX()[0]-0.3*m_player->GetSide();
 
-      xdiff = tmpBall->GetX() -
-	(hitpointX+m_player->GetX()*(20-m_player->GetSwing())*TICK);
+      diff[0] = tmpBall->GetX()[0] -
+	(hitpointX+m_player->GetV()[0]*(20-m_player->GetSwing())*TICK);
 
-      ydiff =
-        (tmpBall->GetY() -
-         (m_player->GetY()+m_player->GetVY()*(20-m_player->GetSwing())*TICK))*
+      diff[1] =
+        (tmpBall->GetX()[1] -
+         (m_player->GetX()[1]+m_player->GetV()[1]*(20-m_player->GetSwing())*TICK))*
         m_player->GetSide();
 
-      zdiff = tmpBall->GetZ() - 0.85;	/* temporary */
+      diff[2] = tmpBall->GetX()[2] - 0.85;	/* temporary */
     }
 
-    if ( xdiff > 0.3 )
-      xdiff = 0.3;
-    if ( xdiff < -0.3 )
-      xdiff = -0.3;
-    if ( ydiff > 0.3 )
-      ydiff = 0.3;
-    if ( ydiff < -0.3 )
-      ydiff = -0.3;
+    if ( diff[0] > 0.3 )
+      diff[0] = 0.3;
+    if ( diff[0] < -0.3 )
+      diff[0] = -0.3;
+    if ( diff[1] > 0.3 )
+      diff[1] = 0.3;
+    if ( diff[1] < -0.3 )
+      diff[1] = -0.3;
   }
 
   if ( m_player->GetSwing() >= 30 ) {
-    m_xdiff *= 0.95;
-    m_ydiff *= 0.95;
-    m_zdiff *= 0.95;
+    m_diff *= 0.95;
   } else {
-    m_xdiff = xdiff;
-    m_ydiff = ydiff;
-    m_zdiff = zdiff;
+    m_diff = diff;
   }
 
   glPushMatrix();
-    glTranslatef( m_player->GetX()-0.3F*m_player->GetSide(),
-		  m_player->GetY(), 0 );
+    glTranslatef( m_player->GetX()[0]-0.3F*m_player->GetSide(),
+		  m_player->GetX()[1], 0 );
 
-    glRotatef( -atan2( m_player->GetTargetX()-m_player->GetX(),
-		       m_player->GetTargetY()-m_player->GetY() )*180/3.141592F,
+    glRotatef( -atan2( m_player->GetTarget()[0]-m_player->GetX()[0],
+		       m_player->GetTarget()[1]-m_player->GetX()[1] )*180/3.141592F,
 	       0.0F, 0.0F, 1.0F );
 
     if ( theRC->gmode == GMODE_SIMPLE ) {
 #ifndef CHIYO
       if ( Control::TheControl()->GetThePlayer() == m_player &&
 	   theRC->myModel == MODEL_ARMONLY )
-	motion->renderArmOnly(swing, m_xdiff, m_ydiff, m_zdiff);
+	motion->renderArmOnly(swing, m_diff);
       else
-	motion->renderWire(swing, m_xdiff, m_ydiff, m_zdiff);
+	motion->renderWire(swing, m_diff);
 #else
       motion->renderWire(swing);
 #endif
     } else {
       if (Control::TheControl()->GetComPlayer() == m_player) {
 #ifndef CHIYO
-	motion->render(swing, m_xdiff, m_ydiff, m_zdiff);
+	motion->render(swing, m_diff);
 #else
 	motion->render(swing);
 #if RENDER_ANIMEEDGE
@@ -490,16 +488,16 @@ PlayerView::DrawPlayer() {
 	  glEnable(GL_CULL_FACE);
 	  glDisable(GL_DEPTH_TEST);
 	  glDepthMask(0);
-	  motion->render(swing, m_xdiff, m_ydiff, m_zdiff);
+	  motion->render(swing, m_diff);
 	  glDepthMask(1);
 	  glEnable(GL_DEPTH_TEST);
 	  glDisable(GL_CULL_FACE);
 	  break;
 	case MODEL_WIREFRAME:
-	  motion->renderWire(swing, m_xdiff, m_ydiff, m_zdiff);
+	  motion->renderWire(swing, m_diff);
 	  break;
 	case MODEL_ARMONLY:
-	  motion->renderArmOnly(swing, m_xdiff, m_ydiff, m_zdiff);
+	  motion->renderArmOnly(swing, m_diff);
 	  break;
 	}
 #else
@@ -531,12 +529,11 @@ PlayerView::DrawTarget() {
   static GLfloat mat_default[] = { 0.0F, 0.0F, 0.0F, 1.0F };
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_default);
 
-  double targetX, targetY;
+  vector2d target;
   if ( theBall.GetStatus() == 2 || theBall.GetStatus() == 3 )
-    m_player->GetModifiedTarget( targetX, targetY );
+    m_player->GetModifiedTarget( target );
   else {
-    targetX = m_player->GetTargetX();
-    targetY = m_player->GetTargetY();
+    target = m_player->GetTarget();
   }
 
   double diff;
@@ -544,15 +541,14 @@ PlayerView::DrawTarget() {
   diff = (double)(220-m_player->GetStatus())/220*3.141592F/18;
   //DrawTargetCircle( diff );
 
-  targetX = Control::TheControl()->GetThePlayer()->GetTargetX();
-  targetY = Control::TheControl()->GetThePlayer()->GetTargetY();
+  target = Control::TheControl()->GetThePlayer()->GetTarget();
 
   glColor4f( 1.0F, 0.0F, 0.0F, 1.0F );
   glBegin(GL_POLYGON);
     glNormal3f( 0.0F, 1.0F, 0.0F );
-    glVertex3f( targetX-0.08F, targetY, TABLEHEIGHT+1.7320508F*0.08F );
-    glVertex3f( targetX+0.08F, targetY, TABLEHEIGHT+1.7320508F*0.08F );
-    glVertex3f( targetX, targetY, TABLEHEIGHT );
+    glVertex3f( target[0]-0.08F, target[1], TABLEHEIGHT+1.7320508F*0.08F );
+    glVertex3f( target[0]+0.08F, target[1], TABLEHEIGHT+1.7320508F*0.08F );
+    glVertex3f( target[0], target[1], TABLEHEIGHT );
   glEnd();
 }
 

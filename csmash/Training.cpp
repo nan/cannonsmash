@@ -96,15 +96,10 @@ Training::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 }
 
 bool
-Training::LookAt( double &srcX, double &srcY, double &srcZ,
-		  double &destX, double &destY, double &destZ ) {
+Training::LookAt( vector3d &srcX, vector3d &destX ) {
   if (m_thePlayer) {
-    srcX = m_thePlayer->GetX() + m_thePlayer->GetEyeX();
-    srcY = m_thePlayer->GetY() + m_thePlayer->GetEyeY();
-    srcZ = m_thePlayer->GetZ() + m_thePlayer->GetEyeZ();
-    destX = m_thePlayer->GetLookAtX();
-    destY = m_thePlayer->GetLookAtY();
-    destZ = m_thePlayer->GetLookAtZ();
+    srcX = m_thePlayer->GetX() + m_thePlayer->GetEye();
+    destX = m_thePlayer->GetLookAt();
   }
 
   return true;

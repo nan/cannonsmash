@@ -142,31 +142,30 @@ Sound::Clear() {
 }
 
 bool
-Sound::Play( long soundID, double x, double y ) {
+Sound::Play( long soundID, vector3d x ) {
   if ( m_soundMode == SOUND_NONE )
     return true;
 
 #ifdef HAVE_LIBSDL_MIXER
-  double srcX, srcY, srcZ;
-  double destX, destY, destZ;
+  vector3d srcX, destX;
   double angle, destAngle;
 
-  Control::TheControl()->LookAt( srcX, srcY, srcZ, destX, destY, destZ );
+  Control::TheControl()->LookAt( srcX, destX );
 
-  destX -= srcX; destY -= srcY;
-  x -= srcX; y -= srcY;
+  destX -= srcX;
+  x -= srcX;
 
-  destAngle = acos( destX/hypot(destX, destY) );
-  if ( destY < 0 )
+  destAngle = acos( destX[0]/destX.len() );
+  if ( destX[1] < 0 )
     destAngle += 3.14159265;
 
-  angle = acos( x/hypot(x, y) );
-  if ( y < 0 )
+  angle = acos( x[0]/x.len() );
+  if ( x[1] < 0 )
     angle += 3.14159265;
 
   angle -= destAngle;
 
-  Mix_SetPosition( 0, (int)(angle*180.0/3.14159265), hypot(x, y)*8 );
+  Mix_SetPosition( 0, (int)(angle*180.0/3.14159265), (unsigned char)x.len()*8 );
   Mix_PlayChannel( 0, m_sound[soundID], 0 );
 #endif
 
@@ -179,28 +178,26 @@ Sound::PlayScore( long score1, long score2 ) {
     return true;
 
 #ifdef HAVE_LIBSDL_MIXER
-  double x = -TABLEWIDTH/2-0.5;
-  double y = 0;
-  double srcX, srcY, srcZ;
-  double destX, destY, destZ;
+  vector3d x = vector3d((const double[]){-TABLEWIDTH/2-0.5, 0, 0});
+  vector3d srcX, destX;
   double angle, destAngle;
 
-  Control::TheControl()->LookAt( srcX, srcY, srcZ, destX, destY, destZ );
+  Control::TheControl()->LookAt( srcX, destX );
 
-  destX -= srcX; destY -= srcY;
-  x -= srcX; y -= srcY;
+  destX -= srcX;
+  x -= srcX;
 
-  destAngle = acos( destX/hypot(destX, destY) );
-  if ( destY < 0 )
+  destAngle = acos( destX[0]/destX.len() );
+  if ( destX[1] < 0 )
     destAngle += 3.14159265;
 
-  angle = acos( x/hypot(x, y) );
-  if ( y < 0 )
+  angle = acos( x[0]/x.len() );
+  if ( x[1] < 0 )
     angle += 3.14159265;
 
   angle -= destAngle;
 
-  Mix_SetPosition( 0, (int)(angle*180.0/3.14159265), hypot(x, y)*8 );
+  Mix_SetPosition( 0, (int)(angle*180.0/3.14159265), x.len()*8 );
   PlayNumber( score1 );
   if ( score1 == score2 )
     PlayBlocking( 1, m_sound[SOUND_ALL] );

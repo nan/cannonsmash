@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,6 +19,10 @@
 #ifndef _Sound_
 #define _Sound_
 
+#include <vector>
+#include "matrix"
+typedef Vector<3, double> vector3d;
+
 #define SOUND_QUEUESIZE 16
 
 struct buffer {
@@ -36,7 +40,7 @@ public:
   virtual void Clear();
 
   //bool Play( char *sndData, long count );
-  bool Play( long soundID, double x, double y );
+  bool Play( long soundID, vector3d x );
   bool PlayScore( long score1, long score2 );
   bool PlayNumber( long number );
 

@@ -805,22 +805,21 @@ partsmotion::drawleg( float xdiff, float ydiff, float zdiff,
 }
 
 
-float bodyIK( float &xdiff, float &ydiff, float &zdiff, 
-	     vector3F &neck, vector3F &waist ) {
+float bodyIK( vector3F &diff, vector3F &neck, vector3F &waist ) {
 
   float legLength = thighLength+shinLength+footSize;
 
-  neck[0]  = NECKORIGINX+xdiff;
-  neck[1]  = NECKORIGINY+ydiff;
-  neck[2]  = NECKORIGINZ+zdiff;
-  waist[0] = WAISTORIGINX+xdiff;
+  neck[0]  = NECKORIGINX+diff[0];
+  neck[1]  = NECKORIGINY+diff[1];
+  neck[2]  = NECKORIGINZ+diff[2];
+  waist[0] = WAISTORIGINX+diff[0];
   waist[1] = WAISTORIGINY;
   waist[2] = WAISTORIGINZ;
 
   if ( neck[1]-waist[1] > bodylength*0.8 )
     neck[1] = waist[1]+bodylength*0.8;
 
-  ydiff = NECKORIGINY+ydiff - neck[1];
+  diff[1] = NECKORIGINY+diff[1] - neck[1];
 
   if ( hypot( neck[1]-waist[1], neck[2]-legLength ) > bodylength ) {
     /* 肩の位置を下げる */
@@ -833,7 +832,7 @@ float bodyIK( float &xdiff, float &ydiff, float &zdiff,
 			       (waist[1]-neck[1])*(waist[1]-neck[1]) );
   }
 
-  zdiff = NECKORIGINZ+zdiff - neck[2];
+  diff[2] = NECKORIGINZ+diff[2] - neck[2];
 
   return waist[2]-WAISTORIGINZ;
 }
@@ -926,21 +925,21 @@ bool partsmotion::loadmodel(const char *basename)
     return true;
 }
 
-bool partsmotion::render(int frame, float xdiff, float ydiff, float zdiff)
+bool partsmotion::render(int frame, vector3F diff)
 {
-    return render( (double)frame, xdiff, ydiff, zdiff );
+    return render( (double)frame, diff );
 }
 
-bool partsmotion::renderWire(int frame, float xdiff, float ydiff, float zdiff)
+bool partsmotion::renderWire(int frame, vector3F diff)
 {
-    return renderWire( (double)frame, xdiff, ydiff, zdiff );
+    return renderWire( (double)frame, diff );
 }
 
-bool partsmotion::render(double _frame, float xdiff, float ydiff, float zdiff)
+bool partsmotion::render(double _frame, vector3F diff)
 {
     float frame = _frame;
     float zwaistdiff;
-    float _xdiff = xdiff, _ydiff = ydiff, _zdiff = zdiff;
+    vector3F _diff = diff;
     vector3F neck, waist;
 
     if ( theRC->gmode == GMODE_TOON ) {
@@ -959,9 +958,9 @@ bool partsmotion::render(double _frame, float xdiff, float ydiff, float zdiff)
 	glDisable(GL_LIGHTING);
     }
 
-    zwaistdiff = bodyIK( _xdiff, _ydiff, _zdiff, neck, waist );
+    zwaistdiff = bodyIK( _diff, neck, waist );
 
-    glTranslatef( xdiff, ydiff-_ydiff, zdiff-_zdiff );
+    glTranslatef( diff[0], diff[1]-_diff[1], diff[2]-_diff[2] );
 
     vector4F p;
 
@@ -1055,7 +1054,7 @@ bool partsmotion::render(double _frame, float xdiff, float ydiff, float zdiff)
 
 	/* Here, legs should be drawn */
 	glTranslatef( 0.0, 0.159459, -1.010000 );
-	drawleg( _xdiff, 0.0, zwaistdiff );
+	drawleg( _diff[0], 0.0, zwaistdiff );
 
       glPopMatrix();
     glPopMatrix();
@@ -1071,16 +1070,16 @@ bool partsmotion::render(double _frame, float xdiff, float ydiff, float zdiff)
     return true;
 }
 
-bool partsmotion::renderWire(double _frame, float xdiff, float ydiff, float zdiff)
+bool partsmotion::renderWire(double _frame, vector3F diff)
 {
     float frame = _frame;
     float zwaistdiff;
-    float _xdiff = xdiff, _ydiff = ydiff, _zdiff = zdiff;
+    vector3F _diff = diff;
     vector3F neck, waist;
 
-    zwaistdiff = bodyIK( _xdiff, _ydiff, _zdiff, neck, waist );
+    zwaistdiff = bodyIK( _diff, neck, waist );
 
-    glTranslatef( xdiff, ydiff-_ydiff, zdiff-_zdiff );
+    glTranslatef( diff[0], diff[1]-_diff[1], diff[2]-_diff[2] );
 
     vector4F p;
 
@@ -1174,7 +1173,7 @@ bool partsmotion::renderWire(double _frame, float xdiff, float ydiff, float zdif
 
 	/* Here, legs should be drawn */
 	glTranslatef( 0.0, 0.159459, -1.010000 );
-	drawleg( _xdiff, 0.0, zwaistdiff, true );
+	drawleg( _diff[0], 0.0, zwaistdiff, true );
 
       glPopMatrix();
     glPopMatrix();
@@ -1182,16 +1181,16 @@ bool partsmotion::renderWire(double _frame, float xdiff, float ydiff, float zdif
     return true;
 }
 
-bool partsmotion::renderArmOnly(double _frame, float xdiff, float ydiff, float zdiff)
+bool partsmotion::renderArmOnly(double _frame, vector3F diff)
 {
     float frame = _frame;
     float zwaistdiff;
-    float _xdiff = xdiff, _ydiff = ydiff, _zdiff = zdiff;
+    vector3F _diff = diff;
     vector3F neck, waist;
 
-    zwaistdiff = bodyIK( _xdiff, _ydiff, _zdiff, neck, waist );
+    zwaistdiff = bodyIK( _diff, neck, waist );
 
-    glTranslatef( xdiff, ydiff-_ydiff, zdiff-_zdiff );
+    glTranslatef( diff[0], diff[1]-_diff[1], diff[2]-_diff[2] );
 
     vector4F p;
 

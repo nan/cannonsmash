@@ -19,6 +19,11 @@
 #ifndef _BaseView_
 #define _BaseView_
 
+#include <vector>
+#include "matrix"
+typedef Vector<3, double> vector3d;
+typedef Vector<2, double> vector2d;
+
 #include "View.h"
 #include "FieldView.h"
 
@@ -49,9 +54,7 @@ public:
 protected:
   BaseView();
 
-  double         m_centerX;
-  double         m_centerY;
-  double         m_centerZ;
+  vector3d       m_centerX;
   View           *m_View;
   FieldView      *m_fieldView;
 

@@ -306,11 +306,11 @@ public:
 
     static bool loadmodel(const char *basename);
 
-    virtual bool render(int frame, float xdiff, float ydiff, float zdiff);
-    virtual bool render(double frame, float xdiff, float ydiff, float zdiff);
-    virtual bool renderWire(int frame, float xdiff, float ydiff, float zdiff);
-    virtual bool renderWire(double frame, float xdiff, float ydiff, float zdiff);
-    virtual bool renderArmOnly(double frame, float xdiff, float ydiff, float zdiff);
+    virtual bool render(int frame, vector3F diff);
+    virtual bool render(double frame, vector3F diff);
+    virtual bool renderWire(int frame, vector3F diff);
+    virtual bool renderWire(double frame, vector3F diff);
+    virtual bool renderArmOnly(double frame, vector3F diff);
 
 private:
     void drawleg( float xdiff, float ydiff, float zdiff, bool isWireFrame );

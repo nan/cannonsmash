@@ -50,106 +50,81 @@ extern long mode;
  *	Class  Player
  ***********************************************************************/
 
-Player::Player() {
+Player::Player() : 
+  m_x((const double[]){0.0, -TABLELENGTH/2-0.2, 1.4}), 
+  m_v((const double[]){0.0, 0.0, 0.0}),
+  m_target((const double[]){0.0, TABLELENGTH/16*5}),
+  m_eye((const double[]){0.0, -1.0, 0.2}),
+  m_lookAt((const double[]){0.0, TABLELENGTH/2, TABLEHEIGHT}), 
+  m_spin((const double[]){0.0, 0.0}),
+  m_lastSendX((const double[]){0.0, 0.0, 0.0}), 
+  m_lastSendV((const double[]){0.0, 0.0, 0.0}) {
+
   m_side = 1;
   m_playerType = PLAYER_PROTO;
 
-  m_x = 0;
-  m_y = -TABLELENGTH/2-0.2;
-  m_z = 1.4;
-  m_vx = m_vy = m_vz = 0.0;
-
   m_status = 200;
   m_swing = 0;
   m_afterSwing = 0;
   m_swingType = SWING_NORMAL;
   m_swingError = SWING_PERFECT;
-  m_targetX = 0.0;
-  m_targetY = TABLELENGTH/16*5;
-
-  m_eyeX = 0.0;
-  m_eyeY = -1.0;
-  m_eyeZ = 0.2;
 
   m_pow = 0;
-  m_spinX = 0.0;
-  m_spinY = 0.0;
-
+  m_lookAt[1] *= m_side;
   m_stamina = 80.0;
-
   m_statusMax = 200;
-
-  m_lookAtX = 0.0;
-  m_lookAtY = TABLELENGTH/2*m_side;
-  m_lookAtZ = TABLEHEIGHT;
+  m_lastSendCount = 0;
 
   m_View = NULL;
 
-  m_lastSendX = m_lastSendY = m_lastSendZ = 0.0;
-  m_lastSendVX = m_lastSendVY = m_lastSendVZ = 0.0;
-  m_lastSendCount = 0;
 }
 
-Player::Player( long side ) {
-  m_playerType = PLAYER_PROTO;
-
-  m_x = 0;
-  m_y = -TABLELENGTH/2-0.2;
-  m_z = 1.4;
-  m_vx = m_vy = m_vz = 0.0;
-
-  m_status = 200;
-  m_swing = 0;
-  m_afterSwing = 0;
-  m_swingType = SWING_NORMAL;
-  m_swingError = SWING_PERFECT;
-  m_targetX = 0.0;
-  m_targetY = TABLELENGTH/16*5;
-
-  m_eyeX = 0.0;
-  m_eyeY = -1.0;
-  m_eyeZ = 0.2;
-
-  m_pow = 0;
-  m_spinX = 0.0;
-  m_spinY = 0.0;
-
-  m_stamina = 80.0;
-
-  m_View = NULL;
+Player::Player( long side ) :
+  m_x((const double[]){0.0, -TABLELENGTH/2-0.2, 1.4}), 
+  m_v((const double[]){0.0, 0.0, 0.0}),
+  m_target((const double[]){0.0, TABLELENGTH/16*5}),
+  m_eye((const double[]){0.0, -1.0, 0.2}),
+  m_lookAt((const double[]){0.0, TABLELENGTH/2, TABLEHEIGHT}), 
+  m_spin((const double[]){0.0, 0.0}),
+  m_lastSendX((const double[]){0.0, 0.0, 0.0}), 
+  m_lastSendV((const double[]){0.0, 0.0, 0.0}) {
 
   m_side = side;
   if ( side < 0 ) {
-    m_y = -m_y;
-    m_targetY = -m_targetY;
-    m_eyeY = -m_eyeY;
+    m_x[1] = -m_x[1];
+    m_target[1] = -m_target[1];
+    m_eye[1] = -m_eye[1];
   }
 
-  m_lookAtX = 0.0;
-  m_lookAtY = TABLELENGTH/2*m_side;
-  m_lookAtZ = TABLEHEIGHT;
+  m_playerType = PLAYER_PROTO;
 
-  m_lastSendX = m_lastSendY = m_lastSendZ = 0.0;
-  m_lastSendVX = m_lastSendVY = m_lastSendVZ = 0.0;
+  m_status = 200;
+  m_swing = 0;
+  m_afterSwing = 0;
+  m_swingType = SWING_NORMAL;
+  m_swingError = SWING_PERFECT;
+
+  m_pow = 0;
+  m_lookAt[1] *= m_side;
+  m_stamina = 80.0;
   m_lastSendCount = 0;
+
+  m_View = NULL;
+
 }
 
-Player::Player( long playerType, long side, double x, double y, double z, 
-		double vx, double vy, double vz,long status, long swing, 
-		long swingType, bool swingSide, long afterSwing,
-		long swingError, 
-		double targetX, double targetY, double eyeX, double eyeY,
-		double eyeZ, long pow, double spinX, double spinY, 
-		double stamina,long statusMax ) {
+Player::Player( long playerType, long side, vector3d x, const vector3d v,
+		long status, long swing, long swingType, bool swingSide, long afterSwing,
+		long swingError, const vector2d target, const vector3d eye,
+		long pow, const vector2d spin, double stamina,long statusMax ) :
+  m_lookAt((const double[]){0.0, TABLELENGTH/2, TABLEHEIGHT}), 
+  m_lastSendX((const double[]){0.0, 0.0, 0.0}), 
+  m_lastSendV((const double[]){0.0, 0.0, 0.0}) {
   m_side = side;
   m_playerType = playerType;
 
   m_x = x;
-  m_y = y;
-  m_z = z;
-  m_vx = vx;
-  m_vy = vy;
-  m_vz = vz;
+  m_v = v;
 
   m_status = status;
   m_swing = swing;
@@ -157,29 +132,19 @@ Player::Player( long playerType, long side, double x, double y, double z,
   m_swingType = swingType;
   m_swingSide = swingSide;
   m_swingError = swingError;
-  m_targetX = targetX;
-  m_targetY = targetY;
+  m_target = target;
 
-  m_eyeX = eyeX;
-  m_eyeY = eyeY;
-  m_eyeZ = eyeZ;
+  m_eye = eye;
 
   m_pow = pow;
-  m_spinX = spinX;
-  m_spinY = spinY;
-
+  m_lookAt[1] *= m_side;
+  m_spin = spin;
   m_stamina = stamina;
   m_statusMax = statusMax;
-
-  m_lookAtX = 0.0;
-  m_lookAtY = TABLELENGTH/2*m_side;
-  m_lookAtZ = TABLEHEIGHT;
+  m_lastSendCount = 0;
 
   m_View = NULL;
 
-  m_lastSendX = m_lastSendY = m_lastSendZ = 0.0;
-  m_lastSendVX = m_lastSendVY = m_lastSendVZ = 0.0;
-  m_lastSendCount = 0;
 }
 
 Player::~Player() {
@@ -195,11 +160,7 @@ Player::operator=(Player& p) {
   m_side = p.m_side;
 
   m_x = p.m_x;
-  m_y = p.m_y;
-  m_z = p.m_z;
-  m_vx = p.m_vx;
-  m_vy = p.m_vy;
-  m_vz = p.m_vz;
+  m_v = p.m_v;
 
   m_status = p.m_status;
   m_swing = p.m_swing;
@@ -207,20 +168,14 @@ Player::operator=(Player& p) {
   m_swingSide = p.m_swingSide;
   m_afterSwing = p.m_afterSwing;
   m_swingError = p.m_swingError;
-  m_targetX = p.m_targetX;
-  m_targetY = p.m_targetY;
+  m_target = p.m_target;
 
-  m_eyeX = p.m_eyeX;
-  m_eyeY = p.m_eyeY;
-  m_eyeZ = p.m_eyeZ;
+  m_eye = p.m_eye;
 
-  m_lookAtX = p.m_lookAtX;
-  m_lookAtY = p.m_lookAtY;
-  m_lookAtZ = p.m_lookAtZ;
+  m_lookAt = p.m_lookAt;
 
   m_pow = p.m_pow;
-  m_spinX = p.m_spinX;
-  m_spinY = p.m_spinY;
+  m_spin = p.m_spin;
 
   m_stamina = p.m_stamina;
 
@@ -310,7 +265,7 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_afterSwing--;
     } else {
       if ( theBall.GetStatus() == 6 || theBall.GetStatus() == 7 ) {
-	if ( theBall.GetVZ() < 0 )
+	if ( theBall.GetV()[2] < 0 )
 	  m_swing++;
       } else {
 	if ( m_swing == 10 ) {
@@ -327,73 +282,47 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   }
 
   // If the ball goes out of sight, look at the ball direction
-  double x, y, z;
-  double tx, ty, tz;
-  double vx1, vy1, vz1;
-  double vxt, vyt, vzt;
-  double vx2, vy2, vz2;
-  double vl;
+  vector3d x = m_x + m_eye;
+  vector3d tx; tx[0] = 0.0; tx[1] = TABLELENGTH/2*m_side; tx[2] = TABLEHEIGHT;
+  vector3d vx1 = tx-x;
+  vector3d vxt;
+  vector3d vx2;
   double p, q;
   double sinP, cosP;
 
-  tx = 0.0;
-  ty = TABLELENGTH/2*m_side;
-  tz = TABLEHEIGHT;
-
-  x = m_x + m_eyeX;
-  y = m_y + m_eyeY;
-  z = m_z + m_eyeZ;
-
-  vx1 = tx-x;
-  vy1 = ty-y;
-  vz1 = tz-z;
-  vl = sqrt(vx1*vx1+vy1*vy1+vz1*vz1);
-  vx1 /= vl;
-  vy1 /= vl;
-  vz1 /= vl;
+  vx1.normalize();
 
   vxt = theBall.GetX()-x;
-  vyt = theBall.GetY()-y;
   if ( theBall.GetStatus() == 6 || theBall.GetStatus() == 7 )
-    vzt = TABLEHEIGHT + 0.15-z;
-  else
-    vzt = theBall.GetZ()-z;
-  vl = sqrt(vxt*vxt+vyt*vyt+vzt*vzt);
-  vxt /= vl;
-  vyt /= vl;
-  vzt /= vl;
+    vxt[2] = TABLEHEIGHT+0.15-x[2];
 
-  if ( (cosP = vx1*vxt+vy1*vyt+vz1*vzt) < cos(3.141592/180.0*15) &&
-       fabs(theBall.GetY()) > fabs(y) ) {
+  vxt.normalize();
+
+  if ( (cosP = vx1*vxt) < cos(3.141592/180.0*15) &&
+       fabs(theBall.GetX()[1]) > fabs(x[1]) ) {
     sinP = sqrt(1-cosP*cosP);
     p = cos(3.141592/180.0*15) - sin(3.141592/180.0*15)*cosP/sinP;
     q = sin(3.141592/180.0*15)/sinP;
 
     vx2 = p*vxt+q*vx1;
-    vy2 = p*vyt+q*vy1;
-    vz2 = p*vzt+q*vz1;
 
-    m_lookAtX = x+vx2;
-    m_lookAtY = y+vy2;
-    m_lookAtZ = z+vz2;
-  } else if ( (cosP = (vy1*vyt+vz1*vzt)/(hypot(vy1, vz1)*hypot(vyt, vzt)))
-	      < cos(3.141592/180.0*15) && theBall.GetZ() > z &&
-	      (theBall.GetStatus() == 0 || theBall.GetStatus() == 2) ) {
-    sinP = sqrt(1-cosP*cosP);
-    p = cos(3.141592/180.0*15) - sin(3.141592/180.0*15)*cosP/sinP;
-    q = sin(3.141592/180.0*15)/sinP;
-
-    vx2 = p*vxt+q*vx1;
-    vy2 = p*vyt+q*vy1;
-    vz2 = p*vzt+q*vz1;
-
-    m_lookAtX = x+vx2;
-    m_lookAtY = y+vy2;
-    m_lookAtZ = z+vz2;
+    m_lookAt = x+vx2;
   } else {
-    m_lookAtX = tx;
-    m_lookAtY = ty;
-    m_lookAtZ = tz;
+    vector2d vx12; vx12[0] = vx1[1]; vx12[1] = vx1[2];
+    vector2d vxt2; vxt2[0] = vxt[1]; vxt2[1] = vxt[2];
+    if ( (cosP = (vx12*vxt2)/(vx12.len()*vxt2.len())) < cos(3.141592/180.0*15) &&
+	 theBall.GetX()[2] > x[2] &&
+	 (theBall.GetStatus() == 0 || theBall.GetStatus() == 2) ) {
+      sinP = sqrt(1-cosP*cosP);
+      p = cos(3.141592/180.0*15) - sin(3.141592/180.0*15)*cosP/sinP;
+      q = sin(3.141592/180.0*15)/sinP;
+
+      vx2 = p*vxt+q*vx1;
+
+      m_lookAt = x+vx2;
+    } else {
+      m_lookAt = tx;
+    }
   }
 
 // backswing and inpact
@@ -404,15 +333,15 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 	 theRC->gmode != GMODE_2D ) {
       HitMark *hit;
 
+      vector3d hitX = theBall.GetX();
+      hitX[1] = m_x[1];
+
       hit = new HitMark();
-      hit->Hit( theBall.GetX(), m_y, theBall.GetZ(), 
-		theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(), 
-		GetSwingError() );
+      hit->Hit( hitX, theBall.GetV(), GetSwingError() );
 
       BaseView::TheView()->AddView( hit );
     }
-    m_spinX = 0.0;
-    m_spinY = 0.0;
+    m_spin[0] = m_spin[1] = 0.0;
   }
   else if ( m_swing == 50 ){
     m_swing = 0;
@@ -434,9 +363,9 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 
       if ( ((tmpBall->GetStatus() == 3 && m_side == 1) ||
 	    (tmpBall->GetStatus() == 1 && m_side == -1)) ) {
-	double hitpointX = m_swingSide ? m_x+0.3*m_side : m_x-0.3*m_side;
-	double xdiff = tmpBall->GetX() - (hitpointX+m_vx*(20-m_swing)*TICK);
-	double ydiff = tmpBall->GetY() - (m_y+m_vy*(20-m_swing)*TICK);
+	double hitpointX = m_swingSide ? m_x[0]+0.3*m_side : m_x[0]-0.3*m_side;
+	double xdiff = tmpBall->GetX()[0] - (hitpointX+m_v[0]*(20-m_swing)*TICK);
+	double ydiff = tmpBall->GetX()[1] - (   m_x[1]+m_v[1]*(20-m_swing)*TICK);
 
 	double vxdiff, vydiff;
 	vxdiff = xdiff/TICK/(20-m_swing);
@@ -448,7 +377,7 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 
 	vxdiff /= theRC->gameLevel+1;
 
-	m_vx += vxdiff;
+	m_v[0] += vxdiff;
 
 	if ( fabs(ydiff) > 0.3 ) {
 	  vydiff = ydiff/TICK/(20-m_swing);
@@ -459,7 +388,7 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 
 	  vydiff /= theRC->gameLevel+1;
 
-	  m_vy += vydiff;
+	  m_v[1] += vydiff;
 	}
       }
       delete tmpBall;
@@ -467,59 +396,60 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   }
 
 // move player
-  if ( m_x+m_vx*TICK < -AREAXSIZE/2 ){
-    m_x = -AREAXSIZE/2;
-    m_vx = 0.0;
-  }
-  else if ( m_x+m_vx*TICK > AREAXSIZE/2 ){
-    m_x = AREAXSIZE/2;
-    m_vx = 0.0;
-  }
-#ifndef DEBUG_NOLIMITMOVE
-  else if ( m_x <= -TABLEWIDTH/2 && m_x+m_vx*TICK >= -TABLEWIDTH/2 &&
-	    m_y > -TABLELENGTH/2+0.5 && m_y < TABLELENGTH/2-0.5 ){
-    m_x = -TABLEWIDTH/2;
-    m_vx = 0.0;
-  }
-  else if ( m_x >= TABLEWIDTH/2 && m_x+m_vx*TICK <= TABLEWIDTH/2 &&
-	    m_y > -TABLELENGTH/2+0.5 && m_y < TABLELENGTH/2-0.5 ){
-    m_x = TABLEWIDTH/2;
-    m_vx = 0.0;
-  }
-#endif
-  else
-    m_x += m_vx*TICK;
+  vector3d xNext = m_x + m_v*TICK;
 
-  if ( m_y+m_vy*TICK < -AREAYSIZE/2 ) {
-    m_y = -AREAYSIZE/2;
-    m_vy = 0.0;
-  } else if ( m_y+m_vy*TICK > AREAYSIZE/2 ) {
-    m_y = AREAYSIZE/2;
-    m_vy = 0.0;
+  if ( xNext[0] < -AREAXSIZE/2 ){
+    m_x[0] = -AREAXSIZE/2;
+    m_v[0] = 0.0;
+  } else if ( xNext[0] > AREAXSIZE/2 ){
+    m_x[0] = AREAXSIZE/2;
+    m_v[0] = 0.0;
   }
 #ifndef DEBUG_NOLIMITMOVE
-  else if ( m_y <= -TABLELENGTH/2+0.5 && m_y+m_vy*TICK >= -TABLELENGTH/2+0.5
-	      && m_x > -TABLEWIDTH/2 && m_x < TABLEWIDTH/2 ) {
-    m_y = -TABLELENGTH/2+0.5;
-    m_vy = 0.0;
+  else if ( m_x[0] <= -TABLEWIDTH/2 && xNext[0] >= -TABLEWIDTH/2 &&
+	    m_x[1] > -TABLELENGTH/2+0.5 && m_x[1] < TABLELENGTH/2-0.5 ){
+    m_x[0] = -TABLEWIDTH/2;
+    m_v[0] = 0.0;
   }
-  else if ( m_y >= TABLELENGTH/2-0.5 && m_y+m_vy*TICK <= TABLELENGTH/2-0.5
-	      && m_x > -TABLEWIDTH/2 && m_x < TABLEWIDTH/2 ) {
-    m_y = TABLELENGTH/2-0.5;
-    m_vy = 0.0;
+  else if ( m_x[0] >= TABLEWIDTH/2 && xNext[0] <= TABLEWIDTH/2 &&
+	    m_x[1] > -TABLELENGTH/2+0.5 && m_x[1] < TABLELENGTH/2-0.5 ){
+    m_x[0] = TABLEWIDTH/2;
+    m_v[0] = 0.0;
   }
 #endif
   else
-    m_y += m_vy*TICK;
+    m_x[0] = xNext[0];
+
+  if ( xNext[1] < -AREAYSIZE/2 ) {
+    m_x[1] = -AREAYSIZE/2;
+    m_v[1] = 0.0;
+  } else if ( xNext[1] > AREAYSIZE/2 ) {
+    m_x[1] = AREAYSIZE/2;
+    m_v[1] = 0.0;
+  }
+#ifndef DEBUG_NOLIMITMOVE
+  else if ( m_x[1] <= -TABLELENGTH/2+0.5 && xNext[1] >= -TABLELENGTH/2+0.5
+	    && m_x[0] > -TABLEWIDTH/2 && m_x[0] < TABLEWIDTH/2 ) {
+    m_x[1] = -TABLELENGTH/2+0.5;
+    m_v[1] = 0.0;
+  }
+  else if ( m_x[1] >= TABLELENGTH/2-0.5 && xNext[1] <= TABLELENGTH/2-0.5
+	      && m_x[0] > -TABLEWIDTH/2 && m_x[0] < TABLEWIDTH/2 ) {
+    m_x[1] = TABLELENGTH/2-0.5;
+    m_v[1] = 0.0;
+  }
+#endif
+  else
+    m_x[1] = xNext[1];
 
 // Go back to the endline before serve
   if ( Control::TheControl()->IsPlaying() && theBall.GetStatus() == 8 &&
        ((PlayGame *)Control::TheControl())->GetService() == GetSide() ) {
 #ifndef DEBUG_NOLIMITMOVE
-    if ( m_side > 0 && m_y > -TABLELENGTH/2 )
-      m_y = -TABLELENGTH/2;
-    else if ( m_side < 0 && m_y < TABLELENGTH/2 )
-      m_y = TABLELENGTH/2;
+    if ( m_side > 0 && m_x[1] > -TABLELENGTH/2 )
+      m_x[1] = -TABLELENGTH/2;
+    else if ( m_side < 0 && m_x[1] < TABLELENGTH/2 )
+      m_x[1] = TABLELENGTH/2;
 #endif
   }
 
@@ -534,9 +464,9 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 
       if ( ((tmpBall->GetStatus() == 3 && m_side == 1) ||
 	    (tmpBall->GetStatus() == 1 && m_side == -1)) &&
-	   (m_y-tmpBall->GetY())*m_side < 0.3 &&
-	   (m_y-tmpBall->GetY())*m_side > -0.05 ){
-	StartSwing( 3 );
+	   (m_x[1]-tmpBall->GetX()[1])*m_side < 0.3 &&
+	   (m_x[1]-tmpBall->GetX()[1])*m_side > -0.05 ){
+	StartSwing(3);
 	break;
       }
     }
@@ -544,7 +474,7 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   }
 
 // calc status
-  if ( hypot( m_vx, m_vy ) > 2.0 )
+  if ( m_v.len() > 2.0 )
     AddStatus( -1 );
 
   if ( m_swing > 10 )
@@ -561,13 +491,10 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
        mode == MODE_MULTIPLAY ) {
     m_lastSendCount++;
 
-    m_lastSendX += m_lastSendVX*TICK;
-    m_lastSendY += m_lastSendVY*TICK;
-    m_lastSendZ += m_lastSendVZ*TICK;
+    m_lastSendX += m_lastSendV*TICK;
 
     if ( m_lastSendCount >= 100 ||
-	 fabs(m_lastSendVX-m_vx) >= 0.25 ||
-	 fabs(m_lastSendVY-m_vy) >= 0.25 || fabs(m_lastSendVZ-m_vz) >= 0.25 ) {
+	 (m_lastSendV-m_v).len() >= 0.25 ) {
       Event::TheEvent()->SendPlayer( this );
     }
 
@@ -575,8 +502,8 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     if ( ((theBall.GetStatus() == 1 && m_side == -1) ||
 	  (theBall.GetStatus() == 3 && m_side == 1 ) ) &&
 	 m_swing <= 10 &&
-	 (m_y-theBall.GetY())*m_side > 0.3 &&
-	 (m_y+m_vy*TICK-(theBall.GetY()+theBall.GetVY()*TICK))*m_side > 0.3 )
+	 (m_x[1]-theBall.GetX()[1])*m_side > 0.3 &&
+	 (m_x[1]+m_v[1]*TICK-(theBall.GetX()[1]+theBall.GetV()[1]*TICK))*m_side > 0.3 )
       Event::TheEvent()->SendBall();
   }
 
@@ -688,65 +615,65 @@ const char keytable[][5] = {
   case '1':  case 'q':  case 'a':  case 'z':
   case '2':  case 'w':  case 's':  case 'x':
   case '3':
-    m_targetX = -TABLEWIDTH/2*0.9*GetSide();
+    m_target[0] = -TABLEWIDTH/2*0.9*GetSide();
     break;
   case 'e':
-    m_targetX = -TABLEWIDTH/2*0.75*GetSide();
+    m_target[0] = -TABLEWIDTH/2*0.75*GetSide();
     break;
   case 'd':
-    m_targetX = -TABLEWIDTH/2*0.6*GetSide();
+    m_target[0] = -TABLEWIDTH/2*0.6*GetSide();
     break;
   case '4':  case 'c':
-    m_targetX = -TABLEWIDTH/2*0.45*GetSide();
+    m_target[0] = -TABLEWIDTH/2*0.45*GetSide();
     break;
   case 'r':
-    m_targetX = -TABLEWIDTH/2*0.3*GetSide();
+    m_target[0] = -TABLEWIDTH/2*0.3*GetSide();
     break;
   case 'f':
-    m_targetX = -TABLEWIDTH/2*0.15*GetSide();
+    m_target[0] = -TABLEWIDTH/2*0.15*GetSide();
     break;
   case '5':  case 'v':
-    m_targetX = 0;
+    m_target[0] = 0;
     break;
   case 't':
-    m_targetX = TABLEWIDTH/2*0.15*GetSide();
+    m_target[0] = TABLEWIDTH/2*0.15*GetSide();
     break;
   case 'g':
-    m_targetX = TABLEWIDTH/2*0.3*GetSide();
+    m_target[0] = TABLEWIDTH/2*0.3*GetSide();
     break;
   case '6':  case 'b':
-    m_targetX = TABLEWIDTH/2*0.45*GetSide();
+    m_target[0] = TABLEWIDTH/2*0.45*GetSide();
     break;
   case 'y':
-    m_targetX = TABLEWIDTH/2*0.6*GetSide();
+    m_target[0] = TABLEWIDTH/2*0.6*GetSide();
     break;
   case 'h':
-    m_targetX = TABLEWIDTH/2*0.75*GetSide();
+    m_target[0] = TABLEWIDTH/2*0.75*GetSide();
     break;
   case '7':  case 'n':  case 'u':  case 'j':
   case '8':  case 'm':  case 'i':  case 'k':
   case '9':  case ',':  case 'o':  case 'l':
   case '0':  case '.':  case 'p':  case ';':
-    m_targetX = TABLEWIDTH/2*0.9*GetSide();
+    m_target[0] = TABLEWIDTH/2*0.9*GetSide();
     break;
   }
 
   switch ( code ){
   case '1':  case '2':  case '3':  case '4':  case '5':  case '6':
   case '7':  case '8':  case '9':  case '0':  case '-':  case '^':
-    m_targetY = TABLELENGTH/12*5*GetSide();
+    m_target[1] = TABLELENGTH/12*5*GetSide();
     break;
   case 'q':  case 'w':  case 'e':  case 'r':  case 't':  case 'y':
   case 'u':  case 'i':  case 'o':  case 'p':  case '@':  case '[':
-    m_targetY = TABLELENGTH/12*4*GetSide();
+    m_target[1] = TABLELENGTH/12*4*GetSide();
     break;
   case 'a':  case 's':  case 'd':  case 'f':  case 'g':  case 'h':
   case 'j':  case 'k':  case 'l':  case ';':  case ':':  case ']':
-    m_targetY = TABLELENGTH/12*3*GetSide();
+    m_target[1] = TABLELENGTH/12*3*GetSide();
     break;
   case 'z':  case 'x': case 'c':  case 'v':  case 'b':  case 'n':
   case 'm':  case ',':  case '.':  case '/':  case '\\':
-    m_targetY = TABLELENGTH/12*2*GetSide();
+    m_target[1] = TABLELENGTH/12*2*GetSide();
     break;
   }
 
@@ -757,41 +684,41 @@ const char keytable[][5] = {
 	KeyHistory[Histptr].unicode != KeyHistory[Histptr-1].unicode) ) {
     switch ( KeyHistory[Histptr].unicode ) {
     case 'H':
-      m_eyeX -= 0.05;
+      m_eye[0] -= 0.05;
       break;
     case 'J':
-      m_eyeZ -= 0.05;
+      m_eye[2] -= 0.05;
       break;
     case 'K':
-      m_eyeZ += 0.05;
+      m_eye[2] += 0.05;
       break;
     case 'L':
-      m_eyeX += 0.05;
+      m_eye[0] += 0.05;
       break;
     case '<':
-      m_eyeY -= 0.05;
+      m_eye[1] -= 0.05;
       break;
     case '>':
-      m_eyeY += 0.05;
+      m_eye[1] += 0.05;
       break;
 
     case 'A':
-      m_lookAtX -= 0.05;
+      m_lookAt[0] -= 0.05;
       break;
     case 'S':
-      m_lookAtZ -= 0.05;
+      m_lookAt[2] -= 0.05;
       break;
     case 'D':
-      m_lookAtZ += 0.05;
+      m_lookAt[2] += 0.05;
       break;
     case 'F':
-      m_lookAtX += 0.05;
+      m_lookAt[0] += 0.05;
       break;
     case 'C':
-      m_lookAtY -= 0.05;
+      m_lookAt[1] -= 0.05;
       break;
     case 'V':
-      m_lookAtY += 0.05;
+      m_lookAt[1] += 0.05;
       break;
 
     }
@@ -820,12 +747,11 @@ const char keytable[][5] = {
     m_dragX = MouseXHistory[Histptr]-MouseXHistory[hptr];
     m_dragY = MouseYHistory[Histptr]-MouseYHistory[hptr];
   } else {
-    m_vx = (MouseXHistory[Histptr] - BaseView::GetWinWidth()/2) /
+    m_v[0] = (MouseXHistory[Histptr] - BaseView::GetWinWidth()/2) /
       (BaseView::GetWinWidth()/40)*GetSide();
-    m_vy = -(MouseYHistory[Histptr] - BaseView::GetWinHeight()/2) /
+    m_v[1] = -(MouseYHistory[Histptr] - BaseView::GetWinHeight()/2) /
       (BaseView::GetWinHeight()/40)*GetSide();
-    m_vx /= 4;
-    m_vy /= 4;
+    m_v /= 4;
   }
 
   mouse = MouseBHistory[Histptr];
@@ -909,375 +835,6 @@ Player::AddStatus( long diff ) {
   return true;
 }
 
-// Calc the shoulder location
-// x   --- x
-// y   --- y
-// deg --- rotation degree around z axis
-bool
-Player::GetShoulder( double &x, double &y, double &deg ) {
-  double px, py, bx, by, bvx, bvy;
-  double t, btx;
-
-  // rotate 180 when the player is in the opposite side
-  if ( m_side < 0 ){
-    px = -m_x;
-    py = -m_y;
-    bx = -theBall.GetX();
-    by = -theBall.GetY();
-    bvx = -theBall.GetVX();
-    bvy = -theBall.GetVY();
-  }
-  else{
-    px = m_x;
-    py = m_y;
-    bx = theBall.GetX();
-    by = theBall.GetY();
-    bvx = theBall.GetVX();
-    bvy = theBall.GetVY();
-  }
-
-  // target
-  if ( bvy == 0.0 || m_swing == 0 ){
-    btx = bx;
-    t = -1;
-  }
-  else{
-    t = (py - by) / bvy;
-    btx = bx + bvx*t;
-  }
-
-  // Forehand or backhand?
-  if ( btx - px > 0 ){	// Forehand
-    switch ( m_swingType ){
-    case SWING_NORMAL:
-    case SWING_DRIVE:
-      if ( m_swing < 10 )
-	deg = -(double)m_swing/10*15-30;
-      else if ( m_swing < 30 )
-	deg = -45+(double)(m_swing-10)/20*45;
-      else
-	deg = -(double)(m_swing-30)/20*30;
-      break;
-    case SWING_POKE:
-      if ( m_swing < 10 )
-	deg = -(double)m_swing/10*10-30;
-      else if ( m_swing < 30 )
-	deg = -40+(double)(m_swing-10)/20*20;
-      else
-	deg = -20-(double)(m_swing-30)/20*10;
-      break;
-    case SWING_CUT:
-      if ( m_swing < 10 )
-	deg = -(double)m_swing/10*60-30;
-      else if ( m_swing < 30 )
-	deg = -60+(double)(m_swing-10)/20*60;
-      else
-	deg = -(double)(m_swing-30)/20*30;
-      break;
-    case SWING_SMASH:
-      if ( m_swing < 10 )
-	deg = -(double)m_swing/10*30-30;
-      else if ( m_swing < 30 )
-	deg = -60+(double)(m_swing-10)/20*90;
-      else
-	deg = 30-(double)(m_swing-30)/20*60;
-      break;
-    }
-
-    if ( m_swing == 0 ){
-      x = y = 0.0;
-      return true;
-    }
-
-    // The distance from the ideal location for hitting
-    if ( btx - px < 0.6 ){
-      x = btx - px - 0.3;
-      y = 0.0;
-    }
-    else {
-      x = 0.3;
-      y = 0.0;
-    }
-  }
-  else{		// Backhand
-    switch ( m_swingType ){
-    case SWING_NORMAL:
-    case SWING_SMASH:
-    case SWING_DRIVE:
-      if ( m_swing < 10 )
-	deg = (double)m_swing/10*30-30;
-      else if ( m_swing < 30 )
-	deg = -(double)(m_swing-10)/20*45;
-      else
-	deg = -45+(double)(m_swing-30)/20*15;
-      break;
-    case SWING_POKE:
-      if ( m_swing < 30 )
-	deg = (double)m_swing/30*60-30;
-      else
-	deg = 30-(double)(m_swing-30)/20*60;
-      break;
-    case SWING_CUT:
-      if ( m_swing < 10 )
-	deg = (double)m_swing/10*120-30;
-      else if ( m_swing < 30 )
-	deg = 90-(double)(m_swing-10)/20*90;
-      else
-	deg = -(double)(m_swing-30)/20*30;
-      break;
-    }
-
-    if ( m_swing == 0 ){
-      x = y = 0.0;
-      return true;
-    }
-
-    // The distance from the ideal location for hitting
-    if ( btx - px > -0.6 ){
-      x = btx - px + 0.3;
-      y = 0.0;
-    }
-    else{
-      x = -0.3;
-      y = 0.0;
-    }
-  }
-
-  if ( m_swing < 30 ) {
-    x *= (double)m_swing / 30.0;
-    y *= (double)m_swing / 30.0;
-  } else {
-    x *= (double)(50-m_swing) / 20.0;
-    y *= (double)(50-m_swing) / 20.0;
-  }
-
-  return true;
-}
-
-// Calc the elbow location
-// degx --- rotation degree around x axis
-// degy --- rotation degree around y axis. default=-15
-bool
-Player::GetElbow( double &degx, double &degy ) {
-  if ( ForeOrBack() ){
-    switch ( m_swingType ){
-    case SWING_NORMAL:
-    case SWING_SMASH:
-      if ( m_swing < 10 )
-	degx = 0.0;
-      else if ( m_swing < 30 )
-	degx = (double)(m_swing-10)/20*15;
-      else
-	degx = 15-(double)(m_swing-30)/20*15;
-      degy = -15.0;
-      break;
-    case SWING_POKE:
-      degx = 0.0;
-      degy = -15.0;
-      break;
-    case SWING_CUT:
-      if ( m_swing < 10 ){
-	degx = 0.0;
-	degy = -15-(double)m_swing/10*75;
-      } else if ( m_swing < 30 ){
-	degx = 0.0;
-	degy = -90+(double)(m_swing-10)/20*90;
-      } else {
-	degx = 0.0;
-	degy = -(double)(m_swing-30)/20*15;
-      }
-      break;
-    case SWING_DRIVE:
-      if ( m_swing < 10 ){
-	degx = -(double)m_swing/10*10;
-	degy = -15.0;
-      } else if ( m_swing < 30 ){
-	degx = -10+(double)(m_swing-10)/20*160;
-	degy = -15+(double)(m_swing-10)/20*45;
-      } else{
-	degx = 150-(double)(m_swing-30)/20*150;
-	degy = 30-(double)(m_swing-30)/20*45;
-      }
-      break;
-    }
-  }
-  else{
-    switch ( m_swingType ){
-    case SWING_NORMAL:
-    case SWING_SMASH:
-    case SWING_DRIVE:
-      degx = 0.0;
-      degy = -15.0;
-      break;
-    case SWING_POKE:
-      if ( m_swing < 10 ){
-	degx = (double)m_swing/10*15;
-	degy = -15.0;
-      }
-      else if ( m_swing < 30 ){
-	degx = 15 - (double)(m_swing-10)/20*15;
-	degy = -15.0;
-      } else{
-	degx = 0.0;
-	degy = -15.0;
-      }
-      break;
-    case SWING_CUT:
-      if ( m_swing < 10 ){
-	degx = (double)m_swing/10*10;
-	degy = (double)m_swing/10*45;
-      } else if ( m_swing < 30 ){
-	degx = 10-(double)(m_swing-10)/20*10;
-	degy = 45-(double)(m_swing-10)/20*45;
-      } else{
-	degx = 0.0;
-	degy = -(double)(m_swing-30)/20*15;
-      }
-      break;
-    }
-  }
-  return true;
-}
-
-// Calc the hand location
-// degx --- rotation degree around x axis
-// degy --- rotation degree around y axis
-// degz --- rotation degree around z axis
-bool
-Player::GetHand( double &degx, double &degy, double &degz ) {
-
-  if ( ForeOrBack() ){
-    switch ( m_swingType ){
-    case SWING_NORMAL:
-    case SWING_SMASH:
-      if ( m_swing < 10 ){
-	degz = -(double)m_swing/10*90;
-	degx = degy = 0.0;
-      }
-      else if ( m_swing < 30 ){
-	degz = -90+(double)(m_swing-10)/20*120;
-	degx = (double)(m_swing-10)/20*75;
-	degy = 0.0;
-      }
-      else{
-	degz = 30-(double)(m_swing-30)/20*30;
-	degx = 75-(double)(m_swing-30)/20*75;
-	degy = 0.0;
-      }
-      break;
-    case SWING_POKE:
-      if ( m_swing < 10 ){
-	degz = -(double)m_swing/10*90;
-	degx = (double)m_swing/10*45;
-	degy = (double)m_swing/10*45;
-      }
-      else if ( m_swing < 30 ){
-	degz = -90+(double)(m_swing-10)/20*150;
-	degx = 45 - (double)(m_swing-10)/20*45;
-	degy = 45.0;
-      }
-      else{
-	degz = 60-(double)(m_swing-30)/20*30;
-	degx = 0.0;
-	degy = 45.0 - (double)(m_swing-30)/20*45;
-      }
-      break;
-    case SWING_CUT:
-      if ( m_swing < 10 ){
-	degz = -(double)m_swing/10*90;
-	degx = 0.0;
-	degy = (double)m_swing/10*45;
-      }
-      else if ( m_swing < 30 ){
-	degz = -90+(double)(m_swing-10)/20*150;
-	degx = -(double)(m_swing-10)/20*60;
-	degy = 45.0;
-      }
-      else{
-	degz = 60-(double)(m_swing-30)/20*30;
-	degx = -60+(double)(m_swing-30)/20*60;
-	degy = 45.0 - (double)(m_swing-30)/20*45;
-      }
-      break;
-    case SWING_DRIVE:
-      if ( m_swing < 10 ){
-	degz = -(double)m_swing/10*90;
-	degx = -(double)m_swing/10*90;
-	degy = 0.0;
-      }
-      else if ( m_swing < 30 ){
-	degz = -90+(double)(m_swing-10)/20*120;
-	degx = -90;
-	degy = 0.0;
-      }
-      else{
-	degz = 30-(double)(m_swing-30)/20*30;
-	degx = -90+(double)(m_swing-30)/20*90;
-	degy = 0.0;
-      }
-      break;
-    }
-  }
-  else{
-    switch ( m_swingType ){
-    case SWING_NORMAL:
-    case SWING_SMASH:
-    case SWING_DRIVE:
-      if ( m_swing < 10 ){
-	degz = (double)m_swing/10*90;
-	degx = degy = 0.0;
-      }
-      else if ( m_swing < 30 ){
-	degz = 90-(double)(m_swing-10)/20*120;
-	degx = (double)(m_swing-10)/20*75;
-	degy = 0.0;
-      }
-      else{
-	degz = -30+(double)(m_swing-30)/20*30;
-	degx = 75-(double)(m_swing-30)/20*75;
-	degy = 0.0;
-      }
-      break;
-    case SWING_POKE:
-      if ( m_swing < 10 ){
-	degz = (double)m_swing/10*90;
-	degx = 0.0;
-	degy = -(double)m_swing/10*45;
-      }
-      else if ( m_swing < 30 ){
-	degz = 90-(double)(m_swing-10)/20*120;
-	degx = 0.0;
-	degy = -45.0;
-      }
-      else{
-	degz = -30+(double)(m_swing-30)/20*30;
-	degx = 0.0;
-	degy = -45.0 + (double)(m_swing-30)/20*45;
-      }
-      break;
-    case SWING_CUT:
-      if ( m_swing < 10 ){
-	degz = (double)m_swing/10*90;
-	degx = (double)m_swing/10*30;
-	degy = -(double)m_swing/10*45;
-      }
-      else if ( m_swing < 30 ){
-	degz = 90-(double)(m_swing-10)/20*120;
-	degx = 30-(double)(m_swing-10)/20*90;
-	degy = -45.0;
-      }
-      else{
-	degz = -30+(double)(m_swing-30)/20*30;
-	degx = -60+(double)(m_swing-30)/20*60;
-	degy = -45.0 + (double)(m_swing-30)/20*45;
-      }
-      break;
-    }
-  }
-
-  return true;
-}
-
 bool
 Player::ForeOrBack() {
   return GetSwingSide();
@@ -1287,10 +844,10 @@ bool
 Player::SwingError() {
   double diff;
 
-  if ( (m_y-theBall.GetY())*m_side < 0 )
-    diff = fabs(m_y-theBall.GetY())/2;
+  if ( (m_x[1]-theBall.GetX()[1])*m_side < 0 )
+    diff = fabs(m_x[1]-theBall.GetX()[1])/2;
   else
-    diff = fabs(m_y-theBall.GetY());
+    diff = fabs(m_x[1]-theBall.GetX()[1]);
 
   if ( diff < 0.03 )
     m_swingError = SWING_PERFECT;
@@ -1305,13 +862,9 @@ Player::SwingError() {
 }
 
 bool
-Player::Warp( double x, double y, double z, double vx, double vy, double vz ) {
+Player::Warp( const vector3d &x, const vector3d &v ) {
   m_x = x;
-  m_y = y;
-  m_z = z;
-  m_vx = vx;
-  m_vy = vy;
-  m_vz = vz;
+  m_v = v;
 
   return true;
 }
@@ -1319,23 +872,21 @@ Player::Warp( double x, double y, double z, double vx, double vy, double vz ) {
 bool
 Player::Warp( char *buf ) {
   char *b = buf;
-  b = ReadDouble( b, m_x );
-  b = ReadDouble( b, m_y );
-  b = ReadDouble( b, m_z );
-  b = ReadDouble( b, m_vx );
-  b = ReadDouble( b, m_vy );
-  b = ReadDouble( b, m_vz );
+  for ( int i = 0 ; i < 3 ; i++ )
+    b = ReadDouble( b, m_x[i] );
+
+  for ( int i = 0 ; i < 3 ; i++ )
+    b = ReadDouble( b, m_v[i] );
 
   return true;
 }
 
 bool
-Player::ExternalSwing( long pow, double spinX, double spinY,
+Player::ExternalSwing( long pow, const vector2d &spin,
 		       long swingType, long swing ) {
   m_swing = swing;
   m_pow = pow;
-  m_spinX = spinX;
-  m_spinY = spinY;
+  m_spin = spin;
   m_swingType =swingType;
 
   return true;
@@ -1346,8 +897,8 @@ Player::ExternalSwing( char *buf ) {
   char *b = buf;
   long swingSide;
   b = ReadLong( b, m_pow );
-  b = ReadDouble( b, m_spinX );
-  b = ReadDouble( b, m_spinY );
+  b = ReadDouble( b, m_spin[0] );
+  b = ReadDouble( b, m_spin[1] );
   b = ReadLong( b, m_swingType );
   b = ReadLong( b, swingSide );
   b = ReadLong( b, m_swing );
@@ -1364,9 +915,9 @@ Player::SendSwing( char *buf ) {
 
   l = SwapLong(m_pow);
   memcpy( buf, (char *)&l, 4 );
-  d = SwapDbl(m_spinX);
+  d = SwapDbl(m_spin[0]);
   memcpy( &(buf[4]), (char *)&d, 8 );
-  d = SwapDbl(m_spinY);
+  d = SwapDbl(m_spin[1]);
   memcpy( &(buf[12]), (char *)&d, 8 );
   l = SwapLong(m_swingType);
   memcpy( &(buf[20]), (char *)&l, 4 );
@@ -1385,19 +936,18 @@ Player::SendSwing( char *buf ) {
 char *
 Player::SendLocation( char *buf ) {
   double d;
+  int c = 0;
 
-  d = SwapDbl(m_x);
-  memcpy( buf, (char *)&d, 8 );
-  d = SwapDbl(m_y);
-  memcpy( &(buf[8]), (char *)&d, 8 );
-  d = SwapDbl(m_z);
-  memcpy( &(buf[16]), (char *)&d, 8 );
-  d = SwapDbl(m_vx);
-  memcpy( &(buf[24]), (char *)&d, 8 );
-  d = SwapDbl(m_vy);
-  memcpy( &(buf[32]), (char *)&d, 8 );
-  d = SwapDbl(m_vz);
-  memcpy( &(buf[40]), (char *)&d, 8 );
+  for ( int i = 0 ; i < 3 ; i++ ) {
+    d = SwapDbl(m_x[i]);
+    memcpy( &(buf[c]), (char *)&d, 8 );
+    c += 8;
+  }
+
+  for ( int i = 0 ; i < 3 ; i++ ) {
+    d = SwapDbl(m_v[i]);
+    memcpy( &(buf[c]), (char *)&d, 8 );
+  }
 
   UpdateLastSend();
 
@@ -1413,12 +963,13 @@ Player::SendAll( int sd ) {
   SendLong( sd, m_playerType );
   SendLong( sd, m_side );
 
-  SendDouble( sd, m_x );
-  SendDouble( sd, m_y );
-  SendDouble( sd, m_z );
-  SendDouble( sd, m_vx );
-  SendDouble( sd, m_vy );
-  SendDouble( sd, m_vz );
+  for ( int i = 0 ; i < 3 ; i++ ) {
+    SendDouble( sd, m_x[i] );
+  }
+
+  for ( int i = 0 ; i < 3 ; i++ ) {
+    SendDouble( sd, m_v[i] );
+  }
 
   SendLong( sd, m_status );
   SendLong( sd, m_swing );
@@ -1427,16 +978,20 @@ Player::SendAll( int sd ) {
   SendLong( sd, m_afterSwing );
   SendLong( sd, m_swingError );
 
-  SendDouble( sd, m_targetX );
-  SendDouble( sd, m_targetY );
-  SendDouble( sd, m_eyeX );
-  SendDouble( sd, m_eyeY );
-  SendDouble( sd, m_eyeZ );
+  for ( int i = 0 ; i < 2 ; i++ ) {
+    SendDouble( sd, m_target[i] );
+  }
+
+  for ( int i = 0 ; i < 3 ; i++ ) {
+    SendDouble( sd, m_eye[i] );
+  }
 
   SendLong( sd, m_pow );
 
-  SendDouble( sd, m_spinX );
-  SendDouble( sd, m_spinY );
+  for ( int i = 0 ; i < 2 ; i++ ) {
+    SendDouble( sd, m_spin[i] );
+  }
+
   SendDouble( sd, m_stamina );
 
   SendLong( sd, m_statusMax );
@@ -1446,7 +1001,7 @@ Player::SendAll( int sd ) {
 
 // Must be overridden
 bool
-Player::GetModifiedTarget( double &targetX, double &targetY ) {
+Player::GetModifiedTarget( vector2d &target ) {
   return false;
 }
 
@@ -1474,17 +1029,13 @@ Player::UpdateLastSend() {
   m_lastSendCount = 0;
 
   m_lastSendX = m_x;
-  m_lastSendY = m_y;
-  m_lastSendZ = m_z;
-  m_lastSendVX = m_vx;
-  m_lastSendVY = m_vy;
-  m_lastSendVZ = m_vz;
+  m_lastSendV = m_v;
 }
 
 void
-Player::AddError( double &vx, double &vy, double &vz ) {
-  double v;
-  double n1x, n1y, n1z, n2x, n2y, n2z;
+Player::AddError( vector3d &v ) {
+  double vl;
+  vector3d n1, n2;
   double radDiff, radRand;
 
 #if 0
@@ -1496,33 +1047,31 @@ Player::AddError( double &vx, double &vy, double &vz ) {
   radDiff = (double)(200-m_status)/200*3.141592/12;
 #endif
 
-  v = sqrt(vx*vx+vy*vy+vz*vz);
-  n1x = vy/hypot(vx, vy) * v*tan(radDiff);
-  n1y = -vx/hypot(vx, vy) * v*tan(radDiff);
-  n1z = 0;
-  n2x = vx*vz/(v*hypot(vx, vy)) * v*tan(radDiff);
-  n2y = vy*vz/(v*hypot(vx, vy)) * v*tan(radDiff);
-  n2z = (vx*vx+vy*vy)/(v*hypot(vx, vy)) * v*tan(radDiff);
+  vl = v.len();
+  n1[0] =  v[1]/hypot(v[0], v[1]) * vl*tan(radDiff);
+  n1[1] = -v[0]/hypot(v[0], v[1]) * vl*tan(radDiff);
+  n1[2] = 0;
+  n2[0] =             v[0]*v[2]/(vl*hypot(v[0], v[1])) * vl*tan(radDiff);
+  n2[1] =             v[1]*v[2]/(vl*hypot(v[0], v[1])) * vl*tan(radDiff);
+  n2[2] = (v[0]*v[0]+v[1]*v[1])/(vl*hypot(v[0], v[1])) * vl*tan(radDiff);
 
   // Hit the ball too fast --- net miss
   // Hit the ball too slow --- over miss
-  if ( (m_y-theBall.GetY())*m_side < 0 )
+  if ( (m_x[1]-theBall.GetX()[1])*m_side < 0 )
     radRand = (RAND(180)+180)*3.141592/180.0;
   else
     radRand = RAND(180)*3.141592/180.0;
 
-  vx += n1x*cos(radRand)+n2x*sin(radRand);
-  vy += n1y*cos(radRand)+n2y*sin(radRand);
-  vz += n1z*cos(radRand)+n2z*sin(radRand);
+  v += n1*cos(radRand) + n2*sin(radRand);
 }
 
 // If status point is less than this value, player will miss. 
 long
 Player::StatusBorder() {
-  double nearEdge = TABLEWIDTH/2-fabs(m_targetX);
-  if ( TABLELENGTH/4-fabs(fabs(m_targetY)-TABLELENGTH/4) < nearEdge )
-    nearEdge = TABLELENGTH/4-fabs(fabs(m_targetY)-TABLELENGTH/4);
+  double nearEdge = TABLEWIDTH/2-fabs(m_target[0]);
+  if ( TABLELENGTH/4-fabs(fabs(m_target[1])-TABLELENGTH/4) < nearEdge )
+    nearEdge = TABLELENGTH/4-fabs(fabs(m_target[1])-TABLELENGTH/4);
 
-  return 50+(TABLELENGTH/4-nearEdge)*40;
+  return (long)(50+(TABLELENGTH/4-nearEdge)*40);
 
 }

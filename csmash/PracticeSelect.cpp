@@ -94,7 +94,7 @@ PracticeSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     nothing = 0;
     if ( *selected == 0 ) {
       *selected = 1;
-      Sound::TheSound()->Play( SOUND_CLICK, 0, 0 );
+      Sound::TheSound()->Play( SOUND_CLICK, vector3d(0.0) );
     } else if ( *selected > 100 ) {
       *selected = 500;
       return true;
@@ -134,7 +134,7 @@ PracticeSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     if ( (*rotate)/(360/PLAYERS) != nextRotate/(360/PLAYERS) ) {
       *rotate = (nextRotate+360/PLAYERS/2)/(360/PLAYERS)*(360/PLAYERS);
       lastRotate = 0;
-      Sound::TheSound()->Play( SOUND_CLICK, 0, 0 );
+      Sound::TheSound()->Play( SOUND_CLICK, vector3d(0.0) );
     } else
       *rotate = nextRotate;
   }

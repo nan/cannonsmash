@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2003  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2003, 2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -90,7 +90,7 @@ MultiPlayerSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 	 (Histptr == 0 && !(MouseBHistory[MAX_HISTORY]&BUTTON_LEFT)) ) ) {
     if ( m_selected == 0 ) {
       m_selected = 1;
-      Sound::TheSound()->Play( SOUND_CLICK, 0, 0 );
+      Sound::TheSound()->Play( SOUND_CLICK, vector3d(0.0) );
       SendPT(1);
     }
   }
@@ -124,7 +124,7 @@ MultiPlayerSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       if ( (m_rotate)/(360/PLAYERS) != nextRotate/(360/PLAYERS) ) {
 	m_rotate = (nextRotate+360/PLAYERS/2)/(360/PLAYERS)*(360/PLAYERS);
 	m_lastRotate = 0;
-	Sound::TheSound()->Play( SOUND_CLICK, 0, 0 );
+	Sound::TheSound()->Play( SOUND_CLICK, vector3d(0.0) );
 	SendPT(0);
       } else
 	m_rotate = nextRotate;

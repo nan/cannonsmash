@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,19 +28,18 @@ TrainingPenDrive::TrainingPenDrive() : PenDrive() {
 TrainingPenDrive::TrainingPenDrive(long side) : PenDrive(side) {
 }
 
-TrainingPenDrive::TrainingPenDrive( long playerType, long side,
-				    double x, double y, double z,
-				    double vx, double vy, double vz,
-				    long status, long swing,
-				    long swingType, bool swingSide,
-				    long afterSwing, long swingError,
-				    double targetX, double targetY,
-				    double eyeX, double eyeY, double eyeZ,
-				    long pow, double spinX, double spinY, 
-				    double stamina, long statusMax ) :
-  PenDrive( playerType, side, x, y, z, vx, vy, vz, status, swing, swingType,
-	    swingSide, afterSwing, swingError, targetX, targetY,
-	    eyeX, eyeY, eyeZ, pow, spinX, spinY, stamina, statusMax ) {
+TrainingPenDrive::TrainingPenDrive( long playerType, long side, 
+				    const vector3d x, const vector3d v, 
+				    long status, long swing, 
+				    long swingType, bool swingSide, 
+				    long afterSwing, long swingError, 
+				    const vector2d target, 
+				    const vector3d eye, long pow, 
+				    const vector2d spin, double stamina, 
+				    long statusMax ) : 
+  PenDrive( playerType, side, x, v, status, swing, swingType, swingSide, 
+	    afterSwing, swingError, target, eye, pow, spin, stamina, 
+	    statusMax ) {
 }
 
 TrainingPenDrive::~TrainingPenDrive() {
@@ -59,29 +58,33 @@ TrainingPenDrive::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   Player::Move( KeyHistory, MouseXHistory, MouseYHistory,MouseBHistory,
 		Histptr );
 
-  m_vy = m_vz = 0.0;
-  m_y = -(TABLELENGTH/2+0.3)*m_side;
+  m_v[1] = m_v[2] = 0.0;
+  m_x[1] = -(TABLELENGTH/2+0.3)*m_side;
   //m_targetX = -TABLEWIDTH/5*2*m_side;
-  m_targetX = -TABLEWIDTH/5*m_side;
+  m_target[0] = -TABLEWIDTH/5*m_side;
   //m_targetY = TABLELENGTH/16*5*m_side;
-  m_targetY = TABLELENGTH/16*4*m_side;
+  m_target[1] = TABLELENGTH/16*4*m_side;
 
   return true;
 }
 
 bool
 TrainingPenDrive::HitBall() {
-  double vx, vy, vz;
+  vector3d v;
 
   // Serve
   if ( ( (m_side == 1 && theBall.GetStatus() == 6) ||
          (m_side ==-1 && theBall.GetStatus() == 7) ) &&
-       fabs( m_x-theBall.GetX() ) < 0.6 && fabs( m_y-theBall.GetY() ) < 0.3 ){
+       fabs( m_x[0]-theBall.GetX()[0] ) < 0.6 &&
+       fabs( m_x[1]-theBall.GetX()[1] ) < 0.3 ) {
     SwingError();
 
-    theBall.TargetToVS( m_targetX, m_targetY, 0.8, 0.0, 0.5, vx, vy, vz );
+    vector2d spin;
+    spin[0] = 0.0;
+    spin[1] = 0.5;
+    theBall.TargetToVS( m_target, 0.8, spin, v );
 
-    theBall.Hit( vx, vy, vz, 0.0, 0.5, this );
+    theBall.Hit( v, spin, this );
   } else {
     PenDrive::HitBall();
   }

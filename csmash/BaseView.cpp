@@ -59,9 +59,7 @@ BaseView::TheView() {
 
 BaseView::BaseView() {
   m_View = (View*)0;
-  m_centerX = 0.0;
-  m_centerY = TABLELENGTH/2;
-  m_centerZ = TABLEHEIGHT;
+  m_centerX = vector3d((const double[]){0.0, TABLELENGTH/2, TABLEHEIGHT});
 }
 
 BaseView::~BaseView() {
@@ -346,20 +344,18 @@ BaseView::SetViewPosition() {
 // Move the viewpoint as the player moves
 void
 BaseView::SetLookAt() {
-  double srcX, srcY, srcZ;
-  double destX, destY, destZ;
+  vector3d srcX;
+  vector3d destX;
 
-  srcX = srcY = srcZ = 0.0F;
+  srcX = vector3d(0.0);
   destX = m_centerX;
   if (Control::TheControl()->GetThePlayer())
-    destY = m_centerY*Control::TheControl()->GetThePlayer()->GetSide();
-  else
-    destY = m_centerY;
-  destZ = m_centerZ;
+    destX[1] = m_centerX[1]*Control::TheControl()->GetThePlayer()->GetSide();
 
-  Control::TheControl()->LookAt( srcX, srcY, srcZ, destX, destY, destZ );
+  Control::TheControl()->LookAt( srcX, destX );
 
-  gluLookAt( srcX, srcY, srcZ, destX, destY, destZ, 0.0F, 0.0F, 0.5F );
+  gluLookAt( srcX[0], srcX[1], srcX[2], destX[0], destX[1], destX[2],
+	     0.0F, 0.0F, 0.5F );
   /* 視点, 視線設定. 視点x, y, z, 視点(視線ベクトルの通る点)x, y, z, 
      上向きベクトル(画面上の上に向かうベクトル)x, y, z */
 }

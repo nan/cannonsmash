@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001, 2002, 2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2001-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -134,8 +134,10 @@ Logging::LogBall( long logType, Ball *ball ) {
   snprintf( buf, sizeof(buf),
            "status = %2d x = %4.2f y = %4.2f z = %4.2f "
            "vx = %4.2f vy = %4.2f vz = %4.2f spinY = %3.2f\n",
-	   (int)ball->GetStatus(), ball->GetX(), ball->GetY(), ball->GetZ(),
-           ball->GetVX(), ball->GetVY(), ball->GetVZ(), ball->GetSpinY() );
+	   (int)ball->GetStatus(),
+	    ball->GetX()[0], ball->GetX()[1], ball->GetX()[2],
+	    ball->GetV()[0], ball->GetV()[1], ball->GetV()[2],
+	    ball->GetSpin()[1] );
   Log( logType, buf );
 
   return true;
@@ -155,15 +157,15 @@ Logging::LogPlayer( long logType, Player *player ) {
             "lookAtX=%4.2f lookAtY=%4.2f lookAtZ=%4.2f "
             "pow=%1d spinY=%3.2f stamina=%2.0f dragX=%2d dragY=%2d\n",
             (int)player->GetPlayerType(), (int)player->GetSide(), 
-            player->GetX(), player->GetY(), player->GetZ(), 
-            player->GetVX(), player->GetVY(), player->GetVZ(), 
+            player->GetX()[0], player->GetX()[1], player->GetX()[2], 
+            player->GetV()[0], player->GetV()[1], player->GetV()[2], 
             (int)player->GetStatus(), (int)player->GetSwing(),
             (int)player->GetSwingType(), (int)player->GetSwingSide(),
             (int)player->GetAfterSwing(), (int)player->GetSwingError(), 
-            player->GetTargetX(), player->GetTargetY(),
-            player->GetEyeX(), player->GetEyeY(), player->GetEyeZ(),
-            player->GetLookAtX(), player->GetLookAtY(), player->GetLookAtZ(),
-            (int)player->GetPower(), player->GetSpinY(), player->GetStamina(),
+            player->GetTarget()[0], player->GetTarget()[1],
+            player->GetEye()[0], player->GetEye()[1], player->GetEye()[2],
+            player->GetLookAt()[0], player->GetLookAt()[1], player->GetLookAt()[2],
+            (int)player->GetPower(), player->GetSpin()[1], player->GetStamina(),
             (int)player->GetDragX(), (int)player->GetDragY() );
   Log( logType, buf );
 
@@ -183,9 +185,9 @@ Logging::LogRecvBVMessage( ExternalBVData *bv ) {
   snprintf( buf, sizeof(buf),
             "x=%4.2f y=%4.2f z=%4.2f "
             "vx=%4.2f vy=%4.2f vz=%4.2f spinY=%3.2f status=%2d\n",
-	   tmpBall->GetX(), tmpBall->GetY(), tmpBall->GetZ(), 
-	   tmpBall->GetVX(), tmpBall->GetVY(), tmpBall->GetVZ(), 
-	   tmpBall->GetSpinY(), (int)tmpBall->GetStatus() );
+	   tmpBall->GetX()[0], tmpBall->GetX()[1], tmpBall->GetX()[2], 
+	   tmpBall->GetV()[0], tmpBall->GetV()[1], tmpBall->GetV()[2], 
+	   tmpBall->GetSpin()[1], (int)tmpBall->GetStatus() );
   Log( LOG_COMBALL, buf );
 
   return true;
@@ -198,8 +200,8 @@ Logging::LogSendPVMessage( Player *player ) {
   LogTime( LOG_COMTHEPLAYER );
   snprintf( buf, sizeof(buf),
            "send PV: x=%4.2f y=%4.2f z=%4.2f vx=%4.2f vy=%4.2f vz=%4.2f\n",
-	   player->GetX(), player->GetY(), player->GetZ(), 
-	   player->GetVX(), player->GetVY(), player->GetVZ() );
+	   player->GetX()[0], player->GetX()[1], player->GetX()[2], 
+	   player->GetV()[0], player->GetV()[1], player->GetV()[2] );
   Log( LOG_COMTHEPLAYER, buf );
 
   return true;
@@ -218,8 +220,8 @@ Logging::LogRecvPVMessage( ExternalPVData *pv ) {
 
   snprintf( buf, sizeof(buf),
             "x=%4.2f y=%4.2f z=%4.2f vx=%4.2f vy=%4.2f vz=%4.2f\n",
-            tmpPlayer->GetX(), tmpPlayer->GetY(), tmpPlayer->GetZ(), 
-            tmpPlayer->GetVX(), tmpPlayer->GetVY(), tmpPlayer->GetVZ() );
+            tmpPlayer->GetX()[0], tmpPlayer->GetX()[1], tmpPlayer->GetX()[2], 
+            tmpPlayer->GetV()[0], tmpPlayer->GetV()[1], tmpPlayer->GetV()[2] );
   Log( LOG_COMCOMPLAYER, buf );
 
   return true;
@@ -233,7 +235,7 @@ Logging::LogSendPSMessage( Player *player ) {
 
   snprintf( buf, sizeof(buf),
             "send PS: pow=%2d spinY=%3.2f swingType=%1d swingSide=%2d swing=%2d\n",
-	   (int)player->GetPower(), player->GetSpinY(),
+	   (int)player->GetPower(), player->GetSpin()[1],
 	   (int)player->GetSwingType(), player->GetSwingSide(),
 	   (int)player->GetSwing() );
   Log( LOG_COMTHEPLAYER, buf );
@@ -254,7 +256,7 @@ Logging::LogRecvPSMessage( ExternalPSData *ps ) {
 
   snprintf( buf, sizeof(buf),
            "pow=%2d spinY=%3.2f swingType=%1d swingSide=%2d swing=%2d\n",
-	   (int)tmpPlayer->GetPower(), tmpPlayer->GetSpinY(),
+	   (int)tmpPlayer->GetPower(), tmpPlayer->GetSpin()[1],
 	   (int)tmpPlayer->GetSwingType(), tmpPlayer->GetSwingSide(),
 	   (int)tmpPlayer->GetSwing() );
   Log( LOG_COMCOMPLAYER, buf );

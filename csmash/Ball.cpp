@@ -50,8 +50,7 @@ inline double LOG(double f)
 }
 #endif
 
-Ball::Ball() {
-  m_x = m_y = m_vx = m_vy = m_spinX = m_spinY = 0.0;
+Ball::Ball() : m_x(0.0), m_v(0.0), m_spin(0.0) {
   m_status = -1000;
 
   m_View = NULL;
@@ -59,17 +58,11 @@ Ball::Ball() {
   m_lastSendCount = 0;
 }
 
-Ball::Ball( double x, double y, double z, double vx, double vy, double vz,
-	    double spinX, double spinY, long status ) {
-  m_x = x;
-  m_y = y;
-  m_z = z;
-  m_vx = vx;
-  m_vy = vy;
-  m_vz = vz;
-  m_spinX = spinX;
-  m_spinY = spinY;
-  m_status = status;
+Ball::Ball( const vector3d _x, const vector3d _v, const vector2d _spin, long _status ) {
+  m_x = _x;
+  m_v = _v;
+  m_spin = _spin;
+  m_status = _status;
 
   m_View = NULL;
 
@@ -78,13 +71,8 @@ Ball::Ball( double x, double y, double z, double vx, double vy, double vz,
 
 Ball::Ball( Ball *ball ) {
   m_x = ball->m_x;
-  m_y = ball->m_y;
-  m_z = ball->m_z;
-  m_vx = ball->m_vx;
-  m_vy = ball->m_vy;
-  m_vz = ball->m_vz;
-  m_spinX = ball->m_spinX;
-  m_spinY = ball->m_spinY;
+  m_v = ball->m_v;
+  m_spin = ball->m_spin;
   m_status = ball->m_status;
 
   m_View = NULL;
@@ -112,9 +100,9 @@ Ball::Init() {
 
 bool
 Ball::Move() {
-  double netT , tableT;         /* Flag for bound on the table, hit net */
-  double x , y, z;              /* Hold x,y */
-  double tableY;                /* Hold y on bounding */
+  double netT , tableT;        /* Flag for bound on the table, hit net */
+  vector3d x;                  /* Hold x,y */
+  double tableY;               /* Hold y on bounding */
 
 // Return ball immidiately when ball dead
   if ( m_status < 0 )
@@ -130,17 +118,15 @@ Ball::Move() {
 	player = Control::TheControl()->GetComPlayer();
 
       if ( ((PlayGame *)Control::TheControl())->GetService() > 0 ) {
-	m_x = player->GetX()+0.3;
-	m_y = player->GetY();
+	m_x[0] = player->GetX()[0]+0.3;
+	m_x[1] = player->GetX()[1];
       } else {
-	m_x = player->GetX()-0.3;
-	m_y = player->GetY();
+	m_x[0] = player->GetX()[0]-0.3;
+	m_x[1] = player->GetX()[1];
       }
 
-      m_z = TABLEHEIGHT + 0.15;
-      m_vx = 0.0;
-      m_vy = 0.0;
-      m_vz = 0.0;
+      m_x[2] = TABLEHEIGHT + 0.15;
+      m_v[0] = m_v[1] = m_v[2] = 0.0;
 
       m_status = 8;
 
@@ -160,13 +146,11 @@ Ball::Move() {
 	}
       }
     } else {
-      m_x = Control::TheControl()->GetThePlayer()->GetX()+0.3;
-      m_y = Control::TheControl()->GetThePlayer()->GetY();
+      m_x[0] = Control::TheControl()->GetThePlayer()->GetX()[0]+0.3;
+      m_x[1] = Control::TheControl()->GetThePlayer()->GetX()[1];
 
-      m_z = TABLEHEIGHT + 0.15;
-      m_vx = 0.0;
-      m_vy = 0.0;
-      m_vz = 0.0;
+      m_x[2] = TABLEHEIGHT + 0.15;
+      m_v[0] = m_v[1] = m_v[2] = 0.0;
 
       m_status = 8;
     }
@@ -176,52 +160,45 @@ Ball::Move() {
 
 /* Add velocity */ 
   x = m_x;
-  y = m_y;
-  z = m_z;
-#if 0
-  m_x += (m_vx*2-PHY*m_vx*fabs(m_vx)*TICK)/2*TICK;
-  m_y += (m_vy*2-PHY*m_vy*fabs(m_vy)*TICK)/2*TICK;
-  m_z += (m_vz*2-GRAVITY(m_spinY)*TICK-PHY*m_vz*fabs(m_vz)*TICK)/2*TICK;
-#else
-  m_x += (m_vx*2-PHY*m_vx*TICK)/2*TICK;
-  m_y += (m_vy*2-PHY*m_vy*TICK)/2*TICK;
-  m_z += (m_vz*2-GRAVITY(m_spinY)*TICK-PHY*m_vz*TICK)/2*TICK;
-#endif
+
+  m_x[0] += (m_v[0]*2-PHY*m_v[0]*TICK)/2*TICK;
+  m_x[1] += (m_v[1]*2-PHY*m_v[1]*TICK)/2*TICK;
+  m_x[2] += (m_v[2]*2-GRAVITY(m_spin[1])*TICK-PHY*m_v[2]*TICK)/2*TICK;
 
 /* Collision check */
-  if ( y*m_y <= 0.0 ){
-    netT = fabs( y/((m_y-y)/TICK) );
-    if ( z+(m_z-z)*netT/TICK < TABLEHEIGHT ||
-	 z+(m_z-z)*netT/TICK > TABLEHEIGHT+NETHEIGHT ||
-	 x+(m_x-x)*netT/TICK < -TABLEWIDTH/2-NETHEIGHT ||
-	 x+(m_x-x)*netT/TICK > TABLEWIDTH/2+NETHEIGHT )
+  if ( x[1]*m_x[1] <= 0.0 ){
+    netT = fabs( x[1]/((m_x[1]-x[1])/TICK) );
+    if ( x[2]+(m_x[2]-x[2])*netT/TICK < TABLEHEIGHT ||
+	 x[2]+(m_x[2]-x[2])*netT/TICK > TABLEHEIGHT+NETHEIGHT ||
+	 x[0]+(m_x[0]-x[0])*netT/TICK < -TABLEWIDTH/2-NETHEIGHT ||
+	 x[0]+(m_x[0]-x[0])*netT/TICK > TABLEWIDTH/2+NETHEIGHT )
       netT = TICK*100;
   } else
     netT = TICK*100;
 
-  if ( (z-TABLEHEIGHT)*(m_z-TABLEHEIGHT) <= 0.0 ){
-    tableT = fabs( (z-TABLEHEIGHT)/((m_z-z)/TICK) );
-    if ( tableT <= 0.0 || y+(m_y-y)*tableT/TICK < -TABLELENGTH/2 ||
-	 y+(m_y-y)*tableT/TICK > TABLELENGTH/2 ||
-	 x+(m_x-x)*tableT/TICK < -TABLEWIDTH/2 ||
-	 x+(m_x-x)*tableT/TICK > TABLEWIDTH/2 )
+  if ( (x[2]-TABLEHEIGHT)*(m_x[2]-TABLEHEIGHT) <= 0.0 ){
+    tableT = fabs( (x[2]-TABLEHEIGHT)/((m_x[2]-x[2])/TICK) );
+    if ( tableT <= 0.0 || x[1]+(m_x[1]-x[1])*tableT/TICK < -TABLELENGTH/2 ||
+	 x[1]+(m_x[1]-x[1])*tableT/TICK > TABLELENGTH/2 ||
+	 x[0]+(m_x[0]-x[0])*tableT/TICK < -TABLEWIDTH/2 ||
+	 x[0]+(m_x[0]-x[0])*tableT/TICK > TABLEWIDTH/2 )
       tableT = TICK*100;
   } else
     tableT = TICK*100;
 
   if ( netT < tableT ){	// Hit net
-    m_vx *= 0.5;
-    m_vy = -m_vy*0.2;
-    m_spinX = -m_spinX*0.8;
-    m_spinY = -m_spinY*0.8;
-    m_y = m_vy*(TICK-netT);
+    m_v[0] *= 0.5;
+    m_v[1] *= -0.2;
+    m_spin *= -0.8;
+
+    m_x[1] = m_v[1]*(TICK-netT);
   }
 
   if ( tableT < netT ){	// Bound on the table
     if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE, m_x, m_y );
+      Sound::TheSound()->Play( SOUND_TABLE, m_x );
     }
-    tableY = y+m_vy*tableT;
+    tableY = x[1]+m_v[1]*tableT;
     if ( tableY < 0 ){		// Table of my side
       switch( m_status ){
       case 2:
@@ -246,88 +223,88 @@ Ball::Move() {
       }
     }
 
-    m_vz -= GRAVITY(m_spinY)*tableT;
-    m_vz += -PHY*m_vz*tableT;
-    m_vz *= -TABLE_E;
-    m_z = TABLEHEIGHT + (TICK-tableT)*m_vz;
-    m_vz -= GRAVITY(m_spinY)*(TICK-tableT);
-    m_vz += -PHY*m_vz*(TICK-tableT);
+    m_v[2] -= GRAVITY(m_spin[1])*tableT;
+    m_v[2] += -PHY*m_v[2]*tableT;
+    m_v[2] *= -TABLE_E;
+    m_x[2] = TABLEHEIGHT + (TICK-tableT)*m_v[2];
+    m_v[2] -= GRAVITY(m_spin[1])*(TICK-tableT);
+    m_v[2] += -PHY*m_v[2]*(TICK-tableT);
 
-    m_vy += -PHY*m_vy*tableT;
+    m_v[1] += -PHY*m_v[1]*tableT;
 
-    if ( m_vy > 0 )
-      m_vy += m_spinY*0.8;
+    if ( m_v[1] > 0 )
+      m_v[1] += m_spin[1]*0.8;
     else
-      m_vy -= m_spinY*0.8;
+      m_v[1] -= m_spin[1]*0.8;
 
-    m_vy += -PHY*m_vy*(TICK-tableT);
-    m_vx += -PHY*m_vx*TICK;
+    m_v[1] += -PHY*m_v[1]*(TICK-tableT);
+    m_v[0] += -PHY*m_v[0]*TICK;
 
-    m_spinX *= 0.95;
-    m_spinY *= 0.8;
+    m_spin[0] *= 0.95;
+    m_spin[1] *= 0.8;
 
     return true;
   }
 
 /* Collision check with walls */
-  if ( m_x < -AREAXSIZE/2 ){
-    m_x = -AREAXSIZE/2;
-    m_vx = -m_vx*TABLE_E/2;
+  if ( m_x[0] < -AREAXSIZE/2 ){
+    m_x[0] = -AREAXSIZE/2;
+    m_v[0] = -m_v[0]*TABLE_E/2;
     if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE, m_x, m_y );
+      Sound::TheSound()->Play( SOUND_TABLE, m_x );
     }
     BallDead();
   }
-  else if ( m_x > AREAXSIZE/2 ){
-    m_x = AREAXSIZE/2;
-    m_vx = -m_vx*TABLE_E/2;
+  else if ( m_x[0] > AREAXSIZE/2 ){
+    m_x[0] = AREAXSIZE/2;
+    m_v[0] = -m_v[0]*TABLE_E/2;
     if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE, m_x, m_y );
-    }
-    BallDead();
-  }
-
-  if ( m_y < -AREAYSIZE/2 ){
-    m_y = -AREAYSIZE/2;
-    m_vy = -m_vy*TABLE_E/2;
-    if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE, m_x, m_y );
-    }
-    BallDead();
-  }
-  else if ( m_y > AREAYSIZE/2 ){
-    m_y = AREAYSIZE/2;
-    m_vy = -m_vy*TABLE_E/2;
-    if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE, m_x, m_y );
+      Sound::TheSound()->Play( SOUND_TABLE, m_x );
     }
     BallDead();
   }
 
-  if ( m_z < 0 ){
-    m_z = 0;
-    m_vz = -m_vz*TABLE_E;
-    if ( m_vy > 0 )
-      m_vy += m_spinY*0.8;
+  if ( m_x[1] < -AREAYSIZE/2 ){
+    m_x[1] = -AREAYSIZE/2;
+    m_v[1] = -m_v[1]*TABLE_E/2;
+    if ( this == &theBall ) {
+      Sound::TheSound()->Play( SOUND_TABLE, m_x );
+    }
+    BallDead();
+  }
+  else if ( m_x[1] > AREAYSIZE/2 ){
+    m_x[1] = AREAYSIZE/2;
+    m_v[1] = -m_v[1]*TABLE_E/2;
+    if ( this == &theBall ) {
+      Sound::TheSound()->Play( SOUND_TABLE, m_x );
+    }
+    BallDead();
+  }
+
+  if ( m_x[2] < 0 ){
+    m_x[2] = 0;
+    m_v[2] = -m_v[2]*TABLE_E;
+    if ( m_v[1] > 0 )
+      m_v[1] += m_spin[1]*0.8;
     else
-      m_vy -= m_spinY*0.8;
+      m_v[1] -= m_spin[1]*0.8;
 
     if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE, m_x, m_y );
+      Sound::TheSound()->Play( SOUND_TABLE, m_x );
     }
     BallDead();
   }
-  else if ( m_z > AREAZSIZE ){
-    m_z = AREAZSIZE;
-    m_vz = -m_vz*0.1;
+  else if ( m_x[2] > AREAZSIZE ){
+    m_x[2] = AREAZSIZE;
+    m_v[2] = -m_v[2]*0.1;
     if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE, m_x, m_y );
+      Sound::TheSound()->Play( SOUND_TABLE, m_x );
     }
     BallDead();
   }
 
 // Gravity
-  m_vz -= GRAVITY(m_spinY)*TICK;
+  m_v[2] -= GRAVITY(m_spin[1])*TICK;
 
 // Spin
   //TODO: apply spinX
@@ -339,28 +316,22 @@ Ball::Move() {
   */
 
 // Air resistance
-  m_vx += -PHY*m_vx*TICK;
-  m_vy += -PHY*m_vy*TICK;
-  m_vz += -PHY*m_vz*TICK;
+  m_v = m_v - PHY*TICK*m_v;
 
   return true;
 }
 
 // Ball inpact
 bool
-Ball::Hit( double vx, double vy, double vz, 
-	   double spinX, double spinY, Player *player ) {
+Ball::Hit( const vector3d v, const vector2d spin, Player *player ) {
 // Normal inpact
   if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_RACKET, m_x, m_y );
+      Sound::TheSound()->Play( SOUND_RACKET, m_x );
   }
 
-  m_spinX = spinX;
-  m_spinY = spinY;
+  m_spin = spin;
 
-  m_vx = vx;
-  m_vy = vy;
-  m_vz = vz;
+  m_v = v;
 
   // m_status should be updated by the information from the opponent
   if ( player == Control::TheControl()->GetComPlayer() &&
@@ -388,8 +359,9 @@ Ball::Hit( double vx, double vy, double vz,
 
 bool
 Ball::Toss( Player *player , long power ) {
-  m_vz = 2.5;
-  m_spinX = m_spinY = 0.0;
+  m_v[2] = 2.5;
+  m_spin[0] = m_spin[1] = 0.0;
+
   if ( player->GetSide() > 0 )
     m_status = 6;
   else
@@ -404,17 +376,11 @@ Ball::Toss( Player *player , long power ) {
 }
 
 void
-Ball::Warp( double x, double y, double z, double vx, double vy, double vz, 
-	    double spinX, double spinY, long status ) {
+Ball::Warp( const vector3d x, const vector3d v, const vector2d spin, long status ) {
   m_x = x;
-  m_y = y;
-  m_z = z;
-  m_vx = vx;
-  m_vy = vy;
-  m_vz = vz;
+  m_v = v;
+  m_spin = spin;
 
-  m_spinX = spinX;
-  m_spinY = spinY;
   m_status = status;
 }
 
@@ -423,15 +389,15 @@ Ball::Warp( char *buf ) {
   char *b = buf;
   long nextStatus;
 
-  b = ReadDouble( b, m_x );
-  b = ReadDouble( b, m_y );
-  b = ReadDouble( b, m_z );
-  b = ReadDouble( b, m_vx );
-  b = ReadDouble( b, m_vy );
-  b = ReadDouble( b, m_vz );
+  for ( int i = 0 ; i < 3 ; i++ )
+    b = ReadDouble( b, m_x[i] );
 
-  b = ReadDouble( b, m_spinX );
-  b = ReadDouble( b, m_spinY );
+  for ( int i = 0 ; i < 3 ; i++ )
+    b = ReadDouble( b, m_v[i] );
+
+  for ( int i = 0 ; i < 2 ; i++ )
+    b = ReadDouble( b, m_spin[i] );
+
   b = ReadLong( b, nextStatus );
 
   if ( m_status >= 0 && nextStatus < 0 )
@@ -445,170 +411,167 @@ Ball::Warp( char *buf ) {
 // level ---  hit power(percentage)
 // TODO: apply m_spinX
 bool
-Ball::TargetToV( double targetX, double targetY, double level, 
-		 double spinX, double spinY, 
-		 double &vx, double &vy, double &vz, double vMin, 
-		 double vMax ) {
+Ball::TargetToV( vector2d target, double level, const vector2d spin, 
+		 vector3d &v, double vMin, double vMax ) {
   double y;
   double vyMin = 0.1, vyMax;
   double t1, t2, z1;
 
-  vyMax = fabs(targetY-m_y)/hypot(targetX-m_x, targetY-m_y)*vMax;
+  vyMax = fabs(target[1]-m_x[1])/hypot(target[0]-m_x[0], target[1]-m_x[1])*vMax;
 
-  if ( targetY < m_y ){
-    y = -m_y;
-    targetY = -targetY;
+  if ( target[1] < m_x[1] ){
+    y = -m_x[1];
+    target[1] = -target[1];
   } else
-    y = m_y;
+    y = m_x[1];
 
-  if ( targetY*y >= 0 ) {	// Never go over the net
-    vy = vyMax*level*0.5;
+  if ( target[1]*y >= 0 ) {	// Never go over the net
+    v[1] = vyMax*level*0.5;
 
     // t2 = time until ball reaches targetY
-    t2 = -LOG( 1- PHY*(targetY-y)/vy ) / PHY;
+    t2 = -LOG( 1- PHY*(target[1]-y)/v[1] ) / PHY;
 
     // define vz which satisfy z=TABLEHEIGHT when t=t2
     if (0 != t2) {
-	vz = (PHY*(TABLEHEIGHT-m_z)+GRAVITY(spinY)*t2)/(1-exp(-PHY*t2)) -
-	    GRAVITY(spinY)/PHY;
-	vx = PHY*(targetX-m_x) / (1-exp(-PHY*t2));
+	v[2] = (PHY*(TABLEHEIGHT-m_x[2])+GRAVITY(spin[1])*t2)/(1-exp(-PHY*t2)) -
+	    GRAVITY(spin[1])/PHY;
+	v[0] = PHY*(target[0]-m_x[0]) / (1-exp(-PHY*t2));
     } else {
-	vz = m_z;
-	vx = m_x;
+	v[2] = m_x[2];
+	v[0] = m_x[0];
     }
 
 
-    if ( y != m_y )
-      vy = -vy;
+    if ( y != m_x[1] )
+      v[1] = -v[1];
 
     return true;
   }
 
   while (vyMax-vyMin > 0.001) {
-    vy = (vyMin+vyMax)/2;
+    v[1] = (vyMin+vyMax)/2;
 
     // t2 = time until ball reaches targetY
-    t2 = -LOG( 1- PHY*(targetY-y)/vy ) / PHY;
+    t2 = -LOG( 1- PHY*(target[1]-y)/v[1] ) / PHY;
 
     // t1 = time until ball reaches the net
-    t1 = -LOG( 1- PHY*(-y)/vy ) / PHY;
+    t1 = -LOG( 1- PHY*(-y)/v[1] ) / PHY;
 
     // define vz which satisfy z=TABLEHEIGHT when t=t2
     if (0 != t2) {
-	vz = (PHY*(TABLEHEIGHT-m_z)+GRAVITY(spinY)*t2)/(1-exp(-PHY*t2)) -
-	    GRAVITY(spinY)/PHY;
+	v[2] = (PHY*(TABLEHEIGHT-m_x[2])+GRAVITY(spin[1])*t2)/(1-exp(-PHY*t2)) -
+	  GRAVITY(spin[1])/PHY;
     } else {
-	vz = m_z;
+	v[2] = m_x[2];
     }
 
     // z1 = height of the ball when t=t2
-    z1 = -(vz+GRAVITY(spinY)/PHY)*exp(-PHY*t1)/PHY - GRAVITY(spinY)*t1/PHY +
-      (vz+GRAVITY(spinY)/PHY)/PHY;
+    z1 = -(v[2]+GRAVITY(spin[1])/PHY)*exp(-PHY*t1)/PHY - GRAVITY(spin[1])*t1/PHY +
+      (v[2]+GRAVITY(spin[1])/PHY)/PHY;
 
-    if ( z1 < TABLEHEIGHT+NETHEIGHT-m_z )
-      vyMax = vy;
+    if ( z1 < TABLEHEIGHT+NETHEIGHT-m_x[2] )
+      vyMax = v[1];
     else
-      vyMin = vy;
+      vyMin = v[1];
   }
 
-  vy *= level;
+  v[1] *= level;
 
-  t2 = -LOG( 1- PHY*(targetY-y)/vy ) / PHY;
+  t2 = -LOG( 1- PHY*(target[1]-y)/v[1] ) / PHY;
   if (0 != t2) {
-      vz = (PHY*(TABLEHEIGHT-m_z)+GRAVITY(spinY)*t2)/(1-exp(-PHY*t2)) -
-	  GRAVITY(spinY)/PHY;
+      v[2] = (PHY*(TABLEHEIGHT-m_x[2])+GRAVITY(spin[1])*t2)/(1-exp(-PHY*t2)) -
+	GRAVITY(spin[1])/PHY;
   } else {
-      vz = m_z;
+      v[2] = m_x[2];
   }
 
-  if ( y != m_y )
-    vy = -vy;
+  if ( y != m_x[1] )
+    v[1] = -v[1];
 
-  vx = PHY*(targetX-m_x) / (1-exp(-PHY*t2));
+  v[0] = PHY*(target[0]-m_x[0]) / (1-exp(-PHY*t2));
 
   return true;
 }
 
 //TODO: apply m_spinX
 bool
-Ball::TargetToVS( double targetX, double targetY, double level, 
-		  double spinX, double spinY, 
-		  double &vx, double &vy, double &vz ) {
+Ball::TargetToVS( vector2d target, double level, 
+		  const vector2d spin, vector3d &v ) {
   double boundY = -TABLELENGTH/2;
   double y;
-  double tmpVX = 0.0, tmpVY = 0.0, tmpVZ = 0.0;
+  vector3d tmpV = vector3d(0.0);
 
-  if ( targetY < m_y ){
-    y = -m_y;
-    targetY = -targetY;
+  if ( target[1] < m_x[1] ){
+    y = -m_x[1];
+    target[1] = -target[1];
   } else
-    y = m_y;
+    y = m_x[1];
 
   for ( boundY = -TABLELENGTH/2 ; boundY < 0 ; boundY += TICK ) {
     double vyMin = 0.1;
     double vyMax = 30.0;
-    double vyCurrent, vzCurrent;
+    vector3d vCurrent = vector3d();
     double t1, t2, t3;
     double z;
 
     while (vyMax-vyMin > 0.001) {
-      vy = (vyMin+vyMax)/2;
+      v[1] = (vyMin+vyMax)/2;
 
       // t2 = time until the ball reaches boundY
-      t2 = -LOG( 1- PHY*(boundY-y)/vy ) / PHY;
+      t2 = -LOG( 1- PHY*(boundY-y)/v[1] ) / PHY;
 
       // define vz which satisfy z=TABLEHEIGHT when t=t2
       if (0 != t2) {
-	  vz = (PHY*(TABLEHEIGHT-m_z)+GRAVITY(spinY)*t2)/(1-exp(-PHY*t2)) -
-	      GRAVITY(spinY)/PHY;
+	  v[2] = (PHY*(TABLEHEIGHT-m_x[2])+GRAVITY(spin[1])*t2)/(1-exp(-PHY*t2)) -
+	      GRAVITY(spin[1])/PHY;
       } else {
-	  vz = m_z;
+	  v[2] = m_x[2];
       }
 
       // Bound
-      vyCurrent = vy*exp(-PHY*t2);
-      vzCurrent = (vz+GRAVITY(spinY)/PHY)*exp(-PHY*t2) - GRAVITY(spinY)/PHY;
+      vCurrent[1] = v[1]*exp(-PHY*t2);
+      vCurrent[2] = (v[2]+GRAVITY(spin[1])/PHY)*exp(-PHY*t2) - GRAVITY(spin[1])/PHY;
 
-      vyCurrent += spinY*0.8;
-      vzCurrent *= -TABLE_E;
+      vCurrent[1] += spin[1]*0.8;
+      vCurrent[2] *= -TABLE_E;
 
-      t1 = -LOG( 1- PHY*(targetY-boundY)/vyCurrent ) / PHY;
+      t1 = -LOG( 1- PHY*(target[1]-boundY)/vCurrent[1] ) / PHY;
 
-      z = -( vzCurrent+GRAVITY(spinY*0.8)/PHY)*exp(-PHY*t1)/PHY
-	 - GRAVITY(spinY*0.8)/PHY*t1
-	 + (vzCurrent+GRAVITY(spinY*0.8)/PHY)/PHY;
+      z = -( vCurrent[2]+GRAVITY(spin[1]*0.8)/PHY)*exp(-PHY*t1)/PHY
+	 - GRAVITY(spin[1]*0.8)/PHY*t1
+	 + (vCurrent[2]+GRAVITY(spin[1]*0.8)/PHY)/PHY;
 
       if ( z > 0 )
-	vyMax = vy;
+	vyMax = v[1];
       else
-	vyMin = vy;
+	vyMin = v[1];
     }
 
     if ( fabs(z) < TICK ) {
-      t3 = -LOG( 1- PHY*(-boundY)/vyCurrent ) / PHY;
-      z = -( vzCurrent+GRAVITY(spinY*0.8)/PHY)*exp(-PHY*t3)/PHY
-	 - GRAVITY(spinY*0.8)/PHY*t3
-	 + (vzCurrent+GRAVITY(spinY*0.8)/PHY)/PHY;
+      t3 = -LOG( 1- PHY*(-boundY)/vCurrent[1] ) / PHY;
+      z = -( vCurrent[2]+GRAVITY(spin[1]*0.8)/PHY)*exp(-PHY*t3)/PHY
+	 - GRAVITY(spin[1]*0.8)/PHY*t3
+	 + (vCurrent[2]+GRAVITY(spin[1]*0.8)/PHY)/PHY;
       if ( z > NETHEIGHT+(1.0-level)*0.1 ) {	// temporary
-        if ( vy > tmpVY ) {
+        if ( v[1] > tmpV[1] ) {
 	  if (0 != t1+t2) {
-	    tmpVX = PHY*(targetX-m_x) / (1-exp(-PHY*(t1+t2)));
+	    tmpV[0] = PHY*(target[0]-m_x[0]) / (1-exp(-PHY*(t1+t2)));
 	  } else {
-	    tmpVX = vx;
+	    tmpV[0] = v[0];
 	  }
-	  tmpVY = vy;
-	  tmpVZ = vz;
+	  tmpV[1] = v[1];
+	  tmpV[2] = v[2];
 	}
       }
     }
   }
-  vx = tmpVX;
-  vy = tmpVY;
+  v[0] = tmpV[0];
+  v[1] = tmpV[1];
 
-  if ( y != m_y )
-    vy = -vy;
+  if ( y != m_x[1] )
+    v[1] = -v[1];
 
-  vz = tmpVZ;
+  v[2] = tmpV[2];
 
   return true;
 }
@@ -641,25 +604,29 @@ char *
 Ball::Send( char *buf ) {
   long l;
   double d;
+  int c = 0;
 
-  d = SwapDbl(m_x);
-  memcpy( buf, (char *)&d, 8 );
-  d = SwapDbl(m_y);
-  memcpy( &(buf[8]), (char *)&d, 8 );
-  d = SwapDbl(m_z);
-  memcpy( &(buf[16]), (char *)&d, 8 );
-  d = SwapDbl(m_vx);
-  memcpy( &(buf[24]), (char *)&d, 8 );
-  d = SwapDbl(m_vy);
-  memcpy( &(buf[32]), (char *)&d, 8 );
-  d = SwapDbl(m_vz);
-  memcpy( &(buf[40]), (char *)&d, 8 );
-  d = SwapDbl(m_spinX);
-  memcpy( &(buf[48]), (char *)&d, 8 );
-  d = SwapDbl(m_spinY);
-  memcpy( &(buf[56]), (char *)&d, 8 );
+  for ( int i = 0 ; i < 3 ; i++ ) {
+    d = SwapDbl(m_x[i]);
+    memcpy( &(buf[c]), (char *)&d, 8 );
+    c += 8;
+  }
+
+  for ( int i = 0 ; i < 3 ; i++ ) {
+    d = SwapDbl(m_v[i]);
+    memcpy( &(buf[c]), (char *)&d, 8 );
+    c += 8;
+  }
+
+  for ( int i = 0 ; i < 2 ; i++ ) {
+    d = SwapDbl(m_spin[i]);
+    memcpy( &(buf[c]), (char *)&d, 8 );
+    c += 8;
+  }
+
   l = SwapLong(m_status);
-  memcpy( &(buf[64]), (char *)&l, 4 );
+  memcpy( &(buf[c]), (char *)&l, 4 );
+  c += 4;
 
 #ifdef LOGGING
   Logging::GetLogging()->LogBall( LOG_COMBALL, this );
