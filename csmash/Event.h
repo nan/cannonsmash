@@ -19,13 +19,12 @@
 #ifndef _Event_
 #define _Event_
 
-// Event Handle Classの定義
 #include "Ball.h"
 #include "Player.h"
 
 struct Backtrack {
-  long sec;		// 秒
-  char count;		// 1/100秒単位
+  long sec;
+  char count;
   Ball theBall;
   Player thePlayer;
   Player comPlayer;
@@ -59,7 +58,7 @@ public:
 
   static struct timeb m_lastTime;
 
-  long m_mouseButton;					// リプレイスキップ用
+  long m_mouseButton;					// For skip replay
 protected:
   bool Move();
   void Record();
@@ -75,15 +74,15 @@ protected:
 
   static void ClearBacktrack();
 
-  unsigned long m_KeyHistory[MAX_HISTORY];		// キー入力履歴
-  long m_MouseXHistory[MAX_HISTORY];			// マウス履歴
-  long m_MouseYHistory[MAX_HISTORY];			// マウス履歴
-  unsigned long m_MouseBHistory[MAX_HISTORY];		// マウスボタン履歴
+  unsigned long m_KeyHistory[MAX_HISTORY];	// History of key input
+  long m_MouseXHistory[MAX_HISTORY];		// History of mouse move
+  long m_MouseYHistory[MAX_HISTORY];		// History of mouse move
+  unsigned long m_MouseBHistory[MAX_HISTORY];	// History of mouse button
   int  m_Histptr;
 
   ExternalData *m_External;
   struct Backtrack m_BacktrackBuffer[MAX_HISTORY];
-  bool m_backtrack;		// 現在backtrack中か否か
+  bool m_backtrack;		// Now backtracking or not
 };
 
 #endif	// _Event_

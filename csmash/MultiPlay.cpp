@@ -61,7 +61,7 @@ extern void QuitGame();
 
 int one=1;
 
-// endian変換
+// convert endian
 double
 SwapDbl( double d ) {
   if ( endian ) {
@@ -92,7 +92,7 @@ SwapLong( long l ) {
   }
 }
 
-// endianテスト
+// test endian
 void
 EndianCheck() {
   long n = 1;
@@ -122,7 +122,7 @@ SendLong( int sd, long l ) {
     return false;
 }
 
-// ちょっと変な仕様かなぁ...
+// It seems to be strange...
 char *
 ReadDouble( char *buf, double& d ) {
   memcpy( &d, buf, 8 );
@@ -169,14 +169,14 @@ ReadTime( int sd, struct timeb* tb ) {
   tb->millitm = millitm;
 }
 
-// PlayerData送信
+// Send PlayerData
 void
 SendPlayerData() {
   send( theSocket, "PI", 2, 0 );
   thePlayer->SendAll( theSocket );
 }
 
-// PlayerData受信
+// Recv PlayerData
 Player *
 ReadPlayerData() {
   double x, y, z, vx, vy, vz, spin;
@@ -368,7 +368,7 @@ StartServer() {
 
   AcceptClient();
 
-  // タイマ調整
+  // Adjust timer
   long adjLog[16];
   for ( i = 0 ; i < 16 ; i++ ) {
 #ifndef WIN32
@@ -413,7 +413,7 @@ StartServer() {
     adjLog[i] = (tb3.time-tb1.time)*1000 + tb3.millitm-tb1.millitm;
   }
 
-  // 軽くバカソート
+  // Bubble sort
   i = 0;
   while ( i == 0 ) {
     i = 1;
@@ -432,7 +432,7 @@ StartServer() {
   }
   printf( "\n" );
 
-  // 中央の8値をとる. 
+  // Use 8 medium value
   timeAdj = 0;
   for ( i = 4 ; i < 12 ; i++ ) {
     timeAdj += adjLog[i];
@@ -442,7 +442,7 @@ StartServer() {
 
   printf( "%d\n", timeAdj );
 
-  // Ball Dataの読み込み
+  // Read Ball Data
   if ( recv( theSocket, buf, 2, 0 ) != 2 ) {
     xerror("%s(%d) recv", __FILE__, __LINE__);
     exit(1);
@@ -562,7 +562,7 @@ StartClient() {
     exit(1);
   }
 
-  // タイマ調整
+  // Adjust timer
   struct timeb tb;
 #ifndef WIN32
   struct timeval tv;
@@ -570,7 +570,7 @@ StartClient() {
 #endif
 
   for ( i = 0 ; i < 16 ; i++ ) {
-    ReadTime( theSocket, &tb );	// 捨てる
+    ReadTime( theSocket, &tb );	// Dispose
 
 #ifdef WIN32
     ftime( &tb );
@@ -583,7 +583,7 @@ StartClient() {
     SendTime( theSocket, &tb );
   }
 
-  // Ball Dataの送信
+  // Send Ball Data
   send( theSocket, "BI", 2, 0 );
   theBall.Send( buf );
   send( theSocket, buf, 60, 0 );
@@ -619,9 +619,9 @@ MultiPlay::Create( long player, long com ) {
   newMultiPlay->Init();
 
   if ( !(serverName[0]) )
-    side = 1;		// server側
+    side = 1;		// server side
   else
-    side = -1;	// client側
+    side = -1;	// client side
 
   if ( thePlayer == NULL ) {
     thePlayer = Player::Create( player, side, 0 );
@@ -766,8 +766,6 @@ ExternalData::ReadData( long s ) {
   ExternalData *extNow;
 
   if ( recv( theSocket, buf, 2, 0 ) != 2 ) {
-    // いいのか? 
-    //QuitGame();
     return NULL;
   }
 

@@ -48,7 +48,7 @@ TrainingPenDrive::~TrainingPenDrive() {
 
 bool
 TrainingPenDrive::AddStatus( long diff ) {
-  // 将来的には特色を出す. 
+  // Add something in the future
   return true;
 }
 
@@ -71,7 +71,7 @@ bool
 TrainingPenDrive::HitBall() {
   double vx, vy, vz;
 
-// サーブ
+  // Serve
   if ( ( (m_side == 1 && theBall.GetStatus() == 6) ||
          (m_side ==-1 && theBall.GetStatus() == 7) ) &&
        fabs( m_x-theBall.GetX() ) < 0.6 && fabs( m_y-theBall.GetY() ) < 0.3 ){

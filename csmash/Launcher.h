@@ -18,7 +18,7 @@
 
 #include <gtk/gtk.h>
 
-// 初期ウィンドウの上部. 
+// Upper half of initial window
 class LauncherHeader {
 public:
   LauncherHeader();
@@ -34,7 +34,7 @@ protected:
 };
 
 
-// 下半分の NoteBook 部
+// Lower half of initial window
 class ModeNote {
 public:
   ModeNote();
@@ -62,9 +62,9 @@ public:
 
   static void Destroy(GtkWidget *widget, gpointer data);
 protected:
-  GtkWidget *m_window;		// メインウィンドウ
-  LauncherHeader *m_header;	// 上部
-  ModeNote *m_note;		// solo, LAN, Internet の各mode notebook
+  GtkWidget *m_window;		// main window
+  LauncherHeader *m_header;	// upper area
+  ModeNote *m_note;		// mode notebook(solo, LAN, Internet)
 
   GtkWidget *m_quit;		// quit button
 };

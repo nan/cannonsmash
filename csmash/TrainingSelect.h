@@ -38,4 +38,4 @@ public:
   long GetSelected();
 };
 
-#endif	// _PlayerSelect_
+#endif	// _TrainingSelect_

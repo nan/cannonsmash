@@ -224,7 +224,7 @@ ComPenAttack::Think() {
 bool
 ComPenAttack::Hitarea( double &hitX, double &hitY ) {
   Ball *tmpBall;
-  double max = -1.0;             /* ボールの最高点 */
+  double max = -1.0;             /* highest point of the ball */
   double maxX = 0.0, maxY = 0.0;
 
   if ( (theBall.GetStatus() == 3 && m_side == 1) ||

@@ -42,7 +42,7 @@ protected:
 
   Title *m_parent;
 
-  bool m_selected;	// 選択されているか
+  bool m_selected;	// Selected?
 
   long m_x;
   long m_y;

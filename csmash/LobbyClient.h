@@ -63,7 +63,7 @@ protected:
   long m_playerNum;
   PlayerInfo *m_player;
 
-  long m_selected;		// テーブルの何番目が選択されているか
+  long m_selected;		// Selected row of the table
 };
 
 class PIDialog {

@@ -21,21 +21,19 @@
 #include "PlayerView.h"
 
 // m_playerType
-#define PLAYER_PROTO		0	// プロトタイプPlayer
-#define PLAYER_PENATTACK	1	// 裏ペン速攻
-#define PLAYER_SHAKECUT		2	// カット
-#define PLAYER_PENDRIVE		3	// ペンドライブ
+#define PLAYER_PROTO		0	// Prototype player
+#define PLAYER_PENATTACK	1	// Pen Attack
+#define PLAYER_SHAKECUT		2	// Cut
+#define PLAYER_PENDRIVE		3	// Pen Drive
 
 
 // m_swingType
-#define SWING_NORMAL	0	// 基礎打ち
-#define SWING_POKE	1	// ツッツキ(本当はpushらしいが...)
-#define SWING_SMASH	2	// 強打
-#define SWING_DRIVE	3	// ドライブ
-#define SWING_CUT	4	// カット
-#define SWING_BLOCK	5	// ブロック, ストップ
-
-// Player Classの定義
+#define SWING_NORMAL	0	// 
+#define SWING_POKE	1	// push?
+#define SWING_SMASH	2	// 
+#define SWING_DRIVE	3	// 
+#define SWING_CUT	4	// 
+#define SWING_BLOCK	5	// 
 
 class PlayerView;
 class HitMark;
@@ -105,10 +103,8 @@ public:
   virtual bool   GetElbow( double &degx, double& degy );
   virtual bool   GetHand( double &degx, double &degy, double &degz );
 
-// Get{Shoulder|Elbow|Hand}から呼び出される. 
-// ボールの位置からフォアで打つかバックかを選択. 
-// true  -> フォア
-// false -> バック
+  // true  -> forehand
+  // false -> backhand
   virtual bool ForeOrBack();
 
   virtual bool Warp( double x, double y, double z,
@@ -122,37 +118,37 @@ public:
   virtual char * SendLocation( char *buf );
   virtual bool SendAll( int sd );
 
-  virtual bool GetModifiedTarget( double &targetX, double &targetY );	// 本来なら pure virtual
+  virtual bool GetModifiedTarget( double &targetX, double &targetY );
 
-  virtual void CalcLevel( Ball *ball, double &diff, double &level, double &maxVy );	// 本来なら pure virtual
+  virtual void CalcLevel( Ball *ball, double &diff, double &level, double &maxVy );
 protected:
-  long m_playerType;	// Playerの種類
+  long m_playerType;	// Player type
 
-  long m_side;		// 1  --- 手前側( y < 0 )
-			// -1 --- 奥( y > 0 )
+  long m_side;		// 1  --- ( y < 0 )
+			// -1 --- ( y > 0 )
 
-  double m_x;		// playerの位置(視点の位置)
+  double m_x;		// player location
   double m_y;
   double m_z;
-  double m_vx;		// playerの速度
+  double m_vx;		// player velocity
   double m_vy;
   double m_vz;
 
-  long m_status;	// 体勢ゲージ値
-  long m_swing;		// スイングの状態
-  long m_swingType;	// スイングの種類
-  bool m_swingSide;	// フォアかバックか
-  long m_afterSwing;	// スイング後の硬直時間
-  long m_swingError;	// ボールを打ったときの誤差. 
+  long m_status;	// status gauge
+  long m_swing;		// swing status
+  long m_swingType;	// swing type
+  bool m_swingSide;	// forehand or backhand
+  long m_afterSwing;	// 
+  long m_swingError;	// Error when hitting
                         // 0 --- Perfect
                         // 1 --- Great
                         // 2 --- Good
                         // 3 --- Boo
                         // 4 --- Miss
-  double m_targetX;	// 打球の目標落下点
-  double m_targetY;	// 打球の目標落下点
+  double m_targetX;	// location of target circle
+  double m_targetY;	// location of target circle
 
-  double m_eyeX;	// 視点
+  double m_eyeX;	// Viewpoint
   double m_eyeY;
   double m_eyeZ;
 
@@ -160,21 +156,20 @@ protected:
   double m_lookAtY;
   double m_lookAtZ;
 
-  long m_pow;		// 弱, 中, 強
-  double m_spin;	// トップ/バックスピン
+  long m_pow;		// power
+  double m_spin;	// topspin/backspin
 
-  double m_stamina;	// 体力
+  double m_stamina;
 
-  long m_statusMax;	// 体勢Min値
+  long m_statusMax;	// Max status value
 
   long m_dragX;
-  long m_dragY;		// マウスのドラッグ量
+  long m_dragY;		// Mouse drag
 
   PlayerView* m_View;
 
   HitMark *m_hitMark;
 
-  // 一定間隔でPlayer位置情報を送信
   double m_lastSendX;
   double m_lastSendY;
   double m_lastSendZ;
@@ -183,14 +178,13 @@ protected:
   double m_lastSendVZ;
   long m_lastSendCount;
 
-// Moveから呼び出される
   virtual bool KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
 			 long *MouseYHistory, unsigned long *MouseBHistory,
-			 int Histptr );		// キー入力処理
-  virtual bool Swing( long power );	// 本来なら pure virtual
-  virtual bool StartSwing( long power );// 本来なら pure virtual
+			 int Histptr );
+  virtual bool Swing( long power );
+  virtual bool StartSwing( long power );
 
-  virtual bool HitBall();		// 本来なら pure virtual
+  virtual bool HitBall();
 
   virtual bool SwingError();
 

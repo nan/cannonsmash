@@ -60,10 +60,10 @@ ComTrainingPenDrive::~ComTrainingPenDrive() {
 
 bool
 ComTrainingPenDrive::Think() {
-  double hitTX, hitTY;		// _hitX, _hitYへの予想到達時間
+  double hitTX, hitTY;	// estimation time until ball reaches _hitX, _hitY
   double mx;
 
-  // ボールの状態が変わっていたら, 移動先を考え直す
+  // If the ball status changes, change _hitX, _hitY
   if ( _prevBallstatus != theBall.GetStatus() && m_swing == 0 ){
     Hitarea( _hitX, _hitY );
 
@@ -127,7 +127,7 @@ ComTrainingPenDrive::Think() {
   else if ( m_vy < -5.0 )
     m_vy = -5.0;
 
-// トス
+  // Toss
   if ( theBall.GetStatus() == 8 &&
        ((PlayGame *)theControl)->GetService() == GetSide() &&
        fabs(m_vx) < 0.1 && fabs(m_vy) < 0.1 &&
@@ -140,8 +140,8 @@ ComTrainingPenDrive::Think() {
     return true;
   }
 
-  // 0.1秒後のボールの位置を推定する. Swingと二重になるので
-  // 要再考. 
+  // Calc the ball location of 0.1 second later. 
+  // This part seems to be the same as Swing(). Consider again. 
   Ball *tmpBall;
 
   tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
@@ -178,7 +178,7 @@ ComTrainingPenDrive::HitBall() {
   double vx, vy, vz;
   double level;
 
-// サーブ
+  // Serve
   if ( ( (m_side == 1 && theBall.GetStatus() == 6) ||
          (m_side ==-1 && theBall.GetStatus() == 7) ) &&
        fabs( m_x-theBall.GetX() ) < 0.6 && fabs( m_y-theBall.GetY() ) < 0.3 ){

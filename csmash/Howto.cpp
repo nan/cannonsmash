@@ -96,7 +96,7 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
   }
 
   switch ( m_mode ) {
-  case 0:	// 移動方法解説
+  case 0:	// How to move
     if ( m_count == 0 ) {
       thePlayer->m_x = -TABLEWIDTH/4;
     }
@@ -129,7 +129,7 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     }
     m_mouseB = 0;
     break;
-  case 1:	// サーブ
+  case 1:	// Serve
     thePlayer->m_x = -TABLEWIDTH/2;
     thePlayer->m_y = -TABLELENGTH/2-0.5;
     thePlayer->m_vx = 0.0;
@@ -145,7 +145,7 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     else
       m_mouseB = 0;
     break;
-  case 2:	// target移動
+  case 2:	// How to move target
     if ( m_count == 200 ) {
       thePlayer->m_targetX = -TABLEWIDTH/2*0.9;
       thePlayer->m_targetY = TABLELENGTH/12*5;
@@ -200,7 +200,7 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     }
 
     break;
-  case 3:	// 打球1
+  case 3:	// Hit ball (1)
     if ( m_count == 0 ) {
       thePlayer->m_targetX = TABLEWIDTH/2*0.3;
       thePlayer->m_targetY = TABLELENGTH/16*5;
@@ -224,7 +224,7 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
       m_mouseB = 0;
     }
     break;
-  case 4:	// 打球2
+  case 4:	// Hit ball (2)
     if ( m_count == 570 ) {
 //      thePlayer->Swing( 1 );
       thePlayer->Swing( 3 );
@@ -314,7 +314,7 @@ Howto::LookAt( double &srcX, double &srcY, double &srcZ,
   return true;
 }
 
-/* ball, playerを移動させるか否か */
+/* Decide weather ball and player should be moved or not. */
 bool
 Howto::IsMove() {
   switch ( m_mode ) {

@@ -27,21 +27,15 @@ public:
   ComPlayer();
   virtual ~ComPlayer();
 
-// 1turn後(0.01秒)の状態に移行する
-//  virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
-//		     long *MouseYHistory, unsigned long *MouseBHistory,
-//		     int Histptr );
-
 protected:
-// 思考ルーチン
   virtual bool Think() = 0;
 
-// 思考ルーチン用変数
-  int _prevBallstatus;		// 以前のボールの状態
-  double _hitX;			// 打球点
+// Valuable for Think()
+  int _prevBallstatus;		// previous ball status
+  double _hitX;			// hit point
   double _hitY;
 
-// 打球点を計算する
+// Calc hit point
   virtual bool Hitarea( double &hitX, double &hitY) = 0;
 };
 

@@ -26,10 +26,10 @@
 #define MENU_CONFIG	1
 
 // minor menu
-#define MENU_ALL		0	// 画面内の全メニュー数
-#define MENU_CONFIG_LEVEL	1	// レベル(Configメニュー内)
-#define MENU_CONFIG_MODE	2	// モード(Configメニュー内)
-#define MENU_CONFIG_PLAYER	3	// プレイヤー(Configメニュー内)
+#define MENU_ALL		0	// number of all menus
+#define MENU_CONFIG_LEVEL	1	// level menu(in config menu)
+#define MENU_CONFIG_MODE	2	// mode(in config menu)
+#define MENU_CONFIG_PLAYER	3	// player(in config menu)
 
 class MenuItem;
 
@@ -59,12 +59,12 @@ public:
   virtual View *GetView() { return m_View; };
 protected:
   TitleView *m_View;
-  long m_selected;	// 選択された : m_selected > 0
-  long m_selectMode;	// 基本選択   : 0
-			// config選択  : 1
+  long m_selected;	// Selected : m_selected > 0
+  long m_selectMode;	// Normal   : 0
+			// config   : 1
   long m_count;
 
-  MenuItem *m_menuItem[16];	// メニュー情報
+  MenuItem *m_menuItem[16];
 
   void CreateMenu( long menuMajorNum );
   long SetSelected( long selected );

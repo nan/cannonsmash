@@ -39,7 +39,7 @@ public:
 
 private:
 #ifdef WIN32
-  // BGM 用
+  // For BGM
   char *m_bgmSound;
 #endif
 

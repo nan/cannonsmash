@@ -22,7 +22,6 @@
 #include "View.h"
 #include "FieldView.h"
 
-// 背景部分(台, ネット)の描画およびWindow担当
 
 class BaseView {
 public:

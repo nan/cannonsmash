@@ -69,10 +69,10 @@ ComPenDrive::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
 bool
 ComPenDrive::Think() {
-  double hitTX, hitTY;		// _hitX, _hitYへの予想到達時間
+  double hitTX, hitTY;	// estimation time until ball reaches _hitX, _hitY
   double mx;
 
-  // ボールの状態が変わっていたら, 移動先を考え直す
+  // If the ball status changes, change _hitX, _hitY
   if ( _prevBallstatus != theBall.GetStatus() && m_swing == 0 ){
     Hitarea( _hitX, _hitY );
 
@@ -134,7 +134,7 @@ ComPenDrive::Think() {
   else if ( m_vy < -5.0 )
     m_vy = -5.0;
 
-// トス
+  // Toss
   if ( theBall.GetStatus() == 8 &&
        ( (theControl->IsPlaying() &&
 	  ((PlayGame *)theControl)->GetService() == GetSide()) ||
@@ -151,8 +151,8 @@ ComPenDrive::Think() {
 
   if ( fabs( theBall.GetY()+theBall.GetVY()*0.1 - _hitY ) < 0.2 /*&&
 	  m_swing == 0*/ ){
-    // 0.1秒後のボールの位置を推定する. Swingと二重になるので
-    // 要再考. 
+    // Calc the ball location of 0.1 second later. 
+    // This part seems to be the same as Swing(). Consider again. 
     Ball *tmpBall;
     double tmpBallX, tmpBallY, tmpBallZ;
     double tmpX, tmpY;
@@ -177,7 +177,7 @@ ComPenDrive::Think() {
       tmpBallY = tmpBall->GetY();
       tmpBallZ = tmpBall->GetZ();
 
-      // もし, 1/100 秒後により良い状態にあるならそれまで待つ
+      // If the ball location becomes better at 1/100 second later, wait. 
       tmpBall->Move();
       if ( fabs(tmpY+m_vy*0.01-tmpBall->GetY()) < fabs(tmpY-tmpBallY) &&
 	   fabs(tmpY+m_vy*0.01-tmpBall->GetY()) > LEVELMARGIN ) {
@@ -216,13 +216,13 @@ ComPenDrive::Think() {
   return true;
 }
 
-// 打球点を計算する
-//(1) まだボールが１バウンドする前だったら、バウンドする位置を求める
-//(2) 現在のボールの位置情報かバウンドする場所の情報から打球点を決める
+// Calc hit point
+// (1) If the ball haven't bound, calc bound point
+// (2) Calc hit point from current ball location or bound location
 bool
 ComPenDrive::Hitarea( double &hitX, double &hitY ) {
   Ball *tmpBall;
-  double max = -1.0;             /* ボールの最高点 */
+  double max = -1.0;             /* highest point of the ball */
   double maxX = 0.0, maxY = 0.0;
 
   if ( (theBall.GetStatus() == 3 && m_side == 1) ||

@@ -136,7 +136,7 @@ PlayGame::IsGameEnd() {
 
 void
 PlayGame::EndGame() {
-  // 再初期化する
+  // Re-initialize
   if ( GetScore(thePlayer) > GetScore(comPlayer) )
     wins++;
   else

@@ -25,41 +25,41 @@
 #define WIN32
 #endif
 
-// ウィンドウサイズ
+// Window size
 #define WINXSIZE	800
 #define WINYSIZE	600
-// 競技場の大きさ
+// Field size
 #define AREAXSIZE	8.0
 #define AREAYSIZE	12.0
 #define AREAZSIZE	6.0
 
-// Playerの大きさ
+// Player size
 #define UPPERARM	0.25
 #define FOREARM		0.30
 
-// 卓球台の大きさ
+// Table size
 #define TABLELENGTH	((double)(2.74))
 #define TABLEWIDTH	((double)(1.525))
 #define TABLEHEIGHT	((double)(0.76))
 #define	TABLETHICK	((double)(0.1))
-// ネットの高さ
+// Net height
 #define NETHEIGHT	((double)(0.1525))
-// ボール半径
+// Ball R
 #define BALL_R		((double)(0.019))
 
 #define TABLE_E		((double)(0.8))
 #define PHY		((double)(0.15))
 
-// イメージの大きさ
+// Image size
 #define IMAGE_WIDTH	256
 #define IMAGE_HEIGHT	256
 
 #define GRAV		(9.8+m_spin*5)
 #define GRAVITY(spin)	(9.8+spin*5)
 
-#define	TICK		(0.01)		// 1ターンの長さ(秒)
+#define	TICK		(0.01)		// Turn length (in second)
 
-// キー入力
+// Key
 #define KEY_LEFT    (1<<0)
 #define KEY_RIGHT   (1<<1)
 #define KEY_FORWARD (1<<2)
@@ -68,14 +68,14 @@
 #define KEY_DOWN    (1<<5)
 #define KEY_HIT     (1<<6)
 
-// マウス入力
+// Mouse
 #define BUTTON_LEFT   (1<<0)
 #define BUTTON_MIDDLE (1<<1)
 #define BUTTON_RIGHT  (1<<2)
 
 #define MAX_HISTORY (1024)
 
-// モード
+// Play mode
 #define MODE_SOLOPLAY       (1)	// Play VS COM
 #define MODE_MULTIPLAY      (2)	// Play VS MAN
 #define MODE_SELECT         (3)	// Player Select
@@ -85,7 +85,7 @@
 #define MODE_TRAINING       (7)	// Training
 #define MODE_OPENING        (8)	// Opening
 
-// サウンド
+// Sound
 #define SOUND_RACKET (0)
 #define SOUND_TABLE  (1)
 #define SOUND_CLICK  (2)
@@ -96,7 +96,7 @@
 #define SOUND_OPENING "danslatristesse2-48.mp3"
 #endif
 
-// 通信対戦
+// Communication
 #define DATA_PV      (0)
 #define DATA_PS      (1)
 #define DATA_BT      (2)
@@ -109,7 +109,7 @@
 #define SOUND_WIN32	2
 #define SOUND_SDL	3
 
-// その他
+// Others
 #define RAND(N) ((int)((double)(N)*rand()/RAND_MAX))
 
 // Player::m_swingError
@@ -122,7 +122,7 @@
 #define PLAYERS 3
 #define TRAININGPLAYERS 2
 
-// 強さ
+// Game level and mode
 enum level {LEVEL_EASY, LEVEL_NORMAL, LEVEL_HARD, LEVEL_TSUBORISH};
 enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 

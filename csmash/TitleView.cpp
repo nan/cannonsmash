@@ -154,7 +154,7 @@ TitleView::RedrawAlpha() {
     glEnd();
     break;
   case MENU_CONFIG:
-    // タイトル
+    // Title
     glColor4f( 0.0, 0.2, 0.0, 1.0 );
     glBegin(GL_QUADS);
     glVertex2i(  30, 250 );

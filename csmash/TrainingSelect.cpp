@@ -67,7 +67,7 @@ TrainingSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
   static long lastRotate = 0;
   static long nothing = 0;
 
-  // 次の対戦相手
+  // Next opponent
   if ( wins > 0 && m_selected == 0 ) {
     m_selected = 1;
     m_rotate = (thePlayer->GetPlayerType()-1)*(360/TRAININGPLAYERS);

@@ -59,7 +59,7 @@ SoloPlay::Create( long player, long com ) {
   thePlayer->Init();
   comPlayer->Init();
 
-  // View, か?
+  // Move it to view?
   SDL_ShowCursor(0);
   SDL_WM_GrabInput( SDL_GRAB_ON );
 
@@ -81,8 +81,9 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
       SDL_WM_GrabInput( SDL_GRAB_ON );
   }
 
-  if ( m_smashPtr >= 0 ) {	// スマッシュリプレイ
-    // マウスボタンを押したら中断(最後1秒程度になったらこれは無効)
+  if ( m_smashPtr >= 0 ) {	// Smash replay
+    // If mouse button is pressed, stop replay
+    // (Unless it is the last 1 second). 
     if ( theEvent.m_mouseButton && m_smashCount < 1 ) {
       Histptr = m_smashPtr;
       SmashEffect( false, Histptr );
@@ -149,7 +150,7 @@ bool
 SoloPlay::LookAt( double &srcX, double &srcY, double &srcZ,
 		  double &destX, double &destY, double &destZ ) {
   if (thePlayer) {
-    if ( m_smashPtr >= 0 ) {	// スマッシュリプレイ
+    if ( m_smashPtr >= 0 ) {	// Smash replay
       switch (m_smashCount) {
       case 0:
 	srcX = 0;

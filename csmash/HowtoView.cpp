@@ -169,7 +169,7 @@ HowtoView::RedrawAlpha() {
 
   glDisable(GL_DEPTH_TEST);
 
-  switch ( m_howto->GetMode() ) {	// 背景
+  switch ( m_howto->GetMode() ) {	// Background
   case 0:
   case 1:
   case 3:

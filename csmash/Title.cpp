@@ -91,7 +91,7 @@ Title::Create() {
   newTitle = new Title();
   newTitle->Init();
 
-  // View, か?
+  // Move it to view?
   SDL_ShowCursor(1);
   SDL_WM_GrabInput( SDL_GRAB_OFF );
 
@@ -112,7 +112,7 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   switch ( m_selectMode ) {
   case MENU_MAIN:
-    // キー入力対応
+    // Get key input
     if ( KeyHistory[Histptr] != KeyHistory[last] ) {
       switch ( KeyHistory[Histptr] ) {
       case '8':
@@ -132,7 +132,7 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
     }
     break;
   case MENU_CONFIG:
-    // キー入力対応
+    // Get key input
     if ( KeyHistory[Histptr] != KeyHistory[last] ) {
       switch ( KeyHistory[Histptr] ) {
       case '8':

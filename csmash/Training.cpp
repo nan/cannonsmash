@@ -68,7 +68,7 @@ Training::Create( long player, long com ) {
   thePlayer->Init();
   comPlayer->Init();
 
-  // View, か?
+  // Move it to view?
   SDL_ShowCursor(0);
   SDL_WM_GrabInput( SDL_GRAB_ON );
 

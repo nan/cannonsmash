@@ -19,7 +19,6 @@
 #ifndef _Ball_
 #define _Ball_
 
-// Ball Classの定義
 #include "BallView.h"
 #include "Player.h"
 
@@ -43,21 +42,21 @@ public:
 
   long GetStatus();
 
-  bool Move();	// 1turn後(0.01秒)の状態に移行する
+  bool Move();	// move to 1turn(0.01 sec) later
 
   bool Hit( double vx, double vy, double vz, double spin, Player *player );
-  						// 打球
-  bool Toss( Player *player, long power );	// トス
+  						// hit ball
+  bool Toss( Player *player, long power );	// toss
 
   void Warp( double x, double y, double z, double vx, double vy, double vz, 
 	     double spin, long status );
   void Warp( char *buf );
 
-  // 落下目標地点からvy, vzを求める
+  // Calc vy, vz from bound location
   bool TargetToV( double targetX, double targetY, double height, double spin, 
 		  double &vx, double &vy, double &vz, double vMin = 0.1,
 		  double vMax = 30.0 );
-  // サーブ用
+  // For serve
   bool TargetToVS( double targetX, double targetY, double height, double spin, 
 		   double &vx, double &vy, double &vz );
 
@@ -65,25 +64,25 @@ public:
 
   BallView *GetView() { return m_View; };
 protected:
-  double m_x;		// ballの位置
+  double m_x;		// ball location
   double m_y;
   double m_z;
-  double m_vx;		// ballの速度
+  double m_vx;		// ball velocity
   double m_vy;
   double m_vz;
 
-  double m_spin;	// 回転. 正 --- トップスピン   負 --- バックスピン
+  double m_spin;	// spin. plus --- top spin   minus --- back spin
 
-  long m_status;	// 0 --- side=1 側が打ってから１バウンドまで
-  			// 1 --- side=-1 側が打てる状態
-  			// 2 --- side=-1 側が打ってから１バウンドまで
-  			// 3 --- side=1 側が打てる状態
-  			// 4 --- side=1 側のサーブ後１バウンドまで
-  			// 5 --- side=-1 側のサーブ後１バウンドまで
-  			// 6 --- side=1 側がトスした後
-  			// 7 --- side=-1 側がトスした後
-  			// 8 --- playerがサーブする前
-  			//-1 --- ボールデッド
+  long m_status;	// 0 --- From the time side=1 hit to bound
+  			// 1 --- During side=-1 can hit
+  			// 2 --- From the time side=-1 hit to bound
+  			// 3 --- During side=1 can hit
+  			// 4 --- From the time side=1 serve to bound
+  			// 5 --- From the time side=-1 serve to bound
+  			// 6 --- From the time side=1 toss to hit
+  			// 7 --- From the time side=-1 toss to hit
+  			// 8 --- Until player serve
+  			//-1 --- Ball dead
 
   BallView* m_View;
 

@@ -22,7 +22,7 @@
 #include "Control.h"
 class Player;
 
-// SoloPlay, MultiPlay, Trainingの親. 
+// Base class of SoloPlay, MultiPlay, Training
 class PlayGame : public Control {
 public:
   PlayGame();
@@ -39,17 +39,17 @@ public:
   virtual bool IsPlaying() { return true; };
 
   long GetService();
-  long GetScore( Player *p );	// スコア取得. 
-  long GetScore( long side );	// スコア取得. 
+  long GetScore( Player *p );
+  long GetScore( long side );
 
-  bool IsGameEnd();	// ゲーム終了チェック
+  bool IsGameEnd();
   virtual void EndGame();
   void ChangeScore();
   void ChangeScore( long score1, long score2 );
 protected:
 
-  long m_Score1;	// 手前プレイヤーの得点, Training時にはカウンタ
-  long m_Score2;	// 奥プレイヤーの得点
+  long m_Score1;	// Score of near side. Counter when training
+  long m_Score2;	// Score of far side
 };
 
 #endif	// _PlayGame_

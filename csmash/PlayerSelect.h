@@ -47,8 +47,8 @@ public:
   virtual View *GetView() { return m_View; };
 protected:
   PlayerSelectView *m_View;
-  long m_rotate;	// 表示画面の回転角度
-  long m_selected;	// 選択された : m_selected > 0
+  long m_rotate;	// Rotation of players
+  long m_selected;	// Selected : m_selected > 0
 };
 
 #endif	// _PlayerSelect_

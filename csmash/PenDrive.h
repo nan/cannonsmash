@@ -20,8 +20,6 @@
 #define _PenDrive_
 #include "Player.h"
 
-// PenDrive (Pen, right)の定義
-
 class PenDrive : public Player {
 public:
   PenDrive();

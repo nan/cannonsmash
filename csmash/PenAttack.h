@@ -20,8 +20,6 @@
 #define _PenAttack_
 #include "Player.h"
 
-// PenAttack (Pen, right)の定義
-
 class PenAttack : public Player {
 public:
   PenAttack();

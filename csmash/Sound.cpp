@@ -108,7 +108,7 @@ Sound::GetSoundMode() {
   return m_soundMode;
 }
 
-// 不要? 
+// Unnessesary?
 bool
 Sound::SetSoundMode( long mode ) {
   if ( mode == m_soundMode )
@@ -150,7 +150,7 @@ Sound::InitBGM( char *filename ) {
   return 0;
 }
 
-// 別スレッド化したい
+// It is better to move it to other thread
 long
 Sound::PlayBGM() {
 #if 0
