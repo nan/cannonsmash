@@ -18,24 +18,9 @@
 
 #include "ttinc.h"
 
-#ifdef WIN32
-#include <io.h>
-#include <direct.h>
-#define F_OK 0 /* if exist */
-#else
-#define closesocket(FD) close(FD)
-#endif
-
 void Draw(void);
 void Reshape( int width, int height );
 
-void PlayInit( long player, long com );
-void DemoInit();
-void SelectInit();
-void TitleInit();
-void HowtoInit();
-void TrainingInit( long player, long com );
-void TrainingSelectInit();
 void *LoadData( void *dum );
 
 Ball theBall;
@@ -166,7 +151,6 @@ int main(int argc, char** argv) {
 
   EndianCheck();
   glutInit(&argc, argv);
-  theView.Init();
 
   struct timeb tb;
 #ifndef WIN32
@@ -184,35 +168,9 @@ int main(int argc, char** argv) {
 
   srand(tb.millitm);
 
-  switch ( mode ){
-  case MODE_PLAY:
-    PlayInit( 0, RAND(2) );
-    break;
-  case MODE_SELECT:
-    SelectInit();
-    break;
-  case MODE_DEMO:
-    DemoInit();
-    break;
-  case MODE_TITLE:
-    TitleInit();
-    break;
-  }
-  theBall.Init();
+  theView.Init();
+  theEvent.Init();
 
-  glutDisplayFunc(Draw);
-//  glutKeyboardFunc( Keyboard );
-  glutKeyboardFunc( theEvent.KeyboardFunc );
-
-#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
-//  glutKeyboardUpFunc( KeyUp );
-  glutKeyboardUpFunc( theEvent.KeyUpFunc );
-#endif
-
-  glutIdleFunc( theEvent.IdleFunc );
-  glutMotionFunc( theEvent.MotionFunc );
-  glutPassiveMotionFunc( theEvent.MotionFunc );
-  glutMouseFunc( theEvent.ButtonFunc );
   glutReshapeFunc(Reshape);
 
   if (fullScreen) {
@@ -227,265 +185,11 @@ int main(int argc, char** argv) {
 }
 
 void
-Draw() {
-  theView.RedrawAll();
-}
-
-void
 Reshape( int width, int height ) {
   winWidth = width;
   winHeight = height;
 
   glViewport( 0, 0, winWidth, winHeight );
-}
-
-void
-ClearObject() {
-  if ( thePlayer && wins == 0 ) {
-    delete thePlayer;
-    thePlayer = NULL;
-    if ( theSocket != -1 ) {
-      send( theSocket, "QT", 2, 0 );
-      closesocket( theSocket );
-      theSocket = -1;
-    }
-  }
-  if ( comPlayer ) {
-    delete comPlayer;
-    comPlayer = NULL;
-  }
-  if ( theSelect ) {
-    delete theSelect;
-    theSelect = NULL;
-  }
-  if ( theTitle ) {
-    delete theTitle;
-    theTitle = NULL;
-  }
-  if ( theHowto ) {
-    delete theHowto;
-    theHowto = NULL;
-  }
-}
-
-void
-PlayInit( long player, long com ) {
-  long side;
-
-  ClearObject();
-
-  if (isComm) {
-    if ( !(serverName[0]) )
-      side = 1;		// server側
-    else
-      side = -1;	// client側
-
-    if ( thePlayer == NULL ) {
-      switch (player) {
-      case 0:
-	thePlayer = new PenAttack(side);
-	break;
-      case 1:
-	thePlayer = new ShakeCut(side);
-	break;
-      case 2:
-	thePlayer = new PenDrive(side);
-	break;
-      default:
-	printf( "no player %ld\n", player );
-	exit(1);
-      }
-    }
-
-    if ( side == 1 ) {
-      StartServer();
-    } else {
-      StartClient();
-    }
-  } else {
-    switch (player) {
-    case 0:
-      thePlayer = new PenAttack(1);
-      break;
-    case 1:
-      thePlayer = new ShakeCut(1);
-      break;
-    case 2:
-      thePlayer = new PenDrive(1);
-      break;
-    default:
-      printf( "no player %ld\n", player );
-    }
-
-    switch(com) {
-    case 0:
-      comPlayer = new ComPenAttack(-1);
-      break;
-    case 1:
-      comPlayer = new ComShakeCut(-1);
-      break;
-    case 2:
-      comPlayer = new ComPenDrive(-1);
-      break;
-    default:
-      comPlayer = new ComPenAttack(-1);
-      break;
-    }
-  }
-
-  thePlayer->Init();
-  comPlayer->Init();
-
-  glutSetCursor( GLUT_CURSOR_NONE );
-}
-
-void
-DemoInit() {
-  ClearObject();
-
-  // 後でSelectに移動?
-  switch  ( RAND(3) ) {
-  case 0:
-    thePlayer = new ComPenAttack(1);
-    break;
-  case 1:
-    thePlayer = new ComShakeCut(1);
-    break;
-  case 2:
-    thePlayer = new ComPenDrive(1);
-    break;
-  }
-
-  switch ( RAND(3) ) {
-  case 0:
-    comPlayer = new ComPenAttack(-1);
-    break;
-  case 1:
-    comPlayer = new ComShakeCut(-1);
-    break;
-  case 2:
-    comPlayer = new ComPenDrive(-1);
-    break;
-  }
-
-  thePlayer->Init();
-  comPlayer->Init();
-
-  glutSetCursor( GLUT_CURSOR_NONE );
-}
-
-void
-SelectInit() {
-  ClearObject();
-
-  theSelect = new PlayerSelect();
-
-  theSelect->Init();
-
-  glutSetCursor( GLUT_CURSOR_NONE );
-}
-
-void
-TitleInit() {
-  ClearObject();
-
-  theTitle = new Title();
-
-  theTitle->Init();
-
-  // 後でSelectに移動?
-  switch ( RAND(3) ) {
-  case 0:
-    thePlayer = new ComPenAttack(1);
-    break;
-  case 1:
-    thePlayer = new ComShakeCut(1);
-    break;
-  case 2:
-    thePlayer = new ComPenDrive(1);
-    break;
-  }
-
-  switch ( RAND(3) ) {
-  case 0:
-    comPlayer = new ComPenAttack(-1);
-    break;
-  case 1:
-    comPlayer = new ComShakeCut(-1);
-    break;
-  case 2:
-    comPlayer = new ComPenDrive(-1);
-    break;
-  }
-
-  thePlayer->Init();
-  comPlayer->Init();
-
-  glutSetCursor( GLUT_CURSOR_INHERIT );
-}
-
-void
-HowtoInit() {
-  ClearObject();
-
-  theHowto = new Howto();
-
-  theHowto->Init();
-
-  // 後でSelectに移動?
-  thePlayer = new PenAttack(1);
-  comPlayer = new ShakeCut(-1);
-
-  thePlayer->Init();
-  comPlayer->Init();
-}
-
-void
-TrainingSelectInit() {
-  ClearObject();
-
-  theSelect = new TrainingSelect();
-
-  theSelect->Init();
-
-  glutSetCursor( GLUT_CURSOR_NONE );
-}
-
-void
-TrainingInit( long player, long com ) {
-  long side;
-
-  ClearObject();
-
-  switch (player) {
-  case 0:
-    thePlayer = new TrainingPenAttack(1);
-    break;
-  case 1:
-    thePlayer = new TrainingPenDrive(1);
-    break;
-  default:
-    printf( "no player %ld\n", player );
-  }
-
-  switch(com) {
-  case 0:
-    comPlayer = new ComTrainingPenAttack(-1);
-    break;
-  case 1:
-    comPlayer = new ComTrainingPenDrive(-1);
-    break;
-  default:
-    comPlayer = new ComTrainingPenAttack(-1);
-    break;
-  }
-
-  thePlayer->Init();
-  comPlayer->Init();
-
-  trainingCount = 0;
-
-  glutSetCursor( GLUT_CURSOR_NONE );
 }
 
 void *

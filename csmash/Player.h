@@ -59,6 +59,8 @@ public:
 
   virtual ~Player();
 
+  static Player* Create( long player, long side, long type );
+
   virtual bool Init();
 
   virtual bool Reset( struct PlayerData *p );
@@ -85,6 +87,9 @@ public:
   virtual double GetEyeX();
   virtual double GetEyeY();
   virtual double GetEyeZ();
+  virtual double GetLookAtX();
+  virtual double GetLookAtY();
+  virtual double GetLookAtZ();
   virtual double GetStamina();
   virtual long   GetStatus();
   virtual long   GetSwing();
@@ -142,6 +147,10 @@ protected:
   double m_eyeX;	// 視点
   double m_eyeY;
   double m_eyeZ;
+
+  double m_lookAtX;
+  double m_lookAtY;
+  double m_lookAtZ;
 
   long m_pow;		// 弱, 中, 強
   double m_spin;	// トップ/バックスピン

@@ -30,16 +30,10 @@ extern long mode;
 
 extern long timeAdj;
 
+extern long trainingCount;
+
 extern void Timer( int value );
 struct timeb m_lastTime = {0, 0, 0, 0};	// 直前にTimerEventが呼ばれたときの時刻
-
-extern void PlayInit( long player, long com );
-extern void DemoInit();
-extern void SelectInit();
-extern void TitleInit();
-extern void HowtoInit();
-extern void TrainingSelectInit();
-extern void TrainingInit( long player, long com );
 
 extern int theSocket;
 
@@ -51,6 +45,9 @@ extern long winWidth;
 extern long winHeight;
 
 extern long wins;
+
+extern bool isComm;
+extern char serverName[256];
 
 long _perfCount;
 long perfs;
@@ -69,6 +66,36 @@ Event::Event() {
 }
 
 Event::~Event() {
+}
+
+bool
+Event::Init() {
+  switch ( mode ){
+  case MODE_PLAY:
+    PlayInit( 0, RAND(2) );
+    break;
+  case MODE_SELECT:
+    SelectInit();
+    break;
+  case MODE_DEMO:
+    DemoInit();
+    break;
+  case MODE_TITLE:
+    TitleInit();
+    break;
+  }
+  theBall.Init();
+
+  glutKeyboardFunc( theEvent.KeyboardFunc );
+
+#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
+  glutKeyboardUpFunc( theEvent.KeyUpFunc );
+#endif
+
+  glutIdleFunc( theEvent.IdleFunc );
+  glutMotionFunc( theEvent.MotionFunc );
+  glutPassiveMotionFunc( theEvent.MotionFunc );
+  glutMouseFunc( theEvent.ButtonFunc );
 }
 
 void
@@ -670,4 +697,151 @@ Event::SendBall( int sd ) {
   theBall.Send( sd );
 
   return true;
+}
+
+void
+Event::ClearObject() {
+  if ( thePlayer && wins == 0 ) {
+    delete thePlayer;
+    thePlayer = NULL;
+    if ( theSocket != -1 ) {
+      send( theSocket, "QT", 2, 0 );
+      closesocket( theSocket );
+      theSocket = -1;
+    }
+  }
+  if ( comPlayer ) {
+    delete comPlayer;
+    comPlayer = NULL;
+  }
+  if ( theSelect ) {
+    delete theSelect;
+    theSelect = NULL;
+  }
+  if ( theTitle ) {
+    delete theTitle;
+    theTitle = NULL;
+  }
+  if ( theHowto ) {
+    delete theHowto;
+    theHowto = NULL;
+  }
+}
+
+void
+Event::PlayInit( long player, long com ) {
+  long side;
+
+  ClearObject();
+
+  if (isComm) {
+    if ( !(serverName[0]) )
+      side = 1;		// server側
+    else
+      side = -1;	// client側
+
+    if ( thePlayer == NULL ) {
+      thePlayer = Player::Create( player, side, 0 );
+    }
+
+    if ( side == 1 ) {
+      StartServer();
+    } else {
+      StartClient();
+    }
+  } else {
+    thePlayer = Player::Create( player, 1, 0 );
+    comPlayer = Player::Create( com, -1, 1 );
+  }
+
+  thePlayer->Init();
+  comPlayer->Init();
+
+  glutSetCursor( GLUT_CURSOR_NONE );
+}
+
+void
+Event::DemoInit() {
+  ClearObject();
+
+  // 後でSelectに移動?
+  thePlayer = Player::Create( RAND(3), 1, 1 );
+  comPlayer = Player::Create( RAND(3), -1, 1 );
+
+  thePlayer->Init();
+  comPlayer->Init();
+
+  glutSetCursor( GLUT_CURSOR_NONE );
+}
+
+void
+Event::SelectInit() {
+  ClearObject();
+
+  theSelect = new PlayerSelect();
+
+  theSelect->Init();
+
+  glutSetCursor( GLUT_CURSOR_NONE );
+}
+
+void
+Event::TitleInit() {
+  ClearObject();
+
+  theTitle = new Title();
+
+  theTitle->Init();
+
+  // 後でSelectに移動?
+  thePlayer = Player::Create( RAND(3), 1, 1 );
+  comPlayer = Player::Create( RAND(3), -1, 1 );
+
+  thePlayer->Init();
+  comPlayer->Init();
+
+  glutSetCursor( GLUT_CURSOR_INHERIT );
+}
+
+void
+Event::HowtoInit() {
+  ClearObject();
+
+  theHowto = new Howto();
+
+  theHowto->Init();
+
+  thePlayer = new PenAttack(1);
+  comPlayer = new ShakeCut(-1);
+
+  thePlayer->Init();
+  comPlayer->Init();
+}
+
+void
+Event::TrainingSelectInit() {
+  ClearObject();
+
+  theSelect = new TrainingSelect();
+
+  theSelect->Init();
+
+  glutSetCursor( GLUT_CURSOR_NONE );
+}
+
+void
+Event::TrainingInit( long player, long com ) {
+  long side;
+
+  ClearObject();
+
+  thePlayer = Player::Create( player, 1, 2 );
+  comPlayer = Player::Create( com, -1, 3 );
+
+  thePlayer->Init();
+  comPlayer->Init();
+
+  trainingCount = 0;
+
+  glutSetCursor( GLUT_CURSOR_NONE );
 }

@@ -48,13 +48,17 @@ Player::Player() {
   m_targetY = TABLELENGTH/16*5;
 
   m_eyeX = 0.0;
-  m_eyeY = -0.8;
+  m_eyeY = -1.0;
   m_eyeZ = 0.2;
 
   m_pow = 0;
   m_spin = 0.0;
 
   m_stamina = 80.0;
+
+  m_lookAtX = 0.0;
+  m_lookAtY = TABLELENGTH/2*m_side;
+  m_lookAtZ = TABLEHEIGHT;
 
   m_View = NULL;
 }
@@ -76,7 +80,7 @@ Player::Player( long side ) {
   m_targetY = TABLELENGTH/16*5;
 
   m_eyeX = 0.0;
-  m_eyeY = -0.8;
+  m_eyeY = -1.0;
   m_eyeZ = 0.2;
 
   m_pow = 0;
@@ -92,6 +96,10 @@ Player::Player( long side ) {
     m_targetY = -m_targetY;
     m_eyeY = -m_eyeY;
   }
+
+  m_lookAtX = 0.0;
+  m_lookAtY = TABLELENGTH/2*m_side;
+  m_lookAtZ = TABLEHEIGHT;
 }
 
 Player::Player( long playerType, long side, double x, double y, double z, 
@@ -126,6 +134,10 @@ Player::Player( long playerType, long side, double x, double y, double z,
 
   m_stamina = stamina;
 
+  m_lookAtX = 0.0;
+  m_lookAtY = TABLELENGTH/2*m_side;
+  m_lookAtZ = TABLEHEIGHT;
+
   m_View = NULL;
 }
 
@@ -134,6 +146,51 @@ Player::~Player() {
     theView.RemoveView( m_View );
     delete m_View;
   }
+}
+
+Player*
+Player::Create( long player, long side, long type ) {
+  switch (type) {
+  case 0:	// normal
+    switch (player) {
+    case 0:
+      return new PenAttack(side);
+    case 1:
+      return new ShakeCut(side);
+    case 2:
+      return new PenDrive(side);
+    }
+    break;
+  case 1:	// Com
+    switch (player) {
+    case 0:
+      return new ComPenAttack(side);
+    case 1:
+      return new ComShakeCut(side);
+    case 2:
+      return new ComPenDrive(side);
+    }
+    break;
+  case 2:	// Training
+    switch (player) {
+    case 0:
+      return new TrainingPenAttack(side);
+    case 1:
+      return new TrainingPenDrive(side);
+    }
+    break;
+  case 3:	// ComTraining
+    switch (player) {
+    case 0:
+      return new ComTrainingPenAttack(side);
+    case 1:
+      return new ComTrainingPenDrive(side);
+    }
+    break;
+  }
+
+  printf( "no player %ld\n", player );
+  exit(1);
 }
 
 bool
@@ -199,6 +256,76 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	  m_swing++;
       }
     }
+  }
+
+  // 視線方向とボールのなす角が30°を越えたら, ボールに追随する
+  double x, y, z;
+  double tx, ty, tz;
+  double vx1, vy1, vz1;
+  double vxt, vyt, vzt;
+  double vx2, vy2, vz2;
+  double vx, vy, vl;
+  double p, q;
+  double sinP, cosP;
+
+  tx = 0.0;
+  ty = TABLELENGTH/2*m_side;
+  tz = TABLEHEIGHT;
+
+  x = m_x + m_eyeX;
+  y = m_y + m_eyeY;
+  z = m_z + m_eyeZ;
+
+  vx1 = tx-x;
+  vy1 = ty-y;
+  vz1 = tz-z;
+  vl = sqrt(vx1*vx1+vy1*vy1+vz1*vz1);
+  vx1 /= vl;
+  vy1 /= vl;
+  vz1 /= vl;
+
+  vxt = theBall.GetX()-x;
+  vyt = theBall.GetY()-y;
+  if ( theBall.GetStatus() == 6 )
+    vzt = TABLEHEIGHT + 0.15-z;
+  else
+    vzt = theBall.GetZ()-z;
+  vl = sqrt(vxt*vxt+vyt*vyt+vzt*vzt);
+  vxt /= vl;
+  vyt /= vl;
+  vzt /= vl;
+
+  if ( (cosP = vx1*vxt+vy1*vyt+vz1*vzt) < cos(3.141592/180.0*15) &&
+       theBall.GetY()*m_side < y ) {
+    sinP = sqrt(1-cosP*cosP);
+    p = cos(3.141592/180.0*15) - sin(3.141592/180.0*15)*cosP/sinP;
+    q = sin(3.141592/180.0*15)/sinP;
+
+    vx2 = p*vxt+q*vx1;
+    vy2 = p*vyt+q*vy1;
+    vz2 = p*vzt+q*vz1;
+
+    m_lookAtX = x+vx2;
+    m_lookAtY = y+vy2;
+    m_lookAtZ = z+vz2;
+  } else if ( (cosP = (vy1*vyt+vz1*vzt)/(hypot(vy1, vz1)*hypot(vyt, vzt)))
+	      < cos(3.141592/180.0*15) && theBall.GetZ() > z &&
+	      (theBall.GetStatus() == 0 || theBall.GetStatus() == 2) ) {
+    sinP = sqrt(1-cosP*cosP);
+    p = cos(3.141592/180.0*15) - sin(3.141592/180.0*15)*cosP/sinP;
+    q = sin(3.141592/180.0*15)/sinP;
+
+    vx2 = p*vxt+q*vx1;
+    vy2 = p*vyt+q*vy1;
+    vz2 = p*vzt+q*vz1;
+
+    m_lookAtX = x+vx2;
+    m_lookAtY = y+vy2;
+    m_lookAtZ = z+vz2;
+  } else {
+    m_lookAtX = tx;
+    m_lookAtY = ty;
+    m_lookAtZ = tz;
   }
 
 // backswing と inpact
@@ -673,6 +800,21 @@ Player::GetEyeY() {
 double
 Player::GetEyeZ() {
   return m_eyeZ;
+}
+
+double
+Player::GetLookAtX() {
+  return m_lookAtX;
+}
+
+double
+Player::GetLookAtY() {
+  return m_lookAtY;
+}
+
+double
+Player::GetLookAtZ() {
+  return m_lookAtZ;
 }
 
 double

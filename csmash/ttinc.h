@@ -106,6 +106,10 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 #include <winsock2.h>
 #include <windows.h>
 #include <io.h>
+#include <direct.h>
+#define F_OK 0 /* if exist */
+#else
+#define closesocket(FD) close(FD)
 #endif
 
 #ifdef HAVE_UNISTD_H

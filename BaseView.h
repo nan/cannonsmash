@@ -28,6 +28,8 @@ public:
 
   bool Init();
 
+  static void DisplayFunc();
+
   bool RedrawAll();
   bool Redraw();
   bool RedrawAlpha();

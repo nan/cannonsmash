@@ -30,6 +30,7 @@ extern Howto*  theHowto;
 
 extern void SelectInit();
 
+extern BaseView theView;
 extern Ball theBall;
 
 extern bool isLighting;
@@ -185,7 +186,14 @@ BaseView::Init() {
 
   glEndList();
 
+  glutDisplayFunc( theView.DisplayFunc );
+
   return true;
+}
+
+void
+BaseView::DisplayFunc() {
+  theView.RedrawAll();
 }
 
 bool
@@ -607,8 +615,21 @@ BaseView::SetViewPosition() {
 void
 BaseView::SetLookAt() {
   double x, y, z;
+  double tx, ty, tz;
+  double vx1, vy1, vz1;
+  double vxt, vyt, vzt;
+  double vx2, vy2, vz2;
+  double vx, vy, vl;
+  double p, q;
+  double sinP, cosP;
 
   x = y = z = 0.0;
+  tx = m_centerX;
+  if (thePlayer)
+    ty = m_centerY*thePlayer->GetSide();
+  else
+    ty = m_centerY;
+  tz = m_centerZ;
 
   switch ( mode ){
   case MODE_PLAY:
@@ -617,6 +638,12 @@ BaseView::SetLookAt() {
     x = thePlayer->GetX() + thePlayer->GetEyeX();
     y = thePlayer->GetY() + thePlayer->GetEyeY();
     z = thePlayer->GetZ() + thePlayer->GetEyeZ();
+
+    if (thePlayer) {
+      tx = thePlayer->GetLookAtX();
+      ty = thePlayer->GetLookAtY();
+      tz = thePlayer->GetLookAtZ();
+    }
     break;
   case MODE_SELECT:
   case MODE_TRAININGSELECT:
@@ -634,10 +661,11 @@ BaseView::SetLookAt() {
   }
 
   if ( thePlayer ) {
-    gluLookAt( x, y, z, m_centerX, m_centerY*thePlayer->GetSide(), m_centerZ,
-	       0.0, 0.0, 0.5 );
-    /* 視点, 視線設定. 視点x, y, z, 視点(視線ベクトルの通る点)x, y, z, 
-       上向きベクトル(画面上の上に向かうベクトル)x, y, z */
+    //gluLookAt( x, y, z, m_centerX, m_centerY*thePlayer->GetSide(), m_centerZ,
+    //0.0, 0.0, 0.5 );
+    gluLookAt( x, y, z, tx, ty, tz, 0.0, 0.0, 0.5 );
+      /* 視点, 視線設定. 視点x, y, z, 視点(視線ベクトルの通る点)x, y, z, 
+	 上向きベクトル(画面上の上に向かうベクトル)x, y, z */
   } else {
     gluLookAt( x, y, z, m_centerX, m_centerY, m_centerZ, 0.0, 0.0, 0.5 );
   }

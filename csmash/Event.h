@@ -68,6 +68,8 @@ public:
   Event();
   ~Event();
 
+  bool Init();
+
   static void IdleFunc();
   static void KeyboardFunc( unsigned char key, int x, int y );
   static void KeyUpFunc( unsigned char key, int x, int y );
@@ -84,6 +86,16 @@ public:
 protected:
   bool Move();
   void Record();
+
+  void PlayInit( long player, long com );
+  void DemoInit();
+  void SelectInit();
+  void TitleInit();
+  void HowtoInit();
+  void TrainingInit( long player, long com );
+  void TrainingSelectInit();
+
+  void ClearObject();
 
   unsigned long m_KeyHistory[MAX_HISTORY];		// キー入力履歴
   long m_MouseXHistory[MAX_HISTORY];			// マウス履歴
