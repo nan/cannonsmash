@@ -341,7 +341,7 @@ Event::Record() {
 	      "swingError=%1d targetX=%4.2f targetY=%4.2f "
 	      "eyeX=%4.2f eyeY=%4.2f eyeZ=%4.2f "
 	      "lookAtX=%4.2f lookAtY=%4.2f lookAtZ=%4.2f "
-	      "pow=%1d spin=%3.2f stamina=%2.0f dragX=%2d dragY=%2d\n",
+	      "pow=%1d spinX=%3.2f spinY=%3.2f stamina=%2.0f dragX=%2d dragY=%2d\n",
 	      (int)player->GetPlayerType(), (int)player->GetSide(), 
 	      player->GetX(), player->GetY(), player->GetZ(), 
 	      player->GetVX(), player->GetVY(), player->GetVZ(), 
@@ -351,7 +351,8 @@ Event::Record() {
 	      player->GetTargetX(), player->GetTargetY(),
 	      player->GetEyeX(), player->GetEyeY(), player->GetEyeZ(),
 	      player->GetLookAtX(), player->GetLookAtY(), player->GetLookAtZ(),
-	      (int)player->GetPower(), player->GetSpin(), player->GetStamina(),
+	      (int)player->GetPower(), player->GetSpinX(), player->GetSpinY(),
+	      player->GetStamina(),
 	      (int)player->GetDragX(), (int)player->GetDragY() );
     Logging::GetLogging()->Log( LOG_ACTTHEPLAYER, buf );
   }
@@ -375,7 +376,7 @@ Event::Record() {
 	      "swingError=%1d targetX=%4.2f targetY=%4.2f "
 	      "eyeX=%4.2f eyeY=%4.2f eyeZ=%4.2f "
 	      "lookAtX=%4.2f lookAtY=%4.2f lookAtZ=%4.2f "
-	      "pow=%1d spin=%3.2f stamina=%2.0f dragX=%2d dragY=%2d\n",
+	      "pow=%1d spinX=%3.2f spinY=%3.2f stamina=%2.0f dragX=%2d dragY=%2d\n",
 	      (int)player->GetPlayerType(), (int)player->GetSide(), 
 	      player->GetX(), player->GetY(), player->GetZ(), 
 	      player->GetVX(), player->GetVY(), player->GetVZ(), 
@@ -385,7 +386,8 @@ Event::Record() {
 	      player->GetTargetX(), player->GetTargetY(),
 	      player->GetEyeX(), player->GetEyeY(), player->GetEyeZ(),
 	      player->GetLookAtX(), player->GetLookAtY(), player->GetLookAtZ(),
-	      (int)player->GetPower(), player->GetSpin(), player->GetStamina(),
+	      (int)player->GetPower(), player->GetSpinX(), player->GetSpinY(),
+	      player->GetStamina(),
 	      (int)player->GetDragX(), (int)player->GetDragY() );
     Logging::GetLogging()->Log( LOG_ACTCOMPLAYER, buf );
   }
@@ -586,7 +588,7 @@ Event::SendBall() {
 
   theBall.Send( &(buf[7]) );
 
-  send( theSocket, buf, 67, 0 );
+  send( theSocket, buf, 75, 0 );
 
   return true;
 }
@@ -608,7 +610,7 @@ Event::SendPlayerAndBall( Player *player ) {
 
   theBall.Send( &(buf[62]) );
 
-  send( theSocket, buf, 122, 0 );
+  send( theSocket, buf, 129, 0 );
 
   return true;
 }
