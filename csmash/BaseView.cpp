@@ -287,15 +287,17 @@ BaseView::RedrawAll() {
 
   glReadPixels(0, 0, m_winWidth, m_winHeight, GL_RGBA,
 	       GL_UNSIGNED_BYTE, image->pixels);
+
   for (idx = 0; idx < m_winHeight; idx++) {
     memcpy((char *)temp->pixels + 4 * m_winWidth * idx,
-	   (char *)image->pixels + 4 * m_winWidth*(m_winHeight - idx),
+	   (char *)image->pixels + 4 * m_winWidth*(m_winHeight-1 - idx),
 	   4*m_winWidth);
   }
 
   char fname[64];
   sprintf( fname, "image%06d.bmp", count );
   SDL_SaveBMP(temp, fname);
+
   SDL_FreeSurface(image);
   SDL_FreeSurface(temp);
   count++;

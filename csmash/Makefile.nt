@@ -19,8 +19,8 @@ CXX = $(CC)
 Cpost = -c -Tc
 CXXpost = -c -Tp
 
-CFLAGS = -MD -Ox -Ob2 -Ow -G6 -vms $(DFLAGS) $(INCDIRS)
-#CFLAGS = -MD -Od -Zi -G6 -vms $(DFLAGS) $(INCDIRS) -DWIN32CONSOLE
+#CFLAGS = -MD -Ox -Ob2 -Ow -G6 -vms $(DFLAGS) $(INCDIRS)
+CFLAGS = -MD -Od -Zi -G6 -vms $(DFLAGS) $(INCDIRS) -DWIN32CONSOLE
 
 CXXFLAGS=$(CFLAGS) -GX
 
@@ -37,7 +37,8 @@ BASEDIR	= .$(BDIR)
 VPATH = $(BASEDIR)
 
 DFLAGS = -DHAVE_LIBZ -DHAVE_LIBSDL_MIXER -DHAVE_LIBVORBIS -DUSE_GETTEXT_DLL
-#DFLAGS = -DHAVE_LIBZ -DHAVE_LIBSDL_MIXER -DHAVE_LIBVORBIS -DUSE_GETTEXT_DLL -DCHIYO 
+#DFLAGS = -DHAVE_LIBZ -DHAVE_LIBSDL_MIXER -DHAVE_LIBVORBIS -DUSE_GETTEXT_DLL -DENABLE_IPV6
+#DFLAGS = -DHAVE_LIBZ -DHAVE_LIBSDL_MIXER -DHAVE_LIBVORBIS -DUSE_GETTEXT_DLL -DCHIYO
 
 INCDIRS = -I$(BASEDIR) -I$(BASEDIR)/include/ \
 	  -I$(BASEDIR)/include/glib/ -I$(BASEDIR)/include/gdk/
@@ -63,7 +64,8 @@ SRCS = \
 	PracticePlay.cpp PracticeSelect.cpp PracticeSelectView.cpp \
 	FieldView.cpp SoloPlay.cpp PlayGame.cpp Control.cpp Training.cpp \
 	Opening.cpp OpeningView.cpp MenuItem.cpp MenuItemView.cpp \
-	z.cpp parts.cpp xerror.cpp Launcher.cpp LobbyClient.cpp \
+	z.cpp parts.cpp xerror.cpp Launcher.cpp LauncherView.cpp \
+	LobbyClient.cpp LobbyClientView.cpp \
 	Logging.cpp BaseView2D.cpp FieldView2D.cpp PlayerView2D.cpp \
 	BallView2D.cpp PlayerSelectView2D.cpp TitleView2D.cpp \
 	MenuItemView2D.cpp RCFile.cpp PlayGameView.cpp Network.cpp \
@@ -108,7 +110,7 @@ $(BASEDIR)/win32/all:
 
 # include directive is not available in nmake.exe
 # If you are using gnu-make, uncomment next line.
--include .depend.nt
+#-include .depend.nt
 ############################################################################
 # END
 ############################################################################

@@ -61,6 +61,7 @@ ComPenDrive::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   Think();
 
+  printf( "aa\n" );
   return true;
 }
 
@@ -156,6 +157,14 @@ ComPenDrive::Think() {
   }
 
   // Toss
+#ifdef SCREENSHOT
+  if ( theBall.GetStatus() == 8 &&
+       ( (Control::TheControl()->IsPlaying() &&
+	  ((PlayGame *)Control::TheControl())->GetService() == GetSide()) ) &&
+       fabs(m_vx) < 0.1 && fabs(m_vy) < 0.1 &&
+       fabs(m_x+m_side*0.3-_hitX) < 0.1 && fabs(m_y-_hitY) < 0.1 &&
+       m_swing == 0 ){
+#else
   if ( theBall.GetStatus() == 8 &&
        ( (Control::TheControl()->IsPlaying() &&
 	  ((PlayGame *)Control::TheControl())->GetService() == GetSide()) ||
@@ -163,6 +172,7 @@ ComPenDrive::Think() {
        fabs(m_vx) < 0.1 && fabs(m_vy) < 0.1 &&
        fabs(m_x+m_side*0.3-_hitX) < 0.1 && fabs(m_y-_hitY) < 0.1 &&
        m_swing == 0 ){
+#endif
     theBall.Toss( this, 2 );
     StartSwing( 3 );
     m_targetY = TABLELENGTH/6*m_side;
