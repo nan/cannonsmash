@@ -8,6 +8,7 @@
  *
  ***********************************************************************/
 #include "ttinc.h"
+#include "LoadImage.h"
 
 #include <iostream>
 #include <vector>
@@ -18,7 +19,6 @@
 #include "float"
 #include "matrix"
 #include "affine"
-#include "auto"
 
 #include "parts.h"
 
@@ -31,7 +31,17 @@
     {
 	return 0 == strcmp(a, b);
     }
-
+    template <typename T>
+    inline bool between(const T& a, const T& x, const T& b) {
+	return a <= x && x <= b;
+    }
+    template <typename T>
+    inline const T& clamp(const T& a, const T& x, const T& b) {
+	if (a > x) return a;
+	else if (b < x) return b;
+	else return x;
+    }
+    
     struct plane_t {
 	short poly[4];
 	short cindex;
@@ -39,25 +49,74 @@
 	inline short& operator [](int i) { return poly[i]; }
 	inline int size() const { return (poly[3] < 0) ? 3 : 4; }
     };
+
 //}
+
+/***********************************************************************
+ *	Class colormap
+ ***********************************************************************/
+bool colormap::load(const char *file)
+{
+    fill(color4b(128,128,128));
+    FILE *fp = fopen(file, "r");
+    if (!fp) return false;
+    do {
+	char line[1024];
+	const char *delim = " \t,;()\r\n";
+	fgets(line, 1024, fp);
+	if (feof(fp)) break;
+	char *token = strtok(line, delim);
+	if (!token || '#' == *token) continue;
+	int num = atoi(token);
+	int r = atoi(strtok(NULL, delim));
+	int g = atoi(strtok(NULL, delim));
+	int b = atoi(strtok(NULL, delim));
+	token = strtok(NULL, delim);
+	int a = (token && '#' != *token) ? atoi(token) : 255;
+
+	if (0 > num) {
+	    fill(color4b(r, g, b, a));
+	} else {
+	    map[clamp(0, num, 255)] = color4b(r, g, b, a);
+	}
+    } while (!ferror(fp));
+    fclose(fp);
+    return true;
+}
 
 /***********************************************************************
  *	Class polyhedron
  ***********************************************************************/
 polyhedron::polyhedron(const char* filename)
   : numPoints(0), numPolygons(0), numEdges(0),
-    points(NULL), polygons(NULL), normals(NULL), planeNormal(NULL), edges(NULL),
+    points(NULL), texcoord(NULL), polygons(NULL),
+    normals(NULL), planeNormal(NULL), edges(NULL),
     filename(strdup(filename))
 {
     FILE *in = fopen(filename, "r");
     if (NULL == in) return;
 
     std::vector<vector3F> vertex(1000);
+    std::vector<vector3F> st(1000);
     std::vector<plane_t> loop(1000);
+
+    cmap.fill(color4b(128));	// default to be gray
+    cmap[0] = color4b(250, 188, 137);	// C0 skin
+    cmap[1] = color4b(1);		// C1 eye
+    cmap[2] = color4b(42, 19, 5);	// C2 hair
+    cmap[3] = color4b(250, 188, 137);	// C3 skin
+//    cmap[4] = color4b(225, 7, 47);	// C4 shirts (red)
+    cmap[4] = color4b(3, 87, 125);	// C4 shirts (blue)
+//    cmap[5] = color4b(2, 13, 24);	// C5 pants  (green)
+    cmap[5] = color4b(0, 0, 0);		// C5 pants  (black)
+    cmap[6] = color4b(102, 7, 3);	// C6 skin/shadow
+    cmap[7] = color4b(255, 0, 0);	// C7 racket/front
+    cmap[8] = color4b(0, 0, 0);		// C8 racket/back
 
     char line[512];
     const char *delim = " \t(,);\r\n";
 
+    bool textureexists = false;
     while (NULL != fgets(line, sizeof(line), in)) {
 	char *token = strtok(line, delim);
 	if (!token) continue;
@@ -71,7 +130,17 @@ polyhedron::polyhedron(const char* filename)
 	    v[0] = strtod(strtok(NULL, delim), NULL);
 	    v[1] = strtod(strtok(NULL, delim), NULL);
 	    v[2] = strtod(strtok(NULL, delim), NULL);
-	    vertex[numPoints++] = v;
+	    vertex[numPoints] = v;
+	    vector3F t(0);
+	    token = strtok(NULL, delim);
+	    if (token) {
+		textureexists = true;
+		t[0] = strtod(token, NULL);
+		t[1] = 1-strtod(strtok(NULL, delim), NULL);
+	    }
+	    st[numPoints] = t;
+
+	    numPoints++;
 	}
 	else if (streq("plane", token)) {
 	    int i = 0;
@@ -87,6 +156,7 @@ polyhedron::polyhedron(const char* filename)
 		else if ('C' == *token) f.cindex = atoi(token+1);
 		else if (4 > i) f[i++] = atoi(token);
 	    }
+	    f[3] = -1;
 	    numPolygons++;
 	}
     }
@@ -97,6 +167,10 @@ polyhedron::polyhedron(const char* filename)
     normals = new vector3F[numPolygons][4];
     planeNormal = new vector3F[numPolygons];
     cindex = new unsigned char[numPolygons];
+    if (textureexists) {
+	texcoord = new vector3F[numPoints];
+	for (int i = 0; numPoints > i; ++i) texcoord[i] = st[i];
+    }
 
     int i;
     for (i = 0; numPoints > i; i++) {
@@ -119,8 +193,17 @@ polyhedron::~polyhedron()
     delete[] normals;
     delete[] planeNormal;
     delete[] edges;
+    delete[] texcoord;
     if (filename) free((void*)filename);
 }
+polyhedron& polyhedron::operator *=(const affine4F& m)
+{
+    for (int i = 0; numPoints > i; ++i) {
+	points[i] = points[i] * m;
+    }	
+    return *this;
+}
+
 
 /***********************************************************************
  *	Local data and functions
@@ -155,7 +238,7 @@ polyhedron::~polyhedron()
 	short v0, v1;
 	short poly;
 	
-	inline halfedge(){}
+	inline halfedge() {}
 	inline halfedge(short v0, short v1, short poly)
 	  : v0(v0), v1(v1), poly(poly) {}
 	inline halfedge(const halfedge &e)
@@ -184,11 +267,7 @@ void polyhedron::getNormal()
 	i += length(polygons[j]);
     }
     const int nhalfedges = i;
-    auto_vector<halfedge> hearray(new halfedge[nhalfedges]);
-
-    if (nhalfedges % 2) {
-//	printf("CreateNormal: given polygons cannot be 2-manifold.\n");
-    }
+    std::vector<halfedge> hearray(nhalfedges);
 
     typedef std::map<unsigned long, const halfedge*> hemap_t;
     hemap_t hemap;
@@ -301,7 +380,7 @@ void polyhedron::getNormal()
 	el.push_back(e);
     }
     numEdges = el.size();
-    edges = new edge[numEdges];
+    if (!edges) edges = new edge[numEdges];
     std::copy(el.begin(), el.end(), &edges[0]);
 }
 

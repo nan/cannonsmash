@@ -20,7 +20,14 @@
 #define _PlayerView_
 #include "View.h"
 
+#if !defined(CHIYO)
 class partsmotion;
+typedef partsmotion partsmotion_t;
+#else
+class body_parts;
+typedef body_parts partsmotion_t;
+#endif
+
 class Player;
 
 class PlayerView : public View {
@@ -39,25 +46,25 @@ public:
 private:
   Player  *m_player;	// Model
 
-  partsmotion *m_Fnormal;
-  partsmotion *m_Bnormal;
-  partsmotion *m_Fdrive;
-  partsmotion *m_Bdrive;
-  partsmotion *m_Fcut;
-  partsmotion *m_Bcut;
-  partsmotion *m_Fpeck;
-  partsmotion *m_Bpeck;
-  partsmotion *m_Fsmash;
-  partsmotion *m_Bsmash;
+  partsmotion_t *m_Fnormal;
+  partsmotion_t *m_Bnormal;
+  partsmotion_t *m_Fdrive;
+  partsmotion_t *m_Bdrive;
+  partsmotion_t *m_Fcut;
+  partsmotion_t *m_Bcut;
+  partsmotion_t *m_Fpeck;
+  partsmotion_t *m_Bpeck;
+  partsmotion_t *m_Fsmash;
+  partsmotion_t *m_Bsmash;
 
-  static partsmotion *motion_Fnormal;
-  static partsmotion *motion_Bnormal;
-  static partsmotion *motion_Fdrive;
-  static partsmotion *motion_Fcut;
-  static partsmotion *motion_Bcut;
-  static partsmotion *motion_Fpeck;
-  static partsmotion *motion_Bpeck;
-  static partsmotion *motion_Fsmash;
+  static partsmotion_t *motion_Fnormal;
+  static partsmotion_t *motion_Bnormal;
+  static partsmotion_t *motion_Fdrive;
+  static partsmotion_t *motion_Fcut;
+  static partsmotion_t *motion_Bcut;
+  static partsmotion_t *motion_Fpeck;
+  static partsmotion_t *motion_Bpeck;
+  static partsmotion_t *motion_Fsmash;
 
   virtual bool SubRedraw();
 };

@@ -18,9 +18,13 @@
 
 
 #include "ttinc.h"
+
 #include "PlayerView.h"
 #include "Player.h"
 #include "parts.h"
+#if defined(CHIYO)
+# include "loadparts.h"
+#endif
 #include "Ball.h"
 #include "RCFile.h"
 
@@ -28,20 +32,20 @@ extern RCFile *theRC;
 
 extern SDL_mutex *loadMutex;
 
-partsmotion *PlayerView::motion_Fnormal = NULL;
-partsmotion *PlayerView::motion_Bnormal = NULL;
-partsmotion *PlayerView::motion_Fdrive = NULL;
-partsmotion *PlayerView::motion_Fcut = NULL;
-partsmotion *PlayerView::motion_Bcut = NULL;
-partsmotion *PlayerView::motion_Fpeck = NULL;
-partsmotion *PlayerView::motion_Bpeck = NULL;
-partsmotion *PlayerView::motion_Fsmash = NULL;
-
 extern Player *thePlayer;
 extern Player *comPlayer;
 extern Ball   theBall;
 
 extern long mode;
+
+partsmotion_t *PlayerView::motion_Fnormal = NULL;
+partsmotion_t *PlayerView::motion_Bnormal = NULL;
+partsmotion_t *PlayerView::motion_Fdrive = NULL;
+partsmotion_t *PlayerView::motion_Fcut = NULL;
+partsmotion_t *PlayerView::motion_Bcut = NULL;
+partsmotion_t *PlayerView::motion_Fpeck = NULL;
+partsmotion_t *PlayerView::motion_Bpeck = NULL;
+partsmotion_t *PlayerView::motion_Fsmash = NULL;
 
 PlayerView::PlayerView() {
   m_player = NULL;
@@ -58,6 +62,8 @@ PlayerView::~PlayerView() {
 
 void *
 PlayerView::LoadData(void *dum) {
+#if !defined(CHIYO)
+
   motion_Fnormal = new partsmotion("Parts/Fnormal/Fnormal");
   motion_Bnormal = new partsmotion("Parts/Bnormal/Bnormal");
   motion_Fdrive = new partsmotion("Parts/Fdrive/Fdrive");
@@ -66,6 +72,28 @@ PlayerView::LoadData(void *dum) {
   motion_Fpeck = new partsmotion("Parts/Fpeck/Fpeck");
   motion_Bpeck = new partsmotion("Parts/Bpeck/Bpeck");
   motion_Fsmash = new partsmotion("Parts/Fsmash/Fsmash");
+
+#else /* CHIYO */
+# define GETBODY(name) \
+    motion_##name = reinterpret_cast<body_parts*>(parts::getobject(#name)); \
+    if (!motion_##name || parts::sym_body != motion_##name->type()) \
+        { printf("Could not load " #name "\n"); exit(1); }
+
+  chdir("Parts");
+  parts::loadobjects("body.txt");
+
+  GETBODY(Fnormal);
+  GETBODY(Bnormal);
+  GETBODY(Fdrive);
+  GETBODY(Fcut);
+  GETBODY(Bcut);
+  GETBODY(Fpeck);
+  GETBODY(Bpeck);
+  GETBODY(Fsmash);
+  chdir("..");
+
+# undef GETBODY
+#endif /* CHIYO */
 
   return NULL;
 }
@@ -137,7 +165,7 @@ PlayerView::SubRedraw() {
 	     0.0F, 0.0F, 1.0F );
 
   int swing;
-  partsmotion *motion;
+  partsmotion_t *motion;
 
   swing = m_player->GetSwing();
   switch( m_player->GetSwingType() ) {

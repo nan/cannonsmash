@@ -21,6 +21,40 @@ public:
     short p0, p1;
 };
 
+class color4b
+{
+public:
+    typedef unsigned char element_t;
+    typedef unsigned char byte;
+    enum {
+	element_size = 4,
+    };
+    byte r, g, b, a;
+    inline color4b() {}
+    inline color4b(byte i, byte a=255) : r(i), g(i), b(i), a(a) {}
+    inline color4b(byte r, byte g, byte b, byte a=255) :
+      r(r), g(g), b(b), a(a) {}
+
+    byte* element_array() { return (byte*)this; }
+    const byte* element_array() const { return (byte*)this; }
+
+    void glBind() const { glColor4bv((const GLbyte*)element_array()); }
+};
+
+class colormap
+{
+public:
+    bool load(const char *file);
+    void fill(const color4b& c) {
+	std::fill(&map[0], &map[256], c);
+    }
+    inline color4b& operator [](int i) { return map[i]; }
+    inline const color4b& operator [](int i) const { return map[i]; }
+
+public:
+    color4b map[256];
+};
+
 class polygon;
 
 class polyhedron
@@ -28,21 +62,26 @@ class polyhedron
 public:
     int numPoints, numPolygons, numEdges;
     vector3F *points;
+    vector3F *texcoord;
     short (*polygons)[4];
     unsigned char *cindex;
     vector3F (*normals)[4];
     vector3F *planeNormal;
     edge *edges;
     char *filename;
+    GLuint texturename;
+    colormap cmap;
 
     polyhedron(const char *filename);
     ~polyhedron();
+    polyhedron& operator *=(const affine4F &m);	//normal vectors are destroyed
 
     inline int polsize(int i) const { return (0 > polygons[i][3]) ? 3 : 4; }
     polygon getPolygon(int i) const;
 
-private:
     void getNormal();
+
+private:
     void getEdges();
 };
 
@@ -65,6 +104,9 @@ public:
 
     inline const vector3F& rv(int idx) const { return p.points[ri(idx)]; }
     inline const vector3F& v(int idx) const { return p.points[i(idx)]; }
+
+    inline const vector3F& rst(int idx) const { return p.texcoord[ri(idx)]; }
+    inline const vector3F& st(int idx) const { return p.texcoord[i(idx)]; }
 
     inline const vector3F& rn(int idx) const { return p.normals[num][idx]; }
     inline const vector3F& n(int idx) const { return p.normals[num][round(idx)]; }
