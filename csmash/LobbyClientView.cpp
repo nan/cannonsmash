@@ -281,7 +281,7 @@ LobbyClientView::Init( LobbyClient *lobby ) {
   GtkCellRenderer *renderer;
   GtkListStore *store;
 
-  store = gtk_list_store_new( 2, G_TYPE_STRING, G_TYPE_STRING );
+  store = gtk_list_store_new( 3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING );
   m_table = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 
   renderer = gtk_cell_renderer_text_new();
@@ -297,6 +297,14 @@ LobbyClientView::Init( LobbyClient *lobby ) {
 						     NULL );
   gtk_tree_view_column_set_resizable( column, TRUE );
   gtk_tree_view_append_column( GTK_TREE_VIEW(m_table), column );
+
+  renderer = gtk_cell_renderer_text_new();
+  column = gtk_tree_view_column_new_with_attributes( _("ping [msec]"), renderer,
+						     "markup", 2, 
+						     NULL );
+  gtk_tree_view_column_set_resizable( column, TRUE );
+  gtk_tree_view_append_column( GTK_TREE_VIEW(m_table), column );
+
 
   gtk_scrolled_window_add_with_viewport ( GTK_SCROLLED_WINDOW(scrolled_window),
 					  m_table );
@@ -418,7 +426,8 @@ LobbyClientView::UpdateTable() {
   gtk_list_store_clear( GTK_LIST_STORE(model) );
   gtk_widget_set_sensitive(m_connectButton, false);
 
-  std::string nickname, message;
+  std::string nickname, message, ping;
+  char buf[128];
   bool selected = false;
   for ( int i = 0 ; i < m_parent->m_playerNum ; i++ ) {
     GtkTreeIter iter;
@@ -427,22 +436,27 @@ LobbyClientView::UpdateTable() {
 	 (m_parent->GetCanBeServer() == false &&
 	  m_parent->m_player[i].m_canBeServer == false) ) {
       nickname = "<span color=\"gray\">";
-      nickname += m_parent->m_player[i].m_nickname;
-      nickname += "</span>";
       message = "<span color=\"gray\">";
-      message += m_parent->m_player[i].m_message;
-      message += "</span>";
+      ping = "<span color=\"gray\">";
     } else {
       nickname = "<span color=\"black\">";
-      nickname += m_parent->m_player[i].m_nickname;
-      nickname += "</span>";
       message = "<span color=\"black\">";
-      message += m_parent->m_player[i].m_message;
-      message += "</span>";
+      ping = "<span color=\"black\">";
     }
+    nickname += m_parent->m_player[i].m_nickname;
+    nickname += "</span>";
+    message += m_parent->m_player[i].m_message;
+    message += "</span>";
+    if ( m_parent->m_player[i].m_ping >= 0 ) {
+      sprintf( buf, "%ld", m_parent->m_player[i].m_ping );
+      ping += buf;
+    }
+    ping += "</span>";
+
     gtk_list_store_set( GTK_LIST_STORE(model), &iter,
 			0, nickname.c_str(),
 			1, message.c_str(),
+			2, ping.c_str(),
 			-1 );
     if ( m_parent->m_player[i].m_ID == m_parent->m_selected ) {
       GtkTreeSelection *selection =

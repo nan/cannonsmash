@@ -43,6 +43,7 @@ extern long mode;
 extern void StartGame();
 
 extern int listenSocket[];
+extern int theSocket;
 extern int one;
 
 // dirty... used by "QP"
@@ -50,6 +51,8 @@ long score1 = 0;
 long score2 = 0;
 
 LobbyClient* LobbyClient::m_lobbyClient = NULL;
+
+SDL_mutex *pInfoMutex;
 
 int
 encryptPasswordWithPKey( char *message, int messageLength, unsigned char *encrypted, int encryptedLength ) {
@@ -86,15 +89,20 @@ encryptPasswordWithPKey( char *message, int messageLength, unsigned char *encryp
  * Initialize member variables. 
  */
 LobbyClient::LobbyClient() {
+  m_player = NULL;
   m_playerNum = 0;
   m_canBeServer = false;
   m_selected = -1;
+  m_pingThread = NULL;
 }
 
 /**
  * Destructor. 
  */
 LobbyClient::~LobbyClient() {
+  if (m_pingThread)
+    SDL_KillThread(m_pingThread);
+
   if ( m_view )
     delete m_view;
   m_lobbyClient = NULL;
@@ -224,7 +232,7 @@ LobbyClient::Init( char *nick, char *message, bool ping ) {
 
   // Connect to Lobby Server
   send( m_socket, "CN", 2, 0 );
-  long len = 11 + 32 + 128;
+  long len = 11 + 32 + 128 + 4;
   SendLong( m_socket, len );
 
   // Send version number(Must be changed)
@@ -256,11 +264,18 @@ LobbyClient::Init( char *nick, char *message, bool ping ) {
   memcpy( buf, (char *)password, 128 );
   send( m_socket, buf, 128, 0 );
 
+  // send ping acceptance
+  SendLong( m_socket, ping ? 1 : 0 );
+
   m_view = new LobbyClientView();
   m_view->Init( this );
 
   strncpy( m_nickname, nick, 32 );
   m_ping = ping;
+
+  if (m_ping)
+    m_pingThread = SDL_CreateThread( LobbyClient::checkPingValue, NULL );
+
   return true;
 }
 
@@ -282,8 +297,17 @@ LobbyClient::PollServerMessage( gpointer data,
   bool listenIsSet = false;
   while ( listenSocket[i] >= 0 ) {
     if ( listenSocket[i] == source ) {
+      char buf[256];
       int acSocket;
       acSocket = accept( listenSocket[i], NULL, NULL );
+      setsockopt(acSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(int));
+
+      if ( lobby->m_canBeServer == true && lobby->m_ping == true ) {
+	recv(acSocket, buf, 256, 0);
+	send(acSocket, "ACK", 3, 0);
+	recv(acSocket, buf, 256, 0);
+	send(acSocket, "ACK", 3, 0);
+      }
 
       closesocket( acSocket );
       lobby->m_canBeServer = true;
@@ -380,39 +404,61 @@ LobbyClient::ReadUI() {
   // get length
   long len = 0;
 
+  PlayerInfo *pInfo;
+  long pNum;
+
   char *buffer;
   ReadEntireMessage( m_socket, &buffer );
 
   // Get player number
-  ReadLong( buffer, m_playerNum );
+  ReadLong( buffer, pNum );
   len = 4;
 
-  m_player = new PlayerInfo[m_playerNum];
+  pInfo = new PlayerInfo[pNum];
 
   // Analyse data
   int i;
-  for ( i = 0 ; i < m_playerNum ; i++ ) {
+  for ( i = 0 ; i < pNum ; i++ ) {
     if ( buffer[len] )
-      m_player[i].m_canBeServer = true;
+      pInfo[i].m_canBeServer = true;
     else
-      m_player[i].m_canBeServer = false;
+      pInfo[i].m_canBeServer = false;
     len++;
 
     if ( buffer[len] )
-      m_player[i].m_playing = true;
+      pInfo[i].m_playing = true;
     else
-      m_player[i].m_playing = false;
+      pInfo[i].m_playing = false;
     len++;
 
-    ReadLong( buffer+len, m_player[i].m_ID );
+    ReadLong( buffer+len, pInfo[i].m_ID );
     len += 4;
 
-    strncpy( m_player[i].m_nickname, &(buffer[len]), 32 );
+    strncpy( pInfo[i].m_nickname, &(buffer[len]), 32 );
     len += 32;
 
-    strncpy( m_player[i].m_message, &(buffer[len]), 64 );
+    strncpy( pInfo[i].m_message, &(buffer[len]), 64 );
     len += 64;
+
+    ReadLong( buffer+len, pInfo[i].m_IP );
+    len += 4;
+
+    ReadLong( buffer+len, pInfo[i].m_port );
+    len += 4;
+
+    pInfo[i].m_ping = -1;
+    for ( int j = 0 ; j < m_playerNum ; j++ ) {
+      if ( pInfo[j].m_ID == m_player[i].m_ID )
+	pInfo[i].m_ping = m_player[j].m_ping;
+    }
   }	// add protocolLen check later
+
+  SDL_mutexP(pInfoMutex);
+  if (m_player)
+    delete[] m_player;
+  m_player = pInfo;
+  m_playerNum = pNum;
+  SDL_mutexV(pInfoMutex);
 
   delete buffer;
 }
@@ -608,6 +654,73 @@ LobbyClient::SendMS( char *message, long channel ) {
   send( m_socket, message, strlen(message), 0 );
 }
 
+int
+LobbyClient::checkPingValue( void *arg ) {
+  char buf[256];
+  struct sockaddr_in saddr;
+
+  while (1) {
+#ifdef WIN32
+    Sleep(RAND(10*1000));
+#else
+    sleep(RAND(10));
+#endif
+
+    memset(&saddr, 0, sizeof(saddr));
+    PlayerInfo *p = NULL;
+
+    SDL_mutexP(pInfoMutex);
+    for ( int i = 0 ; i < TheLobbyClient()->GetPlayerNum() ; i++ ) {
+      if ( TheLobbyClient()->GetPlayerInfo()[i].m_ping < 0 &&
+	   TheLobbyClient()->GetPlayerInfo()[i].m_IP != 0 ) {
+	p = &(TheLobbyClient()->GetPlayerInfo()[i]);
+	break;
+      }
+    }
+
+    if ( p == NULL ) {
+      p = &(TheLobbyClient()->GetPlayerInfo()[RAND(TheLobbyClient()->GetPlayerNum())]);
+      if ( p->m_IP == 0 )
+	continue;
+    }
+
+    sprintf( theRC->serverName, "%ld.%ld.%ld.%ld",
+	     (p->m_IP&0x000000ff), 
+	     (p->m_IP&0x0000ff00)>>8,
+	     (p->m_IP&0x00ff0000)>>16,
+	     (p->m_IP&0xff000000)>>24 );
+    theRC->csmash_port = p->m_port;
+    SDL_mutexV(pInfoMutex);
+
+    if (!ConnectToServer())
+      continue;
+
+    // Communicate with the target to evaluate ping value. 
+    struct timeb tb1, tb2, tb3;
+    long diff1, diff2;
+
+    getcurrenttime( &tb1 );
+    send(theSocket, "ACK", 3, 0);
+    recv(theSocket, buf, 256, 0);
+    getcurrenttime( &tb2 );
+    send(theSocket, "ACK", 3, 0);
+    recv(theSocket, buf, 256, 0);
+    getcurrenttime( &tb3 );
+
+    diff1 = (long)(tb2.time-tb1.time)*1000 + tb2.millitm-tb1.millitm;
+    diff2 = (long)(tb3.time-tb2.time)*1000 + tb3.millitm-tb2.millitm;
+
+    SDL_mutexP(pInfoMutex);
+    p->m_ping = (diff1+diff2)/2;
+    TheLobbyClient()->m_view->UpdateTable();
+    SDL_mutexV(pInfoMutex);
+
+    closesocket( theSocket );
+    theSocket = -1;
+  }
+
+  return 0;
+}
 
 /**
  * Default constructor. 

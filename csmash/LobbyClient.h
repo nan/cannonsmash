@@ -239,6 +239,8 @@ public:
 				 GdkInputCondition condition );
   static void Connect( GtkWidget *widget, gpointer data );
 
+  static int checkPingValue( void *arg );
+
   void SendAP( long uniqID );
   void SendSP();
   void SendQP();
@@ -279,6 +281,8 @@ protected:
 
   long m_lang;			///< Language code
 
+  SDL_Thread *m_pingThread;	///< Thread for ping to the opponent machines. 
+
 private:
   LobbyClient();
   static LobbyClient *m_lobbyClient;	///< LobbyClient singleton
@@ -297,6 +301,9 @@ public:
   long m_ID;			///< Client ID
   char m_nickname[32];		///< nickname
   char m_message[64];		///< join message
+  long m_IP;			///< IP Address (if it is publicated. If not, m_IP is 0. )
+  long m_port;			///< port number (if it is publicated. If not, m_port is -1. )
+  long m_ping;			///< Ping value to the player machine. 
 };
 
 #endif // _LobbyClient_
