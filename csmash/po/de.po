@@ -3,7 +3,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2002-11-06 00:44+0900\n"
+"POT-Creation-Date: 2002-12-17 23:44+0900\n"
 "PO-Revision-Date: 2002-01-20 22:22GMT\n"
 "Last-Translator: J. Henning Schwentner <hschwentner@hamburg.de>\n"
 "Language-Team: Deutsch <de@li.org>\n"
@@ -161,7 +161,8 @@ msgstr "schlie_en"
 #, c-format
 msgid ""
 "Latest Version %s is already released. \n"
-"Please upgrade to the latest version\n"
+"Please download the latest version from \n"
+"%s\n"
 msgstr ""
 
 #: LobbyClientView.cpp:245

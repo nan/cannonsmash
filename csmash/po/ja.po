@@ -3,7 +3,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Cannon Smash 0.6.4\n"
-"POT-Creation-Date: 2002-11-06 00:44+0900\n"
+"POT-Creation-Date: 2002-12-17 23:44+0900\n"
 "PO-Revision-Date: 2002-02-03 19:00+0900\n"
 "Last-Translator: KANNA Yoshihiro <nan@utmc.or.jp>\n"
 "Language-Team: Cannon Smash development project <csmash@utmc.or.jp>\n"
@@ -159,7 +159,8 @@ msgstr "中止"
 #, c-format
 msgid ""
 "Latest Version %s is already released. \n"
-"Please upgrade to the latest version\n"
+"Please download the latest version from \n"
+"%s\n"
 msgstr ""
 
 #: LobbyClientView.cpp:245
