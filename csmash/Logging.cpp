@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
+// Copyright (C) 2001  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 Logging* Logging::m_logging = NULL;
 
 Logging::Logging() {
+    memset(m_fp, 0, sizeof(m_fp));
 }
 
 Logging::~Logging() {
