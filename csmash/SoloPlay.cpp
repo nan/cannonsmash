@@ -70,7 +70,7 @@ SoloPlay::Create( long player, long com ) {
   comPlayer->Init();
 
   // Move it to view?
-  SDL_ShowCursor(0);
+  SDL_ShowCursor(SDL_DISABLE);
   SDL_WM_GrabInput( SDL_GRAB_ON );
 }
 

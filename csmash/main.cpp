@@ -243,9 +243,7 @@ StartGame() {
   Event::TheEvent()->Init();
 
 #ifdef LOGGING
-  if ( isComm ) {
-    Logging::GetLogging()->Init();
-  }
+  Logging::GetLogging()->Init();
 #endif
 
   SDL_EnableUNICODE(1);

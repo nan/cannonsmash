@@ -185,7 +185,7 @@ MultiPlay::Create( long player, long com ) {
   thePlayer->Init();
   comPlayer->Init();
 
-  SDL_ShowCursor(0);
+  SDL_ShowCursor(SDL_DISABLE);
   SDL_WM_GrabInput( SDL_GRAB_ON );
 
   theRC->gameLevel = LEVEL_HARD;

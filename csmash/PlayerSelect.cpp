@@ -70,7 +70,7 @@ PlayerSelect::Create() {
   m_theControl = new PlayerSelect();
   m_theControl->Init();
 
-  SDL_ShowCursor(0);
+  SDL_ShowCursor(SDL_DISABLE);
 }
 
 bool
