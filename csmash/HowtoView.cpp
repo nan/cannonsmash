@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -64,6 +64,8 @@ HowtoView::Init( Howto *howto ) {
 	  if ( image.GetPixel( j, k, 0 ) >= 5 ||
 	       image.GetPixel( j, k, 1 ) >= 5 ||
 	       image.GetPixel( j, k, 2 ) >= 5 )
+	    image.SetPixel( j, k, 3 , 255 );
+	  else
 	    image.SetPixel( j, k, 3 , 0 );
 	}
       }
@@ -127,16 +129,16 @@ HowtoView::Init( Howto *howto ) {
 
   glGenTextures( 1, m_keyboard );
   image.LoadPPM( "images/Keyboard.ppm" );
-  /*
   for ( j = 0 ; j < image.GetWidth() ; j++ ) {
     for ( k = 0 ; k < image.GetHeight() ; k++ ) {
       if ( image.GetPixel( j, k, 0 ) == 255 ||
 	   image.GetPixel( j, k, 1 ) == 255 ||
 	   image.GetPixel( j, k, 2 ) == 255 )
+	image.SetPixel( j, k, 3 , 255 );
+      else
 	image.SetPixel( j, k, 3 , 0 );
     }
   }
-  */
 
   glBindTexture(GL_TEXTURE_2D, m_keyboard[0]);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
