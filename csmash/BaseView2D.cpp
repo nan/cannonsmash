@@ -94,10 +94,10 @@ BaseView2D::RedrawAll() {
   if ( Control::TheControl()->GetView() )
     Control::TheControl()->GetView()->GetDamageRect();
 
-  rect.x = m_updateX1;
-  rect.y = m_updateY1;
-  rect.w = m_updateX2-m_updateX1+1;
-  rect.h = m_updateY2-m_updateY1+1;
+  rect.x = (short)m_updateX1;
+  rect.y = (short)m_updateY1;
+  rect.w = (short)(m_updateX2-m_updateX1+1);
+  rect.h = (short)(m_updateY2-m_updateY1+1);
 
   SDL_SetClipRect( m_baseSurface, &rect );
 
@@ -296,11 +296,11 @@ RenderRect( double x1, double y1, double z1,
   }
 
   if ( rect->x > BaseView::GetWinWidth() )
-    rect->x = BaseView::GetWinWidth();
+    rect->x = (short)BaseView::GetWinWidth();
   if ( rect->x+rect->w > BaseView::GetWinWidth() )
     rect->w = BaseView::GetWinWidth()-rect->x;
   if ( rect->y > BaseView::GetWinHeight() )
-    rect->y = BaseView::GetWinHeight();
+    rect->y = (short)BaseView::GetWinHeight();
   if ( rect->y+rect->h > BaseView::GetWinHeight() )
     rect->h = BaseView::GetWinHeight()-rect->y;
 

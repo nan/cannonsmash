@@ -1,5 +1,5 @@
 #
-# Makefile for gmake (It should run with Microsoft's nmake)
+# Makefile for gmake (It should run with Microsoft's nmake... I believe.)
 # $Id$
 #
 ############################################################################
@@ -20,7 +20,7 @@ Cpost = -c -Tc
 CXXpost = -c -Tp
 
 CFLAGS = -MD -Ox -G6 -vms $(DFLAGS) $(INCDIRS)
-#CFLAGS = -MD -Od -Zi -G6 -vms $(DFLAGS) $(INCDIRS) -DWIN32CONSOLE
+CFLAGS = -MD -Od -Zi -G6 -vms $(DFLAGS) $(INCDIRS) -DWIN32CONSOLE
 
 CXXFLAGS=$(CFLAGS) -GX
 
@@ -33,14 +33,20 @@ EXE = .exe
 AOUT = -Fe
 
 ############################################################################
-DFLAGS = -DHAVE_LIBZ -DHAVE_LIBSDL_MIXER -DHAVE_LIBVORBIS
-INCDIRS = -I. -I./glib/ -I./gdk/
+BASEDIR	= .$(BDIR)
+VPATH = $(BASEDIR)
 
-LIBS =	win32/GetArgs.obj win32/getopt.obj win32/wsaerror.obj \
-	win32/wsainit.obj win32/csmash.res \
-	SDL.lib SDL_mixer.lib SDL_image.lib opengl32.lib glu32.lib \
-	zlib.lib libjpeg.lib ws2_32.lib gtk/gtk-1.3.lib glib/glib-1.3.lib \
-	winmm.lib -link /LIBPATH:./lib
+DFLAGS = -DHAVE_LIBZ -DHAVE_LIBSDL_MIXER -DHAVE_LIBVORBIS -DCHIYO
+
+INCDIRS = -I$(BASEDIR) -I$(BASEDIR)/include/ \
+	  -I$(BASEDIR)/include/glib/ -I$(BASEDIR)/include/gdk/
+
+LIBS =	$(BASEDIR)/win32/libwin32.lib $(BASEDIR)/win32/csmash.res \
+	SDL.lib SDL_mixer.lib SDL_image.lib \
+	gtk-1.3.lib glib-1.3.lib \
+	zlib.lib libjpeg.lib \
+	opengl32.lib glu32.lib winmm.lib ws2_32.lib \
+	-link /LIBPATH:$(BASEDIR)/lib
 
 SRCS = \
 	Ball.cpp BallView.cpp BaseView.cpp Event.cpp HitMark.cpp \
@@ -54,43 +60,52 @@ SRCS = \
 	PracticePlay.cpp PracticeSelect.cpp PracticeSelectView.cpp \
 	FieldView.cpp SoloPlay.cpp PlayGame.cpp Control.cpp Training.cpp \
 	Opening.cpp OpeningView.cpp MenuItem.cpp MenuItemView.cpp \
-	main.cpp z.cpp parts.cpp xerror.cpp Launcher.cpp LobbyClient.cpp \
+	z.cpp parts.cpp xerror.cpp Launcher.cpp LobbyClient.cpp \
 	Logging.cpp BaseView2D.cpp FieldView2D.cpp PlayerView2D.cpp \
 	BallView2D.cpp PlayerSelectView2D.cpp TitleView2D.cpp \
-	MenuItemView2D.cpp RCFile.cpp PlayGameView.cpp Network.cpp
+	MenuItemView2D.cpp RCFile.cpp PlayGameView.cpp Network.cpp \
+	NetPenAttack.cpp NetShakeCut.cpp NetPenDrive.cpp \
+	loadparts.cpp
 
 OBJS = $(SRCS:.cpp=.obj)
 
 TARGET = csmash$(EXE)
 
-############################################################################
+###########################################################################
 all: $(TARGET)
+
 clean:
-	rm -f $(TARGET) *.$(O) *.pch
-	cd win32 && $(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" clean
+	rm -f $(TARGET) *.$(O) *.pch *.pdb
+	cd $(BASEDIR)/win32 && $(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" clean
+
 distclean:
-	rm -f $(TARGET) *.$(O) *.pch *~ *.bak depend.nt
-	cd win32 && $(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" distclean
+	rm -f $(TARGET) *.$(O) *.pch *.pdb *~ *.bak .depend.nt
+	cd $(BASEDIR)/win32 && $(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" distclean
 
+# remove absolute paths from dependency file
 depend:
-	touch depend.nt
-	makedepend -fdepend.nt $(INCDIRS) -D_WIN32 -DHAVE_LIBZ -DHAVE_LIBSDL_MIXER -DHAVE_LIBVORBIS $(SRCS)
-	cat depend.nt | sed -e "s/.:\/.*\/VC98[^ ]*include\/[^ ]*//g" \
-	| grep -v ".*:[ ]*$$" > depend.new
-	mv depend.new depend.nt
+	touch .depend.nt
+	makedepend -i -f.depend.nt -DMKDEP_IGN_SYSINC -D_WIN32 $(DFLAGS) \
+	  -I$(BASEDIR) $(BASEDIR)/*.cpp
+	cat .depend.nt | sed -e "s/.:\/.*\/[iI]nclude\/[^ ]*//g" \
+	| grep -v ".*:[ ]*$$" > .depend.new
+	mv .depend.new .depend.nt
 
-$(TARGET): $(OBJS) win32/all
-	$(CC) $(CFLAGS) $(AOUT)$@ $(OBJS) $(LIBS)
+$(TARGET): $(OBJS) main.$(O) $(BASEDIR)/win32/all
+	$(CC) $(CFLAGS) $(AOUT)$(BASEDIR)/$@ main.$(O) $(OBJS) $(LIBS)
 
 $(OBJS) : ttinc.pch
 
 ttinc.pch: ttinc.h ttinc.cpp
-	$(CXX) $(CXXFLAGS) $(IFLAGS) -Ycttinc.h $(CXXpost) ttinc.cpp
+	$(CXX) $(CXXFLAGS) $(IFLAGS) -Ycttinc.h $(CXXpost) $(BASEDIR)/ttinc.cpp
 
-win32/all:
-	cd win32 && $(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" all
+$(BASEDIR)/win32/all:
+	cd $(BASEDIR)/win32 && \
+	$(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" all
 
-#-include depend.nt
+# include directive is not available in nmake.exe
+# If you are using gnu-make, uncomment next line.
+#-include .depend.nt
 ############################################################################
 # END
 ############################################################################

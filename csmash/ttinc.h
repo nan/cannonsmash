@@ -137,26 +137,23 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 // Log
 #define LOGGING
 
+#ifndef MKDEP_IGN_SYSINC
+
 #ifdef WIN32
 #define NOMINMAX
 #define VC_EXTRALEAN
 #include <winsock2.h>
 #include <windows.h>
-#include <io.h>
-#include <direct.h>
-
-#define F_OK 0 /* if exist */
-#define snprintf _snprintf
 #endif
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/timeb.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
 #include <ctype.h>
@@ -169,22 +166,34 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+
+#define SOCKET int
 #define closesocket(A) close(A)
-#endif
+#else /* WIN32 */
+#include <io.h>
+#include <direct.h>
+
+#define F_OK 0 /* stat, file is exist */
+#define snprintf _snprintf
+#define vsnprintf _vsnprintf
+typedef int socklen_t;		/* mimic Penguin's socklen type */
+#endif   /* !WIN32 */
 
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#ifdef HAVE_LIBZ
-#include <sys/stat.h>
-#include "z.h"
-#endif
-
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include <SDL/SDL_thread.h>
+
 #ifdef HAVE_LIBSDL_MIXER
 #include <SDL/SDL_mixer.h>
+#endif
+
+#endif /* MKDEP_IGN_SYSINC */
+
+#ifdef HAVE_LIBZ
+#include "z.h"
 #endif
 
 void xerror(const char *str, ...);

@@ -392,7 +392,7 @@ MultiPlay::WaitForClient() {
 void
 MultiPlay::AdjustClock() {
   long adjLog[16];
-  int i, j, k;
+  int i, j;
 
   for ( i = 0 ; i < 16 ; i++ ) {
     struct timeb tb1, tb2, tb3;
@@ -415,7 +415,7 @@ MultiPlay::AdjustClock() {
       mtm += 1000;
       tb1.time--;
     }
-    tb1.millitm = mtm;
+    tb1.millitm = (unsigned short)mtm;
 
     adjLog[i] = (tb3.time-tb1.time)*1000 + tb3.millitm-tb1.millitm;
   }

@@ -116,7 +116,7 @@ PlayerView2D::GetDrawRect( SDL_Rect *drawRect ) {
       drawRect->x = 0;
     }
     if ( drawRect->x > BaseView::GetWinWidth() )
-      drawRect->x = BaseView::GetWinWidth();
+      drawRect->x = (short)BaseView::GetWinWidth();
     if ( drawRect->x+drawRect->w > BaseView::GetWinWidth() )
       drawRect->w = BaseView::GetWinWidth()-drawRect->x;
     if ( drawRect->y < 0 ) {
@@ -124,7 +124,7 @@ PlayerView2D::GetDrawRect( SDL_Rect *drawRect ) {
       drawRect->y = 0;
     }
     if ( drawRect->y > BaseView::GetWinHeight() )
-      drawRect->y = BaseView::GetWinHeight();
+      drawRect->y = (short)BaseView::GetWinHeight();
     if ( drawRect->y+drawRect->h > BaseView::GetWinHeight() )
       drawRect->h = BaseView::GetWinHeight()-drawRect->y;
   }

@@ -38,8 +38,8 @@ AOUT = -Fe
 INCDIRS	= -I.
 
 OBJS = GetArgs.obj wsaerror.obj getopt.obj wsainit.obj new_exception.obj
-
-TARGET = $(OBJS) csmash.res
+LIBRARY = libwin32.lib
+TARGET = libwin32.lib csmash.res
 
 ############################################################################
 all: $(TARGET)
@@ -48,6 +48,10 @@ clean:
 	rm -f $(TARGET) *.$(O) *.res all
 distclean:
 	rm -f $(TARGET) *.$(O) *.res *~ *.bak depend.nt all
+
+libwin32.lib : $(OBJS)
+	rm -f $@
+	lib /out:$@ $(OBJS)
 
 depend:
 	touch depend.nt

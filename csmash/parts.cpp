@@ -22,36 +22,48 @@
 
 #include "parts.h"
 
+#define RENDEREDGE 0
+
+// for(;;) namescoping hack.
+// VC++ 6 is not compliant with latest ANSI C++ (but VC++7 does).
 #if defined(_MSC_VER) && (_MSC_VER <= 1200)
 # define for if(0);else for
 #endif
+#define elif else if
 
-//namespace {
-    inline bool streq(const char *a, const char *b)
-    {
-	return 0 == strcmp(a, b);
-    }
-    template <typename T>
-    inline bool between(const T& a, const T& x, const T& b) {
-	return a <= x && x <= b;
-    }
-    template <typename T>
-    inline const T& clamp(const T& a, const T& x, const T& b) {
-	if (a > x) return a;
-	else if (b < x) return b;
-	else return x;
-    }
+#define BEGIN_ANONYMOUS namespace {
+#define END_ANONYMOUS }
+/***********************************************************************
+ *	Local data and functions
+ ***********************************************************************/
+BEGIN_ANONYMOUS
+
+inline bool streq(const char *a, const char *b)
+{
+    return 0 == strcmp(a, b);
+}
+
+template <typename T>
+inline bool between(const T& a, const T& x, const T& b) {
+    return a <= x && x <= b;
+}
+
+template <typename T>
+inline const T& clamp(const T& a, const T& x, const T& b) {
+    if (a > x) return a;
+    elif (b < x) return b;
+    else return x;
+}
+
+struct plane_t {
+    short poly[4];
+    short cindex;
     
-    struct plane_t {
-	short poly[4];
-	short cindex;
+    inline short& operator [](int i) { return poly[i]; }
+    inline int size() const { return (poly[3] < 0) ? 3 : 4; }
+};
 
-	inline short& operator [](int i) { return poly[i]; }
-	inline int size() const { return (poly[3] < 0) ? 3 : 4; }
-    };
-
-//}
-
+END_ANONYMOUS
 /***********************************************************************
  *	Class colormap
  ***********************************************************************/
@@ -100,18 +112,7 @@ polyhedron::polyhedron(const char* filename)
     std::vector<vector3F> st(1000);
     std::vector<plane_t> loop(1000);
 
-    cmap.fill(color4b(128));	// default to be gray
-    cmap[0] = color4b(250, 188, 137);	// C0 skin
-    cmap[1] = color4b(1);		// C1 eye
-    cmap[2] = color4b(42, 19, 5);	// C2 hair
-    cmap[3] = color4b(250, 188, 137);	// C3 skin
-//    cmap[4] = color4b(225, 7, 47);	// C4 shirts (red)
-    cmap[4] = color4b(3, 87, 125);	// C4 shirts (blue)
-//    cmap[5] = color4b(2, 13, 24);	// C5 pants  (green)
-    cmap[5] = color4b(0, 0, 0);		// C5 pants  (black)
-    cmap[6] = color4b(102, 7, 3);	// C6 skin/shadow
-    cmap[7] = color4b(255, 0, 0);	// C7 racket/front
-    cmap[8] = color4b(0, 0, 0);		// C8 racket/back
+    initColormap();
 
     char line[512];
     const char *delim = " \t(,);\r\n";
@@ -142,7 +143,7 @@ polyhedron::polyhedron(const char* filename)
 
 	    numPoints++;
 	}
-	else if (streq("plane", token)) {
+	elif (streq("plane", token)) {
 	    int i = 0;
 	    if (loop.capacity() <= numPolygons) {
 		printf("%s:%d loop buffer overflow\n", __FILE__, __LINE__);
@@ -153,10 +154,11 @@ polyhedron::polyhedron(const char* filename)
 	    f.cindex = 0;
 	    while (NULL != (token = strtok(NULL, delim))) {
 		if ('#' == *token) break;
-		else if ('C' == *token) f.cindex = atoi(token+1);
-		else if (4 > i) f[i++] = atoi(token);
+		elif (isalpha(*token)) {
+                    if ('C' == *token) f.cindex = atoi(token+1);
+                }
+		elif (isdigit(*token) && 4 > i) f[i++] = atoi(token);
 	    }
-	    f[3] = -1;
 	    numPolygons++;
 	}
     }
@@ -169,20 +171,19 @@ polyhedron::polyhedron(const char* filename)
     cindex = new unsigned char[numPolygons];
     if (textureexists) {
 	texcoord = new vector3F[numPoints];
-	for (int i = 0; numPoints > i; ++i) texcoord[i] = st[i];
+        std::copy(&st[0], &st[numPoints], texcoord);
     }
 
     int i;
-    for (i = 0; numPoints > i; i++) {
-	points[i] = vertex[i];
-    }
+    std::copy(&vertex[0], &vertex[numPoints], points);
+
     for (i = 0; numPolygons > i; i++) {
 	cindex[i] = loop[i].cindex;
 	for (int j = 0; 4 > j; j++) {
 	    polygons[i][j] = loop[i][j];
 	}
     }
-    getNormal();
+//    getNormal();
 }
 
 polyhedron::~polyhedron()
@@ -196,56 +197,31 @@ polyhedron::~polyhedron()
     delete[] texcoord;
     if (filename) free((void*)filename);
 }
+
+void polyhedron::initColormap()
+{
+    cmap.fill(color4b(128));	// default to be gray
+
+    cmap[0] = color4b(250, 188, 137);	// C0 skin
+    cmap[1] = color4b(1);		// C1 eye
+    cmap[2] = color4b(42, 19, 5);	// C2 hair
+    cmap[3] = color4b(250, 188, 137);	// C3 skin
+//    cmap[4] = color4b(225, 7, 47);	// C4 shirts (red)
+    cmap[4] = color4b(3, 87, 125);	// C4 shirts (blue)
+//    cmap[5] = color4b(2, 13, 24);	// C5 pants  (green)
+    cmap[5] = color4b(0);		// C5 pants  (black)
+    cmap[6] = color4b(102, 7, 3);	// C6 skin/shadow
+    cmap[7] = color4b(255, 0, 0);	// C7 racket/front
+    cmap[8] = color4b(0);		// C8 racket/back
+}
+
+// normal vectors are destroyed
 polyhedron& polyhedron::operator *=(const affine4F& m)
 {
-    for (int i = 0; numPoints > i; ++i) {
-	points[i] = points[i] * m;
-    }	
+    for (int i = 0; numPoints > i; ++i) points[i] = points[i] * m;
     return *this;
 }
 
-
-/***********************************************************************
- *	Local data and functions
- ***********************************************************************/
-//namespace {
-    inline short round(short v, int len)
-    {
-	return (v + len) % len;
-    }
-    
-    inline int length(const short poly[4])
-    {
-	return (0 < poly[3]) ? 4 : 3;
-    }
-    
-    int find(const short poly[4], short p)
-    {
-	int l = length(poly);
-	for (int i = 0; l > i; i++) {
-	    if (poly[i] == p) return i;
-	}
-	return -1;
-    }
-    
-    inline unsigned long key(short v0, short v1)
-    {
-	unsigned long k = v0;
-	return (k << 16) | (v1);
-    }
-    
-    struct halfedge {
-	short v0, v1;
-	short poly;
-	
-	inline halfedge() {}
-	inline halfedge(short v0, short v1, short poly)
-	  : v0(v0), v1(v1), poly(poly) {}
-	inline halfedge(const halfedge &e)
-	  : v0(e.v0), v1(e.v1), poly(e.poly) {}
-    };
-//}
-    
 /***********************************************************************
  *	CreateNormal
  *	Creates normal vector for each points of polygons.
@@ -259,6 +235,35 @@ polyhedron& polyhedron::operator *=(const affine4F& m)
  ***********************************************************************/
 // MERGELIMIT = cos(angle).
 #define MERGELIMIT Float(0.5)
+
+BEGIN_ANONYMOUS
+inline short round(short v, int len) { return (v + len) % len; }
+inline int length(const short poly[4]) { return (0 < poly[3]) ? 4 : 3; }
+
+int find(const short poly[4], short p) {
+    int l = length(poly);
+    for (int i = 0; l > i; i++) {
+        if (poly[i] == p) return i;
+    }
+    return -1;
+}
+
+inline unsigned long key(short v0, short v1) {
+    unsigned long k = v0;
+    return (k << 16) | (v1);
+}
+
+struct halfedge {
+    short v0, v1;
+    short poly;
+    
+    inline halfedge() {}
+    inline halfedge(short v0, short v1, short poly)
+      : v0(v0), v1(v1), poly(poly) {}
+    inline halfedge(const halfedge &e)
+      : v0(e.v0), v1(e.v1), poly(e.poly) {}
+};
+END_ANONYMOUS    
 
 void polyhedron::getNormal()
 {
@@ -436,9 +441,10 @@ affineanim::~affineanim()
 /***********************************************************************
  *	Class affinemotion
  ***********************************************************************/
-affinemotion::affinemotion(const char *ref, const char *anim)
-  : ref(ref), anim(anim)
+affinemotion::affinemotion(const char *refname, const char *animname)
+  : ref(refname), anim(animname)
 {
+    ref.getNormal();    // create normal vectors of polyhedron
 }
 
 void
@@ -493,13 +499,6 @@ partsmotion::partsmotion(const char *basename)
 	snprintf(anim, sizeof(anim), "%s-%s.affine", basename, partnames[i]);
 //	printf("loading %s...", ref);
 	parts[i] = new affinemotion(ref, anim);
-#if 0
-	if (parts[i]->ref.numPoints > 0) {
-	    printf("loaded\n");
-	} else {
-	    printf(" failed\n");
-	}
-#endif
     }
 };
 
@@ -516,7 +515,7 @@ partsmotion::~partsmotion()
 bool partsmotion::render(int frame)
 {
 #define c(R,G,B,A) { R/255.0F, G/255.0F, B/255.0F, A/255.0F}
-    GLfloat colors[][4] = {
+    static GLfloat colors[][4] = {
 //	{ 0.4F, 0.4F, 0.4F, 1.0F},	// C0 default
 	c(250, 188, 137, 255),		// C0 default(skin)
 	c(1, 1, 1, 255),		// C1 eye
@@ -534,8 +533,6 @@ bool partsmotion::render(int frame)
     };
 #undef c
     GLfloat NanTheBLACK[4] = { 0,0,0,1 };
-
-#define RENDEREDGE 0
 
     for (int i = 0; numParts > i; i++) {
 	const polyhedron &ref = parts[i]->ref;
@@ -614,10 +611,12 @@ bool partsmotion::renderWire(int frame)
 		if (i0 * i1 <= 0) draw = true;
 	    } else {
 #if 0
+                // Draw if the plane is facing toward eye.
 		Float i0 = v * ref.planeNormal[p0];
 		if (i0 <= 0) draw = true;
 #else	
-		draw = true;
+                // always draw *edge* edges.
+  		draw = true;
 #endif
 	    }
 

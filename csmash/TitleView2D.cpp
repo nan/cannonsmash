@@ -96,7 +96,7 @@ TitleView2D::RedrawAlpha() {
   switch ( m_title->GetSelectMode() ) {
   case MENU_MAIN:
     rect.x = m_title->GetSelected()->GetX()-80;
-    rect.y = m_title->GetSelected()->GetY();
+    rect.y = (short)m_title->GetSelected()->GetY();
     rect.w = m_triangleBMP->w;
     rect.h = m_triangleBMP->h;
 
@@ -107,7 +107,7 @@ TitleView2D::RedrawAlpha() {
     // Title
     if ( m_title->GetSelected()->GetHeight() == 70 ) {
       rect.x = m_title->GetSelected()->GetX()-80;
-      rect.y = m_title->GetSelected()->GetY();
+      rect.y = (short)m_title->GetSelected()->GetY();
       rect.w = m_triangleBMP->w;
       rect.h = m_triangleBMP->h;
 
@@ -115,7 +115,7 @@ TitleView2D::RedrawAlpha() {
 		      &rect);
     } else {
       rect.x = m_title->GetSelected()->GetX()-40;
-      rect.y = m_title->GetSelected()->GetY();
+      rect.y = (short)m_title->GetSelected()->GetY();
       rect.w = m_triangleBMP->w;
       rect.h = m_triangleBMP->h;
 
@@ -145,7 +145,7 @@ TitleView2D::GetDamageRect() {
 	 rect.h != m_triangleBMP->h ) {
       ((BaseView2D *)BaseView::TheView())->AddUpdateRect( &rect );
       rect.x = m_title->GetSelected()->GetX()-80;
-      rect.y = m_title->GetSelected()->GetY();
+      rect.y = (short)m_title->GetSelected()->GetY();
       rect.w = 480;
       rect.h = 70;
       ((BaseView2D *)BaseView::TheView())->AddUpdateRect( &rect );
@@ -160,7 +160,7 @@ TitleView2D::GetDamageRect() {
 	   rect.h != m_triangleBMP->h ) {
 	((BaseView2D *)BaseView::TheView())->AddUpdateRect( &rect );
 	rect.x = m_title->GetSelected()->GetX()-80;
-	rect.y = m_title->GetSelected()->GetY();
+	rect.y = (short)m_title->GetSelected()->GetY();
 	rect.w = 280;
 	rect.h = 70;
 	((BaseView2D *)BaseView::TheView())->AddUpdateRect( &rect );
@@ -172,7 +172,7 @@ TitleView2D::GetDamageRect() {
 	   rect.h != m_triangleBMP->h ) {
 	((BaseView2D *)BaseView::TheView())->AddUpdateRect( &rect );
 	rect.x = m_title->GetSelected()->GetX()-40;
-	rect.y = m_title->GetSelected()->GetY();
+	rect.y = (short)m_title->GetSelected()->GetY();
 	rect.w = 240;
 	rect.h = 70;
 	((BaseView2D *)BaseView::TheView())->AddUpdateRect( &rect );

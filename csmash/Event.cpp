@@ -583,7 +583,7 @@ Event::ReadData() {
       mtime += 1000;
       m_lastTime.time--;
     }
-    m_lastTime.millitm = mtime;
+    m_lastTime.millitm = (unsigned short)mtime;
 
     bool fTheBall, fThePlayer, fComPlayer;
     fTheBall = fThePlayer = fComPlayer = false;

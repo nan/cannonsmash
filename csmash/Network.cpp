@@ -162,7 +162,7 @@ ReadTime( int sd, struct timeb* tb ) {
   long millitm;
   b = ReadLong( b, tb->time );
   b = ReadLong( b, millitm );
-  tb->millitm = millitm;
+  tb->millitm = (unsigned short)millitm;
 
 #ifdef LOGGING
   struct timeb tbCurrent;
@@ -240,24 +240,25 @@ ReadPlayerData() {
   b = ReadDouble( b, stamina );
   b = ReadLong( b, statusMax );
 
+  bool bSwingSide = bool(swingSide != 0);
   switch ( playerType ) {
   case PLAYER_PENATTACK:
     player = new NetPenAttack( playerType, side, x, y, z, vx, vy, vz, stat,
-			       swing, swingType, (bool)swingSide, afterSwing,
+			       swing, swingType, bSwingSide, afterSwing,
 			       swingError,
 			       targetX, targetY, eyeX, eyeY, eyeZ, pow,
 			       spin, stamina, statusMax );
     break;
   case PLAYER_SHAKECUT:
     player = new NetShakeCut( playerType, side, x, y, z, vx, vy, vz, stat,
-			      swing, swingType, (bool)swingSide, afterSwing,
+			      swing, swingType, bSwingSide, afterSwing,
 			      swingError,
 			      targetX, targetY, eyeX, eyeY, eyeZ, pow,
 			      spin, stamina, statusMax );
     break;
   case PLAYER_PENDRIVE:
     player = new NetPenDrive( playerType, side, x, y, z, vx, vy, vz, stat,
-			      swing, swingType, (bool)swingSide, afterSwing,
+			      swing, swingType, bSwingSide, afterSwing,
 			      swingError,
 			      targetX, targetY, eyeX, eyeY, eyeZ, pow,
 			      spin, stamina, statusMax );

@@ -23,7 +23,7 @@
 #include "Player.h"
 #include "parts.h"
 #if defined(CHIYO)
-# include "loadparts.h"
+#include "loadparts.h"
 #endif
 #include "Ball.h"
 #include "RCFile.h"
@@ -63,7 +63,6 @@ PlayerView::~PlayerView() {
 void *
 PlayerView::LoadData(void *dum) {
 #if !defined(CHIYO)
-
   motion_Fnormal = new partsmotion("Parts/Fnormal/Fnormal");
   motion_Bnormal = new partsmotion("Parts/Bnormal/Bnormal");
   motion_Fdrive = new partsmotion("Parts/Fdrive/Fdrive");
@@ -76,8 +75,9 @@ PlayerView::LoadData(void *dum) {
 #else /* CHIYO */
 # define GETBODY(name) \
     motion_##name = reinterpret_cast<body_parts*>(parts::getobject(#name)); \
-    if (!motion_##name || parts::sym_body != motion_##name->type()) \
-        { printf("Could not load " #name "\n"); exit(1); }
+    if (!motion_##name || parts::sym_body != motion_##name->type()) {\
+        printf("Could not load " #name "\n"); exit(1); \
+    }
 
   chdir("Parts");
   parts::loadobjects("body.txt");
@@ -93,7 +93,7 @@ PlayerView::LoadData(void *dum) {
   chdir("..");
 
 # undef GETBODY
-#endif /* CHIYO */
+#endif /* !CHIYO */
 
   return NULL;
 }
@@ -152,9 +152,9 @@ PlayerView::RedrawAlpha() {
 
 bool
 PlayerView::SubRedraw() {
-  double x, y, deg;
-  double degx, degy, degz;
-  double ydiff;
+//  double x, y, deg;
+//  double degx, degy, degz;
+//  double ydiff;
 
   glPushMatrix();
   glTranslatef( m_player->GetX()-0.3F*m_player->GetSide(),

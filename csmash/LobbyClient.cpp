@@ -26,16 +26,6 @@
 #include <netinet/tcp.h>
 #endif
 
-#if defined(WIN32) || defined(__FreeBSD__)
-
-typedef int socklen_t;		/* mimic Penguin's typedef */
-
-#else	/* ! WIN32 */
-
-#define closesocket(FD) close(FD)
-
-#endif
-
 extern RCFile *theRC;
 
 extern bool isComm;
@@ -226,11 +216,11 @@ LobbyClient::PollServerMessage( gpointer data ) {
   while (1) {
     int max;
     FD_ZERO( &rdfds );
-    FD_SET( lobby->m_socket, &rdfds );
+    FD_SET( (SOCKET)lobby->m_socket, &rdfds );
     if ( listenSocket )
       FD_SET( listenSocket, &rdfds );
 
-    if ( lobby->m_socket > listenSocket )
+    if ( (SOCKET)lobby->m_socket > listenSocket )
       max = lobby->m_socket;
     else
       max = listenSocket;

@@ -19,17 +19,16 @@
 #include "matrix"
 #include "affine"
 
-
 #include "LoadImage.h"
 #include "parts.h"
 #include "loadparts.h"
 
-#define elif else if
-
-// ANSI C++ for () namescoping hack :-)
-#if defined(_MSC_VER) && _MSC_VER <= 1200
-# define for if(false);else for
+// for(;;) namescoping hack.
+// VC++ 6 is not compliant with latest ANSI C++ (but VC++7 does).
+#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+# define for if(0);else for
 #endif
+#define elif else if
 
 #define BEGIN_ANONYMOUS namespace {
 #define END_ANONYMOUS }
@@ -38,6 +37,7 @@
  *	Local data and functions
  ***********************************************************************/
 BEGIN_ANONYMOUS
+
 template <typename T>
 inline bool between(const T& a, const T& x, const T& b) {
     return a <= x && x <= b;
@@ -53,7 +53,24 @@ inline const T& clamp(const T& a, const T& x, const T& b) {
 inline bool streq(const char *a, const char *b) {
     return 0 == strcmp(a, b);
 }
-END_ANONYMOUS
+
+inline bool strieq(const char *a, const char *b) {
+#ifdef _WIN32
+    return 0 == _stricmp(a, b);
+#else
+    return 0 == strcasecmp(a, b);
+#endif
+}
+
+struct auto_fp
+{
+    FILE *fp;
+    bool needclose;
+    inline auto_fp(FILE *fp, bool b = true) : fp(fp), needclose(b) {}
+    inline ~auto_fp() { if (needclose && fp) fclose(fp); }
+    inline operator FILE*() { return fp; }
+    inline bool operator!() const { return !fp; }
+};
 
 bool loadAffine4F(const char *str, affine4F *pm)
 {
@@ -69,7 +86,7 @@ bool loadAffine4F(const char *str, affine4F *pm)
 	const char *token = strtok(line, delim);
 	if (!token) continue;
 	do {
-	    if (streq("Affine3", token)) continue;
+	    if (strieq("affine3", token)) continue;
 	    Float f = (Float)strtod(token, NULL);
 	    int x = i / 3;
 	    int y = i % 3;
@@ -84,27 +101,25 @@ bool loadAffine4F(const char *str, affine4F *pm)
     return true;
 }
 
-
+END_ANONYMOUS
 /***********************************************************************
  *	Class parts
  ***********************************************************************/
-
+// symbol table
+#define SYM(A) { parts::sym_##A, #A }
 static struct symtab_t {
     parts::symbol_t sym;
     const char *str;
 } symtab[] = {
-#define SYM(A) { parts::sym_##A, #A }
-    SYM(null),
-    SYM(load),
-    SYM(create),
-    SYM(polyhedron),
-    SYM(anim),
-    SYM(texture),
-    SYM(body),
-#undef SYM
+    SYM(null), SYM(load), SYM(create), SYM(polyhedron),
+    SYM(anim), SYM(texture), SYM(body),
     { parts::sym_unknown, NULL },
-    { parts::sym_unknown, "NanTheBLACK, our guru." }
+    { parts::sym_unknown, "NanTheBLACK, our guru:-p" }
 };
+#undef SYM
+
+// parts object store
+static parts_map partsmap;
 
 parts::symbol_t parts::getsym(const char *str)
 {
@@ -122,8 +137,6 @@ const char* parts::sym2str(parts::symbol_t sym)
     }
     return "sym_unknown";
 }
-
-static parts_map partsmap;
 
 parts* parts::getobject(const char* name)
 {
@@ -156,16 +169,6 @@ void parts::clearobjects()
     partsmap.clear();
 }
 
-struct auto_fp
-{
-    FILE *fp;
-    bool needclose;
-    inline auto_fp(FILE *fp, bool b = true) : fp(fp), needclose(b) {}
-    inline ~auto_fp() { if (needclose && fp) fclose(fp); }
-    inline operator FILE*() { return fp; }
-    inline bool operator!() { return !fp; }
-};
-
 bool parts::loadobjects(const char *str)
 {
     try {
@@ -193,7 +196,8 @@ bool parts::loadfile(const char *str)
 	++lineno;
 	int l = strlen(line);
 	int addline = 0;
-	while ('\\' == line[l-2]) {	// "\\\n"
+	while ('\\' == line[l-2]) {	// fgets() does not chop '\n'
+            // concat next line(s)
 	    int bufsize = clamp(0U, sizeof(line)-l, sizeof(line)-1);
 	    fgets(&line[l-2], bufsize, fp);
 	    if (feof((FILE*)fp)) break;
@@ -201,17 +205,15 @@ bool parts::loadfile(const char *str)
 	    ++addline;
 	}
 
-
 	int argc = 0;
-	const char *argv[128];
+	const char *argv[256];
 	const char *token = strtok(line, delim);
+        const int argcmax = sizeof(argv) / sizeof(const char*);
 	if (!token || '#' == *token) continue;
 	do {
 	    argv[argc++] = token;
-	    if (64 == argc) {
-		snprintf(line, sizeof(line),
-			 "%d: has 64 or more argv\n", lineno);
-		throw error(line);
+	    if (argcmax == argc) {
+                throw verror(lineno, "This line has %d or more arguments\n", argcmax);
 	    }	
 	} while (token = strtok(NULL, delim));
 	argv[argc] = NULL;
@@ -225,9 +227,7 @@ bool parts::loadfile(const char *str)
 	case sym_create:
 	    load_create(lineno, argc, argv, &optind); break;
 	default:
-	    snprintf(line, sizeof(line), "%d: error unknown command %s\n",
-		     lineno, token);
-	    throw error(line);
+            throw verror(lineno, "error unknown command %s\n", token);
 	}
 	lineno += addline;
     } while (!ferror((FILE*)fp));
@@ -239,20 +239,15 @@ bool parts::load_load(int lineno, int argc, const char *argv[], int* poptind)
 {
     int& optind = *poptind;
 
-    char line[256];
     const char *token = argv[optind++];
     if (!token) {
-	snprintf(line, sizeof(line), "%d: error type not specified\n",
-		 lineno);
-	throw error(line);
+	throw verror(lineno, "error type not specified\n");
     }
     symbol_t sym = getsym(token);
 
     const char *objectname = argv[optind++];
     if (!objectname) {
-	snprintf(line, sizeof(line),
-		 "%d: object name is not specified\n", lineno);
-	throw error(line);
+        throw verror(lineno, "object name is not specified\n");
     }
     
     const char *filename = argv[optind++];
@@ -261,9 +256,7 @@ bool parts::load_load(int lineno, int argc, const char *argv[], int* poptind)
 	texture_parts* object = new texture_parts(objectname);
 	if (!addobject(objectname, object)) {
 	    delete object;
-	    snprintf(line, sizeof(line),
-		     "%d: %s is already loaded\n", lineno, objectname);
-	    throw error(line);
+            throw verror(lineno, "%s is already loaded\n", objectname);
 	}
 	object->load(filename);
 	break;
@@ -273,9 +266,7 @@ bool parts::load_load(int lineno, int argc, const char *argv[], int* poptind)
 	polyhedron_parts *object = new polyhedron_parts(objectname);
 	if (!addobject(objectname, object)) {
 	    delete object;
-	    snprintf(line, sizeof(line),
-		     "%d: %s is already loaded\n", lineno, objectname);
-	    throw error(line);
+            throw verror(lineno, "%s is already loaded\n", objectname);
 	}
 	object->load(filename);
 	load_polyhedron(lineno, object, argc, argv, &optind);
@@ -287,38 +278,28 @@ bool parts::load_load(int lineno, int argc, const char *argv[], int* poptind)
 	anim_parts *object = new anim_parts(objectname);
 	if (!addobject(objectname, object)) {
 	    delete object;
-	    snprintf(line, sizeof(line),
-		     "%d: %s is already loaded\n", lineno, objectname);
-	    throw error(line);
+            throw verror(lineno, "%s is already loaded\n", objectname);
 	}
 	object->load(filename);
 	int i = 0;
 	while (const char *name = argv[optind++]) {
 	    parts *poly = getobject(name);
 	    if (!poly) {
-		snprintf(line, sizeof(line),
-			 "%d: %s not loaded\n", lineno, name);
-		throw error(line);
+                throw verror(lineno, "%s not loaded\n", name);
 	    }
 	    if (!object->assign(poly)) {
-		snprintf(line, sizeof(line),
-			 "%d: %s is not assignable\n", lineno, name);
-		throw error(line);
+                throw verror(lineno, "%s is not assignable\n", name);
 	    }
 	    ++i;
 	}
 	if (!i) {
-	    snprintf(line, sizeof(line),
-		     "%d: %s is empty object\n", lineno, objectname);
-	    printf(line);
+	    printf("%d: %s is empty object\n", lineno, objectname);
 	}
 	break;
     }	 /* anim */
 
     default:
-	snprintf(line, sizeof(line),
-		 "%d: error unknown type specified\n", lineno, token);
-	throw error(line);
+        throw verror(lineno, "error unknown type(%s) specified\n", token);
     }
 
     return true;
@@ -328,109 +309,85 @@ bool parts::load_polyhedron(int lineno, polyhedron_parts *object,
 			    int argc, const char* argv[], int *poptind)
 {
     int &optind = *poptind;
-    char line[256];
     const char *option;
     while (option = argv[optind++]) {
 	if ('-' != *option) {
-	    snprintf(line, sizeof(line),
-		     "%d: unknown option %s\n", lineno, option);
-	    throw error(line);
+            throw verror(lineno, "unknown option %s\n", option);
 	}
 	const char *operand = argv[optind++];
 	if (!operand) {
-	    snprintf(line, sizeof(line),
-		     "%d: no operadnd for %s\n", lineno, option);
-	    throw error(line);
+            throw verror(lineno, "no operadnd for %s\n", option);
 	}
 	switch (option[1]) {
 	case 'c': {	/* colormap */
 	    colormap cmap;
 	    if (!cmap.load(operand)) {
-		snprintf(line, sizeof(line),
-			 "%d: could not load colormap %s\n", lineno, operand);
-		throw error(line);
+                throw verror(lineno, "could not load colormap %s\n", operand);
 	    }
-	    object->object->cmap = cmap;	// copy all
+	    object->object->cmap = cmap;
 	    break;
 	}
 	case 't': {	/* texture */
 	    parts *tex = getobject(operand);
 	    if (!tex) {
-		snprintf(line, sizeof(line),
-			 "%d: texture %s not loaded\n", lineno, operand);
-		throw error(line);
+                throw verror(lineno, "texture %s not loaded\n", operand);
 	    }
 	    if (!object->assign(tex)) {
-		snprintf(line, sizeof(line),
-			 "%d: %s is not assignable\n", lineno, operand);
-		throw error(line);
+                throw verror(lineno, "%s is not assignable\n", operand);
 	    }
 	    break;
 	}
-	case 'm': {
+	case 'm': {     /* matrix */
 	    affine4F m;
-	    loadAffine4F(operand, &m);
+	    if (!loadAffine4F(operand, &m)) {
+                throw verror(lineno, "matrix cannot be loaded\n");
+            }
 	    *object->object *= m;
-	    object->object->getNormal();
 
 	    break;
 	}
 	default:
-	    snprintf(line, sizeof(line),
-		     "%d: unknown option %s\n", lineno, option);
-	    throw error(line);
+            throw verror(lineno, "unknown option %s\n", option);
 	}
     }
+    // create normal vectors of polyhedron
+    object->object->getNormal();
     return true;
 }
 
 bool parts::load_create(int lineno, int argc, const char *argv[], int *poptind)
 {
     int &optind = *poptind;
-
-    char buf[256];
     const char *token = argv[optind++];
     if (!token) {
-	snprintf(buf, sizeof(buf),
-		 "%d: type is not specified\n", lineno);
-	throw error(buf);
+        throw verror(lineno, "object type is not specified\n");
     }
     switch (getsym(token)) {
     case sym_body: {
 	const char *objectname = argv[optind++];
 	if (!objectname) {
-	    snprintf(buf, sizeof(buf),
-		     "%d: object name is not specified\n", lineno);
-	    throw error(buf);
+            throw verror(lineno, "object name is not specified\n");
 	}
 	body_parts *object = new body_parts(objectname);
 	if (!addobject(objectname, object)) {
-	    snprintf(buf, sizeof(buf),
-		     "%d: %s is already loaded\n", lineno, objectname);
-	    throw error(buf);
+            throw verror(lineno, "%s is already loaded\n", objectname);
 	}
 	int i = 0;
 	while (token = argv[optind++]) {
 	    parts* p = getobject(token);
 	    if (!p) {
-		snprintf(buf, sizeof(buf),
-			 "%d: %s is not loaded\n", lineno, token);
-		throw error(buf);
+                throw verror(lineno, "%s is not loaded\n", token);
 	    }
 	    object->assign(p);
 	    ++i;
 	}
 	if (!i) {
-	    snprintf(buf, sizeof(buf),
-		     "%d: %s is empty\n", lineno, objectname);
-	    printf(buf);
+            printf("%d: %s is empty\n", lineno, objectname);
 	}
 	break;
     }
     default:
-	snprintf(buf, sizeof(buf),
-		 "%d: type %s cannot be created\n", lineno, token);
-	throw error(buf);
+        throw verror("type %s cannot be created\n", token);
     }
     return true;
 }
@@ -440,14 +397,13 @@ bool parts::load_create(int lineno, int argc, const char *argv[], int *poptind)
  ***********************************************************************/
 bool texture_parts::load(const char *str)
 {
-    filename = "Parts/";
-    filename += str;
+    filename = str;
     return true;
 }
 
-void texture_parts::realize()
+bool texture_parts::realize()
 {
-    if (object) return;
+    if (object) return true;
 
     static int allowedsize[] = {
 	64, 128, 130, 256, 512, 0
@@ -455,9 +411,7 @@ void texture_parts::realize()
 
     ImageData img;
     if (!img.LoadFile(filename.c_str())) {
-	char buf[256];
-	snprintf(buf, sizeof(buf), "could not load texture %s\n", filename.c_str);
-	throw error(buf);
+        throw verror("could not load texture %s\n", filename.c_str);
     }
     int width = img.GetWidth();
     int height = img.GetHeight();
@@ -469,10 +423,8 @@ void texture_parts::realize()
 	if (height == allowedsize[i]) break;
     }
     if (0 == allowedsize[i] || 0 == allowedsize[j]) {
-	char buf[256];
-	snprintf(buf, sizeof(buf), "texture %s has illegal size(%d,%d)\n",
-		 filename.c_str(), width, height);
-	throw error(buf);
+        throw verror("texture %s has illegal size(%d,%d)\n",
+                     filename.c_str(), width, height);
     }
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -486,12 +438,15 @@ void texture_parts::realize()
     glTexImage2D(GL_TEXTURE_2D, 0, 3, width, height, 0,
 		 GL_RGBA, GL_UNSIGNED_BYTE, img.GetImage());
 
-    printf("texture %s is %d\n", filename.c_str(), object);
     if (0 == object) {
 	char buf[256];
-	snprintf(buf, sizeof(buf), "texture %s cannot be realized\n", filename.c_str());
+	snprintf(buf, sizeof(buf), "texture %s cannot be realized\n",
+                 filename.c_str());
 	printf(buf);
 	throw error(buf);
+        return false;
+    } else {
+        return true;
     }
 }
 
@@ -504,26 +459,20 @@ bool polyhedron_parts::load(const char *str)
     if (!object->points) {
 	delete object;
 	object = NULL;
-	char buf[256];
-	snprintf(buf, sizeof(buf), "polyhedron %s cannot be loaded\n", str);
-	throw error(buf);
+        throw verror("polyhedron %s cannot be loaded\n", str);
     }
     return true;
 }
 
 bool polyhedron_parts::assign(parts* a)
 {
-    char buf[256];
     switch (a->type()) {
     case sym_texture:
-//	object->texturename = reinterpret_cast<texture_parts*>(a)->object;
 	tex = reinterpret_cast<texture_parts*>(a);
 	break;
     default:
-	snprintf(buf, sizeof(buf),
-		 "%s(%s) cannot be assigned to polyhedron(%s)\n",
-		 a->name.c_str(), sym2str(a->type()), name.c_str());
-	throw error(buf);
+        throw verror("%s(%s) cannot be assigned to polyhedron(%s)\n",
+		 a->name.c_str(), a->typestr(), name.c_str());
     }
     return true;
 }
@@ -564,25 +513,24 @@ void polyhedron_parts::render() const
     }
 }
 
-void polyhedron_parts::renderWire() const
+void polyhedron_parts::renderWire(const vector3F& origin) const
 {
     polyhedron &poly = *object;
-
-    affine4F t;
-    glGetFloatv(GL_MODELVIEW_MATRIX, (float*)&t);
-    vector3F origin = vector3F(0) * ~t;
 
     glBegin(GL_LINES);
     for (int i = 0; poly.numEdges > i; ++i) {
 	int p0 = poly.edges[i].p0;
 	int p1 = poly.edges[i].p1;
 	bool draw = false;
-	vector3F v = poly.points[poly.edges[i].v0] - origin;
 	if (p1 >= 0) {
+            // Render if one polygon on the side of edge is visible
+            // while other side is not visible.
+            vector3F v = poly.points[poly.edges[i].v0] - origin;
 	    Float i0 = v * poly.planeNormal[p0];
 	    Float i1 = v * poly.planeNormal[p1];
 	    if (i0 * i1 <= 0) draw = true;
 	} else {
+            // This edge has a polygon only on one side.
 	    draw = true;
 	}
 	if (draw) {
@@ -601,25 +549,20 @@ bool anim_parts::load(const char *str)
 {
     object = new affineanim(str);
     if (!object->matrices) {
-	char buf[256];
-	snprintf(buf, sizeof(buf), "could not load anim %s\n", str);
-	throw error(buf);
+        throw verror("could not load anim %s\n", str);
     }
     return true;
 }
 
 bool anim_parts::assign(parts* a)
 {
-    char buf[256];
     switch (a->type()) {
     case sym_polyhedron:
 	poly.push_back(reinterpret_cast<polyhedron_parts*>(a));
 	break;
     default:
-	snprintf(buf, sizeof(buf),
-		 "%s(%s) cannot be assigned to anim(%s)\n",
-		 a->name.c_str(), sym2str(a->type()), name.c_str());
-	throw error(buf);
+	throw verror("%s(%s) cannot be assigned to anim(%s)\n",
+                     a->name.c_str(), a->typestr(), name.c_str());
     }
     return true;
 }
@@ -641,9 +584,14 @@ void anim_parts::renderWire(int frame) const
     affineanim &anim = *object;
     glPushMatrix();
     glMultMatrixf((float*)&anim[frame]);
+
+    affine4F t;
+    glGetFloatv(GL_MODELVIEW_MATRIX, (float*)&t);
+    vector3F origin = vector3F(0) * ~t;
+
     for (std::list<polyhedron_parts*>::const_iterator i = poly.begin();
 	 poly.end() != i; ++i) {
-	(*i)->renderWire();
+	(*i)->renderWire(origin);
     }
     glPopMatrix();
 }
@@ -653,16 +601,13 @@ void anim_parts::renderWire(int frame) const
  ***********************************************************************/
 bool body_parts::assign(parts* a)
 {
-    char buf[256];
     switch (a->type()) {
     case sym_anim:
 	object.push_back(reinterpret_cast<anim_parts*>(a));
 	break;
     default:
-	snprintf(buf, sizeof(buf),
-		 "%s(%s) cannot be assigned to body (%s)\n",
-		 a->name.c_str(), sym2str(a->type()), name.c_str());
-	throw error(buf);
+        throw verror("%s(%s) cannot be assigned to body (%s)\n",
+                     a->name.c_str(), a->typestr(), name.c_str());
     }
     return true;
 }

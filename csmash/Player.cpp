@@ -508,6 +508,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   else
     m_y += m_vy*TICK;
 
+#if 0
 // Go back to the endline before serve
   if ( Control::TheControl()->IsPlaying() && theBall.GetStatus() == 8 &&
        ((PlayGame *)Control::TheControl())->GetService() == GetSide() ) {
@@ -516,6 +517,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
     else if ( m_side < 0 && m_y < TABLELENGTH/2 )
       m_y = TABLELENGTH/2;
   }
+#endif
 
   // Auto backswing
   if ( m_swing == 0 ) {
@@ -1230,7 +1232,7 @@ Player::ExternalSwing( char *buf ) {
   b = ReadLong( b, swingSide );
   b = ReadLong( b, m_swing );
 
-  m_swingSide = (bool)swingSide;
+  m_swingSide = (bool)(swingSide != 0);
 
   return true;
 }

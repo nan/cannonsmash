@@ -81,8 +81,8 @@ public:
 
     void getNormal();
 
-private:
-    void getEdges();
+protected:
+    void initColormap();
 };
 
 /// polygon access object

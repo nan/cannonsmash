@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  _“ì ‹gG(Kanna Yoshihiro)
+// Copyright (C) 2001  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -57,8 +57,8 @@ bool
 MenuItemView2D::RedrawAlpha() {
   SDL_Rect rect;
 
-  rect.x = m_menuItem->GetX();
-  rect.y = m_menuItem->GetY();
+  rect.x = (short)m_menuItem->GetX();
+  rect.y = (short)m_menuItem->GetY();
   rect.w = m_imageBMP->w;
   rect.h = m_imageBMP->h;
 
@@ -71,3 +71,4 @@ MenuItemView2D::RedrawAlpha() {
 
   return true;
 }
+

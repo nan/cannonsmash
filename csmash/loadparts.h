@@ -10,15 +10,18 @@
 #ifndef __Yotsuya_ESESoft_07897981__loadparts_h__INCLUDED__
 #define __Yotsuya_ESESoft_07897981__loadparts_h__INCLUDED__
 /***********************************************************************/
+#include <stdarg.h>
 #include <map>
 #include <list>
-
 /* __BEGIN__BEGIN__ */
 
+/***********************************************************************
+ *	Class parts (root)
+ ***********************************************************************/
+class texture_parts;
 class polyhedron_parts;
 class anim_parts;
 class body_parts;
-class texture_parts;
 
 class parts
 {
@@ -30,6 +33,25 @@ public:
 	
 	inline error(const char *str) : str(str) {}
 	const char* what() const { return str; }
+    };
+    class verror : public error
+    {
+    public:
+        char buf[508];  // 512 - sizeof(char*)
+
+        inline verror(int lineno, const char *fmt, ...) : error(buf) {
+            int l = snprintf(buf, sizeof(buf), "%d: ", lineno);
+            va_list arg;
+            va_start(arg, fmt);
+            vsnprintf(&buf[l], sizeof(buf)-l, fmt, arg);
+            va_end(arg);
+        }            
+        inline verror(const char *fmt, ...) : error(buf) {
+            va_list arg;
+            va_start(arg, fmt);
+            vsnprintf(buf, sizeof(buf), fmt, arg);
+            va_end(arg);
+        }
     };
     
     enum symbol_t {
@@ -45,6 +67,7 @@ public:
 
     virtual bool load(const char*) = 0;
     virtual symbol_t type() const = 0;
+    virtual const char *typestr() const { return sym2str(type()); }
     virtual bool assign(parts* obejct) { return false; }
 
     static symbol_t getsym(const char *str);
@@ -60,14 +83,17 @@ protected:
     static bool loadfile(const char *str);
 
 private:
-    static bool load_create(int lineno, int argc, const char *argv[], int *optind);
-    static bool load_load(int lineno, int argc, const char *argv[], int *optind);
-    static bool load_polyhedron(int lineno, polyhedron_parts*, int ac, const char *av[], int *ind);
-
+    static bool load_create(int lineno, int ac, const char *av[], int *optind);
+    static bool load_load(int lineno, int ac, const char *av[], int *optind);
+    static bool load_polyhedron(int lineno, polyhedron_parts*,
+                                int ac, const char *av[], int *ind);
 public:
     string name;
 };
 
+/***********************************************************************
+ *	Class parts_map
+ ***********************************************************************/
 class parts_map : public std::map<parts::string, parts*>
 {
 public:
@@ -82,6 +108,9 @@ public:
     }
 };
 
+/***********************************************************************
+ *	Class texture_parts
+ ***********************************************************************/
 class texture_parts : public parts
 {
 public:
@@ -98,9 +127,15 @@ public:
     virtual symbol_t type() const { return sym_texture; }
     virtual bool load(const char *str);
 
-    void realize();
+public:
+    // Textures must be realized before glBindTextures().
+    // realize() will fail if GL library is not initialized yet.
+    bool realize();
 };
 
+/***********************************************************************
+ *	Class polyhedron_parts
+ ***********************************************************************/
 class polyhedron_parts : public parts
 {
 public:
@@ -114,10 +149,14 @@ public:
     virtual bool assign(parts*);
     virtual bool load(const char* str);
 
+public:
     void render() const;
-    void renderWire() const;
+    void renderWire(const vector3F &origin) const;
 };
 
+/***********************************************************************
+ *	Class anim_parts
+ ***********************************************************************/
 class anim_parts : public parts
 {
 public:
@@ -131,10 +170,14 @@ public:
     virtual bool assign(parts*);
     virtual bool load(const char* str);
 
+public:
     void render(int frame) const;
     void renderWire(int frame) const;
 };
 
+/***********************************************************************
+ *	Class body_parts
+ ***********************************************************************/
 class body_parts : public parts
 {
 public:
@@ -147,6 +190,7 @@ public:
     virtual bool assign(parts*);
     virtual bool load(const char* str) { return false; }
 
+public:
     void render(int frame) const;
     void renderWire(int frame) const;
 };
