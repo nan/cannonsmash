@@ -46,7 +46,7 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 
-AM_INIT_AUTOMAKE(csmash, 0.5.1, no-define)
+AM_INIT_AUTOMAKE(csmash, 0.5.2, no-define)
 
 AC_DEFINE_UNQUOTED(CANNONSMASH_DATADIR, "@prefix@/share/$PACKAGE/")
 
