@@ -27,7 +27,7 @@ public:
   virtual ~Control();
 
   virtual bool Init() = 0;
-  virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
+  virtual bool Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,
 		     int Histptr ) = 0;
   virtual bool LookAt( double &srcX, double &srcY, double &srcZ,

@@ -29,7 +29,7 @@ public:
 
   static void Create( long player, long com );
 
-  virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
+  virtual bool Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,
 		     int Histptr );
 
@@ -43,6 +43,8 @@ protected:
   bool m_smash;
   long m_smashCount;
   long m_smashPtr;
+
+  void ReplayAction( int &Histptr );
 };
 
 #endif	// _SoloPlay_

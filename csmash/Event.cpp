@@ -55,9 +55,6 @@ extern long wins;
 
 extern bool isComm;
 
-extern long score1;
-extern long score2;
-
 extern SDL_mutex *networkMutex;
 extern long timeAdj;
 
@@ -72,7 +69,7 @@ void CopyPlayerData( Player& dest, Player* src );
 void QuitGame();
 
 Event::Event() {
-  m_KeyHistory[0] = 0;
+  memset( &(m_KeyHistory[0]), 0, sizeof(SDL_keysym) );
   m_MouseXHistory[0] = BaseView::GetWinWidth()/2;
   m_MouseYHistory[0] = BaseView::GetWinHeight()/2;
   m_MouseBHistory[0] = 0;
@@ -104,6 +101,9 @@ Event::Init() {
     break;
   case MODE_MULTIPLAY:
     MultiPlay::Create( 0, RAND(2) );
+    break;
+  case MODE_HOWTO:
+    Howto::Create();
     break;
   case MODE_SELECT:
     PlayerSelect::Create();
@@ -223,7 +223,7 @@ Event::Move() {
 
 bool
 Event::IsModeChanged( long preMode ) {
-  if ( mode != preMode ){	// モード変更あり
+  if ( mode != preMode ) {	// mode change
     long p, q;
 
     switch ( mode ) {
@@ -281,7 +281,7 @@ Event::IsModeChanged( long preMode ) {
 void
 Event::Record() {
   long x, y;
-  long key;
+  SDL_keysym key;
   long btn;
 
   x = m_MouseXHistory[m_Histptr];
@@ -299,10 +299,8 @@ Event::Record() {
   long cnt = m_BacktrackBuffer[m_Histptr].count;
   char buf[1024];
 
-  if ( mode == MODE_MULTIPLAY ) {
-    //cnt += ((MultiPlay *)Control::TheControl())->GetTimeAdj();
+  if ( mode == MODE_MULTIPLAY )
     cnt += timeAdj;
-  }
 
   while ( cnt < 0 ) {
     sec--;
@@ -401,7 +399,7 @@ Event::Record() {
   // Warp Mouse Pointer
   SetNextMousePointer( x, y );
 
-  m_KeyHistory[m_Histptr] = 0;
+  memset( &(m_KeyHistory[m_Histptr]), 0, sizeof(SDL_keysym) );
   m_MouseXHistory[m_Histptr] = x;
   m_MouseYHistory[m_Histptr] = y;
   m_MouseBHistory[m_Histptr] = btn;
@@ -465,7 +463,7 @@ Event::KeyboardFunc( SDL_Event key, int x, int y ) {
     }
   }
 
-  Event::TheEvent()->m_KeyHistory[Event::TheEvent()->m_Histptr] = key.key.keysym.unicode;
+  Event::TheEvent()->m_KeyHistory[Event::TheEvent()->m_Histptr] = key.key.keysym;
 }
 
 void

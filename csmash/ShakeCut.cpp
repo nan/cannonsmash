@@ -57,7 +57,7 @@ ShakeCut::AddStatus( long diff ) {
 }
 
 bool
-ShakeCut::Move( unsigned long *KeyHistory, long *MouseXHistory,
+ShakeCut::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 	      long *MouseYHistory, unsigned long *MouseBHistory,
 	      int Histptr ) {
   Player::Move( KeyHistory, MouseXHistory, MouseYHistory,MouseBHistory,
@@ -104,7 +104,8 @@ ShakeCut::Swing( long spin ) {
 
   delete tmpBall;
 
-  if ( Control::TheControl()->GetThePlayer() == this && mode == MODE_MULTIPLAY )
+  if ( Control::TheControl()->GetThePlayer() == this &&
+       mode == MODE_MULTIPLAY )
     ::SendSwing( this );
 
   return true;
@@ -149,7 +150,8 @@ ShakeCut::StartSwing( long spin ) {
 
       m_swingSide = true;
 
-      if ( Control::TheControl()->GetThePlayer() == this && mode == MODE_MULTIPLAY )
+      if ( Control::TheControl()->GetThePlayer() == this &&
+	   mode == MODE_MULTIPLAY )
 	::SendSwing( this );
     } else {
       if ( (m_x-tmpBall->GetX())*m_side > 0 )
@@ -234,7 +236,8 @@ ShakeCut::HitBall() {
     theBall.Hit( vx, vy, vz, m_spin, this );
   } else {
     m_swingError = SWING_MISS;
-    if ( Control::TheControl()->GetThePlayer() == this && mode == MODE_MULTIPLAY )
+    if ( Control::TheControl()->GetThePlayer() == this &&
+	 mode == MODE_MULTIPLAY )
       Event::TheEvent()->SendBall();
   }
 
@@ -323,8 +326,6 @@ ShakeCut::CalcLevel( Ball *ball, double &diff, double &level, double &maxVy ) {
     level = 1 - fabs(targetY)/(TABLELENGTH/16)/40 -
       diff*fabs(targetY)/(TABLELENGTH/16)*1.2;
 
-  level -= (1-level)*m_spin/2;
-
   level *= (double)m_pow/20.0 + 0.5;
 
   if ( ForeOrBack() ) {
@@ -368,4 +369,7 @@ ShakeCut::CalcLevel( Ball *ball, double &diff, double &level, double &maxVy ) {
 	(fabs(m_spin)+fabs(ball->GetSpin()))*5.0;
     }
   }
+
+  if ( level > 1.0 )
+    level = 1.0;
 }

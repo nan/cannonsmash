@@ -69,7 +69,7 @@ PlayerSelect::Create() {
 }
 
 bool
-PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
+PlayerSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		    long *MouseYHistory, unsigned long *MouseBHistory,
 		    int Histptr ) {
   static long lastRotate = 0;
@@ -82,8 +82,8 @@ PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     return true;
   }
 
-  if ( (KeyHistory[Histptr] == SDLK_ESCAPE ||
-	KeyHistory[Histptr] == 'Q') && !isComm ) {
+  if ( (KeyHistory[Histptr].unicode == SDLK_ESCAPE ||
+	KeyHistory[Histptr].unicode == 'Q') && !isComm ) {
     mode = MODE_TITLE;
     return true;
   }

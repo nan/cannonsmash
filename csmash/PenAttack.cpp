@@ -57,7 +57,7 @@ PenAttack::AddStatus( long diff ) {
 }
 
 bool
-PenAttack::Move( unsigned long *KeyHistory, long *MouseXHistory,
+PenAttack::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 	      long *MouseYHistory, unsigned long *MouseBHistory,
 	      int Histptr ) {
   Player::Move( KeyHistory, MouseXHistory, MouseYHistory,MouseBHistory,
@@ -105,7 +105,7 @@ PenAttack::Swing( long spin ) {
 
   delete tmpBall;
 
-  if ( Control::TheControl()->GetThePlayer() == this && mode == MODE_MULTIPLAY )
+  if (Control::TheControl()->GetThePlayer() == this && mode == MODE_MULTIPLAY)
     ::SendSwing( this );
 
   return true;
@@ -150,7 +150,8 @@ PenAttack::StartSwing( long spin ) { // Argument is valid only on serve
 
       m_swingSide = true;
 
-      if ( Control::TheControl()->GetThePlayer() == this && mode == MODE_MULTIPLAY )
+      if ( Control::TheControl()->GetThePlayer() == this &&
+	   mode == MODE_MULTIPLAY )
 	::SendSwing( this );
     } else {
       if ( (m_x-tmpBall->GetX())*m_side > 0 )
@@ -235,7 +236,8 @@ PenAttack::HitBall() {
     theBall.Hit( vx, vy, vz, m_spin, this );
   } else {
     m_swingError = SWING_MISS;
-    if ( Control::TheControl()->GetThePlayer() == this && mode == MODE_MULTIPLAY )
+    if ( Control::TheControl()->GetThePlayer() == this &&
+	 mode == MODE_MULTIPLAY )
       Event::TheEvent()->SendBall();
   }
 
@@ -245,7 +247,7 @@ PenAttack::HitBall() {
 bool
 PenAttack::SwingType( Ball *ball, long spin ) {
   if ( (ball->GetStatus() == 3 && m_side == 1) ||
-       (ball->GetStatus() == 1 && m_side == -1) ){
+       (ball->GetStatus() == 1 && m_side == -1) ) {
     if ( fabs(ball->GetX()) < TABLEWIDTH/2 &&
 	 fabs(ball->GetY()) < TABLELENGTH/2 &&
 	 (ball->GetZ()-TABLEHEIGHT-NETHEIGHT)/fabs(ball->GetY()) <
@@ -368,4 +370,7 @@ PenAttack::CalcLevel(Ball *ball, double &diff, double &level, double &maxVy) {
 	(fabs(m_spin)+fabs(ball->GetSpin()))*4.0;
     }
   }
+
+  if ( level > 1.0 )
+    level = 1.0;
 }

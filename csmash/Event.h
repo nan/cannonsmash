@@ -83,7 +83,7 @@ protected:
 
   static void ClearBacktrack();
 
-  unsigned long m_KeyHistory[MAX_HISTORY];	// History of key input
+  SDL_keysym m_KeyHistory[MAX_HISTORY];		// History of key input
   long m_MouseXHistory[MAX_HISTORY];		// History of mouse move
   long m_MouseYHistory[MAX_HISTORY];		// History of mouse move
   unsigned long m_MouseBHistory[MAX_HISTORY];	// History of mouse button

@@ -90,9 +90,9 @@ Title::Create() {
 }
 
 bool
-Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
-		    long *MouseYHistory, unsigned long *MouseBHistory,
-		    int Histptr ) {
+Title::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
+	     long *MouseYHistory, unsigned long *MouseBHistory,
+	     int Histptr ) {
   long last = Histptr-1;
   if ( last < 0 )
     last = MAX_HISTORY-1;
@@ -104,8 +104,8 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
   switch ( m_selectMode ) {
   case MENU_MAIN:
     // Get key input
-    if ( KeyHistory[Histptr] != KeyHistory[last] ) {
-      switch ( KeyHistory[Histptr] ) {
+    if ( KeyHistory[Histptr].unicode != KeyHistory[last].unicode ) {
+      switch ( KeyHistory[Histptr].unicode ) {
       case '8':
       case SDLK_UP:
 	SetSelected( m_selected-1 );
@@ -124,8 +124,8 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
     break;
   case MENU_CONFIG:
     // Get key input
-    if ( KeyHistory[Histptr] != KeyHistory[last] ) {
-      switch ( KeyHistory[Histptr] ) {
+    if ( KeyHistory[Histptr].unicode != KeyHistory[last].unicode ) {
+      switch ( KeyHistory[Histptr].unicode ) {
       case '8':
       case SDLK_UP:
 	SetSelected( m_selected-1 );
@@ -154,7 +154,8 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
     }
   }
 
-  if ( m_selectMode == MENU_CONFIG && KeyHistory[Histptr] == SDLK_ESCAPE ) {
+  if ( m_selectMode == MENU_CONFIG &&
+       KeyHistory[Histptr].unicode == SDLK_ESCAPE ) {
     m_selectMode = MENU_MAIN;
     CreateMenu( m_selectMode );
     m_selected = 0;
@@ -171,8 +172,8 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   if ( ((MouseBHistory[Histptr]&BUTTON_LEFT) && 
        !(MouseBHistory[last]&BUTTON_LEFT)) ||
-       (KeyHistory[Histptr] == SDLK_RETURN &&
-	KeyHistory[last] != SDLK_RETURN) ) {
+       (KeyHistory[Histptr].unicode == SDLK_RETURN &&
+	KeyHistory[last].unicode != SDLK_RETURN) ) {
     switch ( m_selectMode ) {
     case MENU_MAIN:
       switch ( m_selected ) {

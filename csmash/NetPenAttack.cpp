@@ -48,7 +48,7 @@ NetPenAttack::~NetPenAttack() {
 }
 
 bool
-NetPenAttack::Move( unsigned long *KeyHistory, long *MouseXHistory,
+NetPenAttack::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		    long *MouseYHistory, unsigned long *MouseBHistory,
 		    int Histptr ) {
   PenAttack::Move( KeyHistory, MouseXHistory, MouseYHistory,MouseBHistory,

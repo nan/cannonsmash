@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  ê_ìÏ ãgçG(Kanna Yoshihiro)
+// Copyright (C) 2001  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ public:
 
   static void Create();
 
-  virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
+  virtual bool Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,
 		     int Histptr );
 

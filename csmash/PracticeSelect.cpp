@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001, 2002  ê_ìÏ ãgçG(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -62,7 +62,7 @@ PracticeSelect::Create() {
 }
 
 bool
-PracticeSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
+PracticeSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		    long *MouseYHistory, unsigned long *MouseBHistory,
 		    int Histptr ) {
   static long lastRotate = 0;
@@ -71,8 +71,8 @@ PracticeSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
   long *rotate;
   long *selected;
 
-  if ( (KeyHistory[Histptr] == SDLK_ESCAPE ||
-	KeyHistory[Histptr] == 'Q') && !isComm ) {
+  if ( (KeyHistory[Histptr].unicode == SDLK_ESCAPE ||
+	KeyHistory[Histptr].unicode == 'Q') && !isComm ) {
     mode = MODE_TITLE;
     return true;
   }

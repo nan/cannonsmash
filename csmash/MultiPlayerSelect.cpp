@@ -73,7 +73,7 @@ MultiPlayerSelect::Create() {
 }
 
 bool
-MultiPlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
+MultiPlayerSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 			 long *MouseYHistory, unsigned long *MouseBHistory,
 			 int Histptr ) {
   if ( m_selected > 500 && m_opponentSelected > 500 ) {

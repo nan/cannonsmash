@@ -101,7 +101,7 @@ Opening::Create() {
 }
 
 bool
-Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
+Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 	       long *MouseYHistory, unsigned long *MouseBHistory,
 	       int Histptr ) {
   long phrase, mod;
@@ -1231,7 +1231,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   m_count++;
 
-  if ( KeyHistory[Histptr] == SDLK_ESCAPE || MouseBHistory[Histptr] 
+  if ( KeyHistory[Histptr].unicode == SDLK_ESCAPE || MouseBHistory[Histptr] 
        || phrase > 350 ) {
     mode = MODE_TITLE;
     if ( theRC->gmode != GMODE_SIMPLE )

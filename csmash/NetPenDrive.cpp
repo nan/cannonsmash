@@ -48,7 +48,7 @@ NetPenDrive::~NetPenDrive() {
 }
 
 bool
-NetPenDrive::Move( unsigned long *KeyHistory, long *MouseXHistory,
+NetPenDrive::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		   long *MouseYHistory, unsigned long *MouseBHistory,
 		   int Histptr ) {
   PenDrive::Move( KeyHistory, MouseXHistory, MouseYHistory,MouseBHistory,

@@ -47,7 +47,7 @@ NetShakeCut::~NetShakeCut() {
 }
 
 bool
-NetShakeCut::Move( unsigned long *KeyHistory, long *MouseXHistory,
+NetShakeCut::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 	      long *MouseYHistory, unsigned long *MouseBHistory,
 	      int Histptr ) {
   ShakeCut::Move( KeyHistory, MouseXHistory, MouseYHistory,MouseBHistory,

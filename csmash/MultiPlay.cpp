@@ -142,14 +142,14 @@ MultiPlay::Create( long player, long com ) {
 }
 
 bool
-MultiPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
+MultiPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		 long *MouseYHistory, unsigned long *MouseBHistory,
 		 int Histptr ) {
   bool reDraw = false;
 
   theBall.Move();
   reDraw |= m_thePlayer->Move( KeyHistory, MouseXHistory,
-			     MouseYHistory, MouseBHistory, Histptr );
+			       MouseYHistory, MouseBHistory, Histptr );
   reDraw |= m_comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
 
   return reDraw;

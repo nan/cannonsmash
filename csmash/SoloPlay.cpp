@@ -72,40 +72,19 @@ SoloPlay::Create( long player, long com ) {
 }
 
 bool
-SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
+SoloPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		    long *MouseYHistory, unsigned long *MouseBHistory,
 		    int Histptr ) {
   bool reDraw = false;
   long prevStatus = theBall.GetStatus();
-  static long delayCounter = 0;
 
-  if ( KeyHistory[Histptr] == 'Q' ) {
+  if ( KeyHistory[Histptr].unicode == 'Q' ) {
     mode = MODE_TITLE;
     return true;
   }
 
   if ( m_smashPtr >= 0 ) {	// Smash replay
-    // If mouse button is pressed, stop replay
-    // (Unless it is the last 1 second). 
-    if ( Event::TheEvent()->m_mouseButton && m_smashCount < 1 ) {
-      Histptr = m_smashPtr;
-      SmashEffect( false, Histptr );
-      m_smashCount = 0;
-      m_smashPtr = -1;
-      m_smash = false;
-
-      return true;
-    }
-
-    delayCounter++;
-    if ( theBall.GetStatus() == 3 &&
-	 (delayCounter%5) != 0 ) {
-      Histptr--;
-      if ( Histptr < 0 )
-	Histptr = MAX_HISTORY-1;
-      Event::TheEvent()->BackTrack(Histptr);
-      return true;
-    }
+    ReplayAction( Histptr );
 
     if ( Histptr == m_smashPtr ) {
       SmashEffect(false, Histptr);
@@ -142,6 +121,7 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
 #endif
   reDraw |= m_comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
 
+  // Check smash replay
   if ( theBall.GetStatus() == 1 && prevStatus != 1 ) {
     if ( hypot( theBall.GetVY(), theBall.GetVZ() ) > 8.0 ) {
       m_smash = true;
@@ -236,4 +216,31 @@ SoloPlay::SmashEffect( bool start, long histPtr ) {
   }
 
   return smashPtr;
+}
+
+void 
+SoloPlay::ReplayAction( int &Histptr ) {
+  static long delayCounter = 0;
+
+  // If mouse button is pressed, stop replay
+  // (Unless it is the last 1 second). 
+  if ( Event::TheEvent()->m_mouseButton && m_smashCount < 1 ) {
+    Histptr = m_smashPtr;
+    SmashEffect( false, Histptr );
+    m_smashCount = 0;
+    m_smashPtr = -1;
+    m_smash = false;
+
+    return;
+  }
+
+  delayCounter++;
+  if ( theBall.GetStatus() == 3 &&
+       (delayCounter%5) != 0 ) {
+    Histptr--;
+    if ( Histptr < 0 )
+      Histptr = MAX_HISTORY-1;
+    Event::TheEvent()->BackTrack(Histptr);
+    return;
+  }
 }

@@ -36,6 +36,7 @@
 #define SWING_CUT	4	// 
 #define SWING_BLOCK	5	// 
 
+
 class PlayerView;
 class HitMark;
 class Ball;
@@ -64,7 +65,7 @@ public:
   //virtual bool Reset( struct PlayerData *p );
   virtual bool Reset( Player *p );
 
-  virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
+  virtual bool Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,
 		     int Histptr );
 
@@ -181,7 +182,7 @@ protected:
   double m_lastSendVZ;
   long m_lastSendCount;
 
-  virtual bool KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
+  virtual bool KeyCheck( SDL_keysym *KeyHistory, long *MouseXHistory,
 			 long *MouseYHistory, unsigned long *MouseBHistory,
 			 int Histptr );
   virtual bool Swing( long power );

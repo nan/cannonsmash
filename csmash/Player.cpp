@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -658,7 +658,9 @@ const char keytable[][5] = {
     }
   }
 
-  if ( KeyHistory[Histptr].scancode < 62 && code < 0 ) {	// for X11
+  if ( KeyHistory[Histptr].scancode >= 8 && 
+       KeyHistory[Histptr].scancode < 62 && 
+       code < 0 ) {	// for X11
     int i = 0;
     while (keytable[KeyHistory[Histptr].scancode-8][i]) {
       if ( keytable[KeyHistory[Histptr].scancode-8][i]

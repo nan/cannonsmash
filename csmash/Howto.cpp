@@ -50,7 +50,6 @@ Howto::~Howto() {
 bool
 Howto::Init() {
   m_View = (HowtoView *)View::CreateView( VIEW_HOWTO );
-
   m_View->Init( this );
 
   BaseView::TheView()->AddView( m_View );
@@ -73,7 +72,7 @@ Howto::Create() {
 }
 
 bool
-Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
+Howto::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 	     long *MouseYHistory, unsigned long *MouseBHistory,
 	     int Histptr ) {
   if ( IsMove() ) {
@@ -82,7 +81,7 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     m_comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
   }
 
-  if ( KeyHistory[Histptr] == SDLK_ESCAPE ) {
+  if ( KeyHistory[Histptr].unicode == SDLK_ESCAPE ) {
     mode = MODE_TITLE;
     return true;
   }

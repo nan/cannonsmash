@@ -58,7 +58,7 @@ PenDrive::AddStatus( long diff ) {
 }
 
 bool
-PenDrive::Move( unsigned long *KeyHistory, long *MouseXHistory,
+PenDrive::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 	      long *MouseYHistory, unsigned long *MouseBHistory,
 	      int Histptr ) {
   Player::Move( KeyHistory, MouseXHistory, MouseYHistory,MouseBHistory,
@@ -105,7 +105,8 @@ PenDrive::Swing( long spin ) {
 
   delete tmpBall;
 
-  if ( Control::TheControl()->GetThePlayer() == this && mode == MODE_MULTIPLAY )
+  if ( Control::TheControl()->GetThePlayer() == this &&
+       mode == MODE_MULTIPLAY )
     ::SendSwing( this );
 
   return true;
@@ -150,7 +151,8 @@ PenDrive::StartSwing( long spin ) { // Argument is valid only on serve
 
       m_swingSide = true;
 
-      if ( Control::TheControl()->GetThePlayer() == this && mode == MODE_MULTIPLAY )
+      if ( Control::TheControl()->GetThePlayer() == this &&
+	   mode == MODE_MULTIPLAY )
 	::SendSwing( this );
     } else {
       if ( (m_x-tmpBall->GetX())*m_side > 0 )
@@ -246,7 +248,8 @@ PenDrive::HitBall() {
     theBall.Hit( vx, vy, vz, m_spin, this );
   } else {
     m_swingError = SWING_MISS;
-    if ( Control::TheControl()->GetThePlayer() == this && mode == MODE_MULTIPLAY )
+    if ( Control::TheControl()->GetThePlayer() == this &&
+	 mode == MODE_MULTIPLAY )
       Event::TheEvent()->SendBall();
   }
 
@@ -389,4 +392,7 @@ PenDrive::CalcLevel( Ball *ball, double &diff, double &level, double &maxVy ) {
 	(fabs(m_spin)+fabs(ball->GetSpin()))*4.0;
     }
   }
+
+  if ( level > 1.0 )
+    level = 1.0;
 }
