@@ -65,7 +65,8 @@ public:
 
   virtual bool Init();
 
-  virtual bool Reset( struct PlayerData *p );
+  //virtual bool Reset( struct PlayerData *p );
+  virtual bool Reset( Player *p );
 
   virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,
@@ -100,6 +101,9 @@ public:
   virtual long   GetSwingError() { return m_swingError; }
   virtual long   GetAfterSwing() { return m_afterSwing; }
 
+  virtual long   GetDragX() { return m_dragX; }
+  virtual long   GetDragY() { return m_dragY; }
+
   virtual bool   GetShoulder( double &x, double &y, double &deg );
   virtual bool   GetElbow( double &degx, double& degy );
   virtual bool   GetHand( double &degx, double &degy, double &degz );
@@ -121,9 +125,9 @@ public:
   virtual bool SendLocation( int sd );
   virtual bool SendAll( int sd );
 
-  virtual bool GetModifiedTarget( double &targetX, double &targetY ) = 0;
+  virtual bool GetModifiedTarget( double &targetX, double &targetY );	// 本来なら pure virtual
 
-  virtual void CalcLevel( Ball *ball, double &diff, double &level, double &maxVy ) = 0;
+  virtual void CalcLevel( Ball *ball, double &diff, double &level, double &maxVy );	// 本来なら pure virtual
 protected:
   long m_playerType;	// Playerの種類
 
@@ -164,6 +168,9 @@ protected:
 
   double m_stamina;	// 体力
 
+  long m_dragX;
+  long m_dragY;		// マウスのドラッグ量
+
   PlayerView* m_View;
 
   HitMark *m_hitMark;
@@ -172,10 +179,10 @@ protected:
   virtual bool KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
 			 long *MouseYHistory, unsigned long *MouseBHistory,
 			 int Histptr );		// キー入力処理
-  virtual bool Swing( long power ) = 0;
-  virtual bool StartSwing( long power ) = 0;
+  virtual bool Swing( long power );	// 本来なら pure virtual
+  virtual bool StartSwing( long power );// 本来なら pure virtual
 
-  virtual bool HitBall() = 0;
+  virtual bool HitBall();		// 本来なら pure virtual
 
   virtual bool SwingError();
 };

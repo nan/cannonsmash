@@ -18,6 +18,8 @@
 
 #include "ttinc.h"
 
+extern bool isSimple;
+
 GLuint HowtoView::m_textures[4] = {0, 0, 0, 0};
 
 HowtoView::HowtoView() {
@@ -269,7 +271,8 @@ HowtoView::RedrawAlpha() {
 	      &m_howtoText[m_howto->GetMode()][0] );
   }
 
-  glEnable(GL_DEPTH_TEST);
+  if (!isSimple)
+    glEnable(GL_DEPTH_TEST);
 
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();

@@ -25,7 +25,8 @@ extern Player* comPlayer;
 extern Ball theBall;
 extern Event theEvent;
 
-extern void CopyPlayerData( struct PlayerData& dest, Player* src );
+//extern void CopyPlayerData( struct PlayerData& dest, Player* src );
+extern void CopyPlayerData( Player& dest, Player* src );
 
 SoloPlay::SoloPlay() {
   m_smash = false;
@@ -76,7 +77,7 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	 (delayCounter%5) != 0 ) {
       Histptr--;
       if ( Histptr < 0 )
-	Histptr = MAX_HISTORY;
+	Histptr = MAX_HISTORY-1;
       theEvent.BackTrack(Histptr);
       return true;
     }
@@ -163,18 +164,22 @@ SoloPlay::LookAt( double &srcX, double &srcY, double &srcZ,
 
 long
 SoloPlay::SmashEffect( bool start, long histPtr ) {
-  static struct PlayerData p1, p2;
+  static Player p1, p2;
   static Ball b;
+  static long score1, score2;
+
   long smashPtr;
 
   smashPtr = histPtr-1;
   if ( smashPtr < 0 )
-    smashPtr = MAX_HISTORY;
+    smashPtr = MAX_HISTORY-1;
 
   if (start) {
     CopyPlayerData( p1, thePlayer );
     CopyPlayerData( p2, comPlayer );
     b = theBall;
+    score1 = m_Score1;
+    score2 = m_Score2;
 
     for ( int i = 0 ; i < MAX_HISTORY ; i++ ) {
       theEvent.BackTrack( histPtr );
@@ -183,7 +188,7 @@ SoloPlay::SmashEffect( bool start, long histPtr ) {
 
       histPtr--;
       if ( histPtr < 0 )
-	histPtr = MAX_HISTORY;
+	histPtr = MAX_HISTORY-1;
     }
 
     theEvent.BackTrack( histPtr );
@@ -191,6 +196,8 @@ SoloPlay::SmashEffect( bool start, long histPtr ) {
     thePlayer->Reset( &p1 );
     comPlayer->Reset( &p2 );
     theBall = b;
+    m_Score1 = score1;
+    m_Score2 = score2;
   }
 
   return smashPtr;

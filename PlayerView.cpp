@@ -22,6 +22,7 @@
 extern bool isPolygon;
 extern bool isLighting;
 extern bool isWireFrame;
+extern bool isSimple;
 
 #if HAVE_LIBPTHREAD
 extern pthread_mutex_t loadMutex;
@@ -195,20 +196,26 @@ PlayerView::SubRedraw() {
     }
 
 //    glEnable(GL_CULL_FACE);
-    if (m_player == comPlayer) {
-      motion->render(swing);
-    }
-    if (m_player == thePlayer) {
-      if ( isWireFrame )
-	motion->renderWire(swing);
-      else {
-	glDisable(GL_DEPTH_TEST);
-	glDepthMask(0);
+    if ( isSimple )
+      motion->renderWire(swing);
+    else {
+      if (m_player == comPlayer) {
 	motion->render(swing);
       }
+      if (m_player == thePlayer) {
+	if ( isWireFrame )
+	  motion->renderWire(swing);
+	else {
+	  glDisable(GL_DEPTH_TEST);
+	  glDepthMask(0);
+	  motion->render(swing);
+	  glDepthMask(1);
+	  glEnable(GL_DEPTH_TEST);
+	}
+      }
     }
+
 //    glDisable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
 
   } else {
     m_player->GetShoulder( x, y, deg );
@@ -370,7 +377,7 @@ PlayerView::SubRedraw() {
     count++;
   }
 
-  glDepthMask(1);
+//  glDepthMask(1);
 
   return true;
 }

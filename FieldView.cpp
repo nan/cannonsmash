@@ -103,11 +103,11 @@ FieldView::Redraw() {
   if ( isTexture )
     glEnable(GL_TEXTURE_2D);
 
+  glColor4f(0.8, 0.8, 0.8, 0.0);
+
+  glCallList( m_offset );
+
   if ( !isSimple ) {
-    glColor4f(0.8, 0.8, 0.8, 0.0);
-
-    glCallList( m_offset );
-
     glBindTexture( GL_TEXTURE_2D, m_wall[0] );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
@@ -127,7 +127,7 @@ FieldView::Redraw() {
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glBegin(GL_QUADS);
-      glNormal3f( 0.0, 1.0, 0.0 );
+    glNormal3f( 0.0, 1.0, 0.0 );
       glTexCoord2f(0.0, 1.0); glVertex3f( -AREAXSIZE, -AREAYSIZE, 0.0 );
       glTexCoord2f(1.0, 1.0); glVertex3f(  AREAXSIZE, -AREAYSIZE, 0.0 );
       glTexCoord2f(1.0, 0.0); glVertex3f(  AREAXSIZE, -AREAYSIZE, AREAZSIZE);

@@ -205,29 +205,8 @@ Player::Init() {
 }
 
 bool
-Player::Reset( struct PlayerData *p ) {
-  m_playerType = p->playerType;
-  m_side = p->side;
-  m_x = p->x;
-  m_y = p->y;
-  m_z = p->z;
-  m_vx = p->vx;
-  m_vy = p->vy;
-  m_vz = p->vz;
-  m_status = p->status;
-  m_swing = p->swing;
-  m_swingType = p->swingType;
-  m_swingSide = p->swingSide;
-  m_afterSwing = p->afterSwing;
-  m_swingError = p->swingError;
-  m_targetX = p->targetX;
-  m_targetY = p->targetY;
-  m_eyeX = p->eyeX;
-  m_eyeY = p->eyeY;
-  m_eyeZ = p->eyeZ;
-  m_pow = p->pow;
-  m_spin = p->spin;
-  m_stamina = p->stamina;
+Player::Reset( Player *p ) {
+  *this = *p;
 
   return true;
 }
@@ -238,6 +217,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	      int Histptr ) {
   static double  lastSendX = 0,  lastSendY = 0,  lastSendZ = 0;
   static double lastSendVX = 0, lastSendVY = 0, lastSendVZ = 0;
+  static long lastSendCount = 0;
 
 // swing
   if ( m_swing > 0 ){
@@ -495,14 +475,19 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   KeyCheck( KeyHistory, MouseXHistory, MouseYHistory, MouseBHistory,Histptr );
 
   if ( thePlayer == this && mode == MODE_MULTIPLAY ) {
+    lastSendCount++;
+
     lastSendX += lastSendVX*TICK;
     lastSendY += lastSendVY*TICK;
     lastSendZ += lastSendVZ*TICK;
 
-    if ( fabs(lastSendX-m_x) >= 0.1   || fabs(lastSendY-m_y) >= 0.1 ||
+    if ( lastSendCount >= 100 ||
+	 fabs(lastSendX-m_x) >= 0.1   || fabs(lastSendY-m_y) >= 0.1 ||
 	 fabs(lastSendZ-m_z) >= 0.1   || fabs(lastSendVX-m_vx) >= 1.0 ||
 	 fabs(lastSendVY-m_vy) >= 1.0 || fabs(lastSendVZ-m_vz) >= 1.0 ) {
       if ( theEvent.SendPlayer( this ) ) {
+	lastSendCount = 0;
+
 	lastSendX = m_x;
 	lastSendY = m_y;
 	lastSendZ = m_z;
@@ -622,12 +607,40 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
     }
   }
 
+#if 0
   m_vx = (MouseXHistory[Histptr] - BaseView::GetWinWidth()/2) /
     (BaseView::GetWinWidth()/40)*GetSide();
   m_vy = -(MouseYHistory[Histptr] - BaseView::GetWinHeight()/2) /
     (BaseView::GetWinHeight()/40)*GetSide();
   m_vx /= 4;
   m_vy /= 4;	// 0.25刻み
+#else
+  // スイング中は速度が変わらないようにする. こうすることで
+  // MultiPlay 時により同期をとりやすくなる. 
+  // その理由は, スイングを開始した時点で Player のインパクト
+  // までの行動が決定されるため, スイング開始時に情報交換すれば
+  // 同期がとれるようになるためである. これまでは, インパクト時に
+  // 情報を交換していたので, 0.1秒早く同期がとれることになる. 
+
+  // ちなみに, スイング後のマウスのドラッグによってボールの回転を
+  // 制御する場合, この方法は使えないかも知れない. 
+
+  if ( m_swing > 10 && m_swing <= 20 ) {
+    long hptr = Histptr-(m_swing-11);
+    if ( hptr < 0 )
+      hptr += MAX_HISTORY;
+
+    m_dragX = MouseXHistory[Histptr]-MouseXHistory[hptr];
+    m_dragY = MouseYHistory[Histptr]-MouseYHistory[hptr];
+  } else {
+    m_vx = (MouseXHistory[Histptr] - BaseView::GetWinWidth()/2) /
+      (BaseView::GetWinWidth()/40)*GetSide();
+    m_vy = -(MouseYHistory[Histptr] - BaseView::GetWinHeight()/2) /
+      (BaseView::GetWinHeight()/40)*GetSide();
+    m_vx /= 4;
+    m_vy /= 4;	// 0.25刻み
+  }
+#endif
 
   mouse = MouseBHistory[Histptr];
   if ( Histptr-1 < 0 )
@@ -1225,4 +1238,29 @@ Player::SendAll( int sd ) {
   SendDouble( sd, m_stamina );
 
   return true;
+}
+
+// 以下, 必ずオーバーライドすること. 
+bool
+Player::GetModifiedTarget( double &targetX, double &targetY ) {
+  return false;
+}
+
+void
+Player::CalcLevel( Ball *ball, double &diff, double &level, double &maxVy ) {
+}
+
+bool
+Player::Swing( long power ) {
+  return false;
+}
+
+bool
+Player::StartSwing( long power ) {
+  return false;
+}
+
+bool
+Player::HitBall() {
+  return false;
 }

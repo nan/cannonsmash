@@ -19,6 +19,7 @@
 #include "ttinc.h"
 
 extern bool isTexture;
+extern bool isSimple;
 
 GLuint HitMark::m_textures[2] = {0, 0};
 
@@ -217,7 +218,8 @@ HitMark::RedrawAlpha() {
   glPopMatrix();
 
   glDepthMask(1);
-  glEnable(GL_DEPTH_TEST);
+  if (!isSimple)
+    glEnable(GL_DEPTH_TEST);
 
   return true;
 }

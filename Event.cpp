@@ -44,7 +44,11 @@ extern bool isComm;
 long _perfCount;
 long perfs;
 
-void CopyPlayerData( struct PlayerData& dest, Player* src );
+long _backTrackCount = 0;
+double backTracks = 0;
+
+//void CopyPlayerData( struct PlayerData& dest, Player* src );
+void CopyPlayerData( Player& dest, Player* src );
 
 Event::Event() {
   m_KeyHistory[0] = 0;
@@ -276,6 +280,7 @@ Event::KeyboardFunc( unsigned char key, int x, int y ) {
 #if (GLUT_API_VERSION < 4 && GLUT_XLIB_IMPLEMENTATION < 13)
   if ( key == 'Q' ) {
     printf( "Avg = %f\n", (double)perfs/_perfCount );
+    printf( "BackTrack = %f\n", backTracks/_backTrackCount );
     ClearObject();
     exit(0);
   }
@@ -287,6 +292,7 @@ void
 Event::KeyUpFunc( unsigned char key, int x, int y ) {
   if ( key == 'Q' ) {
     printf( "Avg = %f\n", (double)perfs/_perfCount );
+    printf( "BackTrack = %f\n", backTracks/_backTrackCount );
     ClearObject();
     exit(0);
   }
@@ -331,31 +337,11 @@ Event::ButtonFunc( int button, int state, int x, int y ) {
 }
 
 void
-CopyPlayerData( struct PlayerData& dest, Player* src ) {
+CopyPlayerData( Player& dest, Player* src ) {
   if ( !src )
     return;
 
-  dest.playerType = src->GetPlayerType();
-  dest.side = src->GetSide();
-  dest.x = src->GetX();
-  dest.y = src->GetY();
-  dest.z = src->GetZ();
-  dest.vx = src->GetVX();
-  dest.vy = src->GetVY();
-  dest.vz = src->GetVZ();
-  dest.status = src->GetStatus();
-  dest.swing = src->GetSwing();
-  dest.swingType = src->GetSwingType();
-  dest.swingSide = src->GetSwingSide();
-  dest.swingError = src->GetSwingError();
-  dest.targetX = src->GetTargetX();
-  dest.targetY = src->GetTargetY();
-  dest.eyeX = src->GetEyeX();
-  dest.eyeY = src->GetEyeY();
-  dest.eyeZ = src->GetEyeZ();
-  dest.pow = src->GetPower();
-  dest.spin = src->GetSpin();
-  dest.stamina = src->GetStamina();
+  dest = *src;
 }
 
 bool
@@ -451,13 +437,15 @@ Event::ClearObject() {
 
 bool
 Event::BackTrack( long Histptr ) {
+  //printf( "%d\n", Histptr );
+
   theBall = m_BacktrackBuffer[Histptr].theBall;
   thePlayer->Reset( &m_BacktrackBuffer[Histptr].thePlayer );
   comPlayer->Reset( &m_BacktrackBuffer[Histptr].comPlayer );
 
   if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ) {
-    ((PlayGame *)theControl)->m_Score1 = m_BacktrackBuffer[Histptr].score1;
-    ((PlayGame *)theControl)->m_Score2 = m_BacktrackBuffer[Histptr].score2;
+    ((PlayGame *)theControl)->ChangeScore( m_BacktrackBuffer[Histptr].score1,
+					   m_BacktrackBuffer[Histptr].score2 );
   }
 
   m_Histptr = Histptr;
@@ -503,6 +491,9 @@ Event::ReadData() {
 
   if ( !(m_External->isNull()) ) {
     if ( btCount >= 0 ) {
+      backTracks += btCount;
+      _backTrackCount++;
+
       btHistptr = m_Histptr - btCount;
       if ( btHistptr < 0 )
 	btHistptr += MAX_HISTORY;

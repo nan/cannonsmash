@@ -59,33 +59,37 @@ BaseView::~BaseView() {
 bool
 BaseView::Init() {
 // Windowの生成, 初期化
-  glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH );
-//  glutInitDisplayMode( GLUT_RGBA | GLUT_DEPTH );
+  if (isSimple)
+    glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH );
+  else
+    glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA );
+
   glutInitWindowSize(m_winWidth, m_winHeight);
   glutInitWindowPosition(0, 0);
   glutCreateWindow("CannonSmash");
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glOrtho(-2.0, 2.0, -2.0, 2.0, 2.0, -2.0);
+  //glOrtho(-2.0, 2.0, -2.0, 2.0, 2.0, -2.0);
   /* 有効領域設定. 左, 右, 下, 上, 奥, 手前 */
-  gluPerspective(30.0, 1.0, 0.1, 20.0);
+  gluPerspective(60.0, 1.0, 0.1, 20.0);
   /* 遠近法設定. 視野角, x/y比, 有効距離(手前), 有効距離(奥) */
   glMatrixMode(GL_MODELVIEW);
 
-  GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
+  //GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
   GLfloat light_intensity_amb[] = { 0.6, 0.6, 0.6, 1.0 };
   GLfloat light_intensity_dif[] = { 1.0, 1.0, 1.0, 1.0 };
   GLfloat light_intensity_none[] = { 0.0, 0.0, 0.0, 0.0 };
 
   glShadeModel (GL_SMOOTH);
-  glEnable(GL_DEPTH_TEST);
+  if (!isSimple)
+    glEnable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
   glEnable(GL_COLOR_MATERIAL);
   glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
   glBlendFunc(GL_ONE, GL_SRC_ALPHA);
 
-  glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+  //glLightfv(GL_LIGHT0, GL_POSITION, light_position);
   glLightfv(GL_LIGHT0, GL_AMBIENT, light_intensity_amb);
   glLightfv(GL_LIGHT0, GL_DIFFUSE, light_intensity_dif);
   glLightfv(GL_LIGHT0, GL_SPECULAR, light_intensity_dif);
@@ -105,7 +109,10 @@ BaseView::Init() {
   }
 
   glClearColor (0.2, 0.2, 0.2, 1.0);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  if (isSimple)
+    glClear(GL_COLOR_BUFFER_BIT);
+  else
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   int i, j;
 // テクスチャの設定. 
@@ -150,11 +157,14 @@ BaseView::DisplayFunc() {
 bool
 BaseView::RedrawAll() {
   View *view;
+  GLfloat light_position[] = { 1.0, -1.0, 1.0, 0.0 };
 
   SetViewPosition();
 
-  if ( isLighting ) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+  if (isSimple) {
+    glClear(GL_COLOR_BUFFER_BIT);
   } else {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   }
@@ -167,6 +177,8 @@ BaseView::RedrawAll() {
 
   glDisable(GL_BLEND);
   m_fieldView->Redraw();
+  if (isSimple)
+    m_fieldView->RedrawAlpha();
 
   view = m_View;
   while ( view ){
@@ -195,7 +207,8 @@ BaseView::RedrawAll() {
     glEnable(GL_BLEND);
 
 //  glDisable(GL_CULL_FACE);
-  m_fieldView->RedrawAlpha();
+  if ( !isSimple )
+    m_fieldView->RedrawAlpha();
 
   view = m_View;
   while ( view ){

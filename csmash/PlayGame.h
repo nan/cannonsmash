@@ -41,6 +41,7 @@ public:
   bool IsGameEnd();	// ゲーム終了チェック
   void EndGame();
   void ChangeScore();
+  void ChangeScore( long score1, long score2 );
 protected:
 
   long m_Score1;	// 手前プレイヤーの得点, Training時にはカウンタ

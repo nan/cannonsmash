@@ -21,39 +21,12 @@
 
 // Event Handle Classの定義
 
-struct PlayerData {
-  long playerType;
-  long side;
-  double x;
-  double y;
-  double z;
-  double vx;
-  double vy;
-  double vz;
-  long status;
-  long swing;
-  long swingType;
-  bool swingSide;
-  long afterSwing;
-  long swingError;
-  double targetX;
-  double targetY;
-  double eyeX;
-  double eyeY;
-  double eyeZ;
-  long pow;
-  double spin;
-  double stamina;
-};
-
-class PlayGame;
-
 struct Backtrack {
   long sec;		// 秒
   char count;		// 1/100秒単位
   Ball theBall;
-  PlayerData thePlayer;
-  PlayerData comPlayer;
+  Player thePlayer;
+  Player comPlayer;
   long score1;
   long score2;
 };

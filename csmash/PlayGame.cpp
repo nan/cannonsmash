@@ -92,6 +92,14 @@ PlayGame::ChangeScore() {
 	m_Score2++;
     }
   }
+
+  printf( "%d %d\n", m_Score1, m_Score2 );
+}
+
+void
+PlayGame::ChangeScore( long score1, long score2 ) {
+  m_Score1 = score1;
+  m_Score2 = score2;
 }
 
 bool
