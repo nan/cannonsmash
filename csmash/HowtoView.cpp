@@ -48,7 +48,7 @@ HowtoView::Init( Howto *howto ) {
 				 "images/leftArrow", "images/upArrow"};
   static char howtoText[][30] = {"images/Howto1", "images/Howto2", 
 				 "images/Howto3", "images/Howto4", 
-				 "images/Howto5"};
+				 "images/Howto5", "images/Howto6"};
   char filename[256];
 
   m_howto = howto;
@@ -82,7 +82,7 @@ HowtoView::Init( Howto *howto ) {
     }
   }
 
-  for ( i = 0 ; i < 5 ; i++ ) {
+  for ( i = 0 ; i < 6 ; i++ ) {
     sprintf( filename, _("%s.pbm"), howtoText[i] );
     m_howtoText[i].LoadFile(filename);
   }

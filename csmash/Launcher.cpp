@@ -35,7 +35,7 @@ Launcher::Init() {
   view->Init();
 #else
   LobbyClient *lb;
-  lb = new LobbyClient();
+  lb = LobbyClient::Create();
   lb->Init( "Robot", "I am test robot." );
 #endif
 }

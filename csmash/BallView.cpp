@@ -125,12 +125,14 @@ BallView::RedrawAlpha() {
   const static GLfloat mat_yel[] = { 1.0F, 0.8F, 0.0F, 0.0F };
   static float tx = 0.0, ty = 0.0, tz = TABLEHEIGHT+NETHEIGHT;
 
+  Player *thePlayer = Control::TheControl()->GetThePlayer();
+
   // Draw the ball location in the future
-  if ( Control::TheControl()->GetThePlayer() &&
+  if ( thePlayer &&
        (((theBall.GetStatus() == 2 || theBall.GetStatus() == 3) &&
-	Control::TheControl()->GetThePlayer()->GetSide() > 0) ||
+	thePlayer->GetSide() > 0) ||
        ((theBall.GetStatus() == 0 || theBall.GetStatus() == 1) &&
-	Control::TheControl()->GetThePlayer()->GetSide() < 0)) ){
+	thePlayer->GetSide() < 0)) ){
     tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
 			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
 			theBall.GetSpin(), theBall.GetStatus() );
@@ -141,8 +143,7 @@ BallView::RedrawAlpha() {
     // get time until the ball reaches hit point
     while ( tmpBall->GetStatus() != -1 ){
       tmpBall->Move();
-      if ( tmpBall->GetY() < Control::TheControl()->GetThePlayer()->GetY() &&
-	   tmpBall->GetStatus() == 3 )
+      if ( tmpBall->GetY() < thePlayer->GetY() && tmpBall->GetStatus() == 3 )
 	break;
       t1++;
     }
@@ -209,17 +210,21 @@ BallView::RedrawAlpha() {
 
       glPopMatrix();
 
-      tx = Control::TheControl()->GetThePlayer()->GetX()+(tmpBall->GetX()-t1x);
-      ty = (float)tmpBall->GetY();
-      tz = (float)tmpBall->GetZ();
+      tx = tmpBall->GetX()-t1x;
+      ty = (float)tmpBall->GetY() - thePlayer->GetY();
+      tz = (float)tmpBall->GetZ() - thePlayer->GetZ();
 
       glPushMatrix();
-        glTranslatef( tx+0.3, ty, tz );
+        glTranslatef( tx+thePlayer->GetX()+0.3,
+		      ty+thePlayer->GetY(),
+		      tz+thePlayer->GetZ() );
 	DrawTargetCircle();
       glPopMatrix();
 
       glPushMatrix();
-        glTranslatef( tx-0.3, ty, tz );
+        glTranslatef( tx+thePlayer->GetX()-0.3,
+		      ty+thePlayer->GetY(),
+		      tz+thePlayer->GetZ() );
 	DrawTargetCircle();
       glPopMatrix();
     } else {
@@ -227,16 +232,17 @@ BallView::RedrawAlpha() {
       const static GLfloat mat_red[] = { 1.0F, 0.0F, 0.0F, 0.5F };
       glMaterialfv(GL_FRONT, GL_SPECULAR, mat_red);
 
-      tx = (tx+Control::TheControl()->GetThePlayer()->GetX())/2;
-      ty = (ty+Control::TheControl()->GetThePlayer()->GetY()+0.5)/2;
-
       glPushMatrix();
-        glTranslatef( tx+0.3, ty, tz );
+        glTranslatef( tx+thePlayer->GetX()+0.3,
+		      ty+thePlayer->GetY(),
+		      tz+thePlayer->GetZ() );
 	DrawTargetCircle();
       glPopMatrix();
 
       glPushMatrix();
-        glTranslatef( tx-0.3, ty, tz );
+        glTranslatef( tx+thePlayer->GetX()-0.3,
+		      ty+thePlayer->GetY(),
+		      tz+thePlayer->GetZ() );
 	DrawTargetCircle();
       glPopMatrix();
     }
@@ -257,16 +263,17 @@ BallView::RedrawAlpha() {
     const static GLfloat mat_red[] = { 1.0F, 0.0F, 0.0F, 0.5F };
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_red);
 
-    tx = (tx+Control::TheControl()->GetThePlayer()->GetX())/2;
-    ty = (ty+Control::TheControl()->GetThePlayer()->GetY()+0.5)/2;
-
     glPushMatrix();
-      glTranslatef( tx+0.3, ty, tz );
+      glTranslatef( tx+thePlayer->GetX()+0.3,
+		    ty+thePlayer->GetY(),
+		    tz+thePlayer->GetZ() );
       DrawTargetCircle();
     glPopMatrix();
 
     glPushMatrix();
-      glTranslatef( tx-0.3, ty, tz );
+      glTranslatef( tx+thePlayer->GetX()-0.3,
+		    ty+thePlayer->GetY(),
+		    tz+thePlayer->GetZ() );
       DrawTargetCircle();
     glPopMatrix();
   }

@@ -29,8 +29,11 @@ class LobbyClientView;
 
 class LobbyClient {
 public:
-  LobbyClient();
   ~LobbyClient();
+
+  // A sort of singleton
+  static LobbyClient* Create();
+  static LobbyClient* TheLobbyClient() { return m_lobbyClient; };
 
   bool Init( char *nickname, char *message );
 
@@ -46,6 +49,7 @@ public:
   void SendQP();
   void SendDP( long uniqID);
   void SendQT();
+  void SendSC( int score1, int score2 );
 
   long m_playerNum;
   PlayerInfo *m_player;
@@ -66,6 +70,10 @@ protected:
 
   int m_socket;
   bool m_canBeServer;
+
+private:
+  LobbyClient();
+  static LobbyClient *m_lobbyClient;
 };
 
 class PlayerInfo {

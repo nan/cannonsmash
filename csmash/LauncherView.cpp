@@ -428,7 +428,7 @@ ModeNote::LANStartGame( GtkWidget *widget, gpointer data ) {
 void
 ModeNote::InternetStartGame( GtkWidget *widget, gpointer data ) {
   LobbyClient *lb;
-  lb = new LobbyClient();
+  lb = LobbyClient::Create();
   if ( lb->
        Init((char *)gtk_entry_get_text(GTK_ENTRY(((GtkWidget **)data)[0])),
 	    (char *)gtk_entry_get_text(GTK_ENTRY(((GtkWidget **)data)[1])))

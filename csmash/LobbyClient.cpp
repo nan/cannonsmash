@@ -41,6 +41,8 @@ extern int one;
 long score1 = 0;
 long score2 = 0;
 
+LobbyClient* LobbyClient::m_lobbyClient = NULL;
+
 LobbyClient::LobbyClient() {
   m_playerNum = 0;
   m_canBeServer = false;
@@ -49,6 +51,13 @@ LobbyClient::LobbyClient() {
 LobbyClient::~LobbyClient() {
   if ( m_view )
     delete m_view;
+  m_lobbyClient = NULL;
+}
+
+LobbyClient*
+LobbyClient::Create() {
+  m_lobbyClient = new LobbyClient();
+  return m_lobbyClient;
 }
 
 bool
@@ -417,6 +426,16 @@ void
 LobbyClient::SendQT() {
   send( m_socket, "QT", 2, 0 );
   shutdown( m_socket, 2 );
+}
+
+void
+LobbyClient::SendSC( int score1, int score2 ) {
+  send( m_socket, "SC", 2, 0 );
+  long len = 8;
+  SendLong( m_socket, len );
+
+  SendLong( m_socket, score1 );	// Temp
+  SendLong( m_socket, score2 );
 }
 
 

@@ -219,7 +219,11 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     }
     break;
   case 4:	// Hit ball (2)
-    if ( m_count == 570 ) {
+  case 5:
+    if ( m_count > 0 && m_count < 500 ) {
+      m_thePlayer->m_x = -TABLEWIDTH/2+0.1 +
+	(500-m_count)/1000.0*sin( m_count*2*3.141592/500 );
+    } else if ( m_count == 570 ) {
       m_thePlayer->Swing( 3 );
       m_thePlayer->m_pow = 10;
       m_mouseB = 1;
@@ -231,6 +235,9 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
 		    -1.042663, -4.457266, 0.108404, -1.0, 2 );
       m_thePlayer->m_x = -0.1;
       m_mouseB = 0;
+    } else if ( m_count > 1000 && m_count < 1500 ) {
+      m_thePlayer->m_x = -0.1 +
+	(1500-m_count)/1000.0*sin( (m_count-1000)*2*3.141592/500 );
     } else if ( m_count == 1570 ) {
       m_thePlayer->Swing( 1 );
       m_thePlayer->m_pow = 10;
@@ -270,6 +277,10 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     }
     break;
   case 4:
+    if ( m_count > 500 ) {
+      m_mode = 5;
+    }
+  case 5:
     if ( m_count > 2200 ) {
       mode = MODE_TITLE;
       return true;
@@ -321,6 +332,7 @@ Howto::IsMove() {
     else
       return true;
   case 4:
+  case 5:
     if ( m_count < 570 ) {
       if ( m_count%10 == 0 )
 	return true;

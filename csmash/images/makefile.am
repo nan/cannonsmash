@@ -19,6 +19,7 @@ pkgdata_ppm = Bad.ppm Keyboard.ppm Nice.ppm Title.ppm \
 		Howto3.ja.pbm Howto3.de.pbm Howto3.pbm \
 		Howto4.ja.pbm Howto4.de.pbm Howto4.pbm \
 		Howto5.ja.pbm Howto5.de.pbm Howto5.pbm \
+		Howto6.ja.pbm Howto6.de.pbm Howto6.pbm \
 		LevelSelect.ja.pbm LevelSelect.de.pbm LevelSelect.pbm \
 		ModeSelect.ja.pbm ModeSelect.de.pbm ModeSelect.pbm \
 		Normal.ja.pbm Normal.de.pbm Normal.pbm \
