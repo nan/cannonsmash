@@ -10,7 +10,7 @@ pkgdata_ppm = Bad.ppm Easy.ppm Hard.ppm Howto.ppm Howto1.ppm \
 		six.ppm three.ppm two.ppm zero.ppm Max.ppm \
 		upArrow.ppm win.ppm ModeSelect.ppm \
 		5point.ppm 11point.ppm 21point.ppm \
-		SoundSelect.ppm Transparent.ppm WireFrame.ppm ArctanX.ppm \
+		Transparent.ppm WireFrame.ppm ArctanX.ppm \
 		Practice.ppm Pause.ppm EasyTutorial.ja.ppm \
 		EasyTutorial.de.ppm EasyTutorial.ppm \
 		11point.ja.pbm 11point.de.pbm 11point.pbm \
