@@ -62,17 +62,24 @@ BallView2D::Redraw() {
 
   // Draw the Ball itself
   if ( theBall.GetY() > -3.5 ) {
-    SDL_Rect _rect;
+    RenderRect( theBall.GetX()-BALL_R/2, theBall.GetY()-BALL_R/2,
+		theBall.GetZ()-BALL_R/2, 
+		theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2,
+		theBall.GetZ()+BALL_R/2, 
+		&rect );
 
-    RenderRect( theBall.GetX()-BALL_R/2, theBall.GetY()-BALL_R/2, theBall.GetZ()-BALL_R/2, 
-		theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2, theBall.GetZ()+BALL_R/2, 
-		&_rect );
+    SDL_FillRect( theView->GetSurface(), &rect, 
+		  SDL_MapRGB( theView->GetSurface()->format, 255, 144, 47 ) );
 
-    SDL_FillRect( theView->GetSurface(), &_rect, 0 );
-    rect = _rect;
+    // Draw the ball shadow
+    if ( theBall.GetY() > -TABLELENGTH/2 && theBall.GetY() < TABLELENGTH/2 ){
+      RenderRect(theBall.GetX()-BALL_R/2, theBall.GetY()-BALL_R/2, TABLEHEIGHT,
+		 theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2, TABLEHEIGHT,
+		 &rect );
+
+      SDL_FillRect( theView->GetSurface(), &rect, 0 );
+    }
   }
-
-  // Draw the ball shadow
 
   // Draw the ball location in the future
 
@@ -89,20 +96,33 @@ BallView2D::RedrawAlpha() {
 bool
 BallView2D::GetDamageRect() {
   double rad;
-  static SDL_Rect rect = {0, 0, 0, 0};
+  static SDL_Rect rect = {0, 0, 0, 0}, rectShadow = {0, 0, 0, 0};
 
   // Draw the Ball itself
   if ( theBall.GetY() > -3.5 ) {
-    SDL_Rect _rect;
+    SDL_Rect _rect, _rectShadow;
 
-    RenderRect( theBall.GetX()-BALL_R/2, theBall.GetY()-BALL_R/2, theBall.GetZ()-BALL_R/2, 
-		theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2, theBall.GetZ()+BALL_R/2, 
+    RenderRect( theBall.GetX()-BALL_R/2, theBall.GetY()-BALL_R/2,
+		theBall.GetZ()-BALL_R/2, 
+		theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2,
+		theBall.GetZ()+BALL_R/2, 
 		&_rect );
 
     if ( rect.x != _rect.x || rect.y != _rect.y ||
 	 rect.w != _rect.w || rect.h != _rect.h ) {
       ((BaseView2D *)theView)->AddUpdateRect( &rect );
       ((BaseView2D *)theView)->AddUpdateRect( &_rect );
+      rect = _rect;
+    }
+
+    RenderRect( theBall.GetX()-BALL_R/2, theBall.GetY()-BALL_R/2, TABLEHEIGHT, 
+		theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2, TABLEHEIGHT, 
+		&_rectShadow );
+
+    if ( rectShadow.x != _rectShadow.x || rectShadow.y != _rectShadow.y ||
+	 rectShadow.w != _rectShadow.w || rectShadow.h != _rectShadow.h ) {
+      ((BaseView2D *)theView)->AddUpdateRect( &rectShadow );
+      ((BaseView2D *)theView)->AddUpdateRect( &_rectShadow );
       rect = _rect;
     }
   }
