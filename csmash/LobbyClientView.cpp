@@ -40,6 +40,8 @@ extern bool PollEvent();
 
 extern void QuitGame();
 
+extern int listenSocket[];
+
 bool isWaiting = false;		// waiting for opponent player on the internet
 
 #ifdef WIN32
@@ -207,7 +209,6 @@ getcurrenttimestr( char *buf ) {
  * Initialize member variables as 0. 
  */
 LobbyClientView::LobbyClientView() {
-  m_timeout = 0;
   m_idle = 0;
   m_chatChannel = 0;
 }
@@ -216,8 +217,12 @@ LobbyClientView::LobbyClientView() {
  * Destructor. 
  */
 LobbyClientView::~LobbyClientView() {
-  if ( m_timeout > 0 )
-    gtk_timeout_remove( m_timeout );
+  gtk_input_remove( m_input[0] );
+  int i = 0;
+  while ( listenSocket[i] >= 0 ) {
+    gtk_input_remove( m_input[i+1] );
+    i++;
+  }
   if ( m_idle > 0 )
     gtk_idle_remove( m_idle );
 }
@@ -230,12 +235,19 @@ LobbyClientView::~LobbyClientView() {
  */
 void
 LobbyClientView::Init( LobbyClient *lobby ) {
-  int i;
+  int i = 0;
 
   m_parent = lobby;
 
-  m_timeout = gtk_timeout_add( 1000, LobbyClient::PollServerMessage,
-			       m_parent );
+  m_input[0] = gtk_input_add_full( lobby->GetSocket(), GDK_INPUT_READ, 
+				  LobbyClient::PollServerMessage, NULL, 
+				  m_parent, NULL );
+  while ( listenSocket[i] >= 0 ) {
+    m_input[i+1] = gtk_input_add_full( listenSocket[i], GDK_INPUT_READ, 
+				       LobbyClient::PollServerMessage, NULL, 
+				       m_parent, NULL );
+    i++;
+  }
 
   // display
   m_window = gtk_dialog_new();
@@ -604,7 +616,12 @@ LobbyClientView::Quit( GtkWidget *widget, gpointer data ) {
   lobby->m_parent->SendQT();
 
   gtk_widget_destroy( lobby->m_window );
-  gtk_timeout_remove( lobby->m_timeout );
+  gtk_input_remove( lobby->m_input[0] );
+  int i = 0;
+  while ( listenSocket[i] >= 0 ) {
+    gtk_input_remove( lobby->m_input[i+1] );
+    i++;
+  }
 
   delete lobby->m_parent;
 }

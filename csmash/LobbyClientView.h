@@ -63,7 +63,7 @@ protected:
 					  WPARAM wparam, LPARAM lparam);
 #endif
 
-  guint m_timeout;		///< wait timer handler for lobby server message
+  guint m_input[17];		///< input handler for lobby server message
   guint m_idle;			///< idle callback handler
 
   gint  m_chatChannel;		///< current chat channel ID
