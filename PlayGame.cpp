@@ -93,15 +93,9 @@ PlayGame::ChangeScore() {
   if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ) {
     if ( theBall.GetStatus() == 0 || theBall.GetStatus() == 3 ||
 	 theBall.GetStatus() == 4 || theBall.GetStatus() == 6 ) {
-      if ( thePlayer->GetSide() > 0 )
-	m_Score2++;
-      else
-	m_Score1++;
+      m_Score2++;
     } else {
-      if ( thePlayer->GetSide() > 0 )
-	m_Score1++;
-      else
-	m_Score2++;
+      m_Score1++;
     }
   }
 
