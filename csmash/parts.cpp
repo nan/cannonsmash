@@ -207,6 +207,8 @@ polyhedron::polyhedron(const char* filename)
 		textureexists = true;
 		t[0] = (float)strtod(token, NULL);
 		t[1] = 1-(float)strtod(strtok(NULL, delim), NULL);
+		if (t[0] < 1e-5) t[0] = 0;
+		if (t[1] < 1e-5) t[1] = 0;
 	    }
 	    st[numPoints] = t;
 

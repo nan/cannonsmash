@@ -663,13 +663,30 @@ void polyhedron_parts::render() const
 	glBindTexture(GL_TEXTURE_2D, tex->object);
 	for (int i = 0; poly.numPolygons > i; ++i) {
 	    const polygon &face = poly.getPolygon(i);
+
+	    // Texture coordinate wraparound hack. Should be removed.
+	    bool fixst = false;
+	    for (int j = 0; face.size > j; ++j) {
+		const vector3F& st = face.rst(j);
+		if (st[0] > 0.5001) { fixst = true; break; }
+	    }
+
 	    glBegin(face.glBeginSize());
 	    for (int j = 0; face.size > j; ++j) {
 		if ( theRC->gmode != GMODE_TOON ) {
 		    poly.cmap[face.c()].glBind();
 		}
 		glNormal3fv((float*)&face.rn(j));
-		glTexCoord2fv((float*)&face.rst(j));
+
+		// Texture coordinate wraparound hack. Should be removed.
+		const vector3F& st = face.rst(j);
+		if (fixst && (st[0] == 0)) {
+		    vector3F t = st;
+		    if (t[0] == 0) t[0] = 1;
+		    glTexCoord2fv((float*)&t);
+		} else {
+		    glTexCoord2fv((float*)&st);
+		}
 
 		if ( theRC->gmode == GMODE_TOON ) {
 #if ANIMELIGHT
@@ -693,6 +710,7 @@ void polyhedron_parts::render() const
 		glNormal3fv((float*)&face.rn(j));
 
 		if ( theRC->gmode == GMODE_TOON ) {
+		    // Intensity adjustment hack. Should be removed.
 		    color4f c = poly.cmap[face.c()];
 		    c *= 1.45f;
 		    c.glBind();
