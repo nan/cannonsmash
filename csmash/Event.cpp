@@ -162,6 +162,10 @@ Event::IdleFunc() {
   perfs +=diffcount;
   _perfCount++;
 
+#ifdef SCREENSHOT
+  diffcount = 4;
+#endif
+
   for ( int i = 0 ; i < diffcount ; i++ ) {
     // While pause, never move objects. (Solo Play)
     if ( Control::TheControl()->IsPlaying() &&

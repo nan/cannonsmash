@@ -21,6 +21,7 @@
 #include "LauncherView.h"
 #include "Launcher.h"
 #include "RCFile.h"
+#include "MultiPlay.h"
 
 extern bool isComm;
 extern long mode;
@@ -483,7 +484,11 @@ ModeNote::LANStartGame( GtkWidget *widget, gpointer data ) {
     strncpy( theRC->serverName, gtk_entry_get_text( GTK_ENTRY(data) ), 256 );
   isComm = true;
   mode = MODE_SELECT;
-  ::StartGame();
+  try {
+    ::StartGame();
+  } catch ( MultiPlay::NetworkError ) {
+    LauncherView::ConnectionFailedDialog();
+  }
 }
 
 void

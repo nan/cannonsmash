@@ -27,6 +27,7 @@
 #include "loadparts.h"
 #endif
 #include "Network.h"
+#include "MultiPlay.h"
 #include "Event.h"
 #include "Control.h"
 #include "Launcher.h"
@@ -249,8 +250,13 @@ int main(int argc, char** argv) {
 
 void
 StartGame() {
-  ::InitGame();
-  while ( PollEvent() );
+  try {
+    ::InitGame();
+    while ( PollEvent() );
+  } catch ( MultiPlay::NetworkError ) {
+    ::EndGame();
+    throw MultiPlay::NetworkError();
+  }
   ::EndGame();
 }
 

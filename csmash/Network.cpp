@@ -153,7 +153,7 @@ ReadTime( int sd, struct timeb* tb ) {
 
   if ( recv( sd, buf, 2, 0 ) != 2 ) {
     xerror("%s(%d) recv", __FILE__, __LINE__);
-    exit(1);
+    throw MultiPlay::NetworkError();
   }
   len = 0;
   while (1) {
@@ -322,12 +322,12 @@ ReadBI() {
   // Read Ball Data
   if ( recv( theSocket, buf, 2, 0 ) != 2 ) {
     xerror("%s(%d) recv", __FILE__, __LINE__);
-    exit(1);
+    throw MultiPlay::NetworkError();
   }
 
   if ( strncmp( buf, "BI", 2 ) ) {
     xerror("%s(%d) recv BI", __FILE__, __LINE__);
-    exit(1);
+    throw MultiPlay::NetworkError();
   }
 
   len = 0;
@@ -353,7 +353,7 @@ struct addrinfo *
 findhostname() {
   if (1 == theRC->serverName[0]) { // Broadcast mode
       printf( "Broadcast is not supported\n" );
-      exit(1);
+      throw MultiPlay::NetworkError();
   }
   struct addrinfo hent, *res;
   int error;
@@ -370,7 +370,7 @@ findhostname() {
   if (error) {
     xerror("%s: %s(%d) getaddrinfo",
 	   gai_strerror(error), __FILE__, __LINE__);
-    exit(1);
+    throw MultiPlay::NetworkError();
   }
 
   return res;
@@ -385,7 +385,7 @@ findhostname( struct sockaddr_in *saddr ) {
     unsigned int sb;
     if (0 > (sb = socket(PF_INET, SOCK_DGRAM, 0))) {
       xerror("%s(%d) socket", __FILE__, __LINE__);
-      exit(1);
+      throw MultiPlay::NetworkError();
     }
 
     int one = 1;
@@ -398,7 +398,7 @@ findhostname( struct sockaddr_in *saddr ) {
     sba.sin_port = 0;
     if (0 != bind(sb, (sockaddr*)&sba, sizeof(sba))) {
       xerror("%s(%d) bind", __FILE__, __LINE__);
-      exit(1);
+      throw MultiPlay::NetworkError();
     }
 
     int x = 0;
@@ -430,7 +430,7 @@ findhostname( struct sockaddr_in *saddr ) {
     if (30 <= x) {
       // notfound
       printf("timeout\n");
-      exit(1);
+      throw MultiPlay::NetworkError();
     }
     saddr->sin_addr.s_addr = sba.sin_addr.s_addr;
   } else {

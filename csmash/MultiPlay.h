@@ -122,6 +122,10 @@ public:
   bool WaitForClient();
 
   static int WaitForData( void * );
+
+  // For exception. 
+  struct NetworkError { };
+
 protected:
   //bool m_smash;
   //long m_smashCount;

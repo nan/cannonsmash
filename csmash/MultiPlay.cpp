@@ -67,7 +67,7 @@ MultiPlay::StartServer() {
 
   if ( !(m_comPlayer = ReadPlayerData()) ) {
     xerror("%s(%d) ReadPlayerData", __FILE__, __LINE__);
-    exit(1);
+    throw MultiPlay::NetworkError();
   }
 }
 
@@ -102,7 +102,7 @@ MultiPlay::StartClient() {
   if (error) {
     xerror("%s: %s(%d) getaddrinfo",
 	   gai_strerror(error), __FILE__, __LINE__);
-    exit(1);
+    throw MultiPlay::NetworkError();
   }
 
   theSocket = -1;
@@ -134,7 +134,7 @@ MultiPlay::StartClient() {
 
   if ( theSocket < 0 ) {
     xerror("%s(%d) connect", __FILE__, __LINE__);
-    exit(1);
+    throw MultiPlay::NetworkError();
   }
 
   freeaddrinfo(saddr);
@@ -152,7 +152,7 @@ MultiPlay::StartClient() {
   // connect
   if ( (theSocket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
     xerror("%s(%d) socket", __FILE__, __LINE__);
-    exit(1);
+    throw MultiPlay::NetworkError();
   }
   setsockopt(theSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(int));
 
@@ -168,7 +168,7 @@ MultiPlay::StartClient() {
 
   if ( i == 10 ) {
     xerror("%s(%d) connect", __FILE__, __LINE__);
-    exit(1);
+    throw MultiPlay::NetworkError();
   }
 #endif
 
@@ -194,7 +194,7 @@ MultiPlay::StartClient() {
   // exchange player data
   if ( !(m_comPlayer = ReadPlayerData()) ) {
     xerror("%s(%d) ReadPlayerData", __FILE__, __LINE__);
-    exit(1);
+    throw MultiPlay::NetworkError();
   }
   SendPlayerData();
 }
@@ -348,7 +348,7 @@ MultiPlay::WaitForClient() {
 
   if ( listenSocket[0] < 0 ) {
     if ( !GetSocket() )
-      exit(1);
+      throw MultiPlay::NetworkError();
   }
 
   unsigned int sb;
@@ -368,13 +368,13 @@ MultiPlay::WaitForClient() {
   error = getaddrinfo( NULL, port, &sba, &res );
   if (error || res->ai_next) {
     xerror("%s(%d) getaddrinfo", __FILE__, __LINE__);
-    exit(1);
+    throw MultiPlay::NetworkError();
   }
 
   if ( 0 > (sb = socket( res->ai_family, res->ai_socktype,
 			 res->ai_protocol )) ) {
     xerror("%s(%d) socket", __FILE__, __LINE__);
-    exit(1);
+    throw MultiPlay::NetworkError();
   }
 
 #ifdef IPV6_V6ONLY
@@ -388,20 +388,20 @@ MultiPlay::WaitForClient() {
 
   if (0 > bind(sb, res->ai_addr, res->ai_addrlen)) {
     xerror("%s(%d) bind", __FILE__, __LINE__);
-    exit(1);
+    throw MultiPlay::NetworkError();
   }
 #else
   struct sockaddr_in sba;
   if (0 > (sb = socket(PF_INET, SOCK_DGRAM, 0))) {
     xerror("%s(%d) socket", __FILE__, __LINE__);
-    exit(1);
+    throw MultiPlay::NetworkError();
   }
   sba.sin_addr.s_addr = INADDR_ANY;
   sba.sin_family = AF_INET;
   sba.sin_port = htons(theRC->csmash_port);
   if (0 > bind(sb, (struct sockaddr*)&sba, sizeof(sba))) {
     xerror("%s(%d) bind", __FILE__, __LINE__);
-    exit(1);
+    throw MultiPlay::NetworkError();
   }
 #endif
 
@@ -430,7 +430,7 @@ MultiPlay::WaitForClient() {
 	printf("server recived broadcast packet");
 	if ( theRC->protocol == IPv6 ) {
 	  printf(", but not supported\n" );
-	  exit(1);
+	  throw MultiPlay::NetworkError();
 	} else {
 	  char buf[1];
 	  sockaddr_in client;
@@ -498,7 +498,7 @@ MultiPlay::WaitForClient() {
 
   if (0 > theSocket) {
     xerror("%s(%d) accept", __FILE__, __LINE__);
-    exit(1);
+    throw MultiPlay::NetworkError();
   }
 
   return true;
