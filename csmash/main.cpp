@@ -225,8 +225,6 @@ StartGame() {
 
   SDL_EnableUNICODE(1);
 
-  QuitGame();
-
   while (1) {
     while ( SDL_PollEvent(&event) ) {
       // このあたり, GLUT 風になっているので SDL 風に直す
