@@ -29,6 +29,7 @@ extern Ball theBall;
 extern BaseView* theView;
 extern Event theEvent;
 extern long mode;
+extern long gmode;
 
 //extern void CopyPlayerData( struct PlayerData& dest, Player* src );
 extern void CopyPlayerData( Player& dest, Player* src );
@@ -44,11 +45,13 @@ SoloPlay::~SoloPlay() {
 
 bool
 SoloPlay::Init() {
-  m_View = new PlayGameView();
+  if ( gmode != GMODE_2D ) {
+    m_View = new PlayGameView();
 
-  m_View->Init( this );
+    m_View->Init( this );
 
-  theView->AddView( m_View );
+    theView->AddView( m_View );
+  }
 
   return true;
 }

@@ -129,7 +129,7 @@ BaseView2D::RedrawAll() {
 
   // 再描画領域のみ描画する
   SDL_UpdateRects(m_baseSurface, 1, &rect);
-  m_updateX2 =m_updateY2 = 0;
+  m_updateX1 =m_updateY1 = m_updateX2 =m_updateY2 = 0;
 
   return true;
 }

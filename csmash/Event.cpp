@@ -210,7 +210,7 @@ Event::IsModeChanged( long preMode ) {
     case MODE_SOLOPLAY:
       p = ((PlayerSelect *)theControl)->GetPlayerNum();
       q = ((PlayerSelect *)theControl)->GetOpponentNum();
-      //theControl = SoloPlay::Create( p, (p+wins+1)%PLAYERS );
+
       theControl = SoloPlay::Create( p, q );
       break;
     case MODE_MULTIPLAY:
