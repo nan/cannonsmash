@@ -188,6 +188,12 @@ ShakeCut::Swing( long spin ) {
  */
 bool
 ShakeCut::StartServe( long spin ) {
+  double stype[][7] = { {SERVE_NORMAL,     0.0, 0.0,  0.0,  0.1,  0.0,  0.2}, 
+			{SERVE_POKE,       0.0, 0.0,  0.0, -0.4,  0.0, -1.0}, 
+			{SERVE_SIDESPIN1, -0.6, 0.2, -0.8,  0.0, -0.6, -0.2}, 
+			{SERVE_SIDESPIN2,  0.6, 0.2,  0.8,  0.0,  0.6, -0.2},
+			{-1,               0.0, 0.0,  0.0,  0.0,  0.0,  0.0}};
+
   if ( m_swing > 10 )
     return false;
 
@@ -195,22 +201,14 @@ ShakeCut::StartServe( long spin ) {
     m_swing = 1;
     m_pow = 0;
 
-    switch ( spin-1 ) {
-    case 0:
-      m_spin[0] = 0.0;
-      m_spin[1] = 0.2;	// straight
-      m_swingType = SWING_NORMAL;
-      break;
-    case 1:
-      m_spin[0] = 0.0;
-      m_spin[1] = -0.1;	// knuckle
-      m_swingType = SWING_POKE;
-      break;
-    case 2:
-      m_spin[0] = 0.0;
-      m_spin[1] = -1.0;
-      m_swingType = SWING_POKE;
-      break;
+    int i = 0;
+    while ( stype[i][0] > 0 ) {
+      if ( (long)stype[i][0] == m_swingType ) {
+	m_spin[0] = stype[i][(spin-1)*2];
+	m_spin[1] = stype[i][(spin-1)*2+1];
+	break;
+      }
+      i++;
     }
 
     m_swingSide = true;
