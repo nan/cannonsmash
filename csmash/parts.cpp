@@ -45,8 +45,8 @@ polyhedron::polyhedron(const char* filename)
     FILE *in = fopen(filename, "r");
     if (NULL == in) return;
 
-    std::vector<vector3F> vertex;
-    std::vector<plane_t> loop;
+    std::vector<vector3F> vertex(1000);
+    std::vector<plane_t> loop(1000);
 
     char line[512];
     const char *delim = " \t(,);\r\n";
@@ -57,7 +57,8 @@ polyhedron::polyhedron(const char* filename)
 	if (streq("point", token)) {
 	    int num = atoi(strtok(NULL, delim));
 	    if (vertex.capacity() <= numPoints) {
-		vertex.reserve(numPoints+100);
+		printf("%s:%d vertex buffer overflow\n", __FILE__, __LINE__);
+		exit(5);
 	    }
 	    vector3F v;
 	    v[0] = strtod(strtok(NULL, delim), NULL);
@@ -68,7 +69,8 @@ polyhedron::polyhedron(const char* filename)
 	else if (streq("plane", token)) {
 	    int i = 0;
 	    if (loop.capacity() <= numPolygons) {
-		loop.reserve(numPolygons+100);
+		printf("%s:%d loop buffer overflow\n", __FILE__, __LINE__);
+		exit(5);
 	    }
 	    loop[numPolygons][3] = -1;
 	    while ((NULL != (token = strtok(NULL, delim))) && (4 > i)) {
@@ -304,7 +306,7 @@ affineanim::affineanim(const char *filename)
     FILE *in = fopen(filename, "r");
     if (NULL == in) return;
 
-    std::vector<affine4F> mat;
+    std::vector<affine4F> mat(100);
 
     char line[512];
     const char *delim = " \t(,);\r\n";
@@ -320,7 +322,8 @@ affineanim::affineanim(const char *filename)
 		}
 	    }
 	    if (mat.capacity() <= numFrames) {
-		mat.reserve(numFrames+50);
+		printf("%s:%d matrix buffer overflow\n", __FILE__, __LINE__);
+		exit(5);
 	    }
 	    mat[numFrames++] = t;
 	}

@@ -20,7 +20,10 @@
 #define _ttinc_
 
 #ifdef _WIN32
-#define WIN32
+# define WIN32
+# if (_MSC_VER >= 1200)
+#  pragma warning(disable: 4786)	/* Symbol trucated to 255chars */
+# endif
 #endif
 
 #define CSMASH_PORT	3573	// TCP Port num. 
