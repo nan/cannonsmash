@@ -310,9 +310,11 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
 // swing
   if ( m_swing > 0 ){
-    if ( m_swing == 30 && m_afterSwing > 0 )
+    if ( m_swing > 30 && m_afterSwing > 0 ) {
       m_afterSwing--;
-    else {
+      if ( m_afterSwing%10 == 0 )
+	m_swing++;
+    } else {
       if ( theBall.GetStatus() == 6 || theBall.GetStatus() == 7 ) {
 	if ( theBall.GetVZ() < 0 )
 	  m_swing++;

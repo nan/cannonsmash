@@ -27,6 +27,7 @@ extern Player *comPlayer;
 
 extern Event theEvent;
 extern long mode;
+extern long isComm;
 
 PenDrive::PenDrive() {
   m_playerType = PLAYER_PENDRIVE;
@@ -248,16 +249,32 @@ PenDrive::HitBall() {
       vz += n1z*cos(radRand)+n2z*sin(radRand);
 
       // Reduce status
-      m_afterSwing = (long)(hypot(m_vx*0.8-vx, m_vy*0.8+vy)*(1.0+diff*10.0) +
-			    fabs(m_spin)*5.0+fabs(theBall.GetSpin())*4.0);
+      if ( !isComm ) {	// Changed in 0.6.4
+	m_afterSwing = 10 + (long)
+	  ((hypot(theBall.GetVX()*0.8-vx,theBall.GetVY()*0.8+vy)+hypot(vx,vy))
+	   *(3.0+diff*30.0) + fabs(m_spin)*8.0 + fabs(theBall.GetSpin())*4.0);
 
-      if ( ForeOrBack() || m_swingType == SWING_POKE )
-	AddStatus( -m_afterSwing*2 );
-      else
-	AddStatus( -m_afterSwing*3 );
+	if ( ForeOrBack() || m_swingType == SWING_POKE )
+	  AddStatus( -m_afterSwing/2 );
+	else
+	  AddStatus( -m_afterSwing );
 
-      if ( m_status == 1 )
-	m_afterSwing *= 3;
+	if ( m_status == 1 ) {
+	  m_afterSwing *= 3;
+	}
+      } else {
+	m_afterSwing = (long)
+	  (hypot( theBall.GetVX()*0.8-vx, theBall.GetVY()*0.8+vy )
+	   * (1.0+diff*10.0) + fabs(m_spin)*5.0 + fabs(theBall.GetSpin())*4.0);
+
+	if ( ForeOrBack() || m_swingType == SWING_POKE )
+	  AddStatus( -m_afterSwing*2 );
+	else
+	  AddStatus( -m_afterSwing*3 );
+
+	if ( m_status == 1 )
+	  m_afterSwing *= 3;
+      }
 
       theBall.Hit( vx, vy, vz, m_spin, this );
     } else

@@ -28,7 +28,7 @@
 
 #define MAJOR_VERSION	0
 #define MIDDLE_VERSION	6
-#define MINOR_VERSION	2
+#define MINOR_VERSION	3
 
 #define CSMASH_PORT	3573	// TCP Port num. 
 

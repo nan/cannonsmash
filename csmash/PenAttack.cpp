@@ -246,9 +246,9 @@ PenAttack::HitBall() {
       vz += n1z*cos(radRand)+n2z*sin(radRand);
 
       // Reduce status
-      m_afterSwing = (long)(
-	hypot( theBall.GetVX()*0.8-vx, theBall.GetVY()*0.8+vy )
-	* (1.0+diff*10.0) + fabs(m_spin)*5.0 + fabs(theBall.GetSpin())*4.0);
+      m_afterSwing = (long)
+	(hypot( theBall.GetVX()*0.8-vx, theBall.GetVY()*0.8+vy )
+	 * (1.0+diff*10.0) + fabs(m_spin)*5.0 + fabs(theBall.GetSpin())*4.0);
 
       if ( ForeOrBack() || m_swingType == SWING_POKE )
 	AddStatus( -m_afterSwing*2 );

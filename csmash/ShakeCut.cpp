@@ -248,8 +248,9 @@ ShakeCut::HitBall() {
       vz += n1z*cos(radRand)+n2z*sin(radRand);
 
       // Reduce status
-      m_afterSwing = (long)(hypot(m_vx*0.8-vx, m_vy*0.8+vy)*(1.0+diff*10.0) +
-			    fabs(m_spin)*3.0+fabs(theBall.GetSpin())*2.0);
+      m_afterSwing = (long)
+	(hypot( theBall.GetVX()*0.8-vx, theBall.GetVY()*0.8+vy )
+	 * (1.0+diff*10.0) + fabs(m_spin)*3.0 + fabs(theBall.GetSpin())*2.0);
 
       if ( m_swingType == SWING_POKE || m_swingType == SWING_CUT )
 	AddStatus( -m_afterSwing );
