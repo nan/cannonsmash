@@ -26,7 +26,7 @@ extern Player *thePlayer;
 extern Player *comPlayer;
 
 extern long mode;
-extern long isComm;
+extern bool isComm;
 
 PenDrive::PenDrive() {
   m_playerType = PLAYER_PENDRIVE;

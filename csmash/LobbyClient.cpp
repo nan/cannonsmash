@@ -48,7 +48,7 @@ extern bool PollEvent();
 
 extern void QuitGame();
 
-extern int listenSocket;
+extern unsigned int listenSocket;
 extern int one;
 
 bool isWaiting = false;		// waiting for opponent player on the internet
