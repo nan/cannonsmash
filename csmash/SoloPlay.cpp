@@ -68,10 +68,20 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
 		    int Histptr ) {
   bool reDraw = false;
   long prevStatus = theBall.GetStatus();
+  static long delayCounter = 0;
 
   if ( m_smashPtr >= 0 ) {	// スマッシュリプレイ
+    delayCounter++;
+    if ( m_smashCount != 2 && theBall.GetStatus() == 3 &&
+	 (delayCounter%5) != 0 ) {
+      Histptr--;
+      if ( Histptr < 0 )
+	Histptr = MAX_HISTORY;
+      theEvent.BackTrack(Histptr);
+      return true;
+    }
+
     if ( Histptr == m_smashPtr ) {
-      //theEvent.SmashEffect(false);
       SmashEffect(false, Histptr);
       m_smashCount++;
       if ( m_smashCount > 2 ) {
@@ -79,7 +89,6 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	m_smashPtr = -1;
 	m_smash = false;
       } else {
-	//m_smashPtr = theEvent.SmashEffect(true);
 	m_smashPtr = SmashEffect(true, Histptr);
       }
     } else {
@@ -107,7 +116,6 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
   }
 
   if ( m_smash && theBall.GetStatus() < 0 )
-    //m_smashPtr = theEvent.SmashEffect(true);
     m_smashPtr = SmashEffect(true, Histptr);
 
   return true;

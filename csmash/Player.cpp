@@ -433,6 +433,14 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   else
     m_y += m_vy*TICK;
 
+// サーブ時にはエンドラインの後ろまで下がる
+  if ( theBall.GetStatus() == 8 && theBall.GetService() == GetSide() ) {
+    if ( m_side > 0 && m_y > -TABLELENGTH/2 )
+      m_y = -TABLELENGTH/2;
+    else if ( m_side < 0 && m_y < TABLELENGTH/2 )
+      m_y = TABLELENGTH/2;
+  }
+
   // Auto backswing
   if ( m_swing == 0 ) {
     Ball *tmpBall;
@@ -505,6 +513,7 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
   }
 
 // 入力の反映
+#if 0
   switch ( KeyHistory[Histptr] ){
   case '1':  case 'q':  case 'a':  case 'z':
     m_targetX = -TABLEWIDTH/2*0.9*GetSide();
@@ -540,23 +549,71 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
     m_targetX = TABLEWIDTH/2*0.9*GetSide();
     break;
   }
+#else
+  switch ( KeyHistory[Histptr] ){
+  case '1':  case 'q':  case 'a':  case 'z':
+  case '2':  case 'w':  case 's':  case 'x':
+  case '3':
+    m_targetX = -TABLEWIDTH/2*0.9*GetSide();
+    break;
+  case 'e':
+    m_targetX = -TABLEWIDTH/2*0.75*GetSide();
+    break;
+  case 'd':
+    m_targetX = -TABLEWIDTH/2*0.6*GetSide();
+    break;
+  case '4':  case 'c':
+    m_targetX = -TABLEWIDTH/2*0.45*GetSide();
+    break;
+  case 'r':
+    m_targetX = -TABLEWIDTH/2*0.3*GetSide();
+    break;
+  case 'f':
+    m_targetX = -TABLEWIDTH/2*0.15*GetSide();
+    break;
+  case '5':  case 'v':
+    m_targetX = 0;
+    break;
+  case 't':
+    m_targetX = TABLEWIDTH/2*0.15*GetSide();
+    break;
+  case 'g':
+    m_targetX = TABLEWIDTH/2*0.3*GetSide();
+    break;
+  case '6':  case 'b':
+    m_targetX = TABLEWIDTH/2*0.45*GetSide();
+    break;
+  case 'y':
+    m_targetX = TABLEWIDTH/2*0.6*GetSide();
+    break;
+  case 'h':
+    m_targetX = TABLEWIDTH/2*0.75*GetSide();
+    break;
+  case '7':  case 'n':  case 'u':  case 'j':
+  case '8':  case 'm':  case 'i':  case 'k':
+  case '9':  case ',':  case 'o':  case 'l':
+  case '0':  case '.':  case 'p':  case ';':
+    m_targetX = TABLEWIDTH/2*0.9*GetSide();
+    break;
+  }
+#endif
 
   switch ( KeyHistory[Histptr] ){
   case '1':  case '2':  case '3':  case '4':  case '5':  case '6':
   case '7':  case '8':  case '9':  case '0':  case '-':  case '^':
-    m_targetY = TABLELENGTH/16*7*GetSide();
+    m_targetY = TABLELENGTH/12*5*GetSide();
     break;
   case 'q':  case 'w':  case 'e':  case 'r':  case 't':  case 'y':
   case 'u':  case 'i':  case 'o':  case 'p':  case '@':  case '[':
-    m_targetY = TABLELENGTH/16*5*GetSide();
+    m_targetY = TABLELENGTH/12*4*GetSide();
     break;
   case 'a':  case 's':  case 'd':  case 'f':  case 'g':  case 'h':
   case 'j':  case 'k':  case 'l':  case ';':  case ':':  case ']':
-    m_targetY = TABLELENGTH/16*3*GetSide();
+    m_targetY = TABLELENGTH/12*3*GetSide();
     break;
   case 'z':  case 'x': case 'c':  case 'v':  case 'b':  case 'n':
   case 'm':  case ',':  case '.':  case '/':  case '\\':
-    m_targetY = TABLELENGTH/16*1*GetSide();
+    m_targetY = TABLELENGTH/12*2*GetSide();
     break;
   }
 

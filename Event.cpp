@@ -22,7 +22,6 @@ extern Ball theBall;
 extern Player* thePlayer;
 extern Player* comPlayer;
 extern Event theEvent;
-extern BaseView theView;
 extern Control*      theControl;
 extern long mode;
 

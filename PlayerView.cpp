@@ -45,8 +45,6 @@ extern Event theEvent;
 
 extern long mode;
 
-bool RotateMatrix( double Mat[][3], double degx, double degy, double degz );
-
 PlayerView::PlayerView() {
   m_player = NULL;
 
@@ -335,65 +333,6 @@ PlayerView::SubRedraw() {
   }
 
   glDepthMask(1);
-
-  return true;
-}
-
-// x軸, y軸, z軸まわりで, それぞれdegx, degy, degzだけ回転させる
-// 回転行列を求める. 
-bool
-RotateMatrix( double Mat[][3], double degx, double degy, double degz ) {
-  double MRot[3][3];
-  double M[3][3];
-  int i, j;
-
-  memset(MRot, 0, sizeof(double)*9);
-  MRot[0][0] = 1;
-  MRot[1][1] = cos(degx*3.141592/180);
-  MRot[1][2] = -sin(degx*3.141592/180);
-  MRot[2][1] = sin(degx*3.141592/180);
-  MRot[2][2] = cos(degx*3.141592/180);
-
-  for ( i = 0 ; i < 3 ; i++ ) {
-    for ( j = 0 ; j < 3 ; j++ ) {
-      M[i][j] = Mat[i][0]*MRot[0][j] + Mat[i][1]*MRot[1][j]
-	+ Mat[i][2]*MRot[2][j];
-    }
-  }
-
-  memset(MRot, 0, sizeof(double)*9);
-  MRot[1][1] = 1;
-  MRot[2][2] = cos(degy*3.141592/180);
-  MRot[2][0] = -sin(degy*3.141592/180);
-  MRot[0][2] = sin(degy*3.141592/180);
-  MRot[0][0] = cos(degy*3.141592/180);
-
-  for ( i = 0 ; i < 3 ; i++ ) {
-    for ( j = 0 ; j < 3 ; j++ ) {
-      Mat[i][j] = M[i][0]*MRot[0][j] + M[i][1]*MRot[1][j]
-	+ M[i][2]*MRot[2][j];
-    }
-  }
-
-  memset(MRot, 0, sizeof(double)*9);
-  MRot[2][2] = 1;
-  MRot[0][0] = cos(degz*3.141592/180);
-  MRot[0][1] = -sin(degz*3.141592/180);
-  MRot[1][0] = sin(degz*3.141592/180);
-  MRot[1][1] = cos(degz*3.141592/180);
-
-  for ( i = 0 ; i < 3 ; i++ ) {
-    for ( j = 0 ; j < 3 ; j++ ) {
-      M[i][j] = Mat[i][0]*MRot[0][j] + Mat[i][1]*MRot[1][j]
-	+ Mat[i][2]*MRot[2][j];
-    }
-  }
-
-  for ( i = 0 ; i < 3 ; i++ ) {
-    for ( j = 0 ; j < 3 ; j++ ) {
-      Mat[i][j] = M[i][j];
-    }
-  }
 
   return true;
 }

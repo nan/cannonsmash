@@ -140,50 +140,50 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
   case 2:	// target移動
     if ( m_count == 200 ) {
       thePlayer->m_targetX = -TABLEWIDTH/2*0.9;
-      thePlayer->m_targetY = TABLELENGTH/16*7;
+      thePlayer->m_targetY = TABLELENGTH/12*5;
       m_mouseX = 0;
       m_mouseY = 0;
     } else if ( m_count == 300 ) {
       thePlayer->m_targetX = -TABLEWIDTH/2*0.9;
-      thePlayer->m_targetY = TABLELENGTH/16*1;
+      thePlayer->m_targetY = TABLELENGTH/12*2;
       m_mouseX = 0;
       m_mouseY = 3;
     } else if ( m_count == 400 ) {
       thePlayer->m_targetX = TABLEWIDTH/2*0.9;
-      thePlayer->m_targetY = TABLELENGTH/16*7;
-      m_mouseX = 10;
+      thePlayer->m_targetY = TABLELENGTH/12*5;
+      m_mouseX = 12;
       m_mouseY = 0;
     } else if ( m_count == 500 ) {
       thePlayer->m_targetX = TABLEWIDTH/2*0.9;
-      thePlayer->m_targetY = TABLELENGTH/16*1;
-      m_mouseX = 10;
+      thePlayer->m_targetY = TABLELENGTH/12*2;
+      m_mouseX = 12;
       m_mouseY = 3;
     } else if ( m_count == 600 ) {
-      thePlayer->m_targetX = -TABLEWIDTH/2*0.7;
-      thePlayer->m_targetY = TABLELENGTH/16*3;
-      m_mouseX = 1;
+      thePlayer->m_targetX = -TABLEWIDTH/2*0.6;
+      thePlayer->m_targetY = TABLELENGTH/12*3;
+      m_mouseX = 2;
       m_mouseY = 2;
     } else if ( m_count == 700 ) {
-      thePlayer->m_targetX = 0.0;
-      thePlayer->m_targetY = TABLELENGTH/16*5;
-      m_mouseX = 5;
+      thePlayer->m_targetX = TABLEWIDTH/2*0.15;
+      thePlayer->m_targetY = TABLELENGTH/12*4;
+      m_mouseX = 7;
       m_mouseY = 1;
     } else if ( m_count == 800 ) {
-      thePlayer->m_targetX = TABLEWIDTH/2*0.5;
-      thePlayer->m_targetY = TABLELENGTH/16*7;
-      m_mouseX = 8;
-      m_mouseY = 0;
-    } else if ( m_count == 900 ) {
-      thePlayer->m_targetX = TABLEWIDTH/2*0.9;
-      thePlayer->m_targetY = TABLELENGTH/16*3;
+      thePlayer->m_targetX = TABLEWIDTH/2*0.6;
+      thePlayer->m_targetY = TABLELENGTH/12*4;
       m_mouseX = 10;
+      m_mouseY = 1;
+    } else if ( m_count == 900 ) {
+      thePlayer->m_targetX = TABLEWIDTH/2*0.75;
+      thePlayer->m_targetY = TABLELENGTH/12*3;
+      m_mouseX = 11;
       m_mouseY = 2;
     } else if ( m_count == 1150 ) {
       theBall.Toss( thePlayer, 1 );
       thePlayer->StartSwing( 1 );
     } else if ( m_count == 1450 ) {
       thePlayer->m_targetX = -TABLEWIDTH/2*0.9;
-      thePlayer->m_targetY = TABLELENGTH/16*7;
+      thePlayer->m_targetY = TABLELENGTH/12*5;
       m_mouseX = 0;
       m_mouseY = 0;
     } else if ( m_count == 1550 ) {

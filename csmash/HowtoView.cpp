@@ -200,10 +200,14 @@ HowtoView::RedrawAlpha() {
       glEnable(GL_TEXTURE_2D);
       glBindTexture(GL_TEXTURE_2D, m_keyboard[0] );
       glBegin(GL_QUADS);
-      glTexCoord2f(0.0, 1.0); glVertex2i( 190, -300 );
-      glTexCoord2f(1.0, 1.0); glVertex2i( 610, -300 );
-      glTexCoord2f(1.0, 0.0); glVertex2i( 610,  300 );
-      glTexCoord2f(0.0, 0.0); glVertex2i( 190,  300 );
+      //glTexCoord2f(0.0, 1.0); glVertex2i( 190, -300 );
+      //glTexCoord2f(1.0, 1.0); glVertex2i( 610, -300 );
+      //glTexCoord2f(1.0, 0.0); glVertex2i( 610,  300 );
+      //glTexCoord2f(0.0, 0.0); glVertex2i( 190,  300 );
+      glTexCoord2f(0.0, 1.0); glVertex2i( 120, -180 );
+      glTexCoord2f(1.0, 1.0); glVertex2i( 800, -180 );
+      glTexCoord2f(1.0, 0.0); glVertex2i( 800,  300 );
+      glTexCoord2f(0.0, 0.0); glVertex2i( 120,  300 );
       glEnd();
       glDisable(GL_TEXTURE_2D);
     }
@@ -236,10 +240,14 @@ HowtoView::RedrawAlpha() {
     if ( m_howto->GetCount() > 200 && m_howto->GetCount() < 1000 &&
 	 m_howto->GetCount()%100 > 0 && m_howto->GetCount()%100 < 30 ) {
       glBegin(GL_QUADS);
-      glVertex2i( 202+m_howto->GetMouseX()*36, 297-m_howto->GetMouseY()*72 );
-      glVertex2i( 235+m_howto->GetMouseX()*36, 297-m_howto->GetMouseY()*72 );
-      glVertex2i( 235+m_howto->GetMouseX()*36, 252-m_howto->GetMouseY()*72 );
-      glVertex2i( 202+m_howto->GetMouseX()*36, 252-m_howto->GetMouseY()*72 );
+      //glVertex2i( 202+m_howto->GetMouseX()*36, 297-m_howto->GetMouseY()*72 );
+      //glVertex2i( 235+m_howto->GetMouseX()*36, 297-m_howto->GetMouseY()*72 );
+      //glVertex2i( 235+m_howto->GetMouseX()*36, 252-m_howto->GetMouseY()*72 );
+      //glVertex2i( 202+m_howto->GetMouseX()*36, 252-m_howto->GetMouseY()*72 );
+      glVertex2i( 192+m_howto->GetMouseX()*27, 296-m_howto->GetMouseY()*56 );
+      glVertex2i( 262+m_howto->GetMouseX()*27, 296-m_howto->GetMouseY()*56 );
+      glVertex2i( 262+m_howto->GetMouseX()*27, 242-m_howto->GetMouseY()*56 );
+      glVertex2i( 192+m_howto->GetMouseX()*27, 242-m_howto->GetMouseY()*56 );
       glEnd();
     }
     break;

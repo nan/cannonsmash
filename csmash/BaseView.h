@@ -32,8 +32,6 @@ public:
   static void ReshapeFunc( int width, int height );
 
   bool RedrawAll();
-  //bool Redraw();
-  //bool RedrawAlpha();
   bool SetViewPosition();
 
   bool AddView( View *view );
