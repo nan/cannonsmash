@@ -352,7 +352,7 @@ StartServer() {
   AcceptClient();
 
   // タイマ調整
-  for ( i = 0 ; i < 100 ; i++ ) {
+  for ( i = 0 ; i < 5 ; i++ ) {
 #ifndef WIN32
     struct timeval tv;
     struct timezone tz;
@@ -513,7 +513,7 @@ StartClient() {
 #endif
   int i;
 
-  for ( i = 0 ; i < 100 ; i++ ) {
+  for ( i = 0 ; i < 5 ; i++ ) {
     ReadTime( theSocket, &tb );	// 捨てる
 
 #ifdef WIN32
