@@ -97,24 +97,25 @@ int main(int argc, char **argv) {
 int main(int argc, char** argv) {
 #endif
 
-    /*initalise i18n*/
+    /* initialize i18n */
 #ifdef WIN32
-    char buf[256];
-    GetLocaleInfo( LOCALE_SYSTEM_DEFAULT, LOCALE_SENGLANGUAGE, buf, 256 );
-    if ( strcmp( buf, "Japanese" ) == 0 ) {
-      putenv("LANGUAGE=ja"); // Japanese
-    } else if ( strcmp( buf, "German" ) == 0 ) {
-      putenv("LANGUAGE=de"); // German
+    switch (PRIMARYLANGID(GetUserDefaultLangID())) {
+    default: break;
+    case LANG_JAPANESE: putenv("LANGUAGE=ja"); break;
+    case LANG_GERMAN:	putenv("LANGUAGE=de"); break;
+    case LANG_HINDI:	putenv("LANGUAGE=hi"); break;
     }
 #endif
 
     gtk_set_locale();
     setlocale (LC_ALL, "");
+
 #ifdef WIN32
     char *localedir = (char*)alloca(MAX_PATH);
     *localedir = '\0';
     GetCurrentDirectory(MAX_PATH, localedir);
     strcat( localedir, "\\locale" );
+    printf("\nlocale=%s\n", localedir);
     bindtextdomain ("csmash", localedir);
     textdomain ("csmash");
 #else
@@ -367,8 +368,8 @@ LoadData( void *dum ) {
 char *
 gettext_iconv( char *buf ) {
   static char* tobuf = 0;
-  char *frombuf;
-  char *fromaddr, *toaddr;
+  char *frombuf, *toaddr;
+  const char *fromaddr;
   unsigned int fromsize, tosize;
 
   if ( ic == (iconv_t)-1 )
