@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
+// Copyright (C) 2000  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 #include "ttinc.h"
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__FreeBSD__)
 
 typedef int socklen_t;		/* mimic Penguin's typedef */
 
@@ -36,12 +36,13 @@ extern char serverName[256];
 
 extern long timeAdj;
 
+extern short csmash_port;
 extern int theSocket;
 bool endian;
 
 extern void QuitGame();
 
-// endian$BJQ49(B
+// endianÊÑ´¹
 double
 SwapDbl( double d ) {
   if ( endian ) {
@@ -72,7 +73,7 @@ SwapLong( long l ) {
   }
 }
 
-// endian$B%F%9%H(B
+// endian¥Æ¥¹¥È
 void
 EndianCheck() {
   long n = 1;
@@ -102,7 +103,7 @@ SendLong( int sd, long l ) {
     return false;
 }
 
-// $B$A$g$C$HJQ$J;EMM$+$J$!(B...
+// ¤Á¤ç¤Ã¤ÈÊÑ¤Ê»ÅÍÍ¤«¤Ê¤¡...
 char *
 ReadDouble( char *buf, double& d ) {
   memcpy( &d, buf, 8 );
@@ -149,14 +150,14 @@ ReadTime( int sd, struct timeb* tb ) {
   tb->millitm = millitm;
 }
 
-// PlayerData$BAw?.(B
+// PlayerDataÁ÷¿®
 void
 SendPlayerData() {
   send( theSocket, "PI", 2, 0 );
   thePlayer->SendAll( theSocket );
 }
 
-// PlayerData$B<u?.(B
+// PlayerData¼õ¿®
 Player *
 ReadPlayerData() {
   double x, y, z, vx, vy, vz, spin;
@@ -250,7 +251,7 @@ AcceptClient() {
 
   saddr.sin_addr.s_addr = htonl(INADDR_ANY);
   saddr.sin_family = AF_INET;
-  saddr.sin_port = htons(CSMASH_PORT);
+  saddr.sin_port = htons(csmash_port);
   if ( bind( sock, (struct sockaddr *)&saddr, sizeof(saddr) ) < 0 ) {
     xerror("%s(%d) bind", __FILE__, __LINE__);
     exit(1);
@@ -264,7 +265,7 @@ AcceptClient() {
   }
   sba.sin_addr.s_addr = INADDR_ANY;
   sba.sin_family = AF_INET;
-  sba.sin_port = htons(CSMASH_PORT);
+  sba.sin_port = htons(csmash_port);
   if (0 > bind(sb, (struct sockaddr*)&sba, sizeof(sba))) {
     xerror("%s(%d) bind", __FILE__, __LINE__);
     exit(1);
@@ -342,7 +343,7 @@ StartServer() {
 
   AcceptClient();
 
-  // $B%?%$%^D4@0(B
+  // ¥¿¥¤¥ÞÄ´À°
   for ( i = 0 ; i < 100 ; i++ ) {
 #ifndef WIN32
     struct timeval tv;
@@ -389,7 +390,7 @@ StartServer() {
 
   printf( "%d\n", timeAdj );
 
-  // Ball Data$B$NFI$_9~$_(B
+  // Ball Data¤ÎÆÉ¤ß¹þ¤ß
   if ( recv( theSocket, buf, 2, 0 ) != 2 ) {
     xerror("%s(%d) recv", __FILE__, __LINE__);
     exit(1);
@@ -445,7 +446,7 @@ StartClient() {
       memset(&sba, 0, sizeof(sba));
       sba.sin_family = AF_INET;
       sba.sin_addr.s_addr = INADDR_BROADCAST;
-      sba.sin_port = htons(CSMASH_PORT);
+      sba.sin_port = htons(csmash_port);
 
       sendto(sb, buf, 0, 0, (sockaddr*)&sba, sizeof(sba));
       fd_set fd;
@@ -479,7 +480,7 @@ StartClient() {
 
   printf("server is %s\n", inet_ntoa(saddr.sin_addr));
   saddr.sin_family = AF_INET;
-  saddr.sin_port = htons(CSMASH_PORT);
+  saddr.sin_port = htons(csmash_port);
 
   // connect
   if ( (theSocket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
@@ -491,7 +492,7 @@ StartClient() {
     exit(1);
   }
 
-  // $B%?%$%^D4@0(B
+  // ¥¿¥¤¥ÞÄ´À°
   struct timeb tb;
 #ifndef WIN32
   struct timeval tv;
@@ -500,7 +501,7 @@ StartClient() {
   int i;
 
   for ( i = 0 ; i < 100 ; i++ ) {
-    ReadTime( theSocket, &tb );	// $B<N$F$k(B
+    ReadTime( theSocket, &tb );	// ¼Î¤Æ¤ë
 
 #ifdef WIN32
     ftime( &tb );
@@ -513,7 +514,7 @@ StartClient() {
     SendTime( theSocket, &tb );
   }
 
-  // Ball Data$B$NAw?.(B
+  // Ball Data¤ÎÁ÷¿®
   send( theSocket, "BI", 2, 0 );
   theBall.Send( theSocket );
 
@@ -548,9 +549,9 @@ MultiPlay::Create( long player, long com ) {
   newMultiPlay->Init();
 
   if ( !(serverName[0]) )
-    side = 1;		// server$BB&(B
+    side = 1;		// serverÂ¦
   else
-    side = -1;	// client$BB&(B
+    side = -1;	// clientÂ¦
 
   if ( thePlayer == NULL ) {
     thePlayer = Player::Create( player, side, 0 );

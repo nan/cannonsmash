@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
+// Copyright (C) 2000  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -29,8 +29,9 @@ Player *thePlayer = NULL;
 Player *comPlayer = NULL;
 Event theEvent;
 
+short csmash_port = CSMASH_PORT;
 int theSocket = -1;
-bool isComm = false;		// $BDL?.BP@o$+(B
+bool isComm = false;		// ÄÌ¿®ÂÐÀï¤«
 char serverName[256];
 
 long timeAdj = 0;
@@ -42,15 +43,15 @@ bool isPolygon	= true;
 bool isSimple	= false;
 bool isWireFrame = true;
 
-long wins	= 0;		// $B>!$AH4$-?t(B
-long gameLevel  = LEVEL_NORMAL;	// $B6/$5(B
-long gameMode   = GAME_21PTS;	// $B%2!<%`$ND9$5(B
+long wins	= 0;		// ¾¡¤ÁÈ´¤­¿ô
+long gameLevel  = LEVEL_NORMAL;	// ¶¯¤µ
+long gameMode   = GAME_21PTS;	// ¥²¡¼¥à¤ÎÄ¹¤µ
 
 Control*      theControl = NULL;
 
 long mode = MODE_OPENING;
 
-long sndMode;			// $B$"$H$G0z?t2=(B
+long sndMode;			// ¤¢¤È¤Ç°ú¿ô²½
 
 #if HAVE_LIBPTHREAD
 pthread_mutex_t loadMutex = PTHREAD_MUTEX_INITIALIZER;
@@ -89,12 +90,12 @@ int main(int argc, char** argv) {
   sndMode = SOUND_ESD;
 #elif defined(WIN32)
   sndMode = SOUND_WIN32;
-#elif
+#elif 1
   sndMode = SOUND_NONE;
 #endif
 
     int c;
-    while(EOF != (c = getopt(argc, argv, "schfSO"))) {
+    while(EOF != (c = getopt(argc, argv, "scphfSO"))) {
         switch (c) {
         case 'h':
 	    // brief help
@@ -111,6 +112,11 @@ int main(int argc, char** argv) {
 	    isComm = true;
 	    mode = MODE_SELECT;
 	    serverName[0] = 1;	// :-p
+	    break;
+	case 'p':
+	    // set the csmash_port
+	    csmash_port = (short)atoi(optarg);
+	    if (0 == csmash_port) csmash_port = CSMASH_PORT;
 	    break;
 	case 'f':
 	    // Fullscreen mode
@@ -210,7 +216,7 @@ int main(int argc, char** argv) {
   return 0;
 }
 
-// $B8e$G(BSound$B$b$3$3$+$iDI$$=P$7$FGQ;_$9$k(B. 
+// ¸å¤ÇSound¤â¤³¤³¤«¤éÄÉ¤¤½Ð¤·¤ÆÇÑ»ß¤¹¤ë. 
 void *
 LoadData( void *dum ) {
 #if HAVE_LIBPTHREAD
