@@ -273,11 +273,13 @@ Event::Record() {
     m_BacktrackBuffer[m_Histptr].score2 =
       ((PlayGame *)theControl)->GetScore( comPlayer );
 
+#if 0
     if ( mode == MODE_MULTIPLAY ) {
       printf( "Hptr = %d x=%f y=%f vx=%f vy=%f vz=%f\n", m_Histptr, 
 	      comPlayer->GetX(), comPlayer->GetY(),
 	      comPlayer->GetVX(), comPlayer->GetVY(), comPlayer->GetVZ() );
     }
+#endif
   }
 
   return;
@@ -458,6 +460,21 @@ Event::ReadData() {
   fd_set rdfds;
   struct timeval to;
 
+  // for testing
+  struct timeb tb1;
+#ifndef WIN32
+  struct timeval tv1;
+  struct timezone tz1;
+#endif
+
+#ifdef WIN32
+  ftime( &tb1 );
+#else
+  gettimeofday( &tv1, &tz1 );
+  tb1.time = tv1.tv_sec;
+  tb1.millitm = tv1.tv_usec/1000;
+#endif
+
   while (1) {
     FD_ZERO( &rdfds );
     FD_SET( theSocket, &rdfds );
@@ -470,6 +487,23 @@ Event::ReadData() {
       break;
     //printf( "External\n" );
   }
+
+  // for testing
+  struct timeb tb2;
+#ifndef WIN32
+  struct timeval tv2;
+  struct timezone tz2;
+#endif
+
+#ifdef WIN32
+  ftime( &tb2 );
+#else
+  gettimeofday( &tv2, &tz2 );
+  tb2.time = tv2.tv_sec;
+  tb2.millitm = tv2.tv_usec/1000;
+#endif
+
+  printf( "%d\n", (tb2.time-tb1.time)*1000+tb2.millitm-tb1.millitm );
 
   // externalDataの先頭までbacktrackする
   long btCount;
@@ -596,5 +630,5 @@ QuitGame() {
   printf( "Avg = %f\n", (double)perfs/_perfCount );
   printf( "BackTrack = %f\n", backTracks/_backTrackCount );
   Event::ClearObject();
-  exit(0);
+  exit(2);
 }

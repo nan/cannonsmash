@@ -723,12 +723,14 @@ ExternalPVData::Apply( Player *targetPlayer, bool &fThePlayer,
   else if ( targetPlayer == comPlayer )
     fComPlayer = true;
 
+#if 0
   printf( "PV: sec = %d count = %d\n", sec, count);
   printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n", targetPlayer->GetX(),
 	  targetPlayer->GetY(), targetPlayer->GetZ(),
 	  targetPlayer->GetVX(), targetPlayer->GetVY(),
 	  targetPlayer->GetVZ() );
   fflush(0);
+#endif
 
   return true;
 }
@@ -765,9 +767,11 @@ ExternalPSData::Apply( Player *targetPlayer, bool &fThePlayer,
   else if ( targetPlayer == comPlayer )
     fComPlayer = true;
 
+#if 0
   printf( "PS: sec = %d count = %d swing = %d\n",
 	  sec, count, targetPlayer->GetSwing());
   fflush(0);
+#endif
   return true;
 }
 
@@ -799,10 +803,12 @@ ExternalBVData::Apply( Player *targetPlayer, bool &fThePlayer,
   theBall.Warp( data );
   fTheBall = true;
 
+#if 0
   printf( "BV: sec = %d count = %d\n", sec, count);
   printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n", theBall.GetX(),
 	  theBall.GetY(), theBall.GetZ(),
 	  theBall.GetVX(), theBall.GetVY(), theBall.GetVZ() );
+#endif
   fflush(0);
   return true;
 }

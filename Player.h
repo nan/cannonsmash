@@ -61,6 +61,8 @@ public:
 
   virtual ~Player();
 
+  void operator=(Player&);
+
   static Player* Create( long player, long side, long type );
 
   virtual bool Init();

@@ -147,6 +147,47 @@ Player::~Player() {
   }
 }
 
+void
+Player::operator=(Player& p) {
+  m_playerType = p.m_playerType;
+  m_side = p.m_side;
+
+  m_x = p.m_x;
+  m_y = p.m_y;
+  m_z = p.m_z;
+  m_vx = p.m_vx;
+  m_vy = p.m_vy;
+  m_vz = p.m_vz;
+
+  m_status = p.m_status;
+  m_swing = p.m_swing;
+  m_swingType = p.m_swingType;
+  m_swingSide = p.m_swingSide;
+  m_afterSwing = p.m_afterSwing;
+  m_swingError = p.m_swingError;
+  m_targetX = p.m_targetX;
+  m_targetY = p.m_targetY;
+
+  m_eyeX = p.m_eyeX;
+  m_eyeY = p.m_eyeY;
+  m_eyeZ = p.m_eyeZ;
+
+  m_lookAtX = p.m_lookAtX;
+  m_lookAtY = p.m_lookAtY;
+  m_lookAtZ = p.m_lookAtZ;
+
+  m_pow = p.m_pow;
+  m_spin = p.m_spin;
+
+  m_stamina = p.m_stamina;
+
+  m_dragX = p.m_dragX;
+  m_dragY = p.m_dragY;
+
+  m_View = NULL;
+  m_hitMark = NULL;
+}
+
 Player*
 Player::Create( long player, long side, long type ) {
   switch (type) {

@@ -124,6 +124,8 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	  (GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )
 	 +GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER ));
 	}
+	if ( MouseYHistory[Histptr] < 0 )
+	  MouseYHistory[Histptr] = 0;
 	break;
       case '6':
 	MouseXHistory[Histptr] = BaseView::GetWinWidth()/4*3;
@@ -140,6 +142,8 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	  (GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )
 	 +GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER ));
 	}
+	if ( MouseYHistory[Histptr] > BaseView::GetWinHeight() )
+	  MouseYHistory[Histptr] = BaseView::GetWinHeight();
 	break;
       }
     }

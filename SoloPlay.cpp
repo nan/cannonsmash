@@ -72,6 +72,25 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
   static long delayCounter = 0;
 
   if ( m_smashPtr >= 0 ) {	// スマッシュリプレイ
+#if 0
+    // マウスボタンを押したら中断(最後1秒程度になったらこれは無効)
+    long last = Histptr-1;
+    if ( last < 0 )
+      last = MAX_HISTORY-1;
+
+    if ( MouseBHistory[Histptr] &&
+	 MouseBHistory[Histptr] != MouseBHistory[last] &&
+	 m_smashCount < 1 ) {
+      Histptr = m_smashPtr;
+      SmashEffect( false, Histptr );
+      m_smashCount = 0;
+      m_smashPtr = -1;
+      m_smash = false;
+
+      return true;
+    }
+#endif
+
     delayCounter++;
     if ( theBall.GetStatus() == 3 &&
 	 (delayCounter%5) != 0 ) {
@@ -93,9 +112,6 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	m_smashPtr = SmashEffect(true, Histptr);
       }
     } else {
-      theBall.Move();
-      thePlayer->Move( KeyHistory, MouseXHistory,
-		       MouseYHistory, MouseBHistory, Histptr );
       theEvent.BackTrack(Histptr);
     }
 
