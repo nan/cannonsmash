@@ -185,9 +185,10 @@ MultiPlayerSelect::Connect( void *dum ) {
     try {
       ConnectToServer();
     } catch ( NetworkError ) {
-      xerror("%s(%d) ConnectoToServer", __FILE__, __LINE__);
+      xerror("%s(%d) ConnectToServer", __FILE__, __LINE__);
       exit(1);
     }
+
     ClientAdjustClock();
   }
 
@@ -239,7 +240,7 @@ MultiPlayerSelect::SendPT( char fixed ) {
 #ifdef LOGGING
   char buf[256];
 
-  sprintf( buf, "fixed=%d, rotate=%d\n", fixed, rotate );
+  sprintf( buf, "fixed=%d rotate=%d\n", fixed, rotate );
   Logging::GetLogging()->LogTime( LOG_COMMISC );
   Logging::GetLogging()->Log( LOG_COMMISC, buf );
 #endif

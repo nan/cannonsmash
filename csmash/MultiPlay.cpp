@@ -214,10 +214,7 @@ MultiPlay::WaitForData( void *dum ) {
       SDL_mutexV( networkMutex );
 
       if ( !ret ) {
-//	printf( "GetExternalData failed\n" );
 	break;
-      } else {
-//	printf( "GetExternalData succeeded\n" );
       }
     } else {
       printf( "Select failed\n" );
@@ -300,8 +297,10 @@ ExternalData::ReadData( long s ) {
     QuitGame();
     //mode = MODE_TITLE;
     return NULL;
-  } else
+  } else {
+    printf( "Comm Error!!\n" );
     return NULL;
+  }
 
   return extNow;
 }
