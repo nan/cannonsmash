@@ -49,10 +49,10 @@ ComTrainingPenDrive::ComTrainingPenDrive( long playerType, long side,
 					  double eyeX, double eyeY,
 					  double eyeZ,
 					  long pow, double spin,
-					  double stamina ) :
+					  double stamina, long statusMax ) :
   ComPenDrive( playerType, side, x, y, z, vx, vy, vz, status, swing, swingType,
 	       swingSide, afterSwing, swingError, targetX, targetY,
-	       eyeX, eyeY, eyeZ, pow, spin, stamina ) {
+	       eyeX, eyeY, eyeZ, pow, spin, stamina, statusMax ) {
 }
 
 ComTrainingPenDrive::~ComTrainingPenDrive() {

@@ -49,10 +49,10 @@ ComTrainingPenAttack::ComTrainingPenAttack( long playerType, long side,
 					    double eyeX, double eyeY,
 					    double eyeZ,
 					    long pow, double spin,
-					    double stamina ) :
+					    double stamina, long statusMax ) :
   ComPenAttack( playerType, side, x, y, z, vx, vy, vz, status, swing,
 		swingType, swingSide, afterSwing, swingError, targetX, targetY,
-		eyeX, eyeY, eyeZ, pow, spin, stamina ) {
+		eyeX, eyeY, eyeZ, pow, spin, stamina, statusMax ) {
 }
 
 ComTrainingPenAttack::~ComTrainingPenAttack() {

@@ -45,10 +45,11 @@ ComPenAttack::ComPenAttack( long playerType, long side,
 			    long afterSwing, long swingError,
 			    double targetX, double targetY,
 			    double eyeX, double eyeY, double eyeZ,
-			    long pow, double spin, double stamina ) :
+			    long pow, double spin, double stamina,
+			    long statusMax ) :
   PenAttack( playerType, side, x, y, z, vx, vy, vz, status, swing, swingType,
 	     swingSide, afterSwing, swingError, targetX, targetY,
-	     eyeX, eyeY, eyeZ, pow, spin, stamina ), ComPlayer() {
+	     eyeX, eyeY, eyeZ, pow, spin, stamina, statusMax ), ComPlayer() {
 }
 
 ComPenAttack::~ComPenAttack() {

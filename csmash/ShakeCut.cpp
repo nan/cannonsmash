@@ -40,10 +40,11 @@ ShakeCut::ShakeCut( long playerType, long side, double x, double y, double z,
 		    long swingType, bool swingSide, long afterSwing,
 		    long swingError,
 		    double targetX, double targetY, double eyeX, double eyeY,
-		    double eyeZ, long pow, double spin, double stamina ) :
+		    double eyeZ, long pow, double spin, double stamina,
+		    long statusMax ) :
   Player( playerType, side, x, y, z, vx, vy, vz, status, swing, swingType,
 	  swingSide, afterSwing, swingError, targetX, targetY,
-	  eyeX, eyeY, eyeZ, pow, spin, stamina ) {
+	  eyeX, eyeY, eyeZ, pow, spin, stamina, statusMax ) {
 }
 
 ShakeCut::~ShakeCut() {
@@ -210,7 +211,7 @@ ShakeCut::HitBall() {
 	 (m_y-theBall.GetY())*m_side > -0.6 ) {
 #endif
 
-      AddStatus( -fabs(fabs(m_x-theBall.GetX())-0.3)*100 );
+      //AddStatus( -fabs(fabs(m_x-theBall.GetX())-0.3)*100 );
 
       double maxVy;
       CalcLevel( &theBall, diff, level, maxVy );
@@ -222,8 +223,10 @@ ShakeCut::HitBall() {
       double n1x, n1y, n1z, n2x, n2y, n2z;
       double radDiff, radRand;
 
-      radDiff = (double)(220-m_status)/220*3.141592/18;
-      radDiff *= fabs(fabs(m_x-theBall.GetX())-0.3)/0.3;
+      radDiff = hypot( fabs(fabs(m_x-theBall.GetX())-0.3)/0.3, 
+		       fabs(m_y-theBall.GetY())/0.3 );
+      radDiff = sqrt( radDiff );	// 分散を大きくする
+      radDiff *= (double)(200-m_status)/200*3.141592/18;
 
       v = sqrt(vx*vx+vy*vy+vz*vz);
       n1x = vy/hypot(vx, vy) * v*tan(radDiff);
@@ -240,11 +243,12 @@ ShakeCut::HitBall() {
       vz += n1z*cos(radRand)+n2z*sin(radRand);
 
       // ボールの強さによって体勢ゲージを減らす
-      m_afterSwing = (long)(hypot(m_vx*0.8-vx, m_vy*0.8+vy)*(1.5+diff*10.0) +
-			    m_spin*3.0)+20;
+      m_afterSwing = (long)(hypot(m_vx*0.8-vx, m_vy*0.8+vy)*(1.0+diff*10.0) +
+			    fabs(m_spin)*3.0+fabs(theBall.GetSpin())*2.0);
 
-      if ( ForeOrBack() ||
-	   m_swingType == SWING_POKE || m_swingType == SWING_CUT )
+      if ( m_swingType == SWING_POKE || m_swingType == SWING_CUT )
+	AddStatus( -m_afterSwing );
+      else if ( ForeOrBack() )
 	AddStatus( -m_afterSwing*2 );
       else
 	AddStatus( -m_afterSwing*3 );

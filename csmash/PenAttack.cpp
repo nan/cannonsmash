@@ -40,10 +40,11 @@ PenAttack::PenAttack( long playerType, long side, double x, double y, double z,
 		      long swingType, bool swingSide, long afterSwing,
 		      long swingError,
 		      double targetX, double targetY, double eyeX, double eyeY,
-		      double eyeZ, long pow, double spin, double stamina ) :
+		      double eyeZ, long pow, double spin, double stamina,
+		      long statusMax ) :
   Player( playerType, side, x, y, z, vx, vy, vz, status, swing, swingType,
 	  swingSide, afterSwing, swingError, targetX, targetY,
-	  eyeX, eyeY, eyeZ, pow, spin, stamina ) {
+	  eyeX, eyeY, eyeZ, pow, spin, stamina, statusMax ) {
 }
 
 PenAttack::~PenAttack() {
@@ -216,7 +217,7 @@ PenAttack::HitBall() {
 	 (m_y-theBall.GetY())*m_side > -0.6 ) {
 #endif
 
-      AddStatus( -fabs(fabs(m_x-theBall.GetX())-0.3)*100 );
+      //AddStatus( -fabs(fabs(m_x-theBall.GetX())-0.3)*100 );
 
       double maxVy;
       CalcLevel( &theBall, diff, level, maxVy );
@@ -228,8 +229,10 @@ PenAttack::HitBall() {
       double n1x, n1y, n1z, n2x, n2y, n2z;
       double radDiff, radRand;
 
-      radDiff = (double)(220-m_status)/220*3.141592/18;
-      radDiff *= fabs(fabs(m_x-theBall.GetX())-0.3)/0.3;
+      radDiff = hypot( fabs(fabs(m_x-theBall.GetX())-0.3)/0.3, 
+		       fabs(m_y-theBall.GetY())/0.3 );
+      radDiff = sqrt( radDiff );	// 分散を大きくする
+      radDiff *= (double)(200-m_status)/200*3.141592/18;
 
       v = sqrt(vx*vx+vy*vy+vz*vz);
       n1x = vy/hypot(vx, vy) * v*tan(radDiff);

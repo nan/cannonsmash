@@ -45,7 +45,6 @@ struct timeb Event::m_lastTime = {0, 0, 0, 0};	// $BD>A0$K(BTimerEvent$B$,8F$
 extern int theSocket;
 
 extern bool isLighting;
-extern bool isFog;
 extern bool isTexture;
 extern bool isPolygon;
 

@@ -340,13 +340,11 @@ PlayerView::SubRedraw() {
     glPushMatrix();
       glTranslatef( thePlayer->GetX()+0.3, thePlayer->GetY(), 1.0 );
       glRotatef( count, 0.0, 0.0, 1.0 );
-      glBegin(GL_POLYGON);
+      glBegin(GL_QUADS);
         glVertex3f( -0.1, -0.01, 0.0 );
         glVertex3f( -0.1,  0.01, 0.0 );
         glVertex3f(  0.1,  0.01, 0.0 );
         glVertex3f(  0.1, -0.01, 0.0 );
-      glEnd();
-      glBegin(GL_POLYGON);
         glVertex3f( -0.01, -0.1, 0.0 );
         glVertex3f( -0.01,  0.1, 0.0 );
         glVertex3f(  0.01,  0.1, 0.0 );
@@ -357,13 +355,11 @@ PlayerView::SubRedraw() {
     glPushMatrix();
       glTranslatef( thePlayer->GetX()-0.3, thePlayer->GetY(), 1.0 );
       glRotatef( count, 0.0, 0.0, 1.0 );
-      glBegin(GL_POLYGON);
+      glBegin(GL_QUADS);
         glVertex3f( -0.1, -0.01, 0.0 );
         glVertex3f( -0.1,  0.01, 0.0 );
         glVertex3f(  0.1,  0.01, 0.0 );
         glVertex3f(  0.1, -0.01, 0.0 );
-      glEnd();
-      glBegin(GL_POLYGON);
         glVertex3f( -0.01, -0.1, 0.0 );
         glVertex3f( -0.01,  0.1, 0.0 );
         glVertex3f(  0.01,  0.1, 0.0 );
@@ -384,6 +380,13 @@ PlayerView::DrawTargetCircle( double diff ) {
   double vx, vy, vz;
   double rad;
   static double ballHeight = 1.4;
+  static bool count = true;
+
+  if (isSimple) {
+    count = !count;
+    if ( count )
+      return;
+  }
 
   // 自Playerの手元に仮想的なBallを生成する
   if ( theBall.GetStatus() == 2 || theBall.GetStatus() == 3 || 

@@ -48,6 +48,7 @@ Sound::~Sound() {
       Mix_FreeChunk( m_sound[i] );
     }
   }
+  Mix_CloseAudio();
 #endif
 }
 

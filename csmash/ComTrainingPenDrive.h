@@ -31,7 +31,7 @@ public:
 		       bool swingSide, long afterSwing, long swingError, 
 		       double targetX, double targetY,
 		       double eyeX, double eyeY, double eyeZ,
-		       long pow, double spin, double stamina );
+		       long pow, double spin, double stamina, long statusMax );
 
   virtual ~ComTrainingPenDrive();
 

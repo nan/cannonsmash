@@ -72,6 +72,8 @@ Player::Player() {
 
   m_stamina = 80.0;
 
+  m_statusMax = 200;
+
   m_lookAtX = 0.0;
   m_lookAtY = TABLELENGTH/2*m_side;
   m_lookAtZ = TABLEHEIGHT;
@@ -123,7 +125,8 @@ Player::Player( long playerType, long side, double x, double y, double z,
 		long swingType, bool swingSide, long afterSwing,
 		long swingError, 
 		double targetX, double targetY, double eyeX, double eyeY,
-		double eyeZ, long pow, double spin, double stamina ) {
+		double eyeZ, long pow, double spin, double stamina,
+		long statusMax ) {
   m_side = side;
   m_playerType = playerType;
 
@@ -151,6 +154,7 @@ Player::Player( long playerType, long side, double x, double y, double z,
   m_spin = spin;
 
   m_stamina = stamina;
+  m_statusMax = statusMax;
 
   m_lookAtX = 0.0;
   m_lookAtY = TABLELENGTH/2*m_side;
@@ -758,13 +762,25 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
 
 bool
 Player::AddStatus( long diff ) {
-  m_status += diff;
-  if ( m_status > 200 )
+  if ( diff == 200 ) {	// 筋が悪い
+    m_statusMax = 200;
     m_status = 200;
+  } else {
+    m_status += diff;
 
-  if ( m_status < 1 ){
-    m_stamina += (m_status-1) / 10.0;
-    m_status = 1;
+    if ( m_status > m_statusMax )
+      m_status = m_statusMax;
+
+    if ( m_status < 1 ) {
+      m_stamina += (m_status-1) / 10.0;
+      m_status = 1;
+    }
+
+    if ( diff < -3 ) {	// これもいまいち. 移動以外で status が下がった場合
+      m_statusMax = (m_statusMax+m_status)/2;
+    }
+    //if ( m_status < m_statusMax )
+    //m_statusMax = (m_statusMax+m_status)/2;
   }
 
   return true;
@@ -1328,6 +1344,8 @@ Player::SendAll( int sd ) {
 
   SendDouble( sd, m_spin );
   SendDouble( sd, m_stamina );
+
+  SendLong( sd, m_statusMax );
 
   return true;
 }

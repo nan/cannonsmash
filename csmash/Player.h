@@ -52,7 +52,7 @@ public:
 	  double vx, double vy, double vz,long status, long swing, 
 	  long swingType, bool swingSide, long afterSwing, long swingError, 
 	  double targetX, double targetY, double eyeX, double eyeY,
-	  double eyeZ, long pow, double spin, double stamina );
+	  double eyeZ, long pow, double spin, double stamina, long statusMax );
 
   virtual ~Player();
 
@@ -165,6 +165,8 @@ protected:
   double m_spin;	// トップ/バックスピン
 
   double m_stamina;	// 体力
+
+  long m_statusMax;	// 体勢Min値
 
   long m_dragX;
   long m_dragY;		// マウスのドラッグ量

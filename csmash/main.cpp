@@ -45,7 +45,6 @@ char serverName[256];
 long timeAdj = 0;
 
 bool isLighting	= true;
-bool isFog	= true;
 bool isTexture	= true;
 bool isPolygon	= true;
 bool isSimple	= false;
@@ -63,6 +62,8 @@ long mode = MODE_OPENING;
 long sndMode;			// あとで引数化
 
 SDL_mutex *loadMutex;
+
+extern void QuitGame();
 
 #ifdef WIN32
 #include "win32/getopt.h"
@@ -225,6 +226,7 @@ int main(int argc, char** argv) {
 			   event.motion.x, event.motion.y );
 	break;
       case SDL_QUIT:
+	QuitGame();
 	break;
       case SDL_SYSWMEVENT:
 	break;

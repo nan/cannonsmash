@@ -37,7 +37,6 @@ extern BaseView theView;
 extern Ball theBall;
 
 extern bool isLighting;
-extern bool isFog;
 extern bool isTexture;
 extern bool isPolygon;
 extern bool isSimple;
@@ -64,11 +63,13 @@ BaseView::~BaseView() {
 bool
 BaseView::Init() {
 // Windowの生成, 初期化
+
   if ( fullScreen )
     m_baseSurface = SDL_SetVideoMode( m_winWidth, m_winHeight, 0,
 				      SDL_OPENGL|SDL_FULLSCREEN );
   else
-    m_baseSurface = SDL_SetVideoMode( m_winWidth, m_winHeight, 0, SDL_OPENGL );
+    m_baseSurface = SDL_SetVideoMode( m_winWidth, m_winHeight, 0,
+				      SDL_OPENGL );
 
   SDL_WM_SetCaption( "CannonSmash", NULL );
 
@@ -88,13 +89,16 @@ BaseView::Init() {
   GLfloat light_intensity_dif[] = { 1.0, 1.0, 1.0, 1.0 };
   GLfloat light_intensity_none[] = { 0.0, 0.0, 0.0, 0.0 };
 
-  glShadeModel (GL_SMOOTH);
-  if (!isSimple)
+  if (!isSimple) {
+    glShadeModel (GL_SMOOTH);
     glEnable(GL_DEPTH_TEST);
-  glEnable(GL_BLEND);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+  }
+
   glEnable(GL_COLOR_MATERIAL);
   glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
-  glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+
 
   //glLightfv(GL_LIGHT0, GL_POSITION, light_position);
   glLightfv(GL_LIGHT0, GL_AMBIENT, light_intensity_amb);
@@ -104,7 +108,7 @@ BaseView::Init() {
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
 
-  if (isFog) {
+  if (!isSimple) {
     glEnable(GL_FOG);
     GLfloat fogcolor[] = {0.2, 0.2, 0.2, 1.0};
     glFogi(GL_FOG_MODE, GL_EXP);
