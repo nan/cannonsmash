@@ -83,10 +83,6 @@ Title::Create() {
 
   m_theControl = new Title();
   m_theControl->Init();
-
-  // Move it to view?
-  SDL_ShowCursor(1);
-  SDL_WM_GrabInput( SDL_GRAB_OFF );
 }
 
 bool

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -184,13 +184,13 @@ int main(int argc, char** argv) {
 	case 's':
 	    // Server mode
 	    isComm = true;
-	    mode = MODE_SELECT;
+	    mode = MODE_MULTIPLAYSELECT;
 	    theRC->serverName[0] = '\0';
 	    break;
 	case 'c':
 	    // Client mode
 	    isComm = true;
-	    mode = MODE_SELECT;
+	    mode = MODE_MULTIPLAYSELECT;
 	    theRC->serverName[0] = 1;	// :-p
 	    break;
 	case 'p':
@@ -269,27 +269,7 @@ StartGame() {
 
 void
 InitGame() {
-#ifdef HAVE_LIBSDL_MIXER
-//  theRC->sndMode = SOUND_SDL;
-
-  if ( theRC->sndMode != SOUND_NONE ) {
-    if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_NOPARACHUTE) < 0 ) {
-      perror( _("SDL initialize failed\n") );
-      exit(1);
-    }
-  } else {
-    if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) < 0 ) {
-      perror( _("SDL initialize failed\n") );
-      exit(1);
-    }
-  }
-#else
-  if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) < 0 ) {
-    perror( _("SDL initialize failed\n") );
-    exit(1);
-  }
-  theRC->sndMode = SOUND_NONE;
-#endif
+  BaseView::TheView()->Init();
 
   if ( mode == MODE_OPENING && (access( OPENINGFILENAME, F_OK ) != 0) ) {
     mode = MODE_TITLE;
@@ -300,7 +280,6 @@ InitGame() {
 #endif
 
   Sound::TheSound()->Init( theRC->sndMode );
-  BaseView::TheView()->Init();
 
   SDL_EnableUNICODE(1);
 
@@ -322,7 +301,7 @@ void EndGame()
 
   theSocket = -1;
   isComm = false;
-  
+
   wins = 0;
   mode = MODE_TITLE;
   

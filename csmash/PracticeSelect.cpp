@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002, 2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -57,8 +57,6 @@ PracticeSelect::Create() {
 
   m_theControl = new PracticeSelect();
   m_theControl->Init();
-
-  SDL_ShowCursor(0);
 }
 
 bool

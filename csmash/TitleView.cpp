@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2002, 2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -48,6 +48,9 @@ TitleView::Init( Title *title ) {
     sprintf( fname, _("%s.pbm"), &(configTitle[i][0]) );
     m_configTitle[i].LoadFile(fname);
   }
+
+  SDL_ShowCursor(SDL_ENABLE);
+  SDL_WM_GrabInput( SDL_GRAB_OFF );
 
   return true;
 }
