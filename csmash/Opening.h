@@ -19,8 +19,7 @@
 #ifndef _Opening_
 #define _Opening_
 #include "Control.h"
-
-class OpeningView;
+#include "OpeningView.h"
 
 class Opening : public Control {
 public:
@@ -42,6 +41,8 @@ public:
   void GetPhrase( long &phrase, long &mod );
 
   virtual bool IsPlaying() { return false; };
+
+  virtual View *GetView() { return m_View; };
 protected:
   OpeningView *m_View;
   long m_count;

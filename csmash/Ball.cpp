@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -132,11 +132,11 @@ Ball::GetStatus() {
 
 bool
 Ball::Move() {
-  double netT , tableT;         /* ¥Í¥Ã¥È¡¢¥Æ¡¼¥Ö¥ë¤Î¾×ÆÍÈ½Äê¥Õ¥é¥° */
-  double x , y, z;              /* ¥Ü¡¼¥ë¤Îx,yºÂÉ¸¤ÎÊÝÂ¸ÍÑ */
-  double tableY;                /* ¥Æ¡¼¥Ö¥ë¥Ð¥¦¥ó¥É»þ¤ÎxºÂÉ¸ */
+  double netT , tableT;         /* $B%M%C%H!"%F!<%V%k$N>WFMH=Dj%U%i%0(B */
+  double x , y, z;              /* $B%\!<%k$N(Bx,y$B:BI8$NJ]B8MQ(B */
+  double tableY;                /* $B%F!<%V%k%P%&%s%I;~$N(Bx$B:BI8(B */
 
-// ¥Ü¡¼¥ë¥Ç¥Ã¥É¤Î»þ¤ÏÂ®¤ä¤«¤Ë¸µ¤ËÌá¤¹
+// $B%\!<%k%G%C%I$N;~$OB.$d$+$K85$KLa$9(B
   if ( m_status < 0 )
     m_status--;
 
@@ -183,7 +183,7 @@ Ball::Move() {
     return true;
   }
 
-/* Â®ÅÙ¤Î²Ã»» */ 
+/* $BB.EY$N2C;;(B */ 
   x = m_x;
   y = m_y;
   z = m_z;
@@ -191,7 +191,7 @@ Ball::Move() {
   m_y += (m_vy*2-PHY*m_vy*TICK)/2*TICK;
   m_z += (m_vz*2-GRAV*TICK-PHY*m_vz*TICK)/2*TICK;
 
-/* ¾×ÆÍÈ½Äê */
+/* $B>WFMH=Dj(B */
   if ( y*m_y <= 0.0 ){
     netT = fabs( y/((m_y-y)/TICK) );
     if ( z+(m_z-z)*netT/TICK < TABLEHEIGHT ||
@@ -212,18 +212,18 @@ Ball::Move() {
   } else
     tableT = TICK*100;
 
-  if ( netT < tableT ){	// ¥Í¥Ã¥È¤ËÀÜ¿¨
+  if ( netT < tableT ){	// $B%M%C%H$K@\?((B
     m_vx *= 0.5;
     m_vy = -m_vy*0.2;
     m_y = m_vy*(TICK-netT);
   }
 
-  if ( tableT < netT ){	// ¥Æ¡¼¥Ö¥ë¤ËÀÜ¿¨
+  if ( tableT < netT ){	// $B%F!<%V%k$K@\?((B
     if ( this == &theBall ) {
       theSound.Play( SOUND_TABLE );
     }
     tableY = y+m_vy*tableT;
-    if ( tableY < 0 ){		// playerÂ¦¤Î¥Æ¡¼¥Ö¥ë
+    if ( tableY < 0 ){		// player$BB&$N%F!<%V%k(B
       switch( m_status ){
       case 2:
 	m_status = 3;
@@ -238,7 +238,7 @@ Ball::Move() {
 	  m_status = -1;
 	}
       }
-    } else {			// COMÂ¦¤Î¥Æ¡¼¥Ö¥ë
+    } else {			// COM$BB&$N%F!<%V%k(B
       switch( m_status ) {
       case 0:
 	m_status = 1;
@@ -273,7 +273,7 @@ Ball::Move() {
     return true;
   }
 
-/* ¼þ¤ê¤ÎÊÉ¤È¤Î¾×ÆÍÈ½Äê */
+/* $B<~$j$NJI$H$N>WFMH=Dj(B */
   if ( m_x < -AREAXSIZE/2 ){
     m_x = -AREAXSIZE/2;
     m_vx = -m_vx*TABLE_E/2;
@@ -330,11 +330,11 @@ Ball::Move() {
     BallDead();
   }
 
-// ½ÅÎÏ
+// $B=ENO(B
   m_vz -= GRAV*TICK;
 
 
-// ¶õµ¤Äñ¹³
+// $B6u5$Dq93(B
   m_vx += -PHY*m_vx*TICK;
   m_vy += -PHY*m_vy*TICK;
   m_vz += -PHY*m_vz*TICK;
@@ -342,15 +342,15 @@ Ball::Move() {
   return true;
 }
 
-// ¥Ü¡¼¥ë¤Î¥¤¥ó¥Ñ¥¯¥È½èÍý
+// $B%\!<%k$N%$%s%Q%/%H=hM}(B
 bool
 Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
-// °ìÈÌ¤ÎÂÇµå
+// $B0lHL$NBG5e(B
   if ( this == &theBall ) {
       theSound.Play( SOUND_RACKET );
   }
 
-  // ³°ÉôPlayer¤Ï¥Ü¡¼¥ë¤Ë±Æ¶Á¤òÍ¿¤¨¤Ê¤¤. BV¥×¥í¥È¥³¥ë¤ò»ÈÍÑ¤¹¤ë. 
+  // $B30It(BPlayer$B$O%\!<%k$K1F6A$rM?$($J$$(B. BV$B%W%m%H%3%k$r;HMQ$9$k(B. 
   //if ( player == comPlayer && mode == MODE_MULTIPLAY ) {
   //  return true;
   //}
@@ -435,10 +435,10 @@ Ball::Warp( char *buf ) {
   b = ReadLong( b, m_status );
 }
 
-// ¶õµ¤Äñ¹³¤¢¤êÈÇ
-// ¸½ºß¤Î¥Ü¡¼¥ë¤Î°ÌÃÖ, target, height¤«¤é, ¥Ü¡¼¥ë¤Î½éÂ®¤ò³ä¤ê½Ð¤¹
-// target --- ÌÜÉ¸Íî²¼ÃÏÅÀ
-// level --- Á´ÎÏ¤Î²¿%¤ÇÂÇµå¤¹¤ë¤«
+// $B6u5$Dq93$"$jHG(B
+// $B8=:_$N%\!<%k$N0LCV(B, target, height$B$+$i(B, $B%\!<%k$N=iB.$r3d$j=P$9(B
+// target --- $BL\I8Mn2<COE@(B
+// level --- $BA4NO$N2?(B%$B$GBG5e$9$k$+(B
 bool
 Ball::TargetToV( double targetX, double targetY, double level, double spin, 
 		 double &vx, double &vy, double &vz, double vMin, 
@@ -455,13 +455,13 @@ Ball::TargetToV( double targetX, double targetY, double level, double spin,
   } else
     y = m_y;
 
-  if ( targetY*y >= 0 ) {	// ¥Í¥Ã¥È¤ò±Û¤¨¤Ê¤¤
+  if ( targetY*y >= 0 ) {	// $B%M%C%H$r1[$($J$$(B
     vy = vyMax*level*0.5;
 
-    // ¥Ü¡¼¥ë¤¬targetY¤ËÅþÃ£¤¹¤ë¤Þ¤Ç¤Î»þ´Öt2¤òµá¤á¤ë. 
+    // $B%\!<%k$,(BtargetY$B$KE~C#$9$k$^$G$N;~4V(Bt2$B$r5a$a$k(B. 
     t2 = -LOG( 1- PHY*(targetY-y)/vy ) / PHY;
 
-    // t2»þ¤Ë, z=TABLEHEIGHT¤È¤Ê¤ëvz¤òµá¤á¤ë. 
+    // t2$B;~$K(B, z=TABLEHEIGHT$B$H$J$k(Bvz$B$r5a$a$k(B. 
     if (0 != t2) {
 	vz = (PHY*(TABLEHEIGHT-m_z)+GRAVITY(spin)*t2)/(1-exp(-PHY*t2)) -
 	    GRAVITY(spin)/PHY;
@@ -481,13 +481,13 @@ Ball::TargetToV( double targetX, double targetY, double level, double spin,
   while (vyMax-vyMin > 0.001) {
     vy = (vyMin+vyMax)/2;
 
-    // ¤Þ¤º, ¥Ü¡¼¥ë¤¬targetY¤ËÅþÃ£¤¹¤ë¤Þ¤Ç¤Î»þ´Öt2¤òµá¤á¤ë. 
+    // $B$^$:(B, $B%\!<%k$,(BtargetY$B$KE~C#$9$k$^$G$N;~4V(Bt2$B$r5a$a$k(B. 
     t2 = -LOG( 1- PHY*(targetY-y)/vy ) / PHY;
 
-    // ¥Ü¡¼¥ë¤¬¥Í¥Ã¥È¾å¤ËÅþÃ£¤¹¤ë¤Þ¤Ç¤Î»þ´Öt1¤òµá¤á¤ë. 
+    // $B%\!<%k$,%M%C%H>e$KE~C#$9$k$^$G$N;~4V(Bt1$B$r5a$a$k(B. 
     t1 = -LOG( 1- PHY*(-y)/vy ) / PHY;
 
-    // t2»þ¤Ë, z=TABLEHEIGHT¤È¤Ê¤ëvz¤òµá¤á¤ë. 
+    // t2$B;~$K(B, z=TABLEHEIGHT$B$H$J$k(Bvz$B$r5a$a$k(B. 
     if (0 != t2) {
 	vz = (PHY*(TABLEHEIGHT-m_z)+GRAVITY(spin)*t2)/(1-exp(-PHY*t2)) -
 	    GRAVITY(spin)/PHY;
@@ -495,7 +495,7 @@ Ball::TargetToV( double targetX, double targetY, double level, double spin,
 	vz = m_z;
     }
 
-    // t1»þ¤Î¥Ü¡¼¥ë¤Î¹â¤µ¤òµá¤á¤ë. 
+    // t1$B;~$N%\!<%k$N9b$5$r5a$a$k(B. 
     z1 = -(vz+GRAVITY(spin)/PHY)*exp(-PHY*t1)/PHY - GRAVITY(spin)*t1/PHY +
       (vz+GRAVITY(spin)/PHY)/PHY;
 
@@ -546,10 +546,10 @@ Ball::TargetToVS( double targetX, double targetY, double level, double spin,
     while (vyMax-vyMin > 0.001) {
       vy = (vyMin+vyMax)/2;
 
-      // ¤Þ¤º, ¥Ü¡¼¥ë¤¬boundY¤ËÅþÃ£¤¹¤ë¤Þ¤Ç¤Î»þ´Öt2¤òµá¤á¤ë. 
+      // $B$^$:(B, $B%\!<%k$,(BboundY$B$KE~C#$9$k$^$G$N;~4V(Bt2$B$r5a$a$k(B. 
       t2 = -LOG( 1- PHY*(boundY-y)/vy ) / PHY;
 
-      // t2»þ¤Ë, z=TABLEHEIGHT¤È¤Ê¤ëvz¤òµá¤á¤ë. 
+      // t2$B;~$K(B, z=TABLEHEIGHT$B$H$J$k(Bvz$B$r5a$a$k(B. 
       if (0 != t2) {
 	  vz = (PHY*(TABLEHEIGHT-m_z)+GRAVITY(spin)*t2)/(1-exp(-PHY*t2)) -
 	      GRAVITY(spin)/PHY;
@@ -557,7 +557,7 @@ Ball::TargetToVS( double targetX, double targetY, double level, double spin,
 	  vz = m_z;
       }
 
-      // ¥Ð¥¦¥ó¥É
+      // $B%P%&%s%I(B
       vyCurrent = vy*exp(-PHY*t2);
       vzCurrent = (vz+GRAVITY(spin)/PHY)*exp(-PHY*t2) - GRAVITY(spin)/PHY;
 

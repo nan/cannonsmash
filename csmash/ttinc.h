@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,41 +25,41 @@
 #define WIN32
 #endif
 
-// ¥¦¥£¥ó¥É¥¦¥µ¥¤¥º
+// $B%&%#%s%I%&%5%$%:(B
 #define WINXSIZE	800
 #define WINYSIZE	600
-// ¶¥µ»¾ì¤ÎÂç¤­¤µ
+// $B6%5;>l$NBg$-$5(B
 #define AREAXSIZE	8.0
 #define AREAYSIZE	12.0
 #define AREAZSIZE	6.0
 
-// Player¤ÎÂç¤­¤µ
+// Player$B$NBg$-$5(B
 #define UPPERARM	0.25
 #define FOREARM		0.30
 
-// ÂîµåÂæ¤ÎÂç¤­¤µ
+// $BBn5eBf$NBg$-$5(B
 #define TABLELENGTH	((double)(2.74))
 #define TABLEWIDTH	((double)(1.525))
 #define TABLEHEIGHT	((double)(0.76))
 #define	TABLETHICK	((double)(0.1))
-// ¥Í¥Ã¥È¤Î¹â¤µ
+// $B%M%C%H$N9b$5(B
 #define NETHEIGHT	((double)(0.1525))
-// ¥Ü¡¼¥ëÈ¾·Â
+// $B%\!<%kH>7B(B
 #define BALL_R		((double)(0.019))
 
 #define TABLE_E		((double)(0.8))
 #define PHY		((double)(0.15))
 
-// ¥¤¥á¡¼¥¸¤ÎÂç¤­¤µ
+// $B%$%a!<%8$NBg$-$5(B
 #define IMAGE_WIDTH	256
 #define IMAGE_HEIGHT	256
 
 #define GRAV		(9.8+m_spin*5)
 #define GRAVITY(spin)	(9.8+spin*5)
 
-#define	TICK		(0.01)		// 1¥¿¡¼¥ó¤ÎÄ¹¤µ(ÉÃ)
+#define	TICK		(0.01)		// 1$B%?!<%s$ND9$5(B($BIC(B)
 
-// ¥­¡¼ÆþÎÏ
+// $B%-!<F~NO(B
 #define KEY_LEFT    (1<<0)
 #define KEY_RIGHT   (1<<1)
 #define KEY_FORWARD (1<<2)
@@ -68,14 +68,14 @@
 #define KEY_DOWN    (1<<5)
 #define KEY_HIT     (1<<6)
 
-// ¥Þ¥¦¥¹ÆþÎÏ
+// $B%^%&%9F~NO(B
 #define BUTTON_LEFT   (1<<0)
 #define BUTTON_MIDDLE (1<<1)
 #define BUTTON_RIGHT  (1<<2)
 
 #define MAX_HISTORY (1024)
 
-// ¥â¡¼¥É
+// $B%b!<%I(B
 #define MODE_SOLOPLAY       (1)	// Play VS COM
 #define MODE_MULTIPLAY      (2)	// Play VS MAN
 #define MODE_SELECT         (3)	// Player Select
@@ -85,7 +85,7 @@
 #define MODE_TRAINING       (7)	// Training
 #define MODE_OPENING        (8)	// Opening
 
-// ¥µ¥¦¥ó¥É
+// $B%5%&%s%I(B
 #define SOUND_RACKET (0)
 #define SOUND_TABLE  (1)
 #define SOUND_CLICK  (2)
@@ -96,7 +96,7 @@
 #define SOUND_OPENING "danslatristesse2-48.mp3"
 #endif
 
-// ÄÌ¿®ÂÐÀï
+// $BDL?.BP@o(B
 #define DATA_PV      (0)
 #define DATA_PS      (1)
 #define DATA_BT      (2)
@@ -107,8 +107,9 @@
 #define SOUND_ESD	0
 #define SOUND_OSS	1
 #define SOUND_WIN32	2
+#define SOUND_SDL	3
 
-// ¤½¤ÎÂ¾
+// $B$=$NB>(B
 #define RAND(N) ((int)((double)(N)*rand()/RAND_MAX))
 
 // Player::m_swingError
@@ -121,7 +122,7 @@
 #define PLAYERS 3
 #define TRAININGPLAYERS 2
 
-// ¶¯¤µ
+// $B6/$5(B
 enum level {LEVEL_EASY, LEVEL_NORMAL, LEVEL_HARD, LEVEL_TSUBORISH};
 enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 
@@ -152,11 +153,7 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 #include <ctype.h>
 
 #include <GL/gl.h>
-#include <GL/glut.h>
-
-#if HAVE_LIBPTHREAD
-#include <pthread.h>
-#endif
+#include <GL/glu.h>
 
 #ifdef HAVE_LIBZ
 #include <sys/stat.h>
@@ -171,53 +168,10 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 #include <netdb.h>
 #endif
 
-#ifdef HAVE_LIBSDL_MIXER
 #include <SDL/SDL.h>
+#include <SDL/SDL_thread.h>
+#ifdef HAVE_LIBSDL_MIXER
 #include <SDL/SDL_mixer.h>
-#endif
-
-#if 0
-
-#include "LoadImage.h"
-#include "Ball.h"
-#include "Player.h"
-#include "Event.h"
-#include "View.h"
-#include "Control.h"
-#include "FieldView.h"
-#include "BaseView.h"
-#include "BallView.h"
-#include "comPlayer.h"
-#include "PenAttack.h"
-#include "ShakeCut.h"
-#include "PenDrive.h"
-#include "comPenAttack.h"
-#include "comShakeCut.h"
-#include "comPenDrive.h"
-#include "ComTrainingPenAttack.h"
-#include "TrainingPenAttack.h"
-#include "ComTrainingPenDrive.h"
-#include "TrainingPenDrive.h"
-#include "PlayerView.h"
-#include "parts.h"
-#include "HitMark.h"
-#include "PlayerSelect.h"
-#include "PlayerSelectView.h"
-#include "TrainingSelect.h"
-#include "TrainingSelectView.h"
-#include "PlayGame.h"
-#include "SoloPlay.h"
-#include "MultiPlay.h"
-#include "Opening.h"
-#include "OpeningView.h"
-#include "Title.h"
-#include "TitleView.h"
-#include "Howto.h"
-#include "HowtoView.h"
-#include "Training.h"
-#include "TrainingView.h"
-#include "Sound.h"
-
 #endif
 
 void xerror(const char *str, ...);

@@ -67,7 +67,8 @@ PlayerSelect::Create() {
   newPlayerSelect = new PlayerSelect();
   newPlayerSelect->Init();
 
-  glutSetCursor( GLUT_CURSOR_NONE );
+  SDL_ShowCursor(0);
+  SDL_WM_GrabInput( SDL_GRAB_ON );
 
   return newPlayerSelect;
 }
@@ -86,7 +87,7 @@ PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     return true;
   }
 
-  if ( KeyHistory[Histptr] == 27 && !isComm ) {	// ESC
+  if ( KeyHistory[Histptr] == SDLK_ESCAPE && !isComm ) {
     mode = MODE_TITLE;
     return true;
   }

@@ -24,6 +24,7 @@
 #include "Ball.h"
 #include "TitleView.h"
 #include "Event.h"
+#include "MenuItem.h"
 
 extern BaseView theView;
 extern long mode;
@@ -35,8 +36,7 @@ extern long gameMode;
 
 extern bool isWireFrame;
 
-extern void Keyboard( unsigned char key, int x, int y );
-extern void KeyUp( unsigned char key, int x, int y );
+extern void QuitGame();
 
 extern Player* thePlayer;
 extern Player* comPlayer;
@@ -47,9 +47,17 @@ Title::Title() {
   m_selected = 0;
   m_selectMode = 0;
   m_count = 0;
+
+  for ( int i = 0 ; i < 16 ; i++ )
+    m_menuItem[i] = NULL;
 }
 
 Title::~Title() {
+  for ( int i = 0 ; i < 16 ; i++ ) {
+    if ( m_menuItem[i] )
+      delete m_menuItem[i];
+  }
+
   if ( m_View ){
     theView.RemoveView( m_View );
     delete m_View;
@@ -69,6 +77,8 @@ Title::Init() {
   thePlayer->Init();
   comPlayer->Init();
 
+  CreateMenu( MENU_MAIN );
+
   return true;
 }
 
@@ -82,7 +92,8 @@ Title::Create() {
   newTitle->Init();
 
   // View, か?
-  glutSetCursor( GLUT_CURSOR_INHERIT );
+  SDL_ShowCursor(1);
+  SDL_WM_GrabInput( SDL_GRAB_OFF );
 
   return newTitle;
 }
@@ -105,17 +116,19 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( KeyHistory[Histptr] != KeyHistory[last] ) {
       switch ( KeyHistory[Histptr] ) {
       case '8':
-	m_selected--;
+      case SDLK_UP:
+	SetSelected( m_selected-1 );
 	break;
       case '2':
-	m_selected++;
+      case SDLK_DOWN:
+	SetSelected( m_selected+1 );
 	break;
       }
-      MouseYHistory[Histptr] = m_selected*BaseView::GetWinHeight()/
-	GetMenuNum(MENU_MAIN);
+
+      MouseYHistory[Histptr] = BaseView::GetWinHeight() -
+	(m_menuItem[m_selected]->GetY()+m_menuItem[m_selected]->GetHeight()/2);
     } else {
-      m_selected = MouseYHistory[Histptr]*GetMenuNum( MENU_MAIN )/
-	BaseView::GetWinHeight();
+      SetSelected( HitTest( MouseXHistory[Histptr], MouseYHistory[Histptr] ) );
     }
     break;
   case MENU_CONFIG:
@@ -123,77 +136,52 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( KeyHistory[Histptr] != KeyHistory[last] ) {
       switch ( KeyHistory[Histptr] ) {
       case '8':
-	if ( MouseXHistory[Histptr] < BaseView::GetWinWidth()/2 ) {
-	  MouseYHistory[Histptr] -= (BaseView::GetWinHeight()-100)/
-		       GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL );
-	} else {
-	  MouseYHistory[Histptr] -= (BaseView::GetWinHeight()-100)/
-	  (GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )
-	 +GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER ));
-	}
-	if ( MouseYHistory[Histptr] < 0 )
-	  MouseYHistory[Histptr] = 0;
+      case SDLK_UP:
+	SetSelected( m_selected-1 );
 	break;
       case '6':
+      case SDLK_RIGHT:
 	MouseXHistory[Histptr] = BaseView::GetWinWidth()/4*3;
+	SetSelected( HitTest( MouseXHistory[Histptr], MouseYHistory[Histptr] ) );
 	break;
       case '4':
+      case SDLK_LEFT:
 	MouseXHistory[Histptr] = BaseView::GetWinWidth()/4;
+	SetSelected( HitTest( MouseXHistory[Histptr], MouseYHistory[Histptr] ) );
 	break;
       case '2':
-	if ( MouseXHistory[Histptr] < BaseView::GetWinWidth()/2 ) {
-	  MouseYHistory[Histptr] += (BaseView::GetWinHeight()-100)/
-		       GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL );
-	} else {
-	  MouseYHistory[Histptr] += (BaseView::GetWinHeight()-100)/
-	  (GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )
-	 +GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER ));
-	}
-	if ( MouseYHistory[Histptr] > BaseView::GetWinHeight() )
-	  MouseYHistory[Histptr] = BaseView::GetWinHeight();
+      case SDLK_DOWN:
+	SetSelected( m_selected+1 );
 	break;
       }
-    }
-
-    if ( MouseXHistory[Histptr] < BaseView::GetWinWidth()/2 ) {
-      m_selected = MouseYHistory[Histptr]*
-	GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )/
-	(BaseView::GetWinHeight()-100);
-      if ( m_selected >= GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )-1 )
-	m_selected = GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )-2;
+      MouseYHistory[Histptr] = BaseView::GetWinHeight() -
+	(m_menuItem[m_selected]->GetY()+m_menuItem[m_selected]->GetHeight()/2);
+      MouseXHistory[Histptr] = 
+	(m_menuItem[m_selected]->GetX()+m_menuItem[m_selected]->GetWidth()/2);
     } else {
-      m_selected = MouseYHistory[Histptr]*
-	(GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )
-	 +GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER ))/
-	(BaseView::GetWinHeight()-100)
-	+GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL );
-      if ( m_selected >= GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )+
-	   GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )+
-	   GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER ) )
-	m_selected = GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )+
-	  GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )+
-	  GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER )-1;
+      SetSelected( HitTest( MouseXHistory[Histptr], MouseYHistory[Histptr] ) );
     }
-
-    if ( MouseYHistory[Histptr] > BaseView::GetWinHeight()-100 )
-      m_selected = GetMenuNum( MENU_CONFIG, MENU_ALL )-1;
   }
 
-  if ( m_selectMode == MENU_CONFIG && KeyHistory[Histptr] == 27 ) {	// ESC
+  if ( m_selectMode == MENU_CONFIG && KeyHistory[Histptr] == SDLK_ESCAPE ) {
     m_selectMode = MENU_MAIN;
+    CreateMenu( m_selectMode );
+    m_selected = 0;
+
     return true;
   }
 
   if ( m_selected < 0 )
-    m_selected = 0;
+    SetSelected( 0 );
   else {
     if ( m_selectMode == MENU_MAIN && m_selected >= GetMenuNum( MENU_MAIN ) )
-      m_selected = GetMenuNum( MENU_MAIN )-1;
+      SetSelected( GetMenuNum( MENU_MAIN )-1 );
   }
 
   if ( ((MouseBHistory[Histptr]&BUTTON_LEFT) && 
        !(MouseBHistory[last]&BUTTON_LEFT)) ||
-       (KeyHistory[Histptr] == 13 && KeyHistory[last] != 13) ) {
+       (KeyHistory[Histptr] == SDLK_RETURN &&
+	KeyHistory[last] != SDLK_RETURN) ) {
     switch ( m_selectMode ) {
     case MENU_MAIN:
       switch ( m_selected ) {
@@ -216,8 +204,7 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	m_selectMode = MENU_CONFIG;
 	break;
       case 4:	// Quit
-	Event::KeyboardFunc( 'Q', 0, 0 );
-	Event::KeyUpFunc( 'Q', 0, 0 );
+	QuitGame();
 	break;
       }
       break;
@@ -230,20 +217,17 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
       else if ( m_selected < GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )+
 		GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )+
 		GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER ) ) {
-#if 0
-	theSound.SetSoundMode( m_selected-GetMenuNum( MENU_CONFIG,
-						      MENU_CONFIG_LEVEL )
-			       -GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE ) );
-#else
 	if ( m_selected-GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )
 	     -GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE ) == 0 )
 	  isWireFrame = true;
 	else
 	  isWireFrame = false;
-#endif
       } else if ( m_selected == GetMenuNum( MENU_CONFIG, MENU_ALL )-1 )
 	m_selectMode = MENU_MAIN;
     }
+
+    CreateMenu( m_selectMode );
+    m_selected = 0;
   }
 
   m_count++;
@@ -251,9 +235,9 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
   return true;
 }
 
-long
+MenuItem *
 Title::GetSelected() {
-  return m_selected;
+  return m_menuItem[m_selected];
 }
 
 long
@@ -295,4 +279,105 @@ Title::LookAt( double &srcX, double &srcY, double &srcZ,
   srcZ = TABLEHEIGHT*4;
 
   return true;
+}
+
+void
+Title::CreateMenu( long menuMajorNum ) {
+  static char menu[][30] = {"images/StartGame.ppm", "images/Training.ppm",
+			    "images/Howto.ppm", "images/Config.ppm",
+			    "images/Quit.ppm"};
+  static char configMenu[][30] = {"images/Easy.ppm", "images/Normal.ppm",
+				  "images/Hard.ppm", "images/Tsuborish.ppm", 
+				  "images/5point.ppm", "images/11point.ppm",
+				  "images/21point.ppm",
+				  "images/WireFrame.ppm", "images/Transparent.ppm" };
+  static char configTitle[][30] = {"images/LevelSelect.ppm",
+				   "images/ModeSelect.ppm"
+				    };
+
+  int i, j;
+
+  if ( m_menuItem[0] ) {
+    for ( i = 0 ; i < 16 ; i++ ) {
+      if ( m_menuItem[i] ) {
+	delete m_menuItem[i];
+	m_menuItem[i] = NULL;
+      }
+    }
+  }
+
+  for ( i = 0 ; i < GetMenuNum( menuMajorNum ) ; i++ )
+    m_menuItem[i] = new MenuItem();
+
+  switch ( menuMajorNum ) {
+  case MENU_MAIN:
+    for ( i = 0 ; i < GetMenuNum( MENU_MAIN ) ; i++ )
+      m_menuItem[i]->Init( 200, 450-i*100, 400, 70, &menu[i][0], this );
+    break;
+  case MENU_CONFIG:
+    for ( i = 0 ; i < GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL ) ; i++ )
+      m_menuItem[i]->Init( 100, 450-i*60, 200, 35, &configMenu[i][0], this );
+    for ( i = 0 ; i < GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE ) ; i++ ) {
+      j = i+GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL );
+      m_menuItem[j]->Init( 500, 450-i*60, 200, 35, &configMenu[j][0], this );
+    }
+    for ( i = 0 ; i < GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER ) ; i++ ) {
+      j = i+GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL ) +
+	GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE );
+      m_menuItem[j]->Init( 500, 190-i*60, 200, 35, &configMenu[j][0], this );
+    }
+    m_menuItem[j+1]->Init( 300, 20, 400, 70, &menu[4][0], this );
+
+    m_menuItem[gameLevel]->SetSelected( true );
+
+    m_menuItem[GetMenuNum(MENU_CONFIG, MENU_CONFIG_LEVEL)+gameMode]
+      ->SetSelected( true );
+
+    if ( isWireFrame )
+      m_menuItem[GetMenuNum(MENU_CONFIG, MENU_CONFIG_LEVEL)+
+		GetMenuNum(MENU_CONFIG, MENU_CONFIG_MODE)]
+	->SetSelected( true );
+    else
+      m_menuItem[GetMenuNum(MENU_CONFIG, MENU_CONFIG_LEVEL)+
+		GetMenuNum(MENU_CONFIG, MENU_CONFIG_MODE)+1]
+	->SetSelected( true );
+
+    break;
+  }
+}
+
+
+long
+Title::SetSelected( long selected ) {
+  if ( selected < 0 || selected >= GetMenuNum( m_selectMode ) )
+    return m_selected;
+
+  switch ( m_selectMode ) {
+  case MENU_MAIN:
+    m_menuItem[m_selected]->SetSelected( false );
+    m_menuItem[selected]->SetSelected( true );
+    break;
+  case MENU_CONFIG:
+    if ( selected == 3 )
+      return m_selected;
+
+    break;
+  }
+
+  m_selected = selected;
+  return m_selected;
+}
+
+long 
+Title::HitTest( long x, long y ) {
+  y = BaseView::GetWinHeight()-y;
+  for ( int i = 0 ; i < GetMenuNum( m_selectMode ) ; i++ ) {
+    if ( x > m_menuItem[i]->GetX() &&
+	 x < m_menuItem[i]->GetX()+m_menuItem[i]->GetWidth() &&
+	 y > m_menuItem[i]->GetY() &&
+	 y < m_menuItem[i]->GetY()+m_menuItem[i]->GetHeight() )
+      return i;
+  }
+
+  return -1;
 }

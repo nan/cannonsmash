@@ -41,6 +41,7 @@ extern bool isFog;
 extern bool isTexture;
 extern bool isPolygon;
 extern bool isSimple;
+extern bool fullScreen;
 
 long BaseView::m_winWidth = WINXSIZE;
 long BaseView::m_winHeight = WINYSIZE;
@@ -63,14 +64,13 @@ BaseView::~BaseView() {
 bool
 BaseView::Init() {
 // Windowの生成, 初期化
-  if (isSimple)
-    glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH );
-  else
-    glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGBA );
+  m_baseSurface = SDL_SetVideoMode( m_winWidth, m_winHeight, 0, SDL_OPENGL );
 
-  glutInitWindowSize(m_winWidth, m_winHeight);
-  glutInitWindowPosition(0, 0);
-  glutCreateWindow("CannonSmash");
+  m_baseSurface = SDL_SetVideoMode( m_winWidth, m_winHeight, 0, SDL_OPENGL );
+  SDL_WM_SetCaption( "CannonSmash", NULL );
+
+  if (fullScreen)
+    SDL_WM_ToggleFullScreen( m_baseSurface );
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
@@ -113,10 +113,11 @@ BaseView::Init() {
   }
 
   glClearColor (0.2, 0.2, 0.2, 1.0);
-  if (isSimple)
+  if (isSimple) {
     glClear(GL_COLOR_BUFFER_BIT);
-  else
+  } else {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  }
 
   int i, j;
 // テクスチャの設定. 
@@ -148,8 +149,6 @@ BaseView::Init() {
   m_fieldView = new FieldView();
   m_fieldView->Init();
 
-  glutDisplayFunc( theView.DisplayFunc );
-
   return true;
 }
 
@@ -170,7 +169,8 @@ BaseView::RedrawAll() {
   if (isSimple) {
     glClear(GL_COLOR_BUFFER_BIT);
   } else {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT);
   }
 
   if ( mode == MODE_OPENING )	// もうちょっとまともにする
@@ -211,7 +211,7 @@ BaseView::RedrawAll() {
     glEnable(GL_BLEND);
 
 //  glDisable(GL_CULL_FACE);
-  if ( !isSimple )
+  if (!isSimple)
     m_fieldView->RedrawAlpha();
 
   view = m_View;
@@ -232,6 +232,7 @@ BaseView::RedrawAll() {
   glColor4f( 0.0, 0.0, 0.0, 1.0 );
 
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
   if ( isTexture ) {
     glEnable(GL_TEXTURE_2D);
 
@@ -255,7 +256,7 @@ BaseView::RedrawAll() {
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
 
-  glutSwapBuffers();
+  SDL_GL_SwapBuffers();
 
 //  if ( glGetError() != GL_NO_ERROR )
 //    printf( "GL Error!\n" );
@@ -385,13 +386,19 @@ BaseView::EndGame() {
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
 
-  glutSwapBuffers();
+  SDL_GL_SwapBuffers();
 
 #ifdef WIN32
   Sleep(3000);
 #else
   sleep(3);
 #endif
+}
+
+void
+BaseView::QuitGame() {
+  if (fullScreen)
+    SDL_WM_ToggleFullScreen( m_baseSurface );
 }
 
 void

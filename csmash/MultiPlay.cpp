@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ extern void QuitGame();
 
 int one=1;
 
-// endianÊÑ´¹
+// endian$BJQ49(B
 double
 SwapDbl( double d ) {
   if ( endian ) {
@@ -86,7 +86,7 @@ SwapLong( long l ) {
   }
 }
 
-// endian¥Æ¥¹¥È
+// endian$B%F%9%H(B
 void
 EndianCheck() {
   long n = 1;
@@ -116,7 +116,7 @@ SendLong( int sd, long l ) {
     return false;
 }
 
-// ¤Á¤ç¤Ã¤ÈÊÑ¤Ê»ÅÍÍ¤«¤Ê¤¡...
+// $B$A$g$C$HJQ$J;EMM$+$J$!(B...
 char *
 ReadDouble( char *buf, double& d ) {
   memcpy( &d, buf, 8 );
@@ -163,14 +163,14 @@ ReadTime( int sd, struct timeb* tb ) {
   tb->millitm = millitm;
 }
 
-// PlayerDataÁ÷¿®
+// PlayerData$BAw?.(B
 void
 SendPlayerData() {
   send( theSocket, "PI", 2, 0 );
   thePlayer->SendAll( theSocket );
 }
 
-// PlayerData¼õ¿®
+// PlayerData$B<u?.(B
 Player *
 ReadPlayerData() {
   double x, y, z, vx, vy, vz, spin;
@@ -359,7 +359,7 @@ StartServer() {
 
   AcceptClient();
 
-  // ¥¿¥¤¥ÞÄ´À°
+  // $B%?%$%^D4@0(B
   long adjLog[16];
   for ( i = 0 ; i < 16 ; i++ ) {
 #ifndef WIN32
@@ -404,7 +404,7 @@ StartServer() {
     adjLog[i] = (tb3.time-tb1.time)*1000 + tb3.millitm-tb1.millitm;
   }
 
-  // ·Ú¤¯¥Ð¥«¥½¡¼¥È
+  // $B7Z$/%P%+%=!<%H(B
   i = 0;
   while ( i == 0 ) {
     i = 1;
@@ -423,7 +423,7 @@ StartServer() {
   }
   printf( "\n" );
 
-  // Ãæ±û¤Î8ÃÍ¤ò¤È¤ë. 
+  // $BCf1{$N(B8$BCM$r$H$k(B. 
   timeAdj = 0;
   for ( i = 4 ; i < 12 ; i++ ) {
     timeAdj += adjLog[i];
@@ -433,7 +433,7 @@ StartServer() {
 
   printf( "%d\n", timeAdj );
 
-  // Ball Data¤ÎÆÉ¤ß¹þ¤ß
+  // Ball Data$B$NFI$_9~$_(B
   if ( recv( theSocket, buf, 2, 0 ) != 2 ) {
     xerror("%s(%d) recv", __FILE__, __LINE__);
     exit(1);
@@ -540,7 +540,7 @@ StartClient() {
     exit(1);
   }
 
-  // ¥¿¥¤¥ÞÄ´À°
+  // $B%?%$%^D4@0(B
   struct timeb tb;
 #ifndef WIN32
   struct timeval tv;
@@ -549,7 +549,7 @@ StartClient() {
   int i;
 
   for ( i = 0 ; i < 16 ; i++ ) {
-    ReadTime( theSocket, &tb );	// ¼Î¤Æ¤ë
+    ReadTime( theSocket, &tb );	// $B<N$F$k(B
 
 #ifdef WIN32
     ftime( &tb );
@@ -562,7 +562,7 @@ StartClient() {
     SendTime( theSocket, &tb );
   }
 
-  // Ball Data¤ÎÁ÷¿®
+  // Ball Data$B$NAw?.(B
   send( theSocket, "BI", 2, 0 );
   theBall.Send( theSocket );
 
@@ -597,9 +597,9 @@ MultiPlay::Create( long player, long com ) {
   newMultiPlay->Init();
 
   if ( !(serverName[0]) )
-    side = 1;		// serverÂ¦
+    side = 1;		// server$BB&(B
   else
-    side = -1;	// clientÂ¦
+    side = -1;	// client$BB&(B
 
   if ( thePlayer == NULL ) {
     thePlayer = Player::Create( player, side, 0 );
@@ -614,7 +614,8 @@ MultiPlay::Create( long player, long com ) {
   thePlayer->Init();
   comPlayer->Init();
 
-  glutSetCursor( GLUT_CURSOR_NONE );
+  SDL_ShowCursor(0);
+  SDL_WM_GrabInput( SDL_GRAB_ON );
 
   return newMultiPlay;
 }
@@ -624,6 +625,13 @@ MultiPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
 		 long *MouseYHistory, unsigned long *MouseBHistory,
 		 int Histptr ) {
   bool reDraw = false;
+
+  if ( KeyHistory[Histptr] == SDLK_ESCAPE ) {
+    if ( SDL_WM_GrabInput( SDL_GRAB_QUERY ) == SDL_GRAB_ON )
+      SDL_WM_GrabInput( SDL_GRAB_OFF );
+    else
+      SDL_WM_GrabInput( SDL_GRAB_ON );
+  }
 
   theBall.Move();
   reDraw |= thePlayer->Move( KeyHistory, MouseXHistory,
@@ -650,7 +658,7 @@ MultiPlay::LookAt( double &srcX, double &srcY, double &srcZ,
 
 
 void
-MultiPlay::SendTime_forNODELAY( char *buf ) {
+MultiPlay::SendTime( char *buf ) {
   char v;
   long sec, count;
 
@@ -671,30 +679,6 @@ MultiPlay::SendTime_forNODELAY( char *buf ) {
   memcpy( buf, (char *)&sec, 4 );
   v = (char)(count);
   memcpy( &(buf[4]), (char *)&v, 1 );
-}
-
-void
-MultiPlay::SendTime() {
-  char v;
-  long sec, count;
-
-  sec = Event::m_lastTime.time;
-  count = Event::m_lastTime.millitm/10;
-
-  count += timeAdj;
-
-  while ( count >= 100 ) {
-    count -= 100;
-    sec++;
-  }
-  while ( count < 0 ) {
-    count += 100;
-    sec--;
-  }
-
-  send( theSocket, (char *)&sec, 4, 0 );
-  v = (char)(count);
-  send( theSocket, (char *)&v, 1, 0 );
 }
 
 void
@@ -874,14 +858,13 @@ ExternalBVData::Apply( Player *targetPlayer, bool &fThePlayer,
   theBall.Warp( data );
   fTheBall = true;
 
-  /*
+#if 0
   printf( "BV: sec = %d count = %d\n", sec, count);
   printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n", theBall.GetX(),
 	  theBall.GetY(), theBall.GetZ(),
 	  theBall.GetVX(), theBall.GetVY(), theBall.GetVZ() );
+#endif
 
-  fflush(0);
-  */
   return true;
 }
 

@@ -41,6 +41,7 @@ public:
   bool RemoveView( View *view );
 
   void EndGame();
+  void QuitGame();
 
   static long GetWinWidth() { return m_winWidth; };
   static long GetWinHeight() { return m_winHeight; };
@@ -58,6 +59,8 @@ protected:
   //GLuint       m_floor;
   GLuint       m_title;
   //GLuint       m_wall[4];
+
+  SDL_Surface	*m_baseSurface;
 
   void SetLookAt();
 };

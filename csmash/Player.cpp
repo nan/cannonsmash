@@ -580,11 +580,6 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
   if ( !KeyHistory || !MouseXHistory || !MouseYHistory || !MouseBHistory )
     return true;
 
-  if ( KeyHistory[Histptr] == 27 ) {	// ESC
-    mode = MODE_TITLE;
-    return true;
-  }
-
 // 入力の反映
   switch ( KeyHistory[Histptr] ) {
   case '1':  case 'q':  case 'a':  case 'z':

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  ø¿∆Ó µ»π®(Kanna Yoshihiro)
+// Copyright (C) 2000  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #include "TrainingSelect.h"
 #include "Training.h"
 
+extern BaseView theView;
 extern Ball theBall;
 extern Player* thePlayer;
 extern Player* comPlayer;
@@ -39,7 +40,7 @@ extern long mode;
 extern long timeAdj;
 
 extern void Timer( int value );
-struct timeb Event::m_lastTime = {0, 0, 0, 0};	// ƒæ¡∞§ÀTimerEvent§¨∏∆§–§Ï§ø§»§≠§Œª˛πÔ
+struct timeb Event::m_lastTime = {0, 0, 0, 0};	// $BD>A0$K(BTimerEvent$B$,8F$P$l$?$H$-$N;~9o(B
 
 extern int theSocket;
 
@@ -102,17 +103,6 @@ Event::Init() {
 
   if (isComm)
     m_External = new ExternalNullData();
-
-  glutKeyboardFunc( Event::KeyboardFunc );
-
-#if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
-  glutKeyboardUpFunc( theEvent.KeyUpFunc );
-#endif
-
-  glutIdleFunc( Event::IdleFunc );
-  glutMotionFunc( Event::MotionFunc );
-  glutPassiveMotionFunc( Event::MotionFunc );
-  glutMouseFunc( Event::ButtonFunc );
 
   return true;
 }
@@ -177,12 +167,12 @@ Event::IdleFunc() {
   if ( mode == MODE_MULTIPLAY )
     theEvent.ReadData();
 
-  if ( mode != MODE_OPENING )
-    glutWarpPointer( theEvent.m_MouseXHistory[theEvent.m_Histptr],
+  if ( mode != MODE_OPENING && mode != MODE_TITLE )
+    SDL_WarpMouse( theEvent.m_MouseXHistory[theEvent.m_Histptr],
 		     theEvent.m_MouseYHistory[theEvent.m_Histptr] );
 
   if ( reDraw )
-    glutPostRedisplay();
+    theView.DisplayFunc();
 }
 
 bool
@@ -193,7 +183,7 @@ Event::Move() {
   reDraw |= theControl->Move( m_KeyHistory, m_MouseXHistory,
 			      m_MouseYHistory, m_MouseBHistory, m_Histptr );
 
-  if ( mode != preMode ){	// •‚°º•… —ππ§¢§Í
+  if ( mode != preMode ){	// $B%b!<%IJQ99$"$j(B
     long p;
 
     switch ( mode ) {
@@ -247,8 +237,26 @@ Event::Record() {
   btn = m_MouseBHistory[m_Histptr];
 
   m_Histptr++;
+
   if ( m_Histptr == MAX_HISTORY )
     m_Histptr = 0;
+
+#if 0
+  long sec = m_BacktrackBuffer[m_Histptr].sec;
+  long cnt = m_BacktrackBuffer[m_Histptr].count+timeAdj;
+
+  while ( cnt < 0 ) {
+    sec--;
+    cnt += 100;
+  }
+
+  printf( "sec = %d msec = %d %d - %d  x = %f y = %f st = %d\n", 
+	  sec, cnt,
+	  m_BacktrackBuffer[m_Histptr].score1, m_BacktrackBuffer[m_Histptr].score2, 
+	  m_BacktrackBuffer[m_Histptr].theBall.GetX(), 
+	  m_BacktrackBuffer[m_Histptr].theBall.GetY(),
+	  m_BacktrackBuffer[m_Histptr].theBall.GetStatus() );
+#endif
 
   if ( mode == MODE_SOLOPLAY && theControl &&
        ((SoloPlay *)theControl)->GetSmashPtr() >= 0 )
@@ -276,6 +284,7 @@ Event::Record() {
     m_BacktrackBuffer[m_Histptr].sec--;
     m_BacktrackBuffer[m_Histptr].count += 100;
   }
+
   m_BacktrackBuffer[m_Histptr].theBall = theBall;
   CopyPlayerData( m_BacktrackBuffer[m_Histptr].thePlayer, thePlayer );
   CopyPlayerData( m_BacktrackBuffer[m_Histptr].comPlayer, comPlayer );
@@ -285,7 +294,6 @@ Event::Record() {
       ((PlayGame *)theControl)->GetScore(1);
     m_BacktrackBuffer[m_Histptr].score2 =
       ((PlayGame *)theControl)->GetScore(-1);
-
 #if 0
     if ( mode == MODE_MULTIPLAY ) {
       printf( "Hptr = %d x=%f y=%f vx=%f vy=%f vz=%f\n", m_Histptr, 
@@ -299,18 +307,17 @@ Event::Record() {
 }
 
 void
-Event::KeyboardFunc( unsigned char key, int x, int y ) {
-#if (GLUT_API_VERSION < 4 && GLUT_XLIB_IMPLEMENTATION < 13)
-  if ( key == 'Q' ) {
+Event::KeyboardFunc( SDL_Event key, int x, int y ) {
+  if ( key.key.keysym.unicode == 'Q' ) {
     QuitGame();
   }
-#endif
-  theEvent.m_KeyHistory[theEvent.m_Histptr] = key;
+  theEvent.m_KeyHistory[theEvent.m_Histptr] = key.key.keysym.sym;
 }
 
 void
-Event::KeyUpFunc( unsigned char key, int x, int y ) {
-  if ( key == 'Q' ) {
+Event::KeyUpFunc( SDL_Event key, int x, int y ) {
+  // $BGQ;_$7$F$b$h$$(B
+  if ( key.key.keysym.unicode == 'Q' ) {
     QuitGame();
   }
 }
@@ -323,32 +330,32 @@ Event::MotionFunc( int x, int y ) {
 
 void
 Event::ButtonFunc( int button, int state, int x, int y ) {
-  if ( state == GLUT_DOWN ){
-    switch ( button ){
-    case GLUT_LEFT_BUTTON:
+  if ( state == SDL_MOUSEBUTTONDOWN ) {
+    switch ( button ) {
+    case 1:
       theEvent.m_MouseBHistory[theEvent.m_Histptr] |= BUTTON_LEFT;
       theEvent.m_mouseButton |= BUTTON_LEFT;
       break;
-    case GLUT_MIDDLE_BUTTON:
+    case 2:
       theEvent.m_MouseBHistory[theEvent.m_Histptr] |= BUTTON_MIDDLE;
       theEvent.m_mouseButton |= BUTTON_MIDDLE;
       break;
-    case GLUT_RIGHT_BUTTON:
+    case 3:
       theEvent.m_MouseBHistory[theEvent.m_Histptr] |= BUTTON_RIGHT;
       theEvent.m_mouseButton |= BUTTON_RIGHT;
       break;
     }
   } else {
-    switch ( button ){
-    case GLUT_LEFT_BUTTON:
+    switch ( button ) {
+    case 1:
       theEvent.m_MouseBHistory[theEvent.m_Histptr] &= ~BUTTON_LEFT;
       theEvent.m_mouseButton &= ~BUTTON_LEFT;
       break;
-    case GLUT_MIDDLE_BUTTON:
+    case 2:
       theEvent.m_MouseBHistory[theEvent.m_Histptr] &= ~BUTTON_MIDDLE;
       theEvent.m_mouseButton &= ~BUTTON_MIDDLE;
       break;
-    case GLUT_RIGHT_BUTTON:
+    case 3:
       theEvent.m_MouseBHistory[theEvent.m_Histptr] &= ~BUTTON_RIGHT;
       theEvent.m_mouseButton &= ~BUTTON_RIGHT;
       break;
@@ -403,7 +410,7 @@ Event::SendSwing( Player *player ) {
     return false;
 
   strncpy( buf, "PS", 2 );
-  ((MultiPlay *)theControl)->SendTime_forNODELAY( &(buf[2]) );
+  ((MultiPlay *)theControl)->SendTime( &(buf[2]) );
 
   player->SendSwing_forNODELAY( &(buf[7]) );
 
@@ -419,7 +426,7 @@ Event::SendPlayer( Player *player ) {
     return false;
 
   strncpy( buf, "PV", 2 );
-  ((MultiPlay *)theControl)->SendTime_forNODELAY( &(buf[2]) );
+  ((MultiPlay *)theControl)->SendTime( &(buf[2]) );
 
   player->SendLocation_forNODELAY( &(buf[7]) );
 
@@ -436,7 +443,7 @@ Event::SendBall() {
     return false;
 
   strncpy( buf, "BV", 2 );
-  ((MultiPlay *)theControl)->SendTime_forNODELAY( &(buf[2]) );
+  ((MultiPlay *)theControl)->SendTime( &(buf[2]) );
 
   theBall.Send_forNODELAY( &(buf[7]) );
 
@@ -483,7 +490,7 @@ Event::BackTrack( long Histptr ) {
 
 void
 Event::ReadData() {
-  // æ ÛºıøÆ
+  // $B>pJs<u?.(B
   fd_set rdfds;
   struct timeval to;
 
@@ -501,7 +508,6 @@ Event::ReadData() {
   tb1.time = tv1.tv_sec;
   tb1.millitm = tv1.tv_usec/1000;
 #endif
-  bool flag = false;
 
   while (1) {
     FD_ZERO( &rdfds );
@@ -511,7 +517,6 @@ Event::ReadData() {
 
     if ( select( theSocket+1, &rdfds, NULL, NULL, &to ) > 0 ) {
       GetExternalData( m_External, comPlayer->GetSide() );
-      flag = true;
     } else
       break;
   }
@@ -531,14 +536,11 @@ Event::ReadData() {
   tb2.millitm = tv2.tv_usec/1000;
 #endif
 
-  //if ( flag )
-    //printf( "%d\n", (tb2.time-tb1.time)*1000+tb2.millitm-tb1.millitm );
-
-  // externalData§Œ¿Ë∆¨§ﬁ§«backtrack§π§Î
+  // externalData$B$N@hF,$^$G(Bbacktrack$B$9$k(B
   long btCount;
   ExternalData *externalOld;
   long btHistptr;
-  while ( !(m_External->isNull()) ) {	// ºŒ§∆§Î?
+  while ( !(m_External->isNull()) ) {	// $B8E$9$.$k>pJs$r<N$F$k(B
     //printf( "External2\n" );
     btCount = (m_lastTime.time-m_External->sec)*100 + 
       (m_lastTime.millitm/10-m_External->count);
@@ -547,13 +549,13 @@ Event::ReadData() {
       m_External = m_External->next;
       delete externalOld;
       continue;
-    } 
+    }
     if ( btCount <= MAX_HISTORY )
       break;
   }
 
   if ( !(m_External->isNull()) ) {
-    if ( btCount >= 0 ) {
+    if ( btCount > 0 ) {
       backTracks += btCount;
       _backTrackCount++;
 
@@ -575,7 +577,7 @@ Event::ReadData() {
       BackTrack( btHistptr );
       //printf( " %d\n", m_Histptr );
 
-      // ≈¨Õ—§π§Î -> ø §·§Î§ÚbtCount∑´§Í ÷§π
+      // $BE,MQ$9$k(B -> $B?J$a$k$r(BbtCount$B7+$jJV$9(B
       while (1) {
 	if ( fTheBall )
 	  theBall.Move();
@@ -610,6 +612,14 @@ Event::ReadData() {
 	m_Histptr++;
 	if ( m_Histptr == MAX_HISTORY )
 	  m_Histptr = 0;
+
+	// $B8e$G(B Event::Record $B$HD4@0(B? 
+	if ( fTheBall )
+	  m_BacktrackBuffer[m_Histptr].theBall = theBall;
+        if ( fThePlayer )
+	  CopyPlayerData( m_BacktrackBuffer[m_Histptr].thePlayer, thePlayer );
+	if ( fComPlayer )
+	  CopyPlayerData( m_BacktrackBuffer[m_Histptr].comPlayer, comPlayer );
 
 	m_lastTime.millitm += 10;
 	if ( m_lastTime.millitm >= 1000 ) {
@@ -659,5 +669,10 @@ QuitGame() {
   printf( "Avg = %f\n", (double)perfs/_perfCount );
   if (_backTrackCount) printf( "BackTrack = %f\n", backTracks/_backTrackCount);
   Event::ClearObject();
+
+  SDL_WM_GrabInput( SDL_GRAB_OFF );
+
+  theView.QuitGame();
+  
   exit(2);
 }

@@ -60,7 +60,8 @@ SoloPlay::Create( long player, long com ) {
   comPlayer->Init();
 
   // View, か?
-  glutSetCursor( GLUT_CURSOR_NONE );
+  SDL_ShowCursor(0);
+  SDL_WM_GrabInput( SDL_GRAB_ON );
 
   return newSoloPlay;
 }
@@ -72,6 +73,13 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
   bool reDraw = false;
   long prevStatus = theBall.GetStatus();
   static long delayCounter = 0;
+
+  if ( KeyHistory[Histptr] == SDLK_ESCAPE ) {
+    if ( SDL_WM_GrabInput( SDL_GRAB_QUERY ) == SDL_GRAB_ON )
+      SDL_WM_GrabInput( SDL_GRAB_OFF );
+    else
+      SDL_WM_GrabInput( SDL_GRAB_ON );
+  }
 
   if ( m_smashPtr >= 0 ) {	// スマッシュリプレイ
     // マウスボタンを押したら中断(最後1秒程度になったらこれは無効)
@@ -92,7 +100,6 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
       if ( Histptr < 0 )
 	Histptr = MAX_HISTORY-1;
       theEvent.BackTrack(Histptr);
-
       return true;
     }
 
@@ -107,10 +114,12 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	m_smashPtr = SmashEffect(true, Histptr);
       }
     } else {
-      theEvent.BackTrack(Histptr);
       theBall.Move();
-      thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
-      comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+      reDraw |= thePlayer->Move( KeyHistory, MouseXHistory,
+				 MouseYHistory, MouseBHistory, Histptr );
+      reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+
+      theEvent.BackTrack(Histptr);
     }
 
     return true;

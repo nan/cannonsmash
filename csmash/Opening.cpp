@@ -1058,7 +1058,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
 #endif
 #endif
 
-  if ( KeyHistory[Histptr] == 27 || MouseBHistory[Histptr] ) {	// ESC
+  if ( KeyHistory[Histptr] == SDLK_ESCAPE || MouseBHistory[Histptr] ) {
     mode = MODE_TITLE;
   }
 

@@ -20,12 +20,9 @@ AC_CHECK_LIB(m, fabs)
 AC_CHECK_LIB(jpeg, jpeg_std_error)
 AC_CHECK_LIB(GL, glLoadIdentity, , [AC_CHECK_LIB(MesaGL, glLoadIdentity, , [AC_CHECK_LIB(OpenGL32, main, , AC_MSG_ERROR(OpenGL library not found.))])])
 AC_CHECK_LIB(GLU, gluPerspective, , [AC_CHECK_LIB(MesaGLU, gluPerspective, , [AC_CHECK_LIB(GLU32, main, , AC_MSG_ERROR(GLU library not found))])])
-AC_CHECK_LIB(glut, glutCreateWindow, , [AC_CHECK_LIB(glut32, main, , AC_MSG_ERROR(glut library not found.))])
-AC_CHECK_LIB(esd, esd_play_stream)
-dnl AC_CHECK_LIB(pthread, pthread_create)
 AC_CHECK_LIB(z, gzdopen)
-dnl AC_CHECK_LIB(SDL, SDL_Init)
-dnl AC_CHECK_LIB(SDL_mixer, Mix_OpenAudio)
+AC_CHECK_LIB(SDL, SDL_Init, ,AC_MSG_ERROR(SDL library not found.))
+AC_CHECK_LIB(SDL_mixer, Mix_OpenAudio)
 
 if test x$ac_cv_lib_z_gzdopen = xyes; then
   PKGDATA=.gz
@@ -49,7 +46,7 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 
-AM_INIT_AUTOMAKE(csmash, 0.5.0, no-define)
+AM_INIT_AUTOMAKE(csmash, 0.5.1, no-define)
 
 AC_DEFINE_UNQUOTED(CANNONSMASH_DATADIR, "@prefix@/share/$PACKAGE/")
 

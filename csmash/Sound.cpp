@@ -35,18 +35,7 @@ pthread_mutex_t bgmMutex = PTHREAD_MUTEX_INITIALIZER;
 extern long mode;
 
 Sound::Sound() {
-#ifdef HAVE_LIBESD
-  m_fd[0] = m_fd[1] = m_fd[2] = m_fd[3] = m_fd[4] = -1;
-  for ( int i = 0 ; i < 16 ; i++ ) {
-    m_sound[i] = 0;
-  }
-  m_sndfd = 0;
-
-  m_ossfd = -1;
-
-  m_soundMode = SOUND_ESD;
-#elif defined(WIN32)
-  m_soundMode = SOUND_WIN32;
+#ifdef HAVE_LIBSDL_MIXER
 #else
   m_soundMode = SOUND_NONE;
 #endif
@@ -59,202 +48,44 @@ Sound::~Sound() {
       Mix_FreeChunk( m_sound[i] );
     }
   }
-#else
-  for ( int i = 0 ; i < 16 ; i++ ) {
-    if ( m_sound[i] != 0 ) {
-#ifdef WIN32
-      GlobalFree( m_sound[i] );
-#else
-      free( m_sound[i] );
-#endif
-    }
-  }
-#endif
-
-#ifdef HAVE_LIBESD
-  if ( m_fd[0] >= 0 )
-    esd_close( m_fd[0] );
-  if ( m_fd[1] >= 0 )
-    esd_close( m_fd[1] );
-  if ( m_fd[2] >= 0 )
-    esd_close( m_fd[2] );
-  if ( m_fd[3] >= 0 )
-    esd_close( m_fd[3] );
-  if ( m_fd[4] >= 0 )
-    esd_close( m_fd[4] );
-  m_fd[0] = m_fd[1] = m_fd[2] = m_fd[3] = m_fd[4] = -1;
-
-  if ( m_ossfd >= 0 )
-    close( m_ossfd );
 #endif
 }
 
 bool
 Sound::Init( long sndMode ) {
 #ifdef HAVE_LIBSDL_MIXER
-  if ( SDL_Init(SDL_INIT_AUDIO) < 0 ) {
-    perror( "SDL initialize failed\n" );
-    return false;
-  }
-
+#ifdef WIN32
   if ( Mix_OpenAudio( 44100, AUDIO_S16SYS, 2, 4096 ) < 0 ) {
+#else
+  if ( Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 128 ) < 0 ) {
+#endif
     perror( "SDL Mix_OpenAudio failed\n" );
   }
-#elif defined(HAVE_LIBESD)
-  int rate, fmt, stereo;
 
-  m_soundMode = sndMode;
-
-  switch ( m_soundMode ) {
-  case SOUND_OSS:
-    for ( int i = 0 ; i < 10 ; i++ ) {	// Mmm, what's wrong with it?
-      if ( (m_ossfd = open( "/dev/dsp", O_RDWR )) < 0 )
-	sleep(1);
-      else
-	break;
-    }
-
-    if ( m_ossfd < 0 ) {
-      perror( "open" );
-      return false;
-    }
-
-    fmt = AFMT_S16_LE;
-    if ( ioctl( m_ossfd, SNDCTL_DSP_SETFMT, &fmt ) < 0 ) {
-      perror( "SNDCTL_DSP_SETFMT" );
-      return false;
-    }
-
-    rate = 44100;
-    if ( ioctl( m_ossfd, SNDCTL_DSP_SPEED, &rate ) < 0 ) {
-      perror( "SNDCTL_DSP_SPEED" );
-      return false;
-    }
-
-    stereo = 1;
-    if ( ioctl( m_ossfd, SNDCTL_DSP_STEREO, &stereo ) < 0 ) {
-      perror( "SNDCTL_DSP_STEREO" );
-      return false;
-    }
-    break;
-  case SOUND_ESD:
-    // ESD対応. とりあえず. 
-    m_fd[0] = esd_play_stream( ESD_BITS16|ESD_STEREO|ESD_SAMPLE, 44100, NULL,
-			       NULL );
-    m_fd[1] = esd_play_stream( ESD_BITS16|ESD_STEREO|ESD_SAMPLE, 44100, NULL,
-			       NULL );
-    m_fd[2] = esd_play_stream( ESD_BITS16|ESD_STEREO|ESD_SAMPLE, 44100, NULL,
-			       NULL );
-    m_fd[3] = esd_play_stream( ESD_BITS16|ESD_STEREO|ESD_SAMPLE, 44100, NULL,
-			       NULL );
-    m_fd[4] = esd_play_stream( ESD_BITS16|ESD_STEREO|ESD_SAMPLE, 44100, NULL,
-			       NULL );
-    break;
-  }
-#endif
-
-  int fd;
-
-#ifdef WIN32
-  fd = open( "wav/racket.wav", O_RDONLY );
-  if ( m_sound[SOUND_RACKET] == 0 ) {
-    m_sound[SOUND_RACKET] = (char *)GlobalAlloc( GMEM_SHARE, 65536 );
-  }
-  m_soundSize[SOUND_RACKET] = read( fd, m_sound[SOUND_RACKET], 65536 );
-  close( fd );
-
-  fd = open( "wav/table.wav", O_RDONLY );
-  if ( m_sound[SOUND_TABLE] == 0 ) {
-    m_sound[SOUND_TABLE] = (char *)GlobalAlloc( GMEM_SHARE, 65536 );
-  }
-  m_soundSize[SOUND_TABLE] = read( fd, m_sound[SOUND_TABLE], 65536 );
-  close( fd );
-
-  fd = open( "wav/click.wav", O_RDONLY );
-  if ( m_sound[SOUND_CLICK] == 0 ) {
-    m_sound[SOUND_CLICK] = (char *)GlobalAlloc( GMEM_SHARE, 65536 );
-  }
-  m_soundSize[SOUND_CLICK] = read( fd, m_sound[SOUND_CLICK], 65536 );
-  close( fd );
-#elif defined(HAVE_LIBSDL_MIXER)
   m_sound[SOUND_RACKET] = Mix_LoadWAV( "wav/racket.wav" );
   m_sound[SOUND_TABLE] = Mix_LoadWAV( "wav/table.wav" );
   m_sound[SOUND_CLICK] = Mix_LoadWAV( "wav/click.wav" );
-#elif defined(HAVE_LIBESD)
-  fd = open( "wav/racket.wav", O_RDONLY );
-  if ( m_sound[SOUND_RACKET] == 0 ) {
-    m_sound[SOUND_RACKET] = (char *)malloc( 65536 );
-  }
-  m_soundSize[SOUND_RACKET] = read( fd, m_sound[SOUND_RACKET], 624 );
-  m_soundSize[SOUND_RACKET] = read( fd, m_sound[SOUND_RACKET], 65536 );
-  close( fd );
-
-  fd = open( "wav/table.wav", O_RDONLY );
-  if ( m_sound[SOUND_TABLE] == 0 ) {
-    m_sound[SOUND_TABLE] = (char *)malloc( 65536 );
-  }
-  m_soundSize[SOUND_TABLE] = read( fd, m_sound[SOUND_TABLE], 624 );
-  m_soundSize[SOUND_TABLE] = read( fd, m_sound[SOUND_TABLE], 65536 );
-  close( fd );
-
-  fd = open( "wav/click.wav", O_RDONLY );
-  if ( m_sound[SOUND_CLICK] == 0 ) {
-    m_sound[SOUND_CLICK] = (char *)malloc( 65536 );
-  }
-  m_soundSize[SOUND_CLICK] = read( fd, m_sound[SOUND_CLICK], 624 );
-  m_soundSize[SOUND_CLICK] = read( fd, m_sound[SOUND_CLICK], 65536 );
-  close( fd );
 #endif
 
   return true;
 }
 
+/*
 bool
 Sound::Play( char *sndData, long size ) {
   if ( mode != MODE_MULTIPLAY ) {
-#ifdef HAVE_LIBESD
-    switch ( m_soundMode ) {
-    case SOUND_ESD:
-      write( m_fd[m_sndfd++], sndData, size );
-
-      if ( m_sndfd > 4 )
-	m_sndfd = 0;
-      break;
-    case SOUND_OSS:
-      write( m_ossfd, sndData, size );
-      break;
-    }
-#endif
   }
 
   return true;
 }
+*/
 
 bool
 Sound::Play( long soundID ) {
   if ( mode != MODE_MULTIPLAY ) {
-#ifdef WIN32
-    if ( mode != MODE_OPENING ) {
-      char *data;
-
-      data = (char *)GlobalLock( m_sound[soundID] );
-      PlaySound( data, NULL, SND_MEMORY|SND_ASYNC ); 
-      GlobalUnlock( m_sound[soundID] );
-    }
-#elif defined(HAVE_LIBSDL_MIXER)
-    Mix_PlayChannel( -1, m_sound[soundID], 0 );
-#elif defined(HAVE_LIBESD)
-    switch ( m_soundMode ) {
-    case SOUND_ESD:
-      write( m_fd[m_sndfd++], m_sound[soundID], m_soundSize[soundID] );
-
-      if ( m_sndfd > 4 )
-	m_sndfd = 0;
-      break;
-    case SOUND_OSS:
-      write( m_ossfd, m_sound[soundID], m_soundSize[soundID] );
-      break;
-    }
+#ifdef HAVE_LIBSDL_MIXER
+    //Mix_PlayChannel( -1, m_sound[soundID], 0 );
+    Mix_PlayChannel( 0, m_sound[soundID], 0 );
 #endif
   }
 
@@ -266,33 +97,11 @@ Sound::GetSoundMode() {
   return m_soundMode;
 }
 
+// 不要? 
 bool
 Sound::SetSoundMode( long mode ) {
   if ( mode == m_soundMode )
     return true;
-
-#ifdef HAVE_LIBESD
-  switch ( m_soundMode ) {
-  case SOUND_ESD:
-    if ( m_fd[0] >= 0 )
-      esd_close( m_fd[0] );
-    if ( m_fd[1] >= 0 )
-      esd_close( m_fd[1] );
-    if ( m_fd[2] >= 0 )
-      esd_close( m_fd[2] );
-    if ( m_fd[3] >= 0 )
-      esd_close( m_fd[3] );
-    if ( m_fd[4] >= 0 )
-      esd_close( m_fd[4] );
-    m_fd[0] = m_fd[1] = m_fd[2] = m_fd[3] = m_fd[4] = -1;
-    break;
-  case SOUND_OSS:
-    if ( m_ossfd >= 0 )
-      close( m_ossfd );
-  }
-
-  Init( mode );
-#endif
 
   return true;
 }
@@ -370,6 +179,7 @@ Sound::PlayBGM() {
 
 long
 Sound::SkipBGM() {
+#if 0
 #ifdef HAVE_LIBESD
   switch ( m_soundMode ) {
   case SOUND_ESD:
@@ -390,6 +200,7 @@ Sound::SkipBGM() {
       return bytes;
     }
   }
+#endif
 #endif
 
   return 0;

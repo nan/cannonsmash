@@ -28,9 +28,7 @@ extern bool isLighting;
 extern bool isWireFrame;
 extern bool isSimple;
 
-#if HAVE_LIBPTHREAD
-extern pthread_mutex_t loadMutex;
-#endif
+extern SDL_mutex *loadMutex;
 
 partsmotion *PlayerView::motion_Fnormal = NULL;
 partsmotion *PlayerView::motion_Bnormal = NULL;
@@ -78,9 +76,8 @@ bool
 PlayerView::Init( Player *player ) {
   m_player = player;
 
-#if HAVE_LIBPTHREAD
-  pthread_mutex_lock( &loadMutex );
-#endif
+  SDL_mutexP( loadMutex );
+
   m_Fnormal = motion_Fnormal;
   m_Bnormal = motion_Bnormal;
   m_Fdrive = motion_Fdrive;
@@ -89,9 +86,8 @@ PlayerView::Init( Player *player ) {
   m_Fpeck = motion_Fpeck;
   m_Bpeck = motion_Bpeck;
   m_Fsmash = motion_Fsmash;
-#if HAVE_LIBPTHREAD
-  pthread_mutex_unlock( &loadMutex );
-#endif
+
+  SDL_mutexV( loadMutex );
 
   return true;
 }
@@ -224,8 +220,9 @@ PlayerView::SubRedraw() {
     // 頭
     glPushMatrix();
     glTranslatef( x, 0.0, 0.0 );
-    if ( m_player->GetSide() < 0 )
-      glutWireSphere( 0.15, 8, 8 );
+    if ( m_player->GetSide() < 0 ) {
+      //glutWireSphere( 0.15, 8, 8 );
+    }
     glPopMatrix();
 
     // 体

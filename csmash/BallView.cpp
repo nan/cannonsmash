@@ -72,6 +72,8 @@ BallView::Init() {
 
   }
 
+  m_quad = gluNewQuadric();
+
   return true;
 }
  
@@ -97,7 +99,10 @@ BallView::Redraw() {
 
   glPushMatrix();
     glTranslatef( theBall.GetX(), theBall.GetY(), theBall.GetZ() );
-    glutSolidSphere( BALL_R, 12, 12 );
+
+    gluQuadricDrawStyle( m_quad, GLU_FILL );
+    gluQuadricNormals( m_quad, GLU_SMOOTH );
+    gluSphere( m_quad, BALL_R, 12, 12 );
   glPopMatrix();
 
   // 影を描画する
@@ -155,7 +160,11 @@ BallView::Redraw() {
 	}
 	glPushMatrix();
 	glTranslatef( tmpBall->GetX(), tmpBall->GetY(), tmpBall->GetZ() );
-	glutSolidSphere( BALL_R/2, 3, 3 );
+
+	gluQuadricDrawStyle( m_quad, GLU_FILL );
+	gluQuadricNormals( m_quad, GLU_SMOOTH );
+	gluSphere( m_quad, BALL_R/2, 3, 3 );
+
 	glPopMatrix();
       } else if ( t1 == t2 ){
 	glColor4f(1.0, 0.8, 0.0, 0.0);
@@ -163,7 +172,11 @@ BallView::Redraw() {
 	  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_yel);
 	glPushMatrix();
 	glTranslatef( tmpBall->GetX(), tmpBall->GetY(), tmpBall->GetZ() );
-	glutSolidSphere( BALL_R/4, 3, 3 );
+
+	gluQuadricDrawStyle( m_quad, GLU_FILL );
+	gluQuadricNormals( m_quad, GLU_SMOOTH );
+	gluSphere( m_quad, BALL_R/4, 3, 3 );
+
 	glPopMatrix();
       } else if ( (t2%5) == (t1%5) ){
 	glColor4f(0.8, 0.8, 0.8, 0.0);
@@ -173,7 +186,11 @@ BallView::Redraw() {
 	}
 	glPushMatrix();
 	glTranslatef( tmpBall->GetX(), tmpBall->GetY(), tmpBall->GetZ() );
-	glutSolidSphere( BALL_R/8, 3, 3 );
+
+	gluQuadricDrawStyle( m_quad, GLU_FILL );
+	gluQuadricNormals( m_quad, GLU_SMOOTH );
+	gluSphere( m_quad, BALL_R/8, 3, 3 );
+
 	glPopMatrix();
       }
     }

@@ -38,6 +38,8 @@ public:
   virtual bool LookAt( double &srcX, double &srcY, double &srcZ,
 		       double &destX, double &destY, double &destZ );
   long SmashEffect( bool start, long histPtr );
+
+  virtual View *GetView() { return NULL; };
 protected:
   bool m_smash;
   long m_smashCount;

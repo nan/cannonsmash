@@ -19,8 +19,7 @@
 #ifndef _Howto_
 #define _Howto_
 #include "Control.h"
-
-class HowtoView;
+#include "HowtoView.h"
 
 class Howto : public Control {
 public:
@@ -46,6 +45,8 @@ public:
 		       double &destX, double &destY, double &destZ );
 
   virtual bool IsPlaying() { return false; };
+
+  virtual View *GetView() { return m_View; };
 protected:
   HowtoView *m_View;
   long m_mode;

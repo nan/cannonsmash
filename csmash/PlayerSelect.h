@@ -20,8 +20,7 @@
 #define _PlayerSelect_
 
 #include "Control.h"
-
-class PlayerSelectView;
+#include "PlayerSelectView.h"
 
 class PlayerSelect : public Control {
 public:
@@ -44,6 +43,8 @@ public:
 		       double &destX, double &destY, double &destZ );
 
   virtual bool IsPlaying() { return false; };
+
+  virtual View *GetView() { return m_View; };
 protected:
   PlayerSelectView *m_View;
   long m_rotate;	// 表示画面の回転角度

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include "Event.h"
 #include "Control.h"
 
-void *LoadData( void *dum );
+int LoadData( void *dum );
 
 Ball theBall;
 
@@ -39,7 +39,7 @@ Event theEvent;
 
 short csmash_port = CSMASH_PORT;
 int theSocket = -1;
-bool isComm = false;		// ÄÌ¿®ÂÐÀï¤«
+bool isComm = false;		// $BDL?.BP@o$+(B
 char serverName[256];
 
 long timeAdj = 0;
@@ -50,20 +50,19 @@ bool isTexture	= true;
 bool isPolygon	= true;
 bool isSimple	= false;
 bool isWireFrame = true;
+bool fullScreen = false;
 
-long wins	= 0;		// ¾¡¤ÁÈ´¤­¿ô
-long gameLevel  = LEVEL_NORMAL;	// ¶¯¤µ
-long gameMode   = GAME_21PTS;	// ¥²¡¼¥à¤ÎÄ¹¤µ
+long wins	= 0;		// $B>!$AH4$-?t(B
+long gameLevel  = LEVEL_NORMAL;	// $B6/$5(B
+long gameMode   = GAME_21PTS;	// $B%2!<%`$ND9$5(B
 
 Control*      theControl = NULL;
 
 long mode = MODE_OPENING;
 
-long sndMode;			// ¤¢¤È¤Ç°ú¿ô²½
+long sndMode;			// $B$"$H$G0z?t2=(B
 
-#if HAVE_LIBPTHREAD
-pthread_mutex_t loadMutex = PTHREAD_MUTEX_INITIALIZER;
-#endif
+SDL_mutex *loadMutex;
 
 #ifdef WIN32
 #include "win32/getopt.h"
@@ -92,13 +91,19 @@ int main(int argc, char **argv) {
 #else /* WIN32 */
 int main(int argc, char** argv) {
 #endif
-  bool fullScreen = false;
 
-#ifdef HAVE_LIBESD
-  sndMode = SOUND_ESD;
-#elif defined(WIN32)
-  sndMode = SOUND_WIN32;
-#elif 1
+#ifdef HAVE_LIBSDL_MIXER
+  sndMode = SOUND_SDL;
+
+  if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) < 0 ) {
+    perror( "SDL initialize failed\n" );
+    return false;
+  }
+#else
+  if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
+    perror( "SDL initialize failed\n" );
+    return false;
+  }
   sndMode = SOUND_NONE;
 #endif
 
@@ -135,10 +140,6 @@ int main(int argc, char** argv) {
 	    isSimple = true;
 	    isTexture = false;
 	    break;
-	case 'O':
-	    // OSS sound mode
-	    sndMode = SOUND_OSS;
-	    break;
 	}
     }
 
@@ -174,22 +175,13 @@ int main(int argc, char** argv) {
     mode = MODE_TITLE;
   }
 
-#if HAVE_LIBPTHREAD
-  pthread_t ptid1, ptid2;
-//  pthread_mutex_lock( &loadMutex );
+  theSound.Init( sndMode );
 
-//  pthread_create( &ptid1, NULL, PlayerView::LoadData, NULL );
-  pthread_create( &ptid2, NULL, LoadData, NULL );
+  loadMutex = SDL_CreateMutex();
 
-//  pthread_mutex_unlock( &loadMutex );
-#else
-  PlayerView::LoadData(NULL);
-  LoadData( NULL );
-#endif
+  SDL_CreateThread( LoadData, NULL );
 
   EndianCheck();
-
-  glutInit(&argc, argv);
 
   struct timeb tb;
 #ifndef WIN32
@@ -210,39 +202,45 @@ int main(int argc, char** argv) {
   theView.Init();
   theEvent.Init();
 
-  glutReshapeFunc(BaseView::ReshapeFunc);
+  SDL_Event event;
 
-  if (fullScreen) {
-    glutFullScreen();
-    glutSetCursor( GLUT_CURSOR_NONE );
+  SDL_EnableUNICODE(1);
+
+  while (1) {
+    while ( SDL_PollEvent(&event) ) {
+      // $B$3$N$"$?$j(B, GLUT $BIw$K$J$C$F$$$k$N$G(B SDL $BIw$KD>$9(B
+      switch ( event.type ) {
+      case SDL_KEYDOWN:
+	Event::KeyboardFunc( event, 0, 0 );
+	break;
+      case SDL_KEYUP:
+	Event::KeyUpFunc( event, 0, 0 );
+	break;
+      case SDL_MOUSEMOTION:
+	Event::MotionFunc( event.motion.x, event.motion.y );
+	break;
+      case SDL_MOUSEBUTTONDOWN:
+      case SDL_MOUSEBUTTONUP:
+	Event::ButtonFunc( event.button.button, event.button.type, 
+			   event.motion.x, event.motion.y );
+	break;
+      case SDL_QUIT:
+	break;
+      case SDL_SYSWMEVENT:
+	break;
+      }
+    }
+    Event::IdleFunc();
   }
 
-  //glutWarpPointer( winWidth/2, winHeight/2 );
-  glutWarpPointer( BaseView::GetWinWidth()/2, BaseView::GetWinHeight()/2 );
-
-  glutMainLoop();
   return 0;
 }
 
-// ¸å¤ÇSound¤â¤³¤³¤«¤éÄÉ¤¤½Ð¤·¤ÆÇÑ»ß¤¹¤ë. 
-void *
+int
 LoadData( void *dum ) {
-#if HAVE_LIBPTHREAD
-  pthread_mutex_lock( &loadMutex );
-#endif
-
+  SDL_mutexP( loadMutex );
   PlayerView::LoadData(NULL);
-  theSound.Init( sndMode );
+  SDL_mutexV( loadMutex );
 
-#if HAVE_LIBPTHREAD
-  pthread_mutex_unlock( &loadMutex );
-#endif
-
-#if HAVE_LIBPTHREAD
-  pthread_detach(pthread_self());
-  pthread_exit(NULL);
   return NULL;
-#else
-  return NULL;
-#endif
 }

@@ -19,8 +19,7 @@
 #ifndef _Training_
 #define _Training_
 #include "PlayGame.h"
-
-class TrainingView;
+#include "TrainingView.h"
 
 class Training : public PlayGame {
 public:
@@ -41,6 +40,8 @@ public:
 
   virtual bool LookAt( double &srcX, double &srcY, double &srcZ,
 		       double &destX, double &destY, double &destZ );
+
+  virtual View *GetView() { return m_View; };
 protected:
   TrainingView *m_View;
   long          m_trainingCount;

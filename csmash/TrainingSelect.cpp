@@ -55,7 +55,8 @@ TrainingSelect::Create() {
   newTrainingSelect = new TrainingSelect();
   newTrainingSelect->Init();
 
-  glutSetCursor( GLUT_CURSOR_NONE );
+  SDL_ShowCursor(0);
+  SDL_WM_GrabInput( SDL_GRAB_ON );
 
   return newTrainingSelect;
 }
@@ -74,7 +75,7 @@ TrainingSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     return true;
   }
 
-  if ( KeyHistory[Histptr] == 27 ) {	// ESC
+  if ( KeyHistory[Histptr] == SDLK_ESCAPE ) {
     mode = MODE_TITLE;
     return true;
   }

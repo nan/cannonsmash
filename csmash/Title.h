@@ -19,6 +19,7 @@
 #ifndef _Title_
 #define _Title_
 #include "Control.h"
+#include "TitleView.h"
 
 // major menu
 #define MENU_MAIN	0
@@ -30,7 +31,7 @@
 #define MENU_CONFIG_MODE	2	// モード(Configメニュー内)
 #define MENU_CONFIG_PLAYER	3	// プレイヤー(Configメニュー内)
 
-class TitleView;
+class MenuItem;
 
 class Title : public Control {
 public:
@@ -45,7 +46,7 @@ public:
 		     long *MouseYHistory, unsigned long *MouseBHistory,
 		     int Histptr );
 
-  long GetSelected();
+  MenuItem *GetSelected();
   long GetSelectMode();
   long GetCount();
   long GetMenuNum( long major, long minor=0 );
@@ -54,12 +55,20 @@ public:
 		       double &destX, double &destY, double &destZ );
 
   virtual bool IsPlaying() { return false; };
+
+  virtual View *GetView() { return m_View; };
 protected:
   TitleView *m_View;
   long m_selected;	// 選択された : m_selected > 0
   long m_selectMode;	// 基本選択   : 0
 			// config選択  : 1
   long m_count;
+
+  MenuItem *m_menuItem[16];	// メニュー情報
+
+  void CreateMenu( long menuMajorNum );
+  long SetSelected( long selected );
+  long HitTest( long x, long y );
 };
 
 #endif	// _Title_

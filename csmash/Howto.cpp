@@ -90,7 +90,7 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
   }
 
-  if ( KeyHistory[Histptr] == 27 ) {	// ESC
+  if ( KeyHistory[Histptr] == SDLK_ESCAPE ) {
     mode = MODE_TITLE;
     return true;
   }

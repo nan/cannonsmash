@@ -31,6 +31,8 @@ public:
   virtual bool RedrawAlpha();
 
   static GLuint m_number[10];
+private:
+  GLUquadricObj *m_quad;
 };
 
 #endif	// _BallView

@@ -32,8 +32,12 @@ public:
   virtual bool Redraw();
   virtual bool RedrawAlpha();
 
+  bool AddView( View *view );
+  bool RemoveView( View *view );
 protected:
   Title       *m_title;
+  View        *m_View;
+
   GLubyte      m_image[800*100/8];
   GLubyte      m_choice[8][400*70/8];
   GLubyte      m_configChoice[16][200*35/8];

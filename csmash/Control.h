@@ -19,6 +19,8 @@
 #ifndef _Control_
 #define _Control_
 
+class View;
+
 class Control {
 public:
   Control();
@@ -32,6 +34,8 @@ public:
 		       double &destX, double &destY, double &destZ ) = 0;
 
   virtual bool IsPlaying() = 0;
+
+  virtual View *GetView() = 0;
 };
 
 #endif	// _Control_

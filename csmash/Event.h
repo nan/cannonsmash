@@ -43,8 +43,8 @@ public:
   bool Init();
 
   static void IdleFunc();
-  static void KeyboardFunc( unsigned char key, int x, int y );
-  static void KeyUpFunc( unsigned char key, int x, int y );
+  static void KeyboardFunc( SDL_Event key, int x, int y );
+  static void KeyUpFunc( SDL_Event key, int x, int y );
   static void MotionFunc( int x, int y );
   static void ButtonFunc( int button, int state, int x, int y );
 

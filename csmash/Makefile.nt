@@ -20,7 +20,7 @@ Cpost = -c -Tc
 CXXpost = -c -Tp
 
 #CFLAGS = -MD -Ox -G6 -vms $(INCDIRS)
-CFLAGS = -MD -Ox -G6 -vms -DHAVE_LIBZ $(INCDIRS)
+CFLAGS = -MD -Ox -G6 -vms -DHAVE_LIBZ -DHAVE_LIBSDL_MIXER $(INCDIRS)
 #CFLAGS = -MD -Od -Zi -G6 -vms -DHAVE_LIBZ $(INCDIRS)
 
 CXXFLAGS=$(CFLAGS) -GX
@@ -36,7 +36,8 @@ AOUT = -Fe
 INCDIRS = -I.
 LIBS =	win32/GetArgs.obj win32/getopt.obj win32/wsaerror.obj \
 	win32/wsainit.obj win32/csmash.res \
-	glut32.lib zlib.lib libjpeg.lib ws2_32.lib
+	SDL.lib SDL_mixer.lib opengl32.lib glu32.lib zlib.lib \
+	libjpeg.lib ws2_32.lib
 
 SRCS = \
 	Ball.cpp BallView.cpp BaseView.cpp Event.cpp HitMark.cpp \
@@ -48,7 +49,7 @@ SRCS = \
 	MultiPlay.cpp TrainingPenDrive.cpp ComTrainingPenDrive.cpp \
 	TrainingSelect.cpp TrainingSelectView.cpp TrainingView.cpp \
 	FieldView.cpp SoloPlay.cpp PlayGame.cpp Control.cpp Training.cpp \
-	Opening.cpp OpeningView.cpp \
+	Opening.cpp OpeningView.cpp MenuItem.cpp MenuItemView.cpp \
 	main.cpp z.cpp parts.cpp xerror.cpp
 
 OBJS = $(SRCS:.cpp=.obj)
@@ -66,7 +67,7 @@ distclean:
 
 depend:
 	touch depend.nt
-	makedepend -fdepend.nt $(INCDIRS) -D_WIN32 -DHAVE_LIBZ $(SRCS)
+	makedepend -fdepend.nt $(INCDIRS) -D_WIN32 -DHAVE_LIBZ -DHAVE_LIBSDL_MIXER $(SRCS)
 	cat depend.nt | sed -e "s/.:\/.*\/VC98[^ ]*include\/[^ ]*//g" \
 	| grep -v ".*:[ ]*$$" > depend.new
 	mv depend.new depend.nt
