@@ -504,7 +504,6 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   } else
     m_y += m_vy*TICK;
 
-#if 0
 // Go back to the endline before serve
   if ( Control::TheControl()->IsPlaying() && theBall.GetStatus() == 8 &&
        ((PlayGame *)Control::TheControl())->GetService() == GetSide() ) {
@@ -513,7 +512,6 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
     else if ( m_side < 0 && m_y < TABLELENGTH/2 )
       m_y = TABLELENGTH/2;
   }
-#endif
 
   // Auto backswing
   if ( m_swing == 0 ) {
@@ -742,16 +740,6 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
       Swing( 1 );
     }
   }
-
-#if 0
-  if ( mouse & (BUTTON_RIGHT|BUTTON_MIDDLE|BUTTON_LEFT) &&
-       m_swing > 10 && m_swing <= 20 ) {
-    m_pow++;
-    if ( m_pow > 10 )
-      m_pow = 10;
-  }
-#else
-#endif
 
   return true;
 }

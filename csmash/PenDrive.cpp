@@ -75,7 +75,7 @@ bool
 PenDrive::Swing( long spin ) {
   Ball *tmpBall;
 
-  if ( m_swing > 10 )
+  if ( m_swing > 10 || theBall.GetStatus() == 6 ||theBall.GetStatus() == 7 )
     return false;
 
   m_swing = 11;

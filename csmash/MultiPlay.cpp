@@ -193,6 +193,24 @@ MultiPlay::Create( long player, long com ) {
   theRC->gameLevel = LEVEL_HARD;
   theRC->gameMode = GAME_21PTS;
 
+  // Init timer again
+  struct timeb tb;
+
+#ifndef WIN32
+  struct timeval tv;
+  struct timezone tz;
+#endif
+
+#ifdef WIN32
+  ftime( &tb );
+#else
+  gettimeofday( &tv, &tz );
+  tb.time = tv.tv_sec;
+  tb.millitm = tv.tv_usec/1000;
+#endif
+
+  Event::m_lastTime = tb;
+
   networkMutex = SDL_CreateMutex();
   SDL_CreateThread( Event::WaitForData, NULL );
 }

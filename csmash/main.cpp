@@ -37,6 +37,7 @@
 #include "Logging.h"
 #endif
 
+#include <gtk/gtk.h>
 #include <locale.h>
 
 int LoadData( void *dum );
