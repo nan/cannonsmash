@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -189,81 +189,81 @@ ShakeCut::HitBall() {
     theBall.TargetToVS( m_targetX, m_targetY, level, m_spin, vx, vy, vz );
 
     theBall.Hit( vx, vy, vz, m_spin, this );
-  } else {
+#if 0
+  } else if ( ((m_side == 1 && theBall.GetStatus() == 3) ||
+	       (m_side ==-1 && theBall.GetStatus() == 1)) &&
+	      fabs(m_x-theBall.GetX()) < 0.6 &&
+	      (m_y-theBall.GetY())*m_side < 0.3 &&
+	      (m_y-theBall.GetY())*m_side > -0.6 ) {
+#else
+  } else if ( ((m_side == 1 && theBall.GetStatus() == 3) ||
+	       (m_side ==-1 && theBall.GetStatus() == 1)) &&
+	      fabs(m_x-theBall.GetX()) < 0.6 &&
+	      ((GetSwingSide() && (m_x-theBall.GetX())*m_side < 0 ) ||
+	       (!GetSwingSide() && (m_x-theBall.GetX())*m_side > 0 )) &&
+	      (m_y-theBall.GetY())*m_side < 0.3 &&
+	      (m_y-theBall.GetY())*m_side > -0.6 ) {
+#endif
+
+    //AddStatus( -fabs(fabs(m_x-theBall.GetX())-0.3)*100 );
     double targetX, targetY;
 
     GetModifiedTarget( targetX, targetY );
 
-#if 0
-    if ( ((m_side == 1 && theBall.GetStatus() == 3) ||
-	  (m_side ==-1 && theBall.GetStatus() == 1)) &&
-	 fabs(m_x-theBall.GetX()) < 0.6 &&
-	 (m_y-theBall.GetY())*m_side < 0.3 &&
-	 (m_y-theBall.GetY())*m_side > -0.6 ) {
-#else
-    if ( ((m_side == 1 && theBall.GetStatus() == 3) ||
-	  (m_side ==-1 && theBall.GetStatus() == 1)) &&
-	 fabs(m_x-theBall.GetX()) < 0.6 &&
-	 ((GetSwingSide() && (m_x-theBall.GetX())*m_side < 0 ) ||
-	  (!GetSwingSide() && (m_x-theBall.GetX())*m_side > 0 )) &&
-	 (m_y-theBall.GetY())*m_side < 0.3 &&
-	 (m_y-theBall.GetY())*m_side > -0.6 ) {
-#endif
+    double maxVy;
+    CalcLevel( &theBall, diff, level, maxVy );
 
-      //AddStatus( -fabs(fabs(m_x-theBall.GetX())-0.3)*100 );
+    theBall.TargetToV( targetX, targetY, level, m_spin, vx, vy, vz,
+		       0.1, maxVy );
 
-      double maxVy;
-      CalcLevel( &theBall, diff, level, maxVy );
+    double v;
+    double n1x, n1y, n1z, n2x, n2y, n2z;
+    double radDiff, radRand;
 
-      theBall.TargetToV( targetX, targetY, level, m_spin, vx, vy, vz,
-			 0.1, maxVy );
+    radDiff = hypot( fabs(fabs(m_x-theBall.GetX())-0.3)/0.3, 
+		     fabs(m_y-theBall.GetY())/0.3 );
+    radDiff = sqrt( radDiff );
+    radDiff *= (double)(200-m_status)/200*3.141592/18;
 
-      double v;
-      double n1x, n1y, n1z, n2x, n2y, n2z;
-      double radDiff, radRand;
+    v = sqrt(vx*vx+vy*vy+vz*vz);
+    n1x = vy/hypot(vx, vy) * v*tan(radDiff);
+    n1y = -vx/hypot(vx, vy) * v*tan(radDiff);
+    n1z = 0;
+    n2x = vx*vz/(v*hypot(vx, vy)) * v*tan(radDiff);
+    n2y = vy*vz/(v*hypot(vx, vy)) * v*tan(radDiff);
+    n2z = (vx*vx+vy*vy)/(v*hypot(vx, vy)) * v*tan(radDiff);
 
-      radDiff = hypot( fabs(fabs(m_x-theBall.GetX())-0.3)/0.3, 
-		       fabs(m_y-theBall.GetY())/0.3 );
-      radDiff = sqrt( radDiff );
-      radDiff *= (double)(200-m_status)/200*3.141592/18;
+    // Hit the ball too fast --- net miss
+    // Hit the ball too slow --- over miss
+    if ( (m_y-theBall.GetY())*m_side < 0 )
+      radRand = (RAND(180)+180)*3.141592/180.0;
+    else
+      radRand = RAND(180)*3.141592/180.0;
 
-      v = sqrt(vx*vx+vy*vy+vz*vz);
-      n1x = vy/hypot(vx, vy) * v*tan(radDiff);
-      n1y = -vx/hypot(vx, vy) * v*tan(radDiff);
-      n1z = 0;
-      n2x = vx*vz/(v*hypot(vx, vy)) * v*tan(radDiff);
-      n2y = vy*vz/(v*hypot(vx, vy)) * v*tan(radDiff);
-      n2z = (vx*vx+vy*vy)/(v*hypot(vx, vy)) * v*tan(radDiff);
+    vx += n1x*cos(radRand)+n2x*sin(radRand);
+    vy += n1y*cos(radRand)+n2y*sin(radRand);
+    vz += n1z*cos(radRand)+n2z*sin(radRand);
 
-      // Hit the ball too fast --- net miss
-      // Hit the ball too slow --- over miss
-      if ( (m_y-theBall.GetY())*m_side < 0 )
-	radRand = (RAND(180)+180)*3.141592/180.0;
-      else
-	radRand = RAND(180)*3.141592/180.0;
+    // Reduce status
+    m_afterSwing = (long)
+      (hypot( theBall.GetVX()*0.8-vx, theBall.GetVY()*0.8+vy )
+       * (1.0+diff*10.0) + fabs(m_spin)*3.0 + fabs(theBall.GetSpin())*2.0);
 
-      vx += n1x*cos(radRand)+n2x*sin(radRand);
-      vy += n1y*cos(radRand)+n2y*sin(radRand);
-      vz += n1z*cos(radRand)+n2z*sin(radRand);
+    if ( m_swingType == SWING_POKE || m_swingType == SWING_CUT )
+      AddStatus( -m_afterSwing );
+    else if ( ForeOrBack() )
+      AddStatus( -m_afterSwing*2 );
+    else
+      AddStatus( -m_afterSwing*3 );
 
-      // Reduce status
-      m_afterSwing = (long)
-	(hypot( theBall.GetVX()*0.8-vx, theBall.GetVY()*0.8+vy )
-	 * (1.0+diff*10.0) + fabs(m_spin)*3.0 + fabs(theBall.GetSpin())*2.0);
+    if ( m_status == 1 )
+      m_afterSwing *= 3;
 
-      if ( m_swingType == SWING_POKE || m_swingType == SWING_CUT )
-	AddStatus( -m_afterSwing );
-      else if ( ForeOrBack() )
-	AddStatus( -m_afterSwing*2 );
-      else
-	AddStatus( -m_afterSwing*3 );
-
-      if ( m_status == 1 )
-	m_afterSwing *= 3;
-
-      theBall.Hit( vx, vy, vz, m_spin, this );
-    } else
-      m_swingError = SWING_MISS;
+    theBall.Hit( vx, vy, vz, m_spin, this );
+  } else {
+    m_swingError = SWING_MISS;
+    if ( this == thePlayer && mode == MODE_MULTIPLAY )
+      Event::TheEvent()->SendBall();
   }
 
   return true;
