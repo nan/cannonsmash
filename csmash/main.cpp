@@ -52,6 +52,8 @@ bool isSimple	= false;
 bool isWireFrame = true;
 bool fullScreen = false;
 
+bool isQuit = false;
+
 long wins	= 0;		// 勝ち抜き数
 long gameLevel  = LEVEL_EASY;	// 強さ
 long gameMode   = GAME_21PTS;	// ゲームの長さ
@@ -246,6 +248,9 @@ StartGame() {
 	break;
       }
     }
+
+    if ( isQuit )
+      return;
 
     Event::IdleFunc();
   }

@@ -53,6 +53,8 @@ extern long wins;
 
 extern bool isComm;
 
+extern bool isQuit;
+
 long _perfCount;
 long perfs;
 
@@ -720,4 +722,5 @@ QuitGame() {
   theView.QuitGame();
 
   SDL_Quit();
+  isQuit = true;
 }
