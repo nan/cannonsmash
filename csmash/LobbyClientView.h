@@ -43,15 +43,20 @@ protected:
   static void Connect( GtkWidget *widget, gpointer data );
   static void WarmUp( GtkWidget *widget, gpointer data );
   static void KeyPress( GtkWidget *widget, GdkEventKey *event, gpointer data );
+  static void SwitchChatPage( GtkNotebook *notebook, GtkNotebookPage *page,
+			      gint page_num, gpointer data );
   static void Quit( GtkWidget *widget, gpointer data );
 
   guint m_timeout;
   guint m_idle;
+
+  gint  m_chatChannel;
+
   LobbyClient *m_parent;
 
   GtkWidget *m_window;
   GtkWidget *m_table;
-  GtkWidget *m_chat;
+  GtkWidget *m_chat[16];
   GtkWidget *m_chatinput;
   GtkWidget *m_connectButton;
   GtkWidget *m_warmUpButton;

@@ -50,7 +50,7 @@ public:
   void SendDP( long uniqID);
   void SendQT();
   void SendSC( int score1, int score2 );
-  void SendMS( char *message );
+  void SendMS( char *message, long channel );
 
   long m_playerNum;
   PlayerInfo *m_player;

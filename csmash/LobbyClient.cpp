@@ -448,13 +448,12 @@ LobbyClient::SendSC( int score1, int score2 ) {
 }
 
 void
-LobbyClient::SendMS( char *message ) {
+LobbyClient::SendMS( char *message, long channel ) {
   send( m_socket, "MS", 2, 0 );
   long len = 4+strlen(message);
   SendLong( m_socket, len );
 
-  len = 0;	// ChannelID, temporary
-  SendLong( m_socket, len );
+  SendLong( m_socket, channel );
   send( m_socket, message, strlen(message), 0 );
 }
 
