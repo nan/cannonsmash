@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001, 2002  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -439,16 +439,18 @@ Launcher::Init() {
 
   GtkWidget *allbox, *mainbox, *quitBox;
 
-  /* $B=i4|2=(B */
+  /* ½é´ü²½ */
   gtk_init( (int *)NULL, (char ***)NULL );
+  /*
   style = gtk_widget_get_default_style();
 #ifdef WIN32
-  style->font = gdk_font_load(_("-unknown-MS UI Gothic-normal-r-normal--12-100-*-*-*-*-windows-*") );
+  //style->font = gdk_font_load(_("-unknown-MS UI Gothic-normal-r-normal--12-100-*-*-*-*-windows-*") );
+  style->font = gdk_font_load(_("-*-ms gothic-normal-r-normal--14-*-*-*-*-*-jisx0208.1983-0") );
 #endif
-
   gtk_widget_set_default_style(style);
+  */
 
-  /* Window $B@8@.(B */
+  /* Window À¸À® */
   m_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_container_border_width (GTK_CONTAINER (m_window), 5);
   gtk_window_set_title( GTK_WINDOW(m_window), _("Cannon Smash"));
