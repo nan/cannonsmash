@@ -192,9 +192,11 @@ LobbyClient::PollServerMessage( gpointer data ) {
 	mode = MODE_SELECT;
 	serverName[0] = '\0';
 	gtk_widget_set_sensitive (lobby->m_connectButton, true);
+	gtk_widget_set_sensitive (lobby->m_table, true);
 	StartGame();
       } else if ( !strncmp( buf, "DP", 2 ) ) {
 	gtk_widget_set_sensitive (lobby->m_connectButton, true);
+	gtk_widget_set_sensitive (lobby->m_table, true);
       } else {
 	xerror("%s(%d) read header", __FILE__, __LINE__);
 	gtk_main_quit();
@@ -237,6 +239,7 @@ LobbyClient::Connect( GtkWidget *widget, gpointer data ) {
   SendLong( lobby->m_socket, lobby->m_player[lobby->m_selected].m_ID );
 
   gtk_widget_set_sensitive (lobby->m_connectButton, false);
+  gtk_widget_set_sensitive (lobby->m_table, false);
   //printf( "%d\n", lobby->m_selected );
 }
 
