@@ -399,7 +399,6 @@ public:
     inline explicit Vector(float_t e) {
 	for (int i = 0; vector_size > i; i++) v[i] = e;
     }
-
     inline explicit Vector(const float_t a[vector_size]) {
 	for (int i = 0; vector_size > i; ++i) v[i] = a[i];
     }

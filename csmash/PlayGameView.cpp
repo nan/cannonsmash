@@ -33,8 +33,6 @@ PlayGameView::~PlayGameView() {
 
 bool
 PlayGameView::Init( PlayGame *playGame ) {
-  int j, k;
-
   static char imageFile[30] = "images/Pause";
 
   m_playGame = playGame;

@@ -36,7 +36,7 @@ TrainingSelectView::~TrainingSelectView() {
 bool
 TrainingSelectView::Init( PlayerSelect *playerSelect ) {
   ImageData image;
-  int i, j;
+  int i;
 
   static char pname[][30] = {"images/FastRally.jpg", "images/Footwork.jpg" };
 

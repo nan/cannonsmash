@@ -36,11 +36,6 @@ bool
 HowtoView::Init( Howto *howto ) {
   ImageData image;
   int i, j, k;
-#ifndef HAVE_LIBZ
-  FILE *fp;
-#else
-  gzFile fp;
-#endif
 
   static char fname[][30] = {"images/Mouse1.jpg", "images/Mouse2.jpg",
 			     "images/Mouse3.jpg", "images/Mouse4.jpg"};

@@ -43,7 +43,7 @@ PlayerSelectView::~PlayerSelectView() {
 bool
 PlayerSelectView::Init( PlayerSelect *playerSelect ) {
   ImageData image;
-  int i, j;
+  int i;
 
   static char pname[][30] = {"images/PenAttack.jpg", "images/ShakeCut.jpg",
 			     "images/PenDrive.jpg"};

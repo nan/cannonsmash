@@ -640,7 +640,6 @@ LauncherView::~LauncherView() {
 
 void
 LauncherView::Init() {
-  GtkStyle *style;
   GtkWidget *label;
 
   GtkWidget *allbox, *mainbox, *quitBox;

@@ -569,7 +569,7 @@ WaitForClient() {
     }
     FD_SET(sb, &fd);
 
-    max = max > sb ? max : sb;
+    max = max > (int)sb ? max : sb;
     if (0 <= select(max+1, &fd, NULL, NULL, NULL)) {
       if (FD_ISSET(sb, &fd)) {
 	// datagram to udp port
@@ -652,7 +652,6 @@ WaitForClient() {
 
 bool
 ConnectToServer() {
-  char buf[128];
   int i;
 
 #ifdef ENABLE_IPV6
@@ -750,6 +749,7 @@ ConnectToServer() {
     throw NetworkError();
   }
 #endif
+  return true;
 }
 
 void

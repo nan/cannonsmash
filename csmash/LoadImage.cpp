@@ -19,6 +19,13 @@
 #include "ttinc.h"
 #include "LoadImage.h"
 
+#if 0
+extern "C" {
+#define JDLLDECL
+#include <jpeglib.h>
+}
+#endif
+
 #ifdef HAVE_LIBZ
 #include "z.h"
 #endif
@@ -276,8 +283,6 @@ bool ImageData::LoadFile(const char *filename)
 // Copyed from testgl.c of SDL source code
 SDL_Surface* SDL_GL_LoadTexture(char *filename)
 {
-  GLuint texture;
-  int w, h;
   SDL_Surface *image, *jpg;
   SDL_Rect area;
   Uint32 saved_flags;

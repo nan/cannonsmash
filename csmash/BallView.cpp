@@ -83,7 +83,6 @@ BallView::Init() {
  
 bool
 BallView::Redraw() {
-  double rad;
   const static GLfloat mat_yel[] = { 1.0F, 0.8F, 0.0F, 0.0F };
 
   DrawBall();
@@ -258,7 +257,6 @@ BallView::RedrawAlpha() {
 
     if ( theRC->isTexture || theBall.GetStatus() < -10 ) {
       long score1, score2;
-      long game1, game2;
 
       glEnable(GL_TEXTURE_2D);
       glColor3f( 0.0F, 0.0F, 0.0F );

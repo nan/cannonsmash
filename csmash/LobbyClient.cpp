@@ -211,7 +211,7 @@ LobbyClient::PollServerMessage( gpointer data ) {
       i++;
     }
 
-    if ( (SOCKET)lobby->m_socket > max )
+    if ( (int)lobby->m_socket > max )
       max = lobby->m_socket;
 
     to.tv_sec = to.tv_usec = 0;

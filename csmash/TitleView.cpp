@@ -35,7 +35,7 @@ TitleView::~TitleView() {
 
 bool
 TitleView::Init( Title *title ) {
-  int i, j, k;
+  int i;
 
   static char configTitle[][30] = {"images/LevelSelect",
 				   "images/ModeSelect"

@@ -632,9 +632,6 @@ Event::BackTrack( long Histptr ) {
 
 void
 Event::ReadData() {
-  fd_set rdfds;
-  struct timeval to;
-
   // Caution!! exchanged with WaitForData()
 
   SDL_mutexP( networkMutex );
@@ -758,8 +755,6 @@ Event::ReadData() {
 
 void
 Event::ReadSelectData() {
-  fd_set rdfds;
-  struct timeval to;
   bool dum;
   ExternalData *externalOld;
 
