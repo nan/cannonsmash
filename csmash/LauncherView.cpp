@@ -423,11 +423,8 @@ ModeNote::Init( GtkBox *box ) {
 #ifdef WIN32
   HWND cWnd = NULL;
   cWnd = FindWindowEx( LauncherView::hWnd, NULL, "gdkWindowChild", NULL );
-  printf( "%x\n", cWnd );
   cWnd = FindWindowEx( LauncherView::hWnd, cWnd, "gdkWindowChild", NULL );
-  printf( "%x\n", cWnd );
   cWnd = FindWindowEx( cWnd, NULL, "gdkWindowChild", NULL );
-  printf( "%x\n", cWnd );
 
   ModeNote::pParentWndProc = GetWindowLong(cWnd, GWL_WNDPROC);
   SetWindowLong(cWnd, GWL_WNDPROC, (LONG)ModeNote::ParentWindowProc);

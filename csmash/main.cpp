@@ -158,9 +158,8 @@ int main(int argc, char** argv) {
     printf("\nlocale=%s\n", localedir);
     bindtextdomain ("csmash", localedir);
     textdomain ("csmash");
-#ifdef HAVE_BIND_TEXTDOMAIN_CODESET
-    bind_textdomain_codeset(PACKAGE, "UTF-8");
-#endif
+
+    bind_textdomain_codeset("csmash", "UTF-8");
 
     *localedir = '\0';
 //    GetCurrentDirectory(MAX_PATH, localedir);
