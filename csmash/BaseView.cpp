@@ -161,7 +161,6 @@ BaseView::Init() {
 	       0, GL_RGBA, GL_UNSIGNED_BYTE, image.GetImage() );
 
   m_fieldView = (FieldView *)View::CreateView( VIEW_FIELD );
-
   m_fieldView->Init();
 
   return true;
@@ -315,6 +314,7 @@ BaseView::RedrawAll() {
 bool
 BaseView::SetViewPosition() {
   glLoadIdentity();
+
   SetLookAt();
 
   return true;
@@ -420,6 +420,13 @@ void
 BaseView::QuitGame() {
   //if (fullScreen)
   //SDL_WM_ToggleFullScreen( m_baseSurface );
-  SDL_FreeSurface( m_baseSurface );
-  delete m_fieldView;
+  if (m_baseSurface) {
+    SDL_FreeSurface( m_baseSurface );
+    m_baseSurface = NULL;
+  }
+
+  if (m_fieldView) {
+    delete m_fieldView;
+    m_fieldView = NULL;
+  }
 }

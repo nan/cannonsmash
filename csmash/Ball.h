@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,15 +33,15 @@ public:
 
   virtual bool Init();
 
-  double GetX();
-  double GetY();
-  double GetZ();
-  double GetVX();
-  double GetVY();
-  double GetVZ();
-  double GetSpin();
+  double GetX() { return m_x; }
+  double GetY() { return m_y; }
+  double GetZ() { return m_z; }
+  double GetVX() { return m_vx; }
+  double GetVY() { return m_vy; }
+  double GetVZ() { return m_vz; }
+  double GetSpin() { return m_spin; }
 
-  long GetStatus();
+  long GetStatus() { return m_status; }
 
   bool Move();	// move to 1turn(0.01 sec) later
 

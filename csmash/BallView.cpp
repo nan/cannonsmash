@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -86,35 +86,8 @@ BallView::Redraw() {
   double rad;
   const static GLfloat mat_yel[] = { 1.0F, 0.8F, 0.0F, 0.0F };
 
-  // Draw the Ball itself
-  glColor4f(1.0F, 0.8F, 0.0F, 0.0F);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_yel);
-
-  glPushMatrix();
-    glTranslatef( (float)theBall.GetX(),
-		  (float)theBall.GetY(),
-		  (float)theBall.GetZ() );
-
-    gluSphere( m_quad, BALL_R, 12, 12 );
-  glPopMatrix();
-
-  // Draw the ball shadow
-  glColor4f(0.0, 0.0, 0.0, 0.0);
-  if ( theBall.GetY() > -TABLELENGTH/2 && theBall.GetY() < TABLELENGTH/2 ){
-    glBegin(GL_POLYGON);
-      for ( rad = 0.0F ; rad < 3.141592F*2 ; rad += 3.141592F/4 )
-	glVertex3f( (float)(theBall.GetX()+BALL_R*cos(rad)),
-		    (float)(theBall.GetY()+BALL_R*sin(rad)),
-		    TABLEHEIGHT+0.01F );
-    glEnd();
-  } else {
-    glBegin(GL_POLYGON);
-      for ( rad = 0.0F ; rad < 3.141592F*2 ; rad += 3.141592F/4 )
-	glVertex3f( (float)(theBall.GetX()+BALL_R*cos(rad)),
-		    (float)(theBall.GetY()+BALL_R*sin(rad)),
-		    0.01F );
-    glEnd();
-  }
+  DrawBall();
+  DrawShadow();
 
   return true;
 }
@@ -354,6 +327,44 @@ BallView::RedrawAlpha() {
   }
 
   return true;
+}
+
+// Draw the Ball itself
+void
+BallView::DrawBall() {
+  const static GLfloat mat_yel[] = { 1.0F, 0.8F, 0.0F, 0.0F };
+
+  glColor4f(1.0F, 0.8F, 0.0F, 0.0F);
+  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_yel);
+
+  glPushMatrix();
+    glTranslatef( (float)theBall.GetX(),
+		  (float)theBall.GetY(),
+		  (float)theBall.GetZ() );
+
+    gluSphere( m_quad, BALL_R, 12, 12 );
+  glPopMatrix();
+}
+
+// Draw the Ball shadow
+void
+BallView::DrawShadow() {
+  double rad;
+  float height;
+
+  if ( theBall.GetY() > -TABLELENGTH/2 && theBall.GetY() < TABLELENGTH/2 )
+    height = TABLEHEIGHT+0.01F;
+  else
+    height = 0.01F;
+
+  glColor4f(0.0, 0.0, 0.0, 0.0);
+
+  glBegin(GL_POLYGON);
+    for ( rad = 0.0F ; rad < 3.141592F*2 ; rad += 3.141592F/4 )
+      glVertex3f( (float)(theBall.GetX()+BALL_R*cos(rad)),
+		  (float)(theBall.GetY()+BALL_R*sin(rad)),
+		  height );
+  glEnd();
 }
 
 void

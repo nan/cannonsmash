@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -88,46 +88,6 @@ Ball::Init() {
   return true;
 }
 
-double
-Ball::GetX() {
-  return m_x;
-}
-
-double
-Ball::GetY() {
-  return m_y;
-}
-
-double
-Ball::GetZ() {
-  return m_z;
-}
-
-double
-Ball::GetVX() {
-  return m_vx;
-}
-
-double
-Ball::GetVY() {
-  return m_vy;
-}
-
-double
-Ball::GetVZ() {
-  return m_vz;
-}
-
-double
-Ball::GetSpin() {
-  return m_spin;
-}
-
-long
-Ball::GetStatus() {
-  return m_status;
-}
-
 bool
 Ball::Move() {
   double netT , tableT;         /* Flag for bound on the table, hit net */
@@ -186,9 +146,15 @@ Ball::Move() {
   x = m_x;
   y = m_y;
   z = m_z;
+#if 0
   m_x += (m_vx*2-PHY*m_vx*fabs(m_vx)*TICK)/2*TICK;
+  m_y += (m_vy*2-PHY*m_vy*fabs(m_vy)*TICK)/2*TICK;
+  m_z += (m_vz*2-GRAV*TICK-PHY*m_vz*fabs(m_vz)*TICK)/2*TICK;
+#else
+  m_x += (m_vx*2-PHY*m_vx*TICK)/2*TICK;
   m_y += (m_vy*2-PHY*m_vy*TICK)/2*TICK;
   m_z += (m_vz*2-GRAV*TICK-PHY*m_vz*TICK)/2*TICK;
+#endif
 
 /* Collision check */
   if ( y*m_y <= 0.0 ){
