@@ -352,8 +352,6 @@ ComPenAttack::SetTargetX( Player *opponent ) {
     }
   }
 
-  printf( "%f ", m_targetX );
-
   if ( m_vx > 1.5 ) {
     m_targetX += TABLEWIDTH/2;
   } else if ( m_vx > 0.5 ) {
@@ -368,8 +366,6 @@ ComPenAttack::SetTargetX( Player *opponent ) {
     m_targetX = TABLEWIDTH*7/16;
   if ( m_targetX < -TABLEWIDTH/2 )
     m_targetX = -TABLEWIDTH*7/16;
-
-  printf( "%f\n", m_targetX );
 
   return true;
 }
