@@ -53,17 +53,10 @@ FieldView::Init() {
 
   static char pname[][30] = {"images/Left.jpg", "images/Front.jpg", 
 			     "images/Right.jpg", "images/Back.jpg" };
-#if 0
-  static char tutorialname[][30] = {"images/EasyTutorial.ppm",
-				    "images/EasyTutorial.ppm", 
-				    "images/EasyTutorial.ppm", 
-				    "images/EasyTutorial.ppm" };
-#else
   static char tutorialname[][30] = {"images/EasyTutorial",
-				    "images/EasyTutorial", 
-				    "images/EasyTutorial", 
-				    "images/EasyTutorial" };
-#endif
+				    "images/NormalTutorial", 
+				    "images/HardTutorial", 
+				    "" };
 
   glGenTextures( 4, m_wall );
   for ( i = 0 ; i < 4 ; i++ ) {
@@ -85,7 +78,7 @@ FieldView::Init() {
 
   char filename[256];
 
-  for ( i = 0 ; i < 4 ; i++ ) {
+  for ( i = 0 ; i < 3 ; i++ ) {
     sprintf( filename, _("%s.ppm"), &(tutorialname[i][0]) );
     image.LoadPPM( filename );
     for ( int j = 0 ; j < image.GetWidth() ; j++ ) {
@@ -283,7 +276,8 @@ FieldView::Redraw() {
     glEnd();
 
     // Show tutorial on ball stopper
-    if ( Control::TheControl()->IsPlaying() ) {
+    if ( Control::TheControl()->IsPlaying()
+	 && theRC->gameLevel <= LEVEL_HARD ) {
       int rotation;
 
       if ( Event::m_lastTime.time % 5 == 4 ) {
