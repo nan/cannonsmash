@@ -243,6 +243,10 @@ StartGame() {
 			   event.motion.x, event.motion.y );
 	break;
       case SDL_QUIT:
+	Event::ClearObject();
+	theView.QuitGame();
+
+	SDL_Quit();
 	return;
       case SDL_SYSWMEVENT:
 	break;

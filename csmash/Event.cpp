@@ -715,12 +715,10 @@ void
 QuitGame() {
   printf( "Avg = %f\n", (double)perfs/_perfCount );
   if (_backTrackCount) printf( "BackTrack = %f\n", backTracks/_backTrackCount);
-  Event::ClearObject();
 
   SDL_WM_GrabInput( SDL_GRAB_OFF );
 
-  theView.QuitGame();
-
-  SDL_Quit();
-  isQuit = true;
+  SDL_Event e;
+  e.type = SDL_QUIT;
+  SDL_PushEvent( &e );
 }
