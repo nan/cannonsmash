@@ -518,7 +518,7 @@ ExternalPSData::Read( long sock ) {
 
   long len = 0;
   while (1) {
-    if ( (len+=recv( sock, data+len, 32-len, 0 )) == 24 )
+    if ( (len+=recv( sock, data+len, 32-len, 0 )) == 32 )
       break;
   }
 

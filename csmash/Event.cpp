@@ -784,6 +784,12 @@ Event::ReadData() {
     btCount = (m_lastTime.time-m_External->sec)*100 + 
       (m_lastTime.millitm/10-m_External->count);
     if ( btCount > MAX_HISTORY ) {
+#ifdef LOGGING
+      char buf[1024];
+      sprintf( buf, "Event disposed: %d %d %d %d\n", m_External->dataType,
+	       m_External->side, m_External->sec, m_External->count );
+      Logging::GetLogging()->Log( LOG_COMMISC, buf );
+#endif
       externalOld = m_External;
       m_External = m_External->next;
       delete externalOld;
