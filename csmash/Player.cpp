@@ -23,6 +23,7 @@ extern BaseView theView;
 extern Control *theControl;
 
 extern Player *thePlayer;
+extern Player *comPlayer;
 extern Event theEvent;
 
 extern long mode;
@@ -270,8 +271,12 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	  m_swing++;
       } else {
 	if ( m_swing == 10 ) {
-	  if ( theBall.GetStatus() == -1 || theBall.GetStatus() == 8 )
+	  if ( theBall.GetStatus() == -1 )
 	    m_swing = 0;
+	  else if ( ( m_side > 0 && theBall.GetStatus() == 0) ||
+		    ( m_side < 0 && theBall.GetStatus() == 2) ) {
+	    m_swing++;
+	  }
 	} else
 	  m_swing++;
       }
