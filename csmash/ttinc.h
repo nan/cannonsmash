@@ -151,6 +151,9 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 #define NOMINMAX
 #define VC_EXTRALEAN
 #include <winsock2.h>
+#ifdef ENABLE_IPV6
+#include <WS2tcpip.h>
+#endif
 #include <windows.h>
 #endif
 
