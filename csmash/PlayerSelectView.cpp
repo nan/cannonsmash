@@ -24,10 +24,9 @@ extern long wins;
 
 extern bool isComm;
 
-GLuint PlayerSelectView::m_textures[PLAYERS+1] = {0};
-
 PlayerSelectView::PlayerSelectView() {
   m_offset = 0;
+  m_textures[0] = 0;
 }
 
 PlayerSelectView::~PlayerSelectView() {
