@@ -47,7 +47,10 @@ bool
 MenuItem::Init( long x, long y, long width, long height, char *fileName,
 		Title *parent ) {
   m_x = x;
-  m_y = y;
+  if ( gmode == GMODE_2D )
+    m_y = BaseView::GetWinHeight()-y-height;
+  else
+    m_y = y;
   m_width = width;
   m_height = height;
 

@@ -62,8 +62,15 @@ PlayerSelectView2D::Redraw() {
   if ( m_playerSelect->GetSelected() > 0 ) {
     for ( i = 0 ; i < PLAYERS ; i++ ) {
       if ( i == player ){
-	rect.x = BaseView::GetWinWidth()/2-m_playerBMP[i]->w/2;
-	rect.y = BaseView::GetWinHeight()/2-m_playerBMP[i]->h/2;
+	if ( m_playerSelect->GetSelected() < 100 ) {
+	  rect.x = BaseView::GetWinWidth()/2-m_playerBMP[i]->w/2
+	    - m_playerSelect->GetSelected()*2;
+	  rect.y = BaseView::GetWinHeight()/2-m_playerBMP[i]->h/2
+	    - m_playerSelect->GetSelected()/2;
+	} else {
+	  rect.x = BaseView::GetWinWidth()/2-m_playerBMP[i]->w/2 - 200;
+	  rect.y = BaseView::GetWinHeight()/2-m_playerBMP[i]->h/2 - 50;
+	}
 	rect.w = m_playerBMP[i]->w;
 	rect.h = m_playerBMP[i]->h;
 
@@ -83,6 +90,20 @@ PlayerSelectView2D::Redraw() {
     }
   }
 
+  if ( !isComm ) {
+    if ( m_playerSelect->GetSelected() > 100 ) {
+      rect.x = BaseView::GetWinWidth()/2-
+	m_playerBMP[(player+wins+1)%PLAYERS]->w/2 + 200;
+      rect.y = BaseView::GetWinHeight()/2-
+	m_playerBMP[(player+wins+1)%PLAYERS]->h/2 - 50;
+      rect.w = m_playerBMP[(player+wins+1)%PLAYERS]->w;
+      rect.h = m_playerBMP[(player+wins+1)%PLAYERS]->h;
+
+      SDL_BlitSurface(m_playerBMP[(player+wins+1)%PLAYERS], NULL,
+		      theView->GetSurface(), &rect);
+    }
+  }
+
   return true;
 }
 
@@ -93,50 +114,41 @@ PlayerSelectView2D::RedrawAlpha() {
 
 bool
 PlayerSelectView2D::GetDamageRect() {
-  int i;
-  int player;
   static SDL_Rect rect = {0, 0, 0, 0};
 
-  if ( m_playerSelect->GetRotate() < 0 )
-    player = (360+(m_playerSelect->GetRotate()%360))/(360/PLAYERS);
-  else
-    player = (m_playerSelect->GetRotate()%360)/(360/PLAYERS);
+  ((BaseView2D *)theView)->AddUpdateRect( &rect );
 
   if ( m_playerSelect->GetSelected() > 0 ) {
-    for ( i = 0 ; i < PLAYERS ; i++ ) {
-      if ( i == player &&
-	   (rect.x != BaseView::GetWinWidth()/2-m_playerBMP[i]->w/2 ||
-	    rect.y != BaseView::GetWinHeight()/2-m_playerBMP[i]->h/2 ||
-	    rect.w != m_playerBMP[i]->w ||
-	    rect.h != m_playerBMP[i]->h ) ) {
-	((BaseView2D *)theView)->AddUpdateRect( &rect );
-
-	rect.x = BaseView::GetWinWidth()/2-m_playerBMP[i]->w/2;
-	rect.y = BaseView::GetWinHeight()/2-m_playerBMP[i]->h/2;
-	rect.w = m_playerBMP[i]->w;
-	rect.h = m_playerBMP[i]->h;
-
-	((BaseView2D *)theView)->AddUpdateRect( &rect );
-      }
+    if ( m_playerSelect->GetSelected() < 100 ) {
+      rect.x = BaseView::GetWinWidth()/2-m_playerBMP[0]->w/2
+	- m_playerSelect->GetSelected()*2;
+      rect.y = BaseView::GetWinHeight()/2-m_playerBMP[0]->h/2
+	- m_playerSelect->GetSelected()/2;
+    } else {
+      rect.x = BaseView::GetWinWidth()/2-m_playerBMP[0]->w/2 - 200;
+      rect.y = BaseView::GetWinHeight()/2-m_playerBMP[0]->h/2 - 50;
     }
+    rect.w = m_playerBMP[0]->w;
+    rect.h = m_playerBMP[0]->h;
   } else {
-    for ( i = 0 ; i < PLAYERS ; i++ ) {
-      if ( i == player &&
-	   (rect.x != BaseView::GetWinWidth()/2-m_playerBMP[i]->w/2 ||
-	    rect.y != BaseView::GetWinHeight()/2-m_playerBMP[i]->h/2 ||
-	    rect.w != m_playerBMP[i]->w ||
-	    rect.h != m_playerBMP[i]->h ) ) {
-	((BaseView2D *)theView)->AddUpdateRect( &rect );
+    rect.x = BaseView::GetWinWidth()/2-m_playerBMP[0]->w/2;
+    rect.y = BaseView::GetWinHeight()/2-m_playerBMP[0]->h/2;
+    rect.w = m_playerBMP[0]->w;
+    rect.h = m_playerBMP[0]->h;
+  }
 
-	rect.x = BaseView::GetWinWidth()/2-m_playerBMP[i]->w/2;
-	rect.y = BaseView::GetWinHeight()/2-m_playerBMP[i]->h/2;
-	rect.w = m_playerBMP[i]->w;
-	rect.h = m_playerBMP[i]->h;
+  ((BaseView2D *)theView)->AddUpdateRect( &rect );
 
-	((BaseView2D *)theView)->AddUpdateRect( &rect );
-      }
+  if ( !isComm ) {
+    if ( m_playerSelect->GetSelected() > 100 ) {
+      rect.x = BaseView::GetWinWidth()/2-m_playerBMP[0]->w/2 + 200;
+      rect.y = BaseView::GetWinHeight()/2-m_playerBMP[0]->h/2 - 50;
+      rect.w = m_playerBMP[0]->w;
+      rect.h = m_playerBMP[0]->h;
     }
   }
+
+  ((BaseView2D *)theView)->AddUpdateRect( &rect );
 
   return true;
 }

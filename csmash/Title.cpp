@@ -383,7 +383,8 @@ Title::SetSelected( long selected ) {
 
 long 
 Title::HitTest( long x, long y ) {
-  y = BaseView::GetWinHeight()-y;
+  if ( gmode != GMODE_2D )
+    y = BaseView::GetWinHeight()-y;
   for ( int i = 0 ; i < GetMenuNum( m_selectMode ) ; i++ ) {
     if ( x > m_menuItem[i]->GetX() &&
 	 x < m_menuItem[i]->GetX()+m_menuItem[i]->GetWidth() &&

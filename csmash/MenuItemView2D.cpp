@@ -39,11 +39,11 @@ MenuItemView2D::Init( MenuItem *menu, char *fileName ) {
 
   m_menuItem = menu;
 
-  sprintf( fname, "%s.bmp", fileName );
+  sprintf( fname, "%sW.bmp", fileName );
   m_imageBMP = SDL_LoadBMP( fname );
   SDL_SetColorKey( m_imageBMP, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0 );
 
-  sprintf( fname, "%sS.bmp", fileName );
+  sprintf( fname, "%sY.bmp", fileName );
   m_selectedImageBMP = SDL_LoadBMP( fname );
   SDL_SetColorKey( m_selectedImageBMP, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0 );
 
@@ -65,9 +65,9 @@ MenuItemView2D::RedrawAlpha() {
   rect.h = m_imageBMP->h;
 
   if ( m_menuItem->GetSelected() )
-    SDL_BlitSurface(m_imageBMP, NULL, theView->GetSurface(), &rect);
-  else
     SDL_BlitSurface(m_selectedImageBMP, NULL, theView->GetSurface(), &rect);
+  else
+    SDL_BlitSurface(m_imageBMP, NULL, theView->GetSurface(), &rect);
 
   return true;
 }

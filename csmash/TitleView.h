@@ -32,8 +32,8 @@ public:
   virtual bool Redraw();
   virtual bool RedrawAlpha();
 
-  bool AddView( View *view );
-  bool RemoveView( View *view );
+  virtual bool AddView( View *view );
+  virtual bool RemoveView( View *view );
 protected:
   Title       *m_title;
   View        *m_View;

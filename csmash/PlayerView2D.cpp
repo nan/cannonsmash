@@ -64,8 +64,6 @@ bool
 PlayerView2D::SubRedraw() {
   SDL_Rect srcRect, destRect;
   if ( m_player->GetY() > -3.5 ) {
-    int x, y;
-
     GetDrawRect( &destRect );
 
     SDL_BlitSurface(m_playerBMP, NULL, theView->GetSurface(), &destRect);
@@ -77,7 +75,6 @@ PlayerView2D::SubRedraw() {
 bool
 PlayerView2D::GetDamageRect() {
   if ( m_player->GetY() > -3.5 ) {
-    int x, y;
     SDL_Rect _rect;
 
     GetDrawRect( &_rect );
@@ -126,4 +123,6 @@ PlayerView2D::GetDrawRect( SDL_Rect *drawRect ) {
     if ( drawRect->y+drawRect->h > BaseView::GetWinHeight() )
       drawRect->h = BaseView::GetWinHeight()-drawRect->y;
   }
+
+  return true;
 }

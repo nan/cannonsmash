@@ -33,8 +33,8 @@ public:
   virtual bool RedrawAlpha();
   virtual bool GetDamageRect();
 
-  //bool AddView( View *view );
-  //bool RemoveView( View *view );
+  virtual bool AddView( View *view );
+  virtual bool RemoveView( View *view );
 protected:
   Title       *m_title;
   View        *m_View;

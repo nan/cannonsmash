@@ -27,7 +27,7 @@ public:
   MenuItemView();
   virtual ~MenuItemView();
 
-  bool Init( MenuItem *menu, char *fileName );
+  virtual bool Init( MenuItem *menu, char *fileName );
 
   virtual bool Redraw();
   virtual bool RedrawAlpha();

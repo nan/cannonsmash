@@ -38,9 +38,35 @@ TitleView2D::~TitleView2D() {
 }
 
 bool
-TitleView2D::Init( Title *title ) {
-  int i, j, k;
+TitleView2D::AddView( View *view ) {
+  view->m_next = m_View;
+  m_View = view;
 
+  return true;
+}
+
+bool
+TitleView2D::RemoveView( View *view ) {
+  View* _view = m_View;
+
+  if ( _view == view ){
+    m_View = _view->m_next;
+    return true;
+  }
+
+  while ( _view ){
+    if ( _view->m_next == view ){
+      _view->m_next = view->m_next;
+      return true;
+    }
+    _view = _view->m_next;
+  }
+
+  return false;
+}
+      
+bool
+TitleView2D::Init( Title *title ) {
   static char configTitle[][30] = {"images/LevelSelect.ppm",
 				   "images/ModeSelect.ppm"
   };
@@ -55,6 +81,14 @@ TitleView2D::Init( Title *title ) {
 
 bool
 TitleView2D::Redraw() {
+  View *view;
+
+  view = m_View;
+  while ( view ){
+    view->Redraw();
+    view = view->m_next;
+  }
+
   return true;
 }
 
@@ -92,13 +126,11 @@ TitleView2D::RedrawAlpha() {
     break;
   }
 
-  /*
   view = m_View;
   while ( view ){
     view->RedrawAlpha();
     view = view->m_next;
   }
-  */
 
   return true;
 }
