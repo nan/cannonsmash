@@ -340,6 +340,7 @@ FieldView::RedrawAlpha() {
   static GLfloat mat_table[] = { 0.0F, 0.0F, 0.3F, 1.0F };
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_table);
 
+  glBlendFunc(GL_ONE, GL_SRC_ALPHA);
   glDepthMask(0);
   glBegin(GL_QUADS);			// Draw table
   if ( theRC->gmode != GMODE_SIMPLE ) {
@@ -442,7 +443,7 @@ FieldView::RedrawAlpha() {
   glEnd();
   glColor4f( 0.2F, 1.0F, 0.2F, 1.0F );	// Why? But my RIVA128 need it.
 
-//  glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   return true;
 }

@@ -119,7 +119,7 @@ bool
 TitleView::RedrawAlpha() {
   View *view;
 
-  glColor4f( 1.0, 1.0, 1.0, 0.0 );
+  glColor4f( 1.0F, 1.0F, 1.0F, 1.0F );
 
   glPushMatrix();
   glMatrixMode(GL_PROJECTION);
@@ -134,7 +134,7 @@ TitleView::RedrawAlpha() {
 
   switch ( m_title->GetSelectMode() ) {
   case MENU_MAIN:
-    glColor4f( 1.0, 1.0, 0.0, 0.0 );
+    glColor4f( 1.0F, 1.0F, 0.0F, 1.0F );
     glBegin(GL_TRIANGLES);
     glVertex2i( m_title->GetSelected()->GetX()-80,
 		m_title->GetSelected()->GetY() );
@@ -146,7 +146,7 @@ TitleView::RedrawAlpha() {
     break;
   case MENU_CONFIG:
     // Title
-    glColor4f( 0.0F, 0.2F, 0.0F, 1.0F );
+    glColor4f( 0.0F, 0.2F, 0.0F, 0.5F );
     glBegin(GL_QUADS);
     glVertex2i(  30, 250 );
     glVertex2i( 330, 250 );
@@ -164,7 +164,7 @@ TitleView::RedrawAlpha() {
     glVertex2i( 430, 300 );
     glEnd();
 
-    glColor4f( 1.0F, 1.0F, 1.0F, 0.0F );
+    glColor4f( 1.0F, 1.0F, 1.0F, 1.0F );
     glRasterPos2i( 80, 520 );
     glBitmap( 200, 35, 0.0F, 0.0F, 0.0F, 0, &m_configTitle[0][0] );
     glRasterPos2i( 480, 520 );
@@ -172,7 +172,7 @@ TitleView::RedrawAlpha() {
 //    glRasterPos2i( 480, 250 );
 //    glBitmap( 200, 35, 0.0F, 0.0F, 0.0F, 0, &m_configTitle[2][0] );
 
-    glColor4f( 1.0F, 1.0F, 0.0F, 0.0F );
+    glColor4f( 1.0F, 1.0F, 0.0F, 1.0F );
     glBegin(GL_TRIANGLES);
     if ( m_title->GetSelected()->GetHeight() == 70 ) {
       glVertex2i( m_title->GetSelected()->GetX()-80,

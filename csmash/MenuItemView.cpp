@@ -82,7 +82,7 @@ MenuItemView::Redraw() {
 
 bool
 MenuItemView::RedrawAlpha() {
-  glColor4f( 1.0F, 1.0F, 1.0F, 0.0F );
+  glColor4f( 1.0F, 1.0F, 1.0F, 1.0F );
 
   glPushMatrix();
   glMatrixMode(GL_PROJECTION);
@@ -96,9 +96,9 @@ MenuItemView::RedrawAlpha() {
   glDepthMask(0);
 
   if ( m_menuItem->GetSelected() )
-    glColor4f( 1.0F, 1.0F, 0.0F, 0.0F );
+    glColor4f( 1.0F, 1.0F, 0.0F, 1.0F );
   else
-    glColor4f( 1.0F, 1.0F, 1.0F, 0.0F );
+    glColor4f( 1.0F, 1.0F, 1.0F, 1.0F );
 
   glRasterPos2i( m_menuItem->GetX(), m_menuItem->GetY() );
   glBitmap( m_menuItem->GetWidth(), m_menuItem->GetHeight(),

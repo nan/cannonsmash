@@ -518,22 +518,22 @@ bool partsmotion::render(int frame)
 #define c(R,G,B,A) { R/255.0F, G/255.0F, B/255.0F, A/255.0F}
     static GLfloat colors[][4] = {
 //	{ 0.4F, 0.4F, 0.4F, 1.0F},	// C0 default
-	c(250, 188, 137, 255),		// C0 default(skin)
-	c(1, 1, 1, 255),		// C1 eye
-	c(42, 19, 5, 255), 		// C2 hair
-	c(250, 188, 137, 255),		// C3 skin
-//	c(225, 7, 47, 255),		// C4 shirts (red)
-	c(3, 87, 125, 255),		// C4 shirts (blue)
-//	c(2, 13, 24, 255),		// C5 pants  (green)
-	c(0, 0, 0, 255),		// C5 pants  (black)
-	c(102, 7, 3, 255),		// C6 skin/shadow
-	c(255, 0, 0, 255),		// C7 racket/front
-	c(0, 0, 0, 255),		// C8 racket/back
+	c(250, 188, 137, 191),		// C0 default(skin)
+	c(1, 1, 1, 191),		// C1 eye
+	c(42, 19, 5, 191), 		// C2 hair
+	c(250, 188, 137, 191),		// C3 skin
+//	c(225, 7, 47, 191),		// C4 shirts (red)
+	c(3, 87, 125, 191),		// C4 shirts (blue)
+//	c(2, 13, 24, 191),		// C5 pants  (green)
+	c(0, 0, 0, 191),		// C5 pants  (black)
+	c(102, 7, 3, 191),		// C6 skin/shadow
+	c(255, 0, 0, 191),		// C7 racket/front
+	c(0, 0, 0, 191),		// C8 racket/back
 
 	{-1, -1, -1, -1}		// stop
     };
 #undef c
-    GLfloat NanTheBLACK[4] = { 0,0,0,1 };
+    GLfloat BLACK[4] = { 0,0,0,1 };
 
     for (int i = 0; numParts > i; i++) {
 	const polyhedron &ref = parts[i]->ref;
@@ -567,7 +567,7 @@ bool partsmotion::render(int frame)
 	    if (!culling) glEnable(GL_CULL_FACE);
 
 	    glBegin(poly.glBeginSize());
-	    glColor4fv(NanTheBLACK);
+	    glColor4fv(BLACK);
 
 	    for (int k = poly.size-1; 0 <= k; --k) {
 		vector3F p = poly.rv(k);

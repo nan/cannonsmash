@@ -99,7 +99,8 @@ BaseView::Init() {
     glShadeModel (GL_SMOOTH);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+    //glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   }
 
   glEnable(GL_COLOR_MATERIAL);
@@ -145,6 +146,8 @@ BaseView::Init() {
       if ( image.GetPixel( i, j, 0 ) >= 5 ||
 	   image.GetPixel( i, j, 1 ) >= 5 ||
 	   image.GetPixel( i, j, 2 ) >= 5 )
+	image.SetPixel( i, j, 3 , 255 );
+      else
 	image.SetPixel( i, j, 3 , 0 );
     }
   }
@@ -242,7 +245,7 @@ BaseView::RedrawAll() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  glColor4f( 0.0F, 0.0F, 0.0F, 1.0F );
+  glColor4f( 1.0F, 1.0F, 1.0F, 0.0F );
 
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
@@ -345,7 +348,7 @@ BaseView::EndGame() {
 #endif
   int i, j;
 
-  glColor4f(1.0F, 1.0F, 1.0F, 0.0F);
+  glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
   glPushMatrix();
   glMatrixMode(GL_PROJECTION);
