@@ -27,7 +27,7 @@
 #define MENU_ALL		0	// 画面内の全メニュー数
 #define MENU_CONFIG_LEVEL	1	// レベル(Configメニュー内)
 #define MENU_CONFIG_MODE	2	// モード(Configメニュー内)
-#define MENU_CONFIG_SOUND	3	// サウンド(Configメニュー内)
+#define MENU_CONFIG_PLAYER	3	// プレイヤー(Configメニュー内)
 
 class TitleView;
 

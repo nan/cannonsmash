@@ -43,8 +43,9 @@ TitleView::Init( Title *title ) {
 				  "images/21point.ppm",
 				  "images/WireFrame.ppm", "images/Transparent.ppm" };
   static char configTitle[][30] = {"images/LevelSelect.ppm",
-				   "images/ModeSelect.ppm",
-				   "images/SoundSelect.ppm" };
+				   "images/ModeSelect.ppm"
+//				   ,"images/SoundSelect.ppm" };
+				    };
 
 #ifndef HAVE_LIBZ
   FILE *fp;
@@ -100,7 +101,7 @@ TitleView::Init( Title *title ) {
 #endif
   }
 
-  for ( i = 0 ; i < 3 ; i++ ) {
+  for ( i = 0 ; i < 2 ; i++ ) {
 #ifndef HAVE_LIBZ
     if( (fp = fopen(&configTitle[i][0], "r")) == NULL ){
       return false;
@@ -190,8 +191,8 @@ TitleView::RedrawAlpha() {
     glBitmap( 200, 35, 0.0, 0.0, 0.0, 0, &m_configTitle[0][0] );
     glRasterPos2i( 480, 520 );
     glBitmap( 200, 35, 0.0, 0.0, 0.0, 0, &m_configTitle[1][0] );
-    glRasterPos2i( 480, 250 );
-    glBitmap( 200, 35, 0.0, 0.0, 0.0, 0, &m_configTitle[2][0] );
+//    glRasterPos2i( 480, 250 );
+//    glBitmap( 200, 35, 0.0, 0.0, 0.0, 0, &m_configTitle[2][0] );
 
     for ( i = 0 ; i < m_title->GetMenuNum(MENU_CONFIG, MENU_CONFIG_LEVEL)-1 ;
 	  i++ ) {
@@ -222,7 +223,7 @@ TitleView::RedrawAlpha() {
 		[i+m_title->GetMenuNum(MENU_CONFIG, MENU_CONFIG_LEVEL)][0] );
     }
 
-    for ( i = 0 ; i < m_title->GetMenuNum(MENU_CONFIG, MENU_CONFIG_SOUND) ;
+    for ( i = 0 ; i < m_title->GetMenuNum(MENU_CONFIG, MENU_CONFIG_PLAYER) ;
 	  i++ ) {
 #if 0
       if ( theSound.GetSoundMode() == i )
@@ -266,7 +267,7 @@ TitleView::RedrawAlpha() {
     } else if ( m_title->GetSelected() <
 		m_title->GetMenuNum(MENU_CONFIG, MENU_CONFIG_LEVEL)+
 		m_title->GetMenuNum(MENU_CONFIG, MENU_CONFIG_MODE)+
-		m_title->GetMenuNum(MENU_CONFIG, MENU_CONFIG_SOUND) ) {
+		m_title->GetMenuNum(MENU_CONFIG, MENU_CONFIG_PLAYER) ) {
       glVertex2i( 460, 615-m_title->GetSelected()*60 );
       glVertex2i( 490, 633-m_title->GetSelected()*60 );
       glVertex2i( 460, 651-m_title->GetSelected()*60 );

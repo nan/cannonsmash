@@ -103,15 +103,15 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
     } else {
       m_selected = MouseYHistory[Histptr]*
 	(GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )
-	 +GetMenuNum( MENU_CONFIG, MENU_CONFIG_SOUND ))/
+	 +GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER ))/
 	(BaseView::GetWinHeight()-100)
 	+GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL );
       if ( m_selected >= GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )+
 	                 GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )+
-	                 GetMenuNum( MENU_CONFIG, MENU_CONFIG_SOUND ) )
+	                 GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER ) )
 	m_selected = GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )+
 	  GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )+
-	  GetMenuNum( MENU_CONFIG, MENU_CONFIG_SOUND )-1;
+	  GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER )-1;
     }
 
     if ( MouseYHistory[Histptr] > BaseView::GetWinHeight()-100 )
@@ -170,7 +170,7 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	gameMode = m_selected-GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL );
       else if ( m_selected < GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )+
 		GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )+
-		GetMenuNum( MENU_CONFIG, MENU_CONFIG_SOUND ) ) {
+		GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER ) ) {
 #if 0
 	theSound.SetSoundMode( m_selected-GetMenuNum( MENU_CONFIG,
 						      MENU_CONFIG_LEVEL )
@@ -220,16 +220,8 @@ Title::GetMenuNum( long major, long minor ) {
       return 4;
     case MENU_CONFIG_MODE:
       return 3;
-    case MENU_CONFIG_SOUND:
-#if 0
-#ifdef HAVE_LIBESD
+    case MENU_CONFIG_PLAYER:
       return 2;
-#else
-      return 0;
-#endif
-#else
-      return 2;
-#endif
     }
   }
 
