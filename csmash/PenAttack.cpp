@@ -319,9 +319,9 @@ PenAttack::CalcLevel(Ball *ball, double &diff, double &level, double &maxVy) {
   GetModifiedTarget( targetX, targetY );
 
   if ( (m_y-ball->GetY())*m_side < 0 )
-    diff = fabs( m_y-ball->GetY() )*0.15;
+    diff = fabs( m_y-ball->GetY() )*0.1;
   else
-    diff = fabs( m_y-ball->GetY() )*0.3;
+    diff = fabs( m_y-ball->GetY() )*0.15;
 
   diff *= fabs(ball->GetSpin())+1;
 

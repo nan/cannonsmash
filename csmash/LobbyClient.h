@@ -22,7 +22,7 @@
 #include <gtk/gtk.h>
 
 #define LOBBYSERVER_NAME	"nan.p.utmc.or.jp"
-#define LOBBYSERVER_PORT	(5733)
+#define LOBBYSERVER_PORT	(5734)
 
 class PlayerInfo;
 class LobbyClientView;

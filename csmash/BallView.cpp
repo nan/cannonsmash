@@ -75,6 +75,8 @@ BallView::Init() {
   }
 
   m_quad = gluNewQuadric();
+  gluQuadricDrawStyle( m_quad, (GLenum)GLU_FILL );
+  gluQuadricNormals( m_quad, (GLenum)GLU_SMOOTH );
 
   return true;
 }
@@ -93,8 +95,6 @@ BallView::Redraw() {
 		  (float)theBall.GetY(),
 		  (float)theBall.GetZ() );
 
-    gluQuadricDrawStyle( m_quad, (GLenum)GLU_FILL );
-    gluQuadricNormals( m_quad, (GLenum)GLU_SMOOTH );
     gluSphere( m_quad, BALL_R, 12, 12 );
   glPopMatrix();
 
@@ -123,7 +123,7 @@ bool
 BallView::RedrawAlpha() {
   Ball* tmpBall;
   const static GLfloat mat_yel[] = { 1.0F, 0.8F, 0.0F, 0.0F };
-  static double angle = 0.0;
+  static float tx = 0.0, ty = 0.0, tz = TABLEHEIGHT+NETHEIGHT;
 
   // Draw the ball location in the future
   if ( Control::TheControl()->GetThePlayer() &&
@@ -209,124 +209,36 @@ BallView::RedrawAlpha() {
 
       glPopMatrix();
 
-      double px = Control::TheControl()->GetThePlayer()->GetX()
-	+ (tmpBall->GetX()-t1x);
-      angle++;
+      tx = Control::TheControl()->GetThePlayer()->GetX()+(tmpBall->GetX()-t1x);
+      ty = (float)tmpBall->GetY();
+      tz = (float)tmpBall->GetZ();
 
       glPushMatrix();
-        glTranslatef( px+0.3,
-		      (float)tmpBall->GetY(),
-		      (float)tmpBall->GetZ() );
-	glBegin(GL_LINES);
-          glVertex3f( -0.25, 0, 0 );
-	  glVertex3f(  0.25, 0, 0 );
-
-          glVertex3f( -0.20, 0, -0.01 );
-          glVertex3f( -0.20, 0,  0.01 );
-          glVertex3f( -0.15, 0, -0.01 );
-          glVertex3f( -0.15, 0,  0.01 );
-          glVertex3f( -0.10, 0, -0.01 );
-          glVertex3f( -0.10, 0,  0.01 );
-          glVertex3f( -0.05, 0, -0.01 );
-          glVertex3f( -0.05, 0,  0.01 );
-          glVertex3f(  0.00, 0, -0.01 );
-          glVertex3f(  0.00, 0,  0.01 );
-          glVertex3f(  0.05, 0, -0.01 );
-          glVertex3f(  0.05, 0,  0.01 );
-          glVertex3f(  0.10, 0, -0.01 );
-          glVertex3f(  0.10, 0,  0.01 );
-          glVertex3f(  0.15, 0, -0.01 );
-          glVertex3f(  0.15, 0,  0.01 );
-          glVertex3f(  0.20, 0, -0.01 );
-          glVertex3f(  0.20, 0,  0.01 );
-
-	  glVertex3f( 0, 0, -0.25 );
-	  glVertex3f( 0, 0,  0.25 );
-
-          glVertex3f( -0.01, 0, -0.20 );
-          glVertex3f(  0.01, 0, -0.20 );
-          glVertex3f( -0.01, 0, -0.15 );
-          glVertex3f(  0.01, 0, -0.15 );
-          glVertex3f( -0.01, 0, -0.10 );
-          glVertex3f(  0.01, 0, -0.10 );
-          glVertex3f( -0.01, 0, -0.05 );
-          glVertex3f(  0.01, 0, -0.05 );
-          glVertex3f( -0.01, 0,  0.00 );
-          glVertex3f(  0.01, 0,  0.00 );
-          glVertex3f( -0.01, 0,  0.05 );
-          glVertex3f(  0.01, 0,  0.05 );
-          glVertex3f( -0.01, 0,  0.10 );
-          glVertex3f(  0.01, 0,  0.10 );
-          glVertex3f( -0.01, 0,  0.15 );
-          glVertex3f(  0.01, 0,  0.15 );
-          glVertex3f( -0.01, 0,  0.20 );
-          glVertex3f(  0.01, 0,  0.20 );
-	glEnd();
-
-	glRotatef( 90.0, 1.0, 0.0, 0.0 );
-	gluDisk( m_quad, 0.19, 0.20, 18, 1 );
-	gluPartialDisk( m_quad, 0.175, 0.18, 3, 1, angle, 60.0 );
-	gluPartialDisk( m_quad, 0.175, 0.18, 3, 1, angle+120, 60.0 );
-	gluPartialDisk( m_quad, 0.175, 0.18, 3, 1, angle+240, 60.0 );
+        glTranslatef( tx+0.3, ty, tz );
+	DrawTargetCircle();
       glPopMatrix();
 
       glPushMatrix();
-        glTranslatef( px-0.3,
-		      (float)tmpBall->GetY(),
-		      (float)tmpBall->GetZ() );
-	glBegin(GL_LINES);
-          glVertex3f( -0.25, 0, 0 );
-	  glVertex3f(  0.25, 0, 0 );
+        glTranslatef( tx-0.3, ty, tz );
+	DrawTargetCircle();
+      glPopMatrix();
+    } else {
+      glColor4f(1.0F, 0.0F, 0.0F, 0.5F);
+      const static GLfloat mat_red[] = { 1.0F, 0.0F, 0.0F, 0.5F };
+      glMaterialfv(GL_FRONT, GL_SPECULAR, mat_red);
 
-          glVertex3f( -0.20, 0, -0.01 );
-          glVertex3f( -0.20, 0,  0.01 );
-          glVertex3f( -0.15, 0, -0.01 );
-          glVertex3f( -0.15, 0,  0.01 );
-          glVertex3f( -0.10, 0, -0.01 );
-          glVertex3f( -0.10, 0,  0.01 );
-          glVertex3f( -0.05, 0, -0.01 );
-          glVertex3f( -0.05, 0,  0.01 );
-          glVertex3f(  0.00, 0, -0.01 );
-          glVertex3f(  0.00, 0,  0.01 );
-          glVertex3f(  0.05, 0, -0.01 );
-          glVertex3f(  0.05, 0,  0.01 );
-          glVertex3f(  0.10, 0, -0.01 );
-          glVertex3f(  0.10, 0,  0.01 );
-          glVertex3f(  0.15, 0, -0.01 );
-          glVertex3f(  0.15, 0,  0.01 );
-          glVertex3f(  0.20, 0, -0.01 );
-          glVertex3f(  0.20, 0,  0.01 );
+      tx = (tx+Control::TheControl()->GetThePlayer()->GetX())/2;
+      ty = (ty+Control::TheControl()->GetThePlayer()->GetY()+0.5)/2;
 
-	  glVertex3f( 0, 0, -0.25 );
-	  glVertex3f( 0, 0,  0.25 );
-
-          glVertex3f( -0.01, 0, -0.20 );
-          glVertex3f(  0.01, 0, -0.20 );
-          glVertex3f( -0.01, 0, -0.15 );
-          glVertex3f(  0.01, 0, -0.15 );
-          glVertex3f( -0.01, 0, -0.10 );
-          glVertex3f(  0.01, 0, -0.10 );
-          glVertex3f( -0.01, 0, -0.05 );
-          glVertex3f(  0.01, 0, -0.05 );
-          glVertex3f( -0.01, 0,  0.00 );
-          glVertex3f(  0.01, 0,  0.00 );
-          glVertex3f( -0.01, 0,  0.05 );
-          glVertex3f(  0.01, 0,  0.05 );
-          glVertex3f( -0.01, 0,  0.10 );
-          glVertex3f(  0.01, 0,  0.10 );
-          glVertex3f( -0.01, 0,  0.15 );
-          glVertex3f(  0.01, 0,  0.15 );
-          glVertex3f( -0.01, 0,  0.20 );
-          glVertex3f(  0.01, 0,  0.20 );
-	glEnd();
-
-	glRotatef( 90.0, 1.0, 0.0, 0.0 );
-	gluDisk( m_quad, 0.19, 0.20, 18, 1 );
-	gluPartialDisk( m_quad, 0.175, 0.18, 3, 1, angle, 60.0 );
-	gluPartialDisk( m_quad, 0.175, 0.18, 3, 1, angle+120, 60.0 );
-	gluPartialDisk( m_quad, 0.175, 0.18, 3, 1, angle+240, 60.0 );
+      glPushMatrix();
+        glTranslatef( tx+0.3, ty, tz );
+	DrawTargetCircle();
       glPopMatrix();
 
+      glPushMatrix();
+        glTranslatef( tx-0.3, ty, tz );
+	DrawTargetCircle();
+      glPopMatrix();
     }
 
     glColor4f(0.8F, 0.8F, 0.8F, 1.0F);
@@ -340,7 +252,25 @@ BallView::RedrawAlpha() {
     glEnd();
       
     delete tmpBall;
+  } else if ( Control::TheControl()->IsPlaying() ) {
+    glColor4f(1.0F, 0.0F, 0.0F, 0.2F);
+    const static GLfloat mat_red[] = { 1.0F, 0.0F, 0.0F, 0.5F };
+    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_red);
+
+    tx = (tx+Control::TheControl()->GetThePlayer()->GetX())/2;
+    ty = (ty+Control::TheControl()->GetThePlayer()->GetY()+0.5)/2;
+
+    glPushMatrix();
+      glTranslatef( tx+0.3, ty, tz );
+      DrawTargetCircle();
+    glPopMatrix();
+
+    glPushMatrix();
+      glTranslatef( tx-0.3, ty, tz );
+      DrawTargetCircle();
+    glPopMatrix();
   }
+
 
   // Score
   if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY || mode == MODE_PRACTICE ){
@@ -414,4 +344,44 @@ BallView::RedrawAlpha() {
   }
 
   return true;
+}
+
+void
+BallView::DrawTargetCircle() {
+  static double angle = 0.0;
+
+  angle++;
+
+  float radius;
+  Player *p = Control::TheControl()->GetThePlayer();
+  radius = (p->GetStatus()-p->StatusBorder())*3/2000.0;
+  if ( radius < 0.0 )
+    radius = 0.05;
+
+  glBegin(GL_LINES);
+    glVertex3f( -radius-0.05, 0, 0 );
+    glVertex3f(  radius+0.05, 0, 0 );
+    glVertex3f( 0, 0, -radius-0.05 );
+    glVertex3f( 0, 0,  radius+0.05 );
+
+    float r = 0.05;
+    while ( r < radius ) {
+      glVertex3f( -r, 0, -0.01 );
+      glVertex3f( -r, 0,  0.01 );
+      glVertex3f(  r, 0, -0.01 );
+      glVertex3f(  r, 0,  0.01 );
+      glVertex3f( -0.01, 0, -r );
+      glVertex3f(  0.01, 0, -r );
+      glVertex3f( -0.01, 0,  r );
+      glVertex3f(  0.01, 0,  r );
+
+      r += 0.05;
+    }
+  glEnd();
+
+  glRotatef( 90.0, 1.0, 0.0, 0.0 );
+  gluDisk( m_quad, radius-0.01, radius, 18, 1 );
+  gluPartialDisk( m_quad, radius-0.025, radius-0.02, 3, 1, angle, 60.0 );
+  gluPartialDisk( m_quad, radius-0.025, radius-0.02, 3, 1, angle+120, 60.0 );
+  gluPartialDisk( m_quad, radius-0.025, radius-0.02, 3, 1, angle+240, 60.0 );
 }

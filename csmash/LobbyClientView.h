@@ -32,7 +32,7 @@ public:
 
   void SetSensitive( bool sensitive );
   void UpdateTable();
-  void ShowUpdateDialog( char *version );
+  void ShowUpdateDialog( char *version, char *URL );
 protected:
   static gint IdleFunc( gpointer data );
   static void SelectRow( GtkCList *clist, gint row, gint column,

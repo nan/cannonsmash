@@ -196,6 +196,8 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( m_count == 0 ) {
       m_thePlayer->m_targetX = TABLEWIDTH/2*0.3;
       m_thePlayer->m_targetY = TABLELENGTH/16*5;
+      m_thePlayer->m_x = -TABLEWIDTH/2+0.1;
+
       m_comPlayer->m_x = 0.221131;
       m_comPlayer->m_y = 1.855788;
       m_mouseX = 0;
@@ -218,7 +220,6 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     break;
   case 4:	// Hit ball (2)
     if ( m_count == 570 ) {
-//      m_thePlayer->Swing( 1 );
       m_thePlayer->Swing( 3 );
       m_thePlayer->m_pow = 10;
       m_mouseB = 1;
@@ -228,7 +229,7 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
       m_thePlayer->m_x = 0.2;
       theBall.Warp( 0.243705, 0.673854, 1.017764,
 		    -1.042663, -4.457266, 0.108404, -1.0, 2 );
-      m_thePlayer->m_x = 0.0;
+      m_thePlayer->m_x = -0.1;
       m_mouseB = 0;
     } else if ( m_count == 1570 ) {
       m_thePlayer->Swing( 1 );

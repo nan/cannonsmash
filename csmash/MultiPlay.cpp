@@ -189,7 +189,7 @@ MultiPlay::Create( long player, long com ) {
   SDL_WM_GrabInput( SDL_GRAB_ON );
 
   theRC->gameLevel = LEVEL_HARD;
-  theRC->gameMode = GAME_21PTS;
+  theRC->gameMode = GAME_11PTS;
 
   // Init timer again
   struct timeb tb;
@@ -439,7 +439,6 @@ MultiPlay::AdjustClock() {
 int
 MultiPlay::WaitForData( void *dum ) {
   fd_set rdfds;
-  struct timeval to;
 
   while (1) {
     FD_ZERO( &rdfds );

@@ -119,7 +119,7 @@ Logging::LogTime( long logType ) {
   sec = Event::m_lastTime.time;
   count = Event::m_lastTime.millitm/10;
   Event::GetAdjustedTime( sec, count );
-  snprintf( buf, sizeof(buf), "%d.%2d: ", sec, count );
+  snprintf( buf, sizeof(buf), "%d.%2d: ", (int)sec, (int)count );
   Log( logType, buf );
 
   return true;

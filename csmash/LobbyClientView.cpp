@@ -181,11 +181,11 @@ LobbyClientView::SetSensitive( bool sensitive ) {
 }
 
 void
-LobbyClientView::ShowUpdateDialog( char *version ) {
+LobbyClientView::ShowUpdateDialog( char *version, char *URL ) {
   GtkWidget *dialog = gtk_dialog_new();
 
   char buf[256];
-  sprintf( buf, _("Please upgrade to version %s\n"), version );
+  sprintf( buf, _("Latest Version %s is already released. \nPlease download the latest version from \n%s\n"), version, URL );
 
   GtkWidget *label = gtk_label_new( buf );
   GtkWidget *button = gtk_button_new_with_label( "OK" );

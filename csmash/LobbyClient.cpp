@@ -377,7 +377,7 @@ LobbyClient::ReadOV() {
   sprintf( version, "%d.%d.%d",
 	   (unsigned char)buffer[0], (unsigned char)buffer[1],
 	   (unsigned char)buffer[2] );
-  m_view->ShowUpdateDialog(version);
+  m_view->ShowUpdateDialog(version, &(buffer[3])); // second argument is URL. 
 }
 
 void
