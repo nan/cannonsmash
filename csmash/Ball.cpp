@@ -330,9 +330,9 @@ Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
   }
 
   // 外部Playerはボールに影響を与えない. BVプロトコルを使用する. 
-  if ( player == comPlayer && mode == MODE_MULTIPLAY ) {
-    return true;
-  }
+  //if ( player == comPlayer && mode == MODE_MULTIPLAY ) {
+  //  return true;
+  //}
 
   m_spin = spin;
 
