@@ -60,8 +60,8 @@ PlayerView::PlayerView() {
 PlayerView::~PlayerView() {
 }
 
-void
-PlayerView::LoadData() {
+void *
+PlayerView::LoadData(void *dum) {
   motion_Fnormal = new partsmotion("Parts/Fnormal/Fnormal");
   motion_Bnormal = new partsmotion("Parts/Bnormal/Bnormal");
   motion_Fdrive = new partsmotion("Parts/Fdrive/Fdrive");
@@ -70,6 +70,14 @@ PlayerView::LoadData() {
   motion_Fpeck = new partsmotion("Parts/Fpeck/Fpeck");
   motion_Bpeck = new partsmotion("Parts/Bpeck/Bpeck");
   motion_Fsmash = new partsmotion("Parts/Fsmash/Fsmash");
+
+#if HAVE_LIBPTHREAD
+  pthread_detach(pthread_self());
+  pthread_exit(NULL);
+  return NULL;
+#else
+  return NULL;
+#endif
 }
 
 bool

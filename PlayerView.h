@@ -26,7 +26,7 @@ public:
   PlayerView();
   virtual ~PlayerView();
 
-  static void LoadData();
+  static void * LoadData(void *dum);
 
   bool Init( Player *player );
 
