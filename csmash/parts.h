@@ -319,6 +319,8 @@ private:
     void drawbody( vector3F neck, vector3F waist, bool isWireFrame );
 
     void renderparts( int partsNum, bool isWireFrame );
+
+    vector3F light;
 };
 
 /* __END__END__ */

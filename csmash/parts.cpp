@@ -49,6 +49,13 @@
 
 #include "parts.h"
 
+#include "RCFile.h"
+extern RCFile *theRC;
+extern bool initanimelight();
+extern void uninitanimelight();
+extern GLuint tex_animelight;
+
+
 #define RENDEREDGE 0
 
 #define LSHOULDERORIGINX	-0.2
@@ -910,6 +917,9 @@ bool partsmotion::loadmodel(const char *basename)
 	polyparts[i] = new polyhedron(ref);
 	polyparts[i]->getNormal();
     }
+    if ( theRC->gmode == GMODE_TOON ) {
+        initanimelight();
+    }
 }
 
 bool partsmotion::render(int frame, float xdiff, float ydiff, float zdiff)
@@ -928,6 +938,22 @@ bool partsmotion::render(double _frame, float xdiff, float ydiff, float zdiff)
     float zwaistdiff;
     float _xdiff = xdiff, _ydiff = ydiff, _zdiff = zdiff;
     vector3F neck, waist;
+
+    if ( theRC->gmode == GMODE_TOON ) {
+	affine4F t;
+	glGetFloatv(GL_PROJECTION_MATRIX, (float*)&t);
+	affine4F it = ~t;
+	float _light[] = {1,1,-1};
+	light = (vector3F(_light) ^ it).norm();
+
+	glActiveTextureARB(GL_TEXTURE1_ARB);
+	glEnable(GL_TEXTURE_1D);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glBindTexture(GL_TEXTURE_1D, tex_animelight);
+	glActiveTextureARB(GL_TEXTURE0_ARB);
+
+	glDisable(GL_LIGHTING);
+    }
 
     zwaistdiff = bodyIK( _xdiff, _ydiff, _zdiff, neck, waist );
 
@@ -1029,6 +1055,14 @@ bool partsmotion::render(double _frame, float xdiff, float ydiff, float zdiff)
 
       glPopMatrix();
     glPopMatrix();
+
+    if ( theRC->gmode == GMODE_TOON ) {
+	glEnable(GL_LIGHTING);
+
+	glActiveTextureARB(GL_TEXTURE1_ARB);
+	glDisable(GL_TEXTURE_1D);
+	glActiveTextureARB(GL_TEXTURE0_ARB);
+    }
 
     return true;
 }
@@ -1273,17 +1307,13 @@ partsmotion::renderparts( int partsNum, bool isWireFrame ) {
       glBegin(poly.glBeginSize());
       glColor4fv(colors[poly.c()]);
       for (int k = 0; poly.size > k; k++) {
-      vector3F n = poly.rn(k);
-      vector3F v = poly.rv(k);
-
-#if 0
-      if ( hip[0] > 0 ) {	/* right leg */
-	n[0] = -n[0];
-	v[0] = -v[0];
-      }
-#endif
+	vector3F n = poly.rn(k);
+	vector3F v = poly.rv(k);
 
 	glNormal3fv((float*)&n);
+	if ( theRC->gmode == GMODE_TOON ) {
+	  glMultiTexCoord1fARB(GL_TEXTURE1_ARB, clamp(0.0f, light*n, 1.0f));
+	}
 #if RENDEREDGE
 	center += v;
 #endif
