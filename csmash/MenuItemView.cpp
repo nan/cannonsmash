@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,50 +28,19 @@ MenuItemView::MenuItemView() {
 
 MenuItemView::~MenuItemView() {
   if ( m_image )
-    free(m_image);
+    delete m_image;
 }
 
 bool
 MenuItemView::Init( MenuItem *menu, char *fileName ) {
   char fname[256];
 
-  sprintf( fname, "%s.ppm", fileName );
-
-#ifndef HAVE_LIBZ
-  FILE *fp;
-#else
-  gzFile fp;
-#endif
-
-  ImageData image;
-
-  int j, k;
+  sprintf( fname, _("%s.pbm"), fileName );
 
   m_menuItem = menu;
 
-#ifndef HAVE_LIBZ
-  if( (fp = fopen(fname, "r")) == NULL ) {
-    return false;
-  }
-#else
-  if (NULL == (fp = gzopenx(fname, "rs"))) return false;
-#endif
-
-  m_image = 
-    (GLubyte *)malloc( m_menuItem->GetHeight()*m_menuItem->GetWidth()/8 );
-
-  for ( j = m_menuItem->GetHeight()-1 ; j >= 0 ; j-- ) {
-    for ( k = 0 ; k < m_menuItem->GetWidth()/8 ; k++ ) {
-      m_image[j*m_menuItem->GetWidth()/8+k] = (unsigned char)strtol( getWord(fp), NULL, 16 );
-    }
-  }
-
-#ifndef HAVE_LIBZ
-  fclose(fp);
-#else
-  gzclose(fp);
-#endif
-
+  m_image = new ImageData();
+  m_image->LoadFile( fname );
   return true;
 }
 
@@ -102,7 +71,7 @@ MenuItemView::RedrawAlpha() {
 
   glRasterPos2i( m_menuItem->GetX(), m_menuItem->GetY() );
   glBitmap( m_menuItem->GetWidth(), m_menuItem->GetHeight(),
-	    0.0F, 0.0F, 0.0F, 0, m_image );
+	    0.0F, 0.0F, 0.0F, 0, m_image->GetImage() );
 
   glDepthMask(1);
 

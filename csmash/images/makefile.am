@@ -45,3 +45,6 @@ EXTRA_DIST = $(wildcard *.ppm) $(wildcard *.jpg) $(wildcard *.bmp)
 
 %.ppm.gz: %.ppm
 	@GZIP@ -c $< > $<.gz
+
+%.pbm.gz: %.pbm
+	@GZIP@ -c $< > $<.gz

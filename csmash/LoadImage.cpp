@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -90,6 +90,8 @@ ImageData::LoadPPM(const char* filename ) {
     pb = 3;
   else if( !strcmp("P2", w) )
     pb = 2;
+  else if( !strcmp("P4", w) )
+    pb = 4;
   else if ( !strcmp("P5", w) )
     pb = 5;
   else if ( !strcmp("P6", w) )
@@ -101,7 +103,8 @@ ImageData::LoadPPM(const char* filename ) {
   m_height = atoi( getWord(fp) );
   m_bytes = 4;
 
-  getWord( fp );
+  if ( pb != 4 )
+    getWord( fp );
 
   if ( m_image )
     delete m_image;
@@ -143,6 +146,16 @@ ImageData::LoadPPM(const char* filename ) {
 	SetPixel( j, i, 3, 255 );
       }
     }
+  } else if ( pb == 4 ) {
+    int rowbytes = m_width/8;
+    if ( m_width%8 > 0 )
+      rowbytes++;
+
+#ifndef HAVE_LIBZ
+    fread( m_image, 1, rowbytes*m_height, fp );
+#else
+    gzread( fp, m_image, rowbytes*m_height );
+#endif
   } else {
     for ( i = 0 ; i < m_height ; i++ ){
       for ( j = 0 ; j < m_width ; j++ ){
@@ -298,7 +311,8 @@ bool ImageData::LoadFile(const char *filename)
     if      (extmatch(filename, ".jpg")) {
 	return LoadJPG(filename);
     }
-    else if (extmatch(filename, ".ppm") || extmatch(filename, ".ppm.gz")) {
+    else if (extmatch(filename, ".ppm") || extmatch(filename, ".ppm.gz") ||
+	     extmatch(filename, ".pbm") || extmatch(filename, ".pbm.gz") ) {
 	return LoadPPM(filename);
     }
     else {

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef _TitleView_
 #define _TitleView_
 #include "View.h"
+#include "LoadImage.h"
 
 class Title;
 
@@ -38,10 +39,7 @@ protected:
   Title       *m_title;
   View        *m_View;
 
-  GLubyte      m_image[800*100/8];
-  GLubyte      m_choice[8][400*70/8];
-  GLubyte      m_configChoice[16][200*35/8];
-  GLubyte      m_configTitle[4][200*35/8];
+  ImageData    m_configTitle[4];
 };
 
 #endif	// _TitleView_

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include "View.h"
 
 class PlayGame;
+class ImageData;
 
 class PlayGameView : public View {
 public:
@@ -35,7 +36,7 @@ public:
 protected:
   PlayGame    *m_playGame;
 
-  GLubyte      m_image[256*150/8];
+  ImageData    *m_image;
 };
 
 #endif	// _PlayGameView_

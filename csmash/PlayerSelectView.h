@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include "View.h"
 
 class PlayerSelect;
+class ImageData;
 
 class PlayerSelectView : public View {
 public:
@@ -35,8 +36,7 @@ protected:
   PlayerSelect *m_playerSelect;
   GLuint       m_offset;
   GLuint       m_textures[PLAYERS+1];
-  GLubyte      m_choice[4][400*70/8];
-  GLubyte      m_selectPlayer[400*70/8];
+  ImageData    *m_selectPlayer;
 };
 
 #endif	// _PlayerSelectView_

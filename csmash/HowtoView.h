@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -38,8 +38,8 @@ protected:
   Howto       *m_howto;
   GLuint       m_offset;
   ImageData    m_mouse[4];
-  GLubyte      m_howtoText[8][400*100/8];
-  GLubyte      m_arrow[4][50*(50/8+1)];
+  ImageData    m_howtoText[8];
+  ImageData    m_arrow[4];
   GLuint       m_keyboard[1];
 };
 

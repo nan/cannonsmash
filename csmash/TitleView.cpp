@@ -34,41 +34,16 @@ bool
 TitleView::Init( Title *title ) {
   int i, j, k;
 
-  static char configTitle[][30] = {"images/LevelSelect.ppm",
-				   "images/ModeSelect.ppm"
-//				   ,"images/SoundSelect.ppm" };
+  static char configTitle[][30] = {"images/LevelSelect",
+				   "images/ModeSelect"
 				    };
-
-#ifndef HAVE_LIBZ
-  FILE *fp;
-#else
-  gzFile fp;
-#endif
-
-  ImageData image;
 
   m_title = title;
 
+  char fname[256];
   for ( i = 0 ; i < 2 ; i++ ) {
-#ifndef HAVE_LIBZ
-    if( (fp = fopen(&configTitle[i][0], "r")) == NULL ){
-      return false;
-    }
-#else
-    if (NULL == (fp = gzopenx(&configTitle[i][0], "rs"))) return false;
-#endif
-
-    for ( j = 34 ; j >= 0 ; j-- ) {
-      for ( k = 0 ; k < 200/8 ; k++ ) {
-	m_configTitle[i][j*25+k] = (unsigned char)strtol( getWord(fp), NULL, 16 );
-      }
-    }
-
-#ifndef HAVE_LIBZ
-    fclose(fp);
-#else
-    gzclose(fp);
-#endif
+    sprintf( fname, _("%s.pbm"), &(configTitle[i][0]) );
+    m_configTitle[i].LoadFile(fname);
   }
 
   return true;
@@ -166,9 +141,9 @@ TitleView::RedrawAlpha() {
 
     glColor4f( 1.0F, 1.0F, 1.0F, 1.0F );
     glRasterPos2i( 80, 520 );
-    glBitmap( 200, 35, 0.0F, 0.0F, 0.0F, 0, &m_configTitle[0][0] );
+    glBitmap( 200, 35, 0.0F, 0.0F, 0.0F, 0, m_configTitle[0].GetImage() );
     glRasterPos2i( 480, 520 );
-    glBitmap( 200, 35, 0.0F, 0.0F, 0.0F, 0, &m_configTitle[1][0] );
+    glBitmap( 200, 35, 0.0F, 0.0F, 0.0F, 0, m_configTitle[1].GetImage() );
 //    glRasterPos2i( 480, 250 );
 //    glBitmap( 200, 35, 0.0F, 0.0F, 0.0F, 0, &m_configTitle[2][0] );
 

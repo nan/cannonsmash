@@ -23,46 +23,27 @@
 #include "BaseView.h"
 
 PlayGameView::PlayGameView() {
+  m_image = 0;
 }
 
 PlayGameView::~PlayGameView() {
+  if ( m_image )
+    delete m_image;
 }
 
 bool
 PlayGameView::Init( PlayGame *playGame ) {
   int j, k;
 
-  static char imageFile[30] = "images/Pause.ppm";
-
-#ifndef HAVE_LIBZ
-  FILE *fp;
-#else
-  gzFile fp;
-#endif
-
-  ImageData image;
+  static char imageFile[30] = "images/Pause";
 
   m_playGame = playGame;
 
-#ifndef HAVE_LIBZ
-  if( (fp = fopen(imageFile, "r")) == NULL ){
-    return false;
-  }
-#else
-  if (NULL == (fp = gzopenx(imageFile, "rs"))) return false;
-#endif
+  char filename[256];
+  sprintf( filename, _("%s.pbm"), imageFile );
 
-  for ( j = 149 ; j >= 0 ; j-- ) {
-    for ( k = 0 ; k < 256/8 ; k++ ) {
-      m_image[j*32+k] = (unsigned char)strtol( getWord(fp), NULL, 16 );
-    }
-  }
-
-#ifndef HAVE_LIBZ
-  fclose(fp);
-#else
-  gzclose(fp);
-#endif
+  m_image = new ImageData();
+  m_image->LoadFile( filename );
 
   return true;
 }
@@ -89,7 +70,7 @@ PlayGameView::RedrawAlpha() {
     glDepthMask(0);
 
     glRasterPos2i( BaseView::GetWinWidth()/2-128, BaseView::GetWinHeight()/2 );
-    glBitmap( 256, 150, 0.0F, 0.0F, 0.0F, 0, m_image );
+    glBitmap( 256, 150, 0.0F, 0.0F, 0.0F, 0, m_image->GetImage() );
 
     glDepthMask(1);
 

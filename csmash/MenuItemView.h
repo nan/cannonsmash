@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include "View.h"
 
 class MenuItem;
+class ImageData;
 
 class MenuItemView : public View {
 public:
@@ -34,7 +35,7 @@ public:
 
 protected:
   MenuItem    *m_menuItem;
-  GLubyte     *m_image;
+  ImageData   *m_image;
 };
 
 #endif	// _MenuItemView_

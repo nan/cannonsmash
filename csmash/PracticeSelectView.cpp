@@ -145,7 +145,7 @@ PracticeSelectView::Redraw() {
   glLoadIdentity();
 
   glRasterPos2i( 200, 100 );
-  glBitmap( 400, 70, 0.0F, 0.0F, 0.0F, 0, m_selectPlayer );
+  glBitmap( 400, 70, 0.0F, 0.0F, 0.0F, 0, m_selectPlayer->GetImage() );
 
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();

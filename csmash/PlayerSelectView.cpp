@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -32,9 +32,12 @@ extern bool isComm;
 PlayerSelectView::PlayerSelectView() {
   m_offset = 0;
   m_textures[0] = 0;
+  m_selectPlayer = 0;
 }
 
 PlayerSelectView::~PlayerSelectView() {
+  if ( m_selectPlayer )
+    delete m_selectPlayer;
 }
 
 bool
@@ -66,28 +69,11 @@ PlayerSelectView::Init( PlayerSelect *playerSelect ) {
     }
   }
 
-#ifndef HAVE_LIBZ
-  FILE *fp;
+  char filename[256];
+  sprintf( filename, _("%s.pbm"), "images/SelectPlayer" );
 
-  if( (fp = fopen("images/SelectPlayer.ppm", "r")) == NULL ){
-    return false;
-  }
-#else
-  gzFile fp;
-  if (NULL == (fp = gzopenx("images/SelectPlayer.ppm", "rs"))) return false;
-#endif
-
-  for ( i = 69 ; i >= 0 ; i-- ) {
-    for ( j = 0 ; j < 400/8 ; j++ ) {
-      m_selectPlayer[i*50+j] = (unsigned char)strtol( getWord(fp), NULL, 16 );
-    }
-  }
-
-#ifndef HAVE_LIBZ
-  fclose(fp);
-#else
-  gzclose(fp);
-#endif
+  m_selectPlayer = new ImageData();
+  m_selectPlayer->LoadFile( filename );
 
   return true;
 }
@@ -176,7 +162,7 @@ PlayerSelectView::Redraw() {
     glLoadIdentity();
 
     glRasterPos2i( 200, 100 );
-    glBitmap( 400, 70, 0.0F, 0.0F, 0.0F, 0, m_selectPlayer );
+    glBitmap( 400, 70, 0.0F, 0.0F, 0.0F, 0, m_selectPlayer->GetImage() );
 
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();

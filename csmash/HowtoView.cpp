@@ -44,13 +44,12 @@ HowtoView::Init( Howto *howto ) {
 
   static char fname[][30] = {"images/Mouse1.jpg", "images/Mouse2.jpg",
 			     "images/Mouse3.jpg", "images/Mouse4.jpg"};
-  static char arrowname[][30] = {"images/rightArrow.ppm",
-				 "images/downArrow.ppm",
-				 "images/leftArrow.ppm",
-				 "images/upArrow.ppm"};
-  static char howtoText[][30] = {"images/Howto1.ppm", "images/Howto2.ppm", 
-				 "images/Howto3.ppm", "images/Howto4.ppm", 
-				 "images/Howto5.ppm"};
+  static char arrowname[][30] = {"images/rightArrow", "images/downArrow",
+				 "images/leftArrow", "images/upArrow"};
+  static char howtoText[][30] = {"images/Howto1", "images/Howto2", 
+				 "images/Howto3", "images/Howto4", 
+				 "images/Howto5"};
+  char filename[256];
 
   m_howto = howto;
 
@@ -84,47 +83,13 @@ HowtoView::Init( Howto *howto ) {
   }
 
   for ( i = 0 ; i < 5 ; i++ ) {
-#ifndef HAVE_LIBZ
-    if( (fp = fopen(&howtoText[i][0], "r")) == NULL ){
-      return false;
-    }
-#else
-    if (NULL == (fp = gzopenx(&howtoText[i][0], "rs"))) return false;
-#endif
-
-    for ( j = 99 ; j >= 0 ; j-- ) {
-      for ( k = 0 ; k < 400/8 ; k++ ) {
-	m_howtoText[i][j*50+k] = (unsigned char)strtol( getWord(fp), NULL, 16 );
-      }
-    }
-
-#ifndef HAVE_LIBZ
-    fclose(fp);
-#else
-    gzclose(fp);
-#endif
+    sprintf( filename, _("%s.pbm"), howtoText[i] );
+    m_howtoText[i].LoadFile(filename);
   }
 
   for ( i = 0 ; i < 4 ; i++ ) {
-#ifndef HAVE_LIBZ
-    if( (fp = fopen(arrowname[i], "r")) == NULL ){
-      return false;
-    }
-#else
-    if (NULL == (fp = gzopenx(arrowname[i], "rs"))) return false;
-#endif
-
-    for ( j = 49 ; j >= 0 ; j-- ) {
-      for ( k = 0 ; k < 50/8+1 ; k++ ) {
-	m_arrow[i][j*(50/8+1)+k] = (unsigned char)strtol( getWord(fp), NULL, 16 );
-      }
-    }
-
-#ifndef HAVE_LIBZ
-    fclose(fp);
-#else
-    gzclose(fp);
-#endif
+    sprintf( filename, _("%s.pbm"), arrowname[i] );
+    m_arrow[i].LoadFile(filename);
   }
 
   glGenTextures( 1, m_keyboard );
@@ -237,7 +202,7 @@ HowtoView::RedrawAlpha() {
     }
 
     glBitmap( 50, 50, 0.0, 0.0, 0.0, 0, 
-	      &m_arrow[(m_howto->GetCount()%400)/100][0] );
+	      m_arrow[(m_howto->GetCount()%400)/100].GetImage() );
     break;
   case 2:
     glColor4f( 0.0, 0.5, 0.0, 1.0 );
@@ -262,7 +227,7 @@ HowtoView::RedrawAlpha() {
     else
       glRasterPos2i( 200, 170 );
 
-    glBitmap( 50, 50, 0.0, 0.0, 0.0, 0, &m_arrow[1][0] );
+    glBitmap( 50, 50, 0.0, 0.0, 0.0, 0, m_arrow[1].GetImage() );
     break;
   }
 
@@ -270,7 +235,7 @@ HowtoView::RedrawAlpha() {
   if ( m_howto->GetCount()%100 < 75 ) {
     glRasterPos2i( 10, 450 );
     glBitmap( 400, 100, 0.0, 0.0, 0.0, 0,
-	      &m_howtoText[m_howto->GetMode()][0] );
+	      m_howtoText[m_howto->GetMode()].GetImage() );
   }
 
   if ( theRC->gmode != GMODE_SIMPLE )
