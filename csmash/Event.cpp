@@ -719,6 +719,12 @@ QuitGame() {
   printf( "Avg = %f\n", (double)perfs/_perfCount );
   if (_backTrackCount) printf( "BackTrack = %f\n", backTracks/_backTrackCount);
 
+  theEvent.m_lastTime.time = 0;
+  _perfCount = 0;
+  perfs = 0;
+  backTracks = 0;
+  _backTrackCount = 0;
+
   SDL_WM_GrabInput( SDL_GRAB_OFF );
 
   SDL_Event e;

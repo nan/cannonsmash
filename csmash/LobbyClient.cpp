@@ -414,6 +414,7 @@ LobbyClient::ReadUI() {
     strncpy( m_player[i].m_message, &(buffer[len]), 64 );
     len += 64;
   }	// add protocolLen check later
+
 }
 
 void
@@ -569,8 +570,19 @@ PIDialog::PIOK( GtkWidget *widget, gpointer data ) {
   SendLong( piDialog->m_parent->GetSocket(), len );
   SendLong( piDialog->m_parent->GetSocket(), piDialog->m_uniqID );
 
+  send( piDialog->m_parent->GetSocket(), "SP", 2, 0 );
+  len = 0;
+  SendLong( piDialog->m_parent->GetSocket(), len );
+
   StartGame();
   EventLoop();
+
+  send( piDialog->m_parent->GetSocket(), "QP", 2, 0 );
+  len = 8;
+  SendLong( piDialog->m_parent->GetSocket(), len );
+
+  SendLong( piDialog->m_parent->GetSocket(), len );	// Temp
+  SendLong( piDialog->m_parent->GetSocket(), len );
 }
 
 void
