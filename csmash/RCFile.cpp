@@ -16,6 +16,11 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+#include <libintl.h>
+#define  gettext_noop(String)  (String)
+#define _(String) gettext (String)
+#define N_(String) gettext_noop (String)
+
 #include "ttinc.h"
 #include "RCFile.h"
 
@@ -149,7 +154,7 @@ RCFile::OpenRCFile( char *mode ) {
       GetWindowsDirectory( csmashrc, 256 );
       strcat( csmashrc, "\\csmash.ini" );
 #else
-      fprintf( stderr, "No home directory.\n" );
+      fprintf( stderr, _("No home directory.\n") );
       exit(1);
 #endif
     } else {
@@ -169,7 +174,7 @@ RCFile::OpenRCFile( char *mode ) {
   }
 
   if ( fp == NULL ) {
-    fprintf( stderr, "Cannot open rc file %s.\n", csmashrc );
+    fprintf( stderr, _("Cannot open rc file %s.\n"), csmashrc );
     exit(1);
   }
 

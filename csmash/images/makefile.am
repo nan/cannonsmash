@@ -1,4 +1,5 @@
-pkgdatadir = $(datadir)/@PACKAGE@/images
+pkgdatadir = $(datadir)/games/@PACKAGE@/images
+
 pkgdata_ppm = Bad.ppm Easy.ppm Hard.ppm Howto.ppm Howto1.ppm \
 		Howto2.ppm Howto3.ppm Howto4.ppm Howto5.ppm Keyboard.ppm \
 		Nice.ppm Normal.ppm Config.ppm Quit.ppm \

@@ -16,6 +16,11 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+#include <libintl.h>
+#define  gettext_noop(String)  (String)
+#define _(String) gettext (String)
+#define N_(String) gettext_noop (String)
+
 #include "ttinc.h"
 #include "PlayGame.h"
 #include "Player.h"
@@ -149,7 +154,7 @@ PlayGame::ChangeScore() {
   }
 
   if ( theRC->gmode == GMODE_SIMPLE )
-    printf( "You : %d -  %d : Opponent\n", GetScore(thePlayer), GetScore(comPlayer) );
+    printf( _("You : %d -  %d : Opponent\n"), GetScore(thePlayer), GetScore(comPlayer) );
 }
 
 void

@@ -16,6 +16,11 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+#include <libintl.h>
+#define  gettext_noop(String)  (String)
+#define _(String) gettext (String)
+#define N_(String) gettext_noop (String)
+
 #include "ttinc.h"
 #include "Player.h"
 #include "Ball.h"
@@ -269,7 +274,7 @@ Player::Create( long player, long side, long type ) {
     break;
   }
 
-  printf( "no player %ld\n", player );
+  printf( _("no player %ld\n"), player );
   exit(1);
 }
 

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,6 +15,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+#include <libintl.h>
+#define  gettext_noop(String)  (String)
+#define _(String) gettext (String)
+#define N_(String) gettext_noop (String)
 
 #include "ttinc.h"
 #include "BaseView.h"
@@ -80,7 +85,7 @@ BaseView::Init() {
     m_baseSurface = SDL_SetVideoMode( m_winWidth, m_winHeight, 0,
 				      SDL_OPENGL );
 
-  SDL_WM_SetCaption( "CannonSmash", NULL );
+  SDL_WM_SetCaption( _("CannonSmash"), NULL );
 
   //if (fullScreen)
   //SDL_WM_ToggleFullScreen( m_baseSurface );
@@ -275,7 +280,7 @@ BaseView::RedrawAll() {
   SDL_GL_SwapBuffers();
 
 //  if ( glGetError() != GL_NO_ERROR )
-//    printf( "GL Error!\n" );
+//    printf( _("GL Error!\n") );
 
   return true;
 }
@@ -358,7 +363,7 @@ BaseView::EndGame() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  printf( "EndGame %d : %d\n",
+  printf( _("EndGame %d : %d\n"),
 	  ((PlayGame *)Control::TheControl())->GetScore(thePlayer), 
 	  ((PlayGame *)Control::TheControl())->GetScore(comPlayer) );
 

@@ -1,4 +1,4 @@
-pkgdatadir = $(datadir)/@PACKAGE@/Parts/Bpeck
+pkgdatadir = $(datadir)/games/@PACKAGE@/Parts/Bpeck
 
 pkgdata_src = Bpeck-Larm.affine Bpeck-Larm01.dat \
 		Bpeck-Lelbow.affine Bpeck-Lelbow01.dat \

@@ -16,6 +16,11 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+#include <libintl.h>
+#define  gettext_noop(String)  (String)
+#define _(String) gettext (String)
+#define N_(String) gettext_noop (String)
+
 #include "ttinc.h"
 #include "LobbyClient.h"
 #include "MultiPlay.h"
@@ -148,7 +153,7 @@ LobbyClient::Init( char *nick, char *message ) {
   m_window = gtk_dialog_new();
   gtk_container_border_width (GTK_CONTAINER (m_window), 10);
 
-  gtk_window_set_title( GTK_WINDOW(m_window), "Cannon Smash");
+  gtk_window_set_title( GTK_WINDOW(m_window), _("Cannon Smash"));
   gtk_widget_show(m_window);
   gtk_window_set_modal( (GtkWindow *)m_window, true );
   gtk_widget_set_usize( m_window, 300, 200 );
@@ -160,11 +165,11 @@ LobbyClient::Init( char *nick, char *message ) {
   gtk_container_border_width (GTK_CONTAINER (scrolled_window), 10);
   gtk_scrolled_window_set_policy( GTK_SCROLLED_WINDOW(scrolled_window),
 				  GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS );
-  gtk_box_pack_start( GTK_BOX(GTK_DIALOG(m_window)->vbox), scrolled_window, 
+  gtk_box_pack_start( GTK_BOX(GTK_DIALOG(m_window)->vbox), scrolled_window,
 		      TRUE, TRUE, 0 );
   gtk_widget_show (scrolled_window);
 
-  gchar *titles[3] = { "Nickname", "Message" };
+  gchar *titles[3] = { _("Nickname"), _("Message") };
   m_table = gtk_clist_new_with_titles( 2, titles );
 
   gtk_clist_set_shadow_type( GTK_CLIST(m_table), GTK_SHADOW_OUT );
@@ -178,7 +183,7 @@ LobbyClient::Init( char *nick, char *message ) {
 
   UpdateTable();
 
-  m_connectButton = gtk_button_new_with_label ("connect");
+  m_connectButton = gtk_button_new_with_label (_("connect"));
   gtk_signal_connect (GTK_OBJECT (m_connectButton), "clicked",
 		      GTK_SIGNAL_FUNC (LobbyClient::Connect), this);
   gtk_widget_show (m_connectButton);
@@ -186,14 +191,14 @@ LobbyClient::Init( char *nick, char *message ) {
   gtk_box_pack_start (GTK_BOX (GTK_DIALOG (m_window)->action_area),
 		      m_connectButton, TRUE, TRUE, 0);
 
-  m_warmUpButton = gtk_button_new_with_label ("warm up");
+  m_warmUpButton = gtk_button_new_with_label (_("warm up"));
   gtk_signal_connect (GTK_OBJECT (m_warmUpButton), "clicked",
 		      GTK_SIGNAL_FUNC (LobbyClient::WarmUp), this);
   gtk_widget_show (m_warmUpButton);
   gtk_box_pack_start (GTK_BOX (GTK_DIALOG (m_window)->action_area),
 		      m_warmUpButton, TRUE, TRUE, 0);
 
-  button = gtk_button_new_with_label ("close");
+  button = gtk_button_new_with_label (_("close"));
   gtk_signal_connect (GTK_OBJECT (button), "clicked",
 		      GTK_SIGNAL_FUNC (LobbyClient::Quit), this);
 
@@ -510,7 +515,7 @@ PIDialog::PopupDialog( long uniqID ) {
   m_uniqID = uniqID;
 
   m_window = gtk_dialog_new();
-  gtk_window_set_title( GTK_WINDOW(m_window), "Cannon Smash");
+  gtk_window_set_title( GTK_WINDOW(m_window), _("Cannon Smash"));
   gtk_container_border_width (GTK_CONTAINER (m_window), 10);
   gtk_window_set_modal( (GtkWindow *)m_window, true );
 
@@ -519,7 +524,7 @@ PIDialog::PopupDialog( long uniqID ) {
   int i;
   for ( i = 0 ; i < m_parent->GetPlayerNum() ; i++ ) {
     if ( p[i].m_ID == m_uniqID ) {
-      sprintf( buf, "\"%s\" (message: %s)want to play with you. OK?\n",
+      sprintf( buf, _("\"%s\" (message: %s)want to play with you. OK?\n"),
 	       p[i].m_nickname, p[i].m_message );
       break;
     }
@@ -534,7 +539,7 @@ PIDialog::PopupDialog( long uniqID ) {
 
   gtk_widget_show (m_window);
 
-  button = gtk_button_new_with_label ("OK!");
+  button = gtk_button_new_with_label (_("OK!"));
   gtk_signal_connect (GTK_OBJECT (button), "clicked",
 		      GTK_SIGNAL_FUNC (PIDialog::PIOK), this);
 
@@ -545,7 +550,7 @@ PIDialog::PopupDialog( long uniqID ) {
   gtk_widget_grab_default (button);
   gtk_widget_show (button);
 
-  button = gtk_button_new_with_label ("No!");
+  button = gtk_button_new_with_label (_("No!"));
   gtk_signal_connect (GTK_OBJECT (button), "clicked",
 		      GTK_SIGNAL_FUNC (PIDialog::PINo), this);
 

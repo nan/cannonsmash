@@ -1,0 +1,14 @@
+# header files:
+# the csmash headers do not contain text
+
+# source files:
+BaseView.cpp
+Event.cpp
+Launcher.cpp
+LobbyClient.cpp
+main.cpp
+parts.cpp
+Player.cpp
+PlayGame.cpp
+RCFile.cpp
+Sound.cpp

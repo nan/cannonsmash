@@ -16,6 +16,11 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+#include <libintl.h>
+#define  gettext_noop(String)  (String)
+#define _(String) gettext (String)
+#define N_(String) gettext_noop (String)
+
 #include "ttinc.h"
 #include "Event.h"
 #include "Control.h"
@@ -310,10 +315,10 @@ void HotKey_ToggleFullScreen(void)
   SDL_Surface *screen = SDL_GetVideoSurface();
   if ( SDL_WM_ToggleFullScreen(screen) ) {
     theRC->fullScreen = (screen->flags & SDL_FULLSCREEN) ? 1 : 0;
-    fprintf(stderr, "Toggled fullscreen mode - now %s\n",
-            theRC->fullScreen  ? "fullscreen" : "windowed");
+    fprintf(stderr, _("Toggled fullscreen mode - now %s\n"),
+            theRC->fullScreen  ? _("fullscreen") : _("windowed"));
   } else {
-    fprintf(stderr, "Unable to toggle fullscreen mode\n");
+    fprintf(stderr, _("Unable to toggle fullscreen mode\n"));
   }
 }
 
@@ -706,8 +711,8 @@ Event::ClearBacktrack() {
 
 void
 QuitGame() {
-  printf( "Avg = %f\n", (double)perfs/_perfCount );
-  if (_backTrackCount) printf( "BackTrack = %f\n", backTracks/_backTrackCount);
+  printf( _("Avg = %f\n"), (double)perfs/_perfCount );
+  if (_backTrackCount) printf( _("BackTrack = %f\n"), backTracks/_backTrackCount);
 
   Event::TheEvent()->m_lastTime.time = 0;
   _perfCount = 0;

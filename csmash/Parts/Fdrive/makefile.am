@@ -1,4 +1,4 @@
-pkgdatadir = $(datadir)/@PACKAGE@/Parts/Fdrive
+pkgdatadir = $(datadir)/games/@PACKAGE@/Parts/Fdrive
 
 pkgdata_src = Fdrive-Lankle.affine Fdrive-Lankle01.dat \
 		Fdrive-Larm.affine Fdrive-Larm01.dat \

@@ -1,4 +1,4 @@
-pkgdatadir = $(datadir)/@PACKAGE@/Parts/Fcut
+pkgdatadir = $(datadir)/games/@PACKAGE@/Parts/Fcut
 
 pkgdata_src = Fcut-Lankle.affine Fcut-Lankle01.dat \
 		Fcut-Larm.affine Fcut-Larm01.dat \

@@ -1,4 +1,4 @@
-pkgdatadir = $(datadir)/@PACKAGE@/Parts/Fsmash
+pkgdatadir = $(datadir)/games/@PACKAGE@/Parts/Fsmash
 
 pkgdata_src = Fsmash-Larm.affine Fsmash-Larm01.dat \
 		Fsmash-Lelbow.affine Fsmash-Lelbow01.dat \

@@ -7,6 +7,11 @@
  *	the "Artistic license". See "ARTISTIC" for detail.
  *
  ***********************************************************************/
+#include <libintl.h>
+#define  gettext_noop(String)  (String)
+#define _(String) gettext (String)
+#define N_(String) gettext_noop (String)
+
 #include "ttinc.h"
 #include "LoadImage.h"
 
@@ -124,7 +129,7 @@ polyhedron::polyhedron(const char* filename)
 	if (streq("point", token)) {
 	    int num = atoi(strtok(NULL, delim));
 	    if (vertex.capacity() <= numPoints) {
-		printf("%s:%d vertex buffer overflow\n", __FILE__, __LINE__);
+		printf(_("%s:%d vertex buffer overflow\n"), __FILE__, __LINE__);
 		exit(5);
 	    }
 	    vector3F v;
@@ -146,7 +151,7 @@ polyhedron::polyhedron(const char* filename)
 	elif (streq("plane", token)) {
 	    int i = 0;
 	    if (loop.capacity() <= numPolygons) {
-		printf("%s:%d loop buffer overflow\n", __FILE__, __LINE__);
+		printf(_("%s:%d loop buffer overflow\n"), __FILE__, __LINE__);
 		exit(5);
 	    }
 	    plane_t &f = loop[numPolygons];
@@ -421,7 +426,7 @@ affineanim::affineanim(const char *filename)
 		}
 	    }
 	    if (mat.capacity() <= numFrames) {
-		printf("%s:%d matrix buffer overflow\n", __FILE__, __LINE__);
+		printf(_("%s:%d matrix buffer overflow\n"), __FILE__, __LINE__);
 		exit(5);
 	    }
 	    mat[numFrames++] = t;

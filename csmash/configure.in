@@ -1,11 +1,17 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(ShakeCut.h)
-
+#AC_INIT(ShakeCut.h)
+AC_INIT(csmash, 0.6.4, nan@utmc.or.jp)
+AC_CONFIG_SRCDIR(main.cpp)
 AC_CANONICAL_TARGET
+AM_INIT_AUTOMAKE(csmash, 0.6.4)
+
+dnl this must be defined before AM_GNU_GETTEXT
+ALL_LINGUAS="de ja"
 
 dnl Checks for programs.
 AC_PROG_CXX
 AC_PATH_PROG(GZIP, gzip)
+AM_GNU_GETTEXT
 
 AC_PATH_X
 
@@ -67,9 +73,8 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 
-AM_INIT_AUTOMAKE(csmash, 0.6.4, no-define)
-
-AC_DEFINE_UNQUOTED(CANNONSMASH_DATADIR, "@prefix@/share/$PACKAGE/")
+# moved to makefile.am
+#AC_DEFINE_UNQUOTED(CANNONSMASH_DATADIR, "@prefix@/share/$PACKAGE/")
 
 AC_OUTPUT(makefile \
 	Parts/makefile \
@@ -83,4 +88,6 @@ AC_OUTPUT(makefile \
 	Parts/Fsmash/makefile \
 	images/makefile \
 	wav/makefile \
-	win32/makefile )
+	win32/makefile \
+	intl/Makefile \
+	po/Makefile.in )

@@ -16,6 +16,11 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+#include <libintl.h>
+#define  gettext_noop(String)  (String)
+#define _(String) gettext (String)
+#define N_(String) gettext_noop (String)
+
 #include "ttinc.h"
 #include "Ball.h"
 #include "Sound.h"
@@ -97,6 +102,11 @@ int main(int argc, char** argv) {
 
     int c;
 
+    /*initalise i18n*/
+    setlocale (LC_ALL, "");
+    bindtextdomain (PACKAGE, LOCALEDIR);
+    textdomain (PACKAGE);
+
     while(EOF != (c = getopt(argc, argv, "schfS2Op:"))) {
         switch (c) {
         case 'h':
@@ -154,7 +164,7 @@ int main(int argc, char** argv) {
 #ifdef CANNONSMASH_DATADIR
     dataDir = CANNONSMASH_DATADIR;
 #else
-    fprintf( stderr, "No datafile directory.\n" );
+    fprintf( stderr, _("No datafile directory.\n") );
     exit(1);
 #endif
 #else
@@ -169,7 +179,7 @@ int main(int argc, char** argv) {
   }
 
   if ( chdir( dataDir ) == -1 ) {
-    fprintf( stderr, "No datafile directory.\n" );
+    fprintf( stderr, _("No datafile directory.\n") );
     exit(1);
   }
 
@@ -221,18 +231,18 @@ StartGame() {
 
   if ( theRC->sndMode != SOUND_NONE ) {
     if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_NOPARACHUTE) < 0 ) {
-      perror( "SDL initialize failed\n" );
+      perror( _("SDL initialize failed\n") );
       exit(1);
     }
   } else {
     if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) < 0 ) {
-      perror( "SDL initialize failed\n" );
+      perror( _("SDL initialize failed\n") );
       exit(1);
     }
   }
 #else
   if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) < 0 ) {
-    perror( "SDL initialize failed\n" );
+    perror( _("SDL initialize failed\n") );
     exit(1);
   }
   theRC->sndMode = SOUND_NONE;

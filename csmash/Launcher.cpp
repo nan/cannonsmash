@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,6 +15,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+#include <libintl.h>
+#define  gettext_noop(String)  (String)
+#define _(String) gettext (String)
+#define N_(String) gettext_noop (String)
 
 #include "ttinc.h"
 #include "LobbyClient.h"
@@ -59,12 +64,12 @@ LauncherHeader::FullScreenFrame() {
   GtkWidget *button;
   GSList *list;
 
-  frame = gtk_frame_new( "FullScreen" );
+  frame = gtk_frame_new( _("FullScreen") );
 
   box = gtk_hbox_new( FALSE, 10 );
   gtk_container_border_width (GTK_CONTAINER (box), 5);
 
-  button = gtk_radio_button_new_with_label ((GSList *)NULL, "On");
+  button = gtk_radio_button_new_with_label ((GSList *)NULL, _("On"));
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(button) );
   gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
   if (theRC->fullScreen)
@@ -75,7 +80,7 @@ LauncherHeader::FullScreenFrame() {
 		      GTK_SIGNAL_FUNC (LauncherHeader::ToggleFullScreen),
 		      &theRC->fullScreen);
 
-  button = gtk_radio_button_new_with_label (list, "Off");
+  button = gtk_radio_button_new_with_label (list, _("Off"));
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(button) );
   gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
   if (!theRC->fullScreen)
@@ -99,7 +104,7 @@ LauncherHeader::GraphicsFrame() {
   GtkWidget *twoDButton, *simpleButton, *normalButton;
   GSList *list;
 
-  frame = gtk_frame_new( "Graphics" );
+  frame = gtk_frame_new( _("Graphics") );
 
   box = gtk_hbox_new( FALSE, 10 );
   gtk_container_border_width (GTK_CONTAINER (box), 5);
@@ -112,7 +117,7 @@ LauncherHeader::GraphicsFrame() {
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(twoDButton), TRUE );
   }
 
-  simpleButton = gtk_radio_button_new_with_label ( list, "Simple");
+  simpleButton = gtk_radio_button_new_with_label ( list, _("Simple"));
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(simpleButton) );
   gtk_box_pack_start( GTK_BOX(box), simpleButton, FALSE, FALSE, 10 );
   gtk_widget_show (simpleButton);
@@ -120,7 +125,7 @@ LauncherHeader::GraphicsFrame() {
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(simpleButton), TRUE );
   }
 
-  normalButton = gtk_radio_button_new_with_label (list, "Normal");
+  normalButton = gtk_radio_button_new_with_label (list, _("Normal"));
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(normalButton) );
   gtk_box_pack_start( GTK_BOX(box), normalButton, FALSE, FALSE, 10 );
   gtk_widget_show (normalButton);
@@ -238,17 +243,17 @@ ModeNote::Init( GtkBox *box ) {
 
   // Solo Play
   noteBox = InitSoloPlayPanel();
-  label = gtk_label_new( "Solo" );
+  label = gtk_label_new( _("Solo") );
   gtk_notebook_append_page( GTK_NOTEBOOK(notebook), noteBox, label);
 
   // LAN Play
   noteBox = InitLANPlayPanel();
-  label = gtk_label_new( "LAN" );
+  label = gtk_label_new( _("LAN") );
   gtk_notebook_append_page( GTK_NOTEBOOK(notebook), noteBox, label);
 
   // Internet Play
   noteBox = InitInternetPlayPanel();
-  label = gtk_label_new( "Internet(Experimental)" );
+  label = gtk_label_new( _("Internet(Experimental)") );
   gtk_notebook_append_page( GTK_NOTEBOOK(notebook), noteBox, label);
 
   gtk_box_pack_start( box, notebook, FALSE, FALSE, 10 );
@@ -263,7 +268,7 @@ ModeNote::InitSoloPlayPanel() {
   box = gtk_vbox_new( FALSE, 10 );
   gtk_container_border_width (GTK_CONTAINER (box), 5);
 
-  button = gtk_button_new_with_label ("Game Start!");
+  button = gtk_button_new_with_label (_("Game Start!"));
   gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
   gtk_widget_show (button);
 
@@ -289,11 +294,11 @@ ModeNote::InitLANPlayPanel() {
   toggleBox = gtk_hbox_new( FALSE, 10 );
   gtk_container_border_width (GTK_CONTAINER (toggleBox), 5);
 
-  toggleButton[0] = gtk_radio_button_new_with_label ((GSList *)NULL, "Server");
+  toggleButton[0] = gtk_radio_button_new_with_label ((GSList *)NULL, _("Server"));
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(toggleButton[0]) );
   gtk_box_pack_start( GTK_BOX(toggleBox), toggleButton[0], FALSE, FALSE, 5 );
   gtk_widget_show (toggleButton[0]);
-  toggleButton[1] = gtk_radio_button_new_with_label (list, "Client");
+  toggleButton[1] = gtk_radio_button_new_with_label (list, _("Client"));
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(toggleButton[1]) );
   gtk_box_pack_start( GTK_BOX(toggleBox), toggleButton[1], FALSE, FALSE, 5 );
   gtk_widget_show (toggleButton[1]);
@@ -307,7 +312,7 @@ ModeNote::InitLANPlayPanel() {
   // Lower input area for server name
   editBox = gtk_table_new( 2, 2, FALSE );
 
-  label = gtk_label_new( "Server name:" );
+  label = gtk_label_new( _("Server name:") );
   gtk_table_attach( GTK_TABLE(editBox), label, 0, 1, 1, 2,
 		    GTK_FILL, GTK_EXPAND, 0, 0 );
   gtk_widget_show (label);
@@ -328,7 +333,7 @@ ModeNote::InitLANPlayPanel() {
 		      GTK_SIGNAL_FUNC (ModeNote::Toggle), m_serverName);
 
   // lowest area(start button)
-  button = gtk_button_new_with_label ("Game Start!");
+  button = gtk_button_new_with_label (_("Game Start!"));
   gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 5 );
   gtk_widget_show (button);
 
@@ -350,7 +355,7 @@ ModeNote::InitInternetPlayPanel() {
 
   editBox = gtk_table_new( 2, 2, FALSE );
 
-  label = gtk_label_new( "Nickname:" );
+  label = gtk_label_new( _("Nickname:") );
   gtk_table_attach( GTK_TABLE(editBox), label, 0, 1, 0, 1,
 		    GTK_FILL, GTK_EXPAND, 0, 0 );
   gtk_widget_show (label);
@@ -360,7 +365,7 @@ ModeNote::InitInternetPlayPanel() {
   gtk_widget_show (m_lobbyEdit[0]);
   gtk_entry_set_text( GTK_ENTRY(m_lobbyEdit[0]), theRC->nickname );
 
-  label = gtk_label_new( "Message:" );
+  label = gtk_label_new( _("Message:") );
   gtk_table_attach( GTK_TABLE(editBox), label, 0, 1, 1, 2,
 		    GTK_FILL, GTK_EXPAND, 0, 0 );
   gtk_widget_show (label);
@@ -373,7 +378,7 @@ ModeNote::InitInternetPlayPanel() {
   gtk_widget_show (editBox);
   gtk_box_pack_start( GTK_BOX(box), editBox, FALSE, FALSE, 5 );
 
-  button = gtk_button_new_with_label("Connect to Lobby Server");
+  button = gtk_button_new_with_label(_("Connect to Lobby Server"));
   gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
   gtk_widget_show(button);
 
@@ -444,7 +449,7 @@ Launcher::Init() {
   /* Window 生成 */
   m_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_container_border_width (GTK_CONTAINER (m_window), 5);
-  gtk_window_set_title( GTK_WINDOW(m_window), "Cannon Smash");
+  gtk_window_set_title( GTK_WINDOW(m_window), _("Cannon Smash"));
 
   allbox = gtk_hbox_new( FALSE, 5 );
   mainbox = gtk_vbox_new( FALSE, 5 );
@@ -461,7 +466,7 @@ Launcher::Init() {
 
   quitBox = gtk_vbox_new( FALSE, 5 );
 
-  m_quit = gtk_button_new_with_label ("Quit");
+  m_quit = gtk_button_new_with_label (_("Quit"));
   gtk_box_pack_start( GTK_BOX(quitBox), m_quit, FALSE, TRUE, 10 );
 
   gtk_box_pack_start( GTK_BOX(allbox), mainbox, FALSE, FALSE, 10 );
