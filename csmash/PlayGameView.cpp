@@ -76,7 +76,7 @@ bool
 PlayGameView::RedrawAlpha() {
   glColor4f( 1.0, 1.0, 1.0, 1.0 );
 
-  if ( SDL_WM_GrabInput( SDL_GRAB_QUERY ) == SDL_GRAB_OFF ) {
+  if ( m_playGame->IsPause() ) {
     glPushMatrix();
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();

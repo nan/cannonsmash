@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -39,6 +39,8 @@ PlayGame::PlayGame() {
   m_Score2 = 0;
   m_Game1 = 0;
   m_Game2 = 0;
+
+  m_pause = false;
 }
 
 PlayGame::~PlayGame() {
@@ -193,4 +195,9 @@ PlayGame::EndGame() {
     mode = MODE_TITLE;
 
   m_Score1 = m_Score2 = 0;
+}
+
+void
+PlayGame::SetPause( bool pause ) {
+  m_pause = pause;
 }

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -39,6 +39,9 @@ public:
 
   virtual bool IsPlaying() { return true; };
 
+  virtual bool IsPause() { return m_pause; };
+  virtual void SetPause( bool pause );
+
   long GetService();
   long GetScore( Player *p );
   long GetScore( long side );
@@ -58,6 +61,7 @@ protected:
   long m_Game1;		// Game of near side. 
   long m_Score2;	// Point of far side
   long m_Game2;		// Game of far side. 
+  bool m_pause;		// True when pause. 
 };
 
 #endif	// _PlayGame_

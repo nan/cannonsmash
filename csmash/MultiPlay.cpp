@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -197,13 +197,6 @@ MultiPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
 		 long *MouseYHistory, unsigned long *MouseBHistory,
 		 int Histptr ) {
   bool reDraw = false;
-
-  if ( KeyHistory[Histptr] == SDLK_ESCAPE ) {
-    if ( SDL_WM_GrabInput( SDL_GRAB_QUERY ) == SDL_GRAB_ON )
-      SDL_WM_GrabInput( SDL_GRAB_OFF );
-    else
-      SDL_WM_GrabInput( SDL_GRAB_ON );
-  }
 
 #ifdef LOGGING
   long prevStatus = theBall.GetStatus();

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -85,13 +85,6 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
   if ( KeyHistory[Histptr] == 'Q' ) {
     mode = MODE_TITLE;
     return true;
-  }
-
-  if ( KeyHistory[Histptr] == SDLK_ESCAPE ) {
-    if ( SDL_WM_GrabInput( SDL_GRAB_QUERY ) == SDL_GRAB_ON )
-      SDL_WM_GrabInput( SDL_GRAB_OFF );
-    else
-      SDL_WM_GrabInput( SDL_GRAB_ON );
   }
 
   if ( m_smashPtr >= 0 ) {	// Smash replay

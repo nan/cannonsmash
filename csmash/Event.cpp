@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -158,8 +158,13 @@ Event::IdleFunc() {
   _perfCount++;
 
   for ( int i = 0 ; i < diffcount ; i++ ) {
-    reDraw |= Event::TheEvent()->Move();
-    Event::TheEvent()->Record();
+    // While pause, never move objects. 
+    if ( Control::TheControl()->IsPlaying() &&
+	 ((PlayGame *)Control::TheControl())->IsPause() ) {
+      reDraw = true;
+    } else {
+      reDraw |= Event::TheEvent()->Move();
+    }
 
     m_lastTime.millitm += 10;
     if ( m_lastTime.millitm > 1000 ) {
@@ -174,7 +179,9 @@ Event::IdleFunc() {
     Event::TheEvent()->IsModeChanged( preMode );
   }
 
-  if ( mode != MODE_OPENING && mode != MODE_TITLE )
+  if ( mode != MODE_OPENING && mode != MODE_TITLE &&
+       !(Control::TheControl()->IsPlaying() &&
+	 ((PlayGame *)Control::TheControl())->IsPause()) )
     SDL_WarpMouse((unsigned short)Event::TheEvent()->m_MouseXHistory[Event::TheEvent()->m_Histptr],
 		  (unsigned short)Event::TheEvent()->m_MouseYHistory[Event::TheEvent()->m_Histptr] );
 
@@ -191,7 +198,10 @@ Event::Move() {
 					 m_MouseYHistory, m_MouseBHistory,
 					 m_Histptr );
 
-  return reDraw | IsModeChanged( preMode );
+  reDraw |= IsModeChanged( preMode );
+  Record();
+
+  return reDraw;
 }
 
 bool
@@ -320,7 +330,19 @@ Event::KeyboardFunc( SDL_Event key, int x, int y ) {
 	 mode == MODE_PRACTICESELECT ) {
     } else
       QuitGame();
+  } else if ( key.key.keysym.unicode == SDLK_ESCAPE &&
+	      Control::TheControl()->IsPlaying() ) {
+    if ( ((PlayGame *)Control::TheControl())->IsPause() ) {
+      SDL_WM_GrabInput( SDL_GRAB_ON );
+      SDL_ShowCursor(SDL_DISABLE);
+      ((PlayGame *)Control::TheControl())->SetPause( false );
+    } else {
+      SDL_WM_GrabInput( SDL_GRAB_OFF );
+      SDL_ShowCursor(SDL_ENABLE);
+      ((PlayGame *)Control::TheControl())->SetPause( true );
+    }
   }
+
   Event::TheEvent()->m_KeyHistory[Event::TheEvent()->m_Histptr] = key.key.keysym.unicode;
 }
 
