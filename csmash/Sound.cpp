@@ -65,6 +65,13 @@ bool
 Sound::Init( long sndMode ) {
   m_soundMode = sndMode;
 
+#ifdef HAVE_LIBSDL_MIXER
+  for ( int i = 0 ; i < 16 ; i++ ) {
+    m_sound[i] = 0;
+  }
+  m_opening = 0;
+#endif
+
   if ( m_soundMode == SOUND_NONE )
     return true;
 
@@ -75,10 +82,6 @@ Sound::Init( long sndMode ) {
   if ( Mix_OpenAudio( 44100, AUDIO_S16SYS, 2, 128 ) < 0 ) {
 #endif
     perror( "SDL Mix_OpenAudio failed\n" );
-  }
-
-  for ( int i = 0 ; i < 16 ; i++ ) {
-    m_sound[i] = 0;
   }
 
   m_sound[SOUND_RACKET] = Mix_LoadWAV( "wav/racket.wav" );
