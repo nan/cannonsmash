@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -108,6 +108,10 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
   long phrase, mod;
 
   GetPhrase( phrase, mod );
+
+  // afterSwing should be disabled for opening. 
+  thePlayer->m_afterSwing = 0;
+  comPlayer->m_afterSwing = 0;
 
   if ( m_count == 0 ) {
     thePlayer->m_x = -1.5;

@@ -275,13 +275,13 @@ StartGame() {
     mode = MODE_TITLE;
   }
 
-  Sound::TheSound()->Init( theRC->sndMode );
-  BaseView::TheView()->Init();
-  Event::TheEvent()->Init();
-
 #ifdef LOGGING
   Logging::GetLogging()->Init();
 #endif
+
+  Sound::TheSound()->Init( theRC->sndMode );
+  BaseView::TheView()->Init();
+  Event::TheEvent()->Init();
 
   SDL_EnableUNICODE(1);
 }
