@@ -319,3 +319,58 @@ bool ImageData::LoadFile(const char *filename)
 	return false;
     }
 }
+
+// Copyed from testgl.c of SDL source code
+SDL_Surface* SDL_GL_LoadTexture(char *filename)
+{
+  GLuint texture;
+  int w, h;
+  SDL_Surface *image, *jpg;
+  SDL_Rect area;
+  Uint32 saved_flags;
+  Uint8  saved_alpha;
+
+  jpg = IMG_Load( filename );
+  /* Use the surface width and height expanded to powers of 2 */
+
+  image = SDL_CreateRGBSurface(
+			       SDL_SWSURFACE,
+			       jpg->w, jpg->h,
+			       32,
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN /* OpenGL RGBA masks */
+			       0x000000FF, 
+			       0x0000FF00, 
+			       0x00FF0000, 
+			       0xFF000000
+#else
+			       0xFF000000,
+			       0x00FF0000, 
+			       0x0000FF00, 
+			       0x000000FF
+#endif
+			       );
+  if ( image == NULL ) {
+    return 0;
+  }
+
+  /* Save the alpha blending attributes */
+  saved_flags = jpg->flags&(SDL_SRCALPHA|SDL_RLEACCELOK);
+  saved_alpha = jpg->format->alpha;
+  if ( (saved_flags & SDL_SRCALPHA) == SDL_SRCALPHA ) {
+    SDL_SetAlpha(jpg, 0, 0);
+  }
+
+  /* Copy the surface into the GL texture image */
+  area.x = 0;
+  area.y = 0;
+  area.w = jpg->w;
+  area.h = jpg->h;
+  SDL_BlitSurface(jpg, &area, image, &area);
+
+  /* Restore the alpha blending attributes */
+  if ( (saved_flags & SDL_SRCALPHA) == SDL_SRCALPHA ) {
+    SDL_SetAlpha(jpg, saved_flags, saved_alpha);
+  }
+
+  return image;
+}

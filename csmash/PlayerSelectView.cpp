@@ -54,7 +54,23 @@ PlayerSelectView::Init( PlayerSelect *playerSelect ) {
     glGenTextures( PLAYERS+2, m_textures );
 
     for ( i = 0 ; i < PLAYERS ; i++ ){
-//      image.LoadPPM( &(pname[i][0]) );
+#if 1
+      SDL_Surface *image;
+      image = SDL_GL_LoadTexture( &(pname[i][0]) );
+
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+      glBindTexture( GL_TEXTURE_2D, m_textures[i] );
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+      glTexImage2D(GL_TEXTURE_2D, 0, 3, image->w, image->h,
+		   0, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels );
+
+      SDL_FreeSurface(image); /* No longer needed */
+#else
       image.LoadFile( &(pname[i][0]) );
       glBindTexture(GL_TEXTURE_2D, m_textures[i] );
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -66,6 +82,7 @@ PlayerSelectView::Init( PlayerSelect *playerSelect ) {
 
       glTexImage2D(GL_TEXTURE_2D, 0, 3, image.GetWidth(), image.GetHeight(), 
 		   0, GL_RGBA, GL_UNSIGNED_BYTE, image.GetImage() );
+#endif
     }
   }
 

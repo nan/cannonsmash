@@ -50,4 +50,6 @@ char* getWord(gzFile fp);
 char* getWord( FILE *fp );
 #endif
 
+SDL_Surface* SDL_GL_LoadTexture(char *filename);
+
 #endif	// _LoadImage_
