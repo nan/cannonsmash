@@ -101,6 +101,7 @@ LauncherHeader::GraphicsFrame() {
   box = gtk_hbox_new( FALSE, 10 );
   gtk_container_border_width (GTK_CONTAINER (box), 5);
 
+  /*
   twoDButton = gtk_radio_button_new_with_label ( (GSList *)NULL, "2D");
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(twoDButton) );
   gtk_box_pack_start( GTK_BOX(box), twoDButton, FALSE, FALSE, 10 );
@@ -108,8 +109,10 @@ LauncherHeader::GraphicsFrame() {
   if ( theRC->gmode == GMODE_2D ) {
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(twoDButton), TRUE );
   }
+  */
 
-  simpleButton = gtk_radio_button_new_with_label ( list, "Simple");
+  //simpleButton = gtk_radio_button_new_with_label ( list, "Simple");
+  simpleButton = gtk_radio_button_new_with_label ( (GSList *)NULL, "Simple");
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(simpleButton) );
   gtk_box_pack_start( GTK_BOX(box), simpleButton, FALSE, FALSE, 10 );
   gtk_widget_show (simpleButton);
@@ -125,8 +128,10 @@ LauncherHeader::GraphicsFrame() {
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(normalButton), TRUE );
   }
 
+  /*
   gtk_signal_connect (GTK_OBJECT (twoDButton), "clicked",
 		      GTK_SIGNAL_FUNC (LauncherHeader::Toggle), &theRC->gmode);
+  */
   gtk_signal_connect (GTK_OBJECT (simpleButton), "clicked",
 		      GTK_SIGNAL_FUNC (LauncherHeader::Toggle), &theRC->gmode);
   gtk_signal_connect (GTK_OBJECT (normalButton), "clicked",
