@@ -1,7 +1,5 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Free Software Foundation, Inc.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# German message for Cannon Smash
+# Copyright (C) 2002 J. Henning Schwentner <hschwentner@hamburg.de>
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
