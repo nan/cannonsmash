@@ -56,6 +56,9 @@ long mode = MODE_OPENING;
 
 SDL_mutex *loadMutex;
 
+// If the client is configured as robot, it it 1. Otherwise it is 0. 
+int robot = 0;
+
 void InitGame();
 void StartGame();
 void EndGame();
@@ -175,7 +178,7 @@ int main(int argc, char** argv) {
 #endif
 
     int c;
-    while (EOF != (c = getopt(argc, argv, "schfS2Op:"))) {
+    while (EOF != (c = getopt(argc, argv, "schfS2Orp:"))) {
         switch (c) {
         case 'h':
 	    // brief help
@@ -211,6 +214,10 @@ int main(int argc, char** argv) {
 	    // Simple mode
 	    theRC->gmode = GMODE_2D;
 	    mode = MODE_SELECT;
+	    break;
+	case 'r':
+	    // Robot mode
+	    robot = 1;
 	    break;
 	}
     }

@@ -53,6 +53,7 @@ extern Ball theBall;
 extern RCFile *theRC;
 extern int theSocket;
 extern long timeAdj;
+extern int robot;
 
 extern void QuitGame();
 
@@ -142,7 +143,7 @@ MultiPlay::Create( long player, long com ) {
   else
     side = -1;	// client side
 
-  m_thePlayer = Player::Create( player, side, 0 );
+  m_thePlayer = Player::Create( player, side, robot );
   m_comPlayer = Player::Create( com, -side, 0 );
 
   networkMutex = SDL_CreateMutex();
