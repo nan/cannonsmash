@@ -281,20 +281,8 @@ bool parts::load_load(int lineno, int argc, const char *argv[], int* poptind)
             throw verror(lineno, "%s is already loaded\n", objectname);
 	}
 	object->load(filename);
-	int i = 0;
-	while (const char *name = argv[optind++]) {
-	    parts *poly = getobject(name);
-	    if (!poly) {
-                throw verror(lineno, "%s not loaded\n", name);
-	    }
-	    if (!object->assign(poly)) {
-                throw verror(lineno, "%s is not assignable\n", name);
-	    }
-	    ++i;
-	}
-	if (!i) {
-	    printf("%d: %s is empty object\n", lineno, objectname);
-	}
+	load_anim(lineno, object, argc, argv, &optind);
+
 	break;
     }	 /* anim */
 
@@ -352,6 +340,48 @@ bool parts::load_polyhedron(int lineno, polyhedron_parts *object,
     }
     // create normal vectors of polyhedron
     object->object->getNormal();
+    return true;
+}
+
+bool parts::load_anim(int lineno, anim_parts* object,
+		      int argc, const char *argv[], int *poptind)
+{
+    int& optind = *poptind;
+    int i = 0;
+    while (const char *name = argv[optind++]) {
+	if ('-' == *name) {
+	    if (streq("-pre", name) || streq("-post", name)) {
+		affine4F m;
+		const char *fname = argv[optind++];
+		if (!fname || !loadAffine4F(fname, &m)) {
+		    throw verror(lineno, "mat %s cannot be loaded\n", fname);
+		}
+		affineanim &anim = *object->object;
+		for (int i = 0; anim.numFrames > i; ++i) {
+		    if (streq("-pre", name)) {
+			anim.matrices[i] = m * anim.matrices[i];
+		    } else {
+			anim.matrices[i] *= m;
+		    }
+		}
+	    }
+	    else {
+		throw verror(lineno, "unknown option %s\n", name);
+	    }
+	} else {
+	    parts *poly = getobject(name);
+	    if (!poly) {
+                throw verror(lineno, "%s not loaded\n", name);
+	    }
+	    if (!object->assign(poly)) {
+                throw verror(lineno, "%s is not assignable\n", name);
+	    }
+	    ++i;
+	}
+    }
+    if (!i) {
+	printf("%d: %s is empty object\n", lineno, object->name);
+    }
     return true;
 }
 

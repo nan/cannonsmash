@@ -88,6 +88,8 @@ private:
     static bool load_load(int lineno, int ac, const char *av[], int *optind);
     static bool load_polyhedron(int lineno, polyhedron_parts*,
                                 int ac, const char *av[], int *ind);
+    static bool load_anim(int lineno, anim_parts*,
+			  int ac, const char *av[], int *ind);
 public:
     string name;
 };
