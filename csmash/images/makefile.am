@@ -4,6 +4,8 @@ pkgdata_ppm = Bad.ppm Keyboard.ppm Nice.ppm Title.ppm \
 		eight.ppm five.ppm four.ppm nine.ppm one.ppm seven.ppm \
 		six.ppm three.ppm two.ppm zero.ppm Max.ppm \
 		EasyTutorial.ja.ppm EasyTutorial.de.ppm EasyTutorial.ppm \
+		NormalTutorial.ja.ppm NormalTutorial.de.ppm NormalTutorial.ppm \
+		HardTutorial.ja.ppm HardTutorial.de.ppm HardTutorial.ppm \
 		11point.ja.pbm 11point.de.pbm 11point.pbm \
 		21point.ja.pbm 21point.de.pbm 21point.pbm \
 		5point.ja.pbm 5point.de.pbm 5point.pbm \
