@@ -307,7 +307,7 @@ polyhedron& polyhedron::operator *=(const affine4F& m)
 
 BEGIN_ANONYMOUS
 inline short round(short v, int len) { return (v + len) % len; }
-inline int length(const short poly[4]) { return (0 < poly[3]) ? 4 : 3; }
+inline int length(const short poly[4]) { return (0 <= poly[3]) ? 4 : 3; }
 
 int find(const short poly[4], short p) {
     int l = length(poly);
