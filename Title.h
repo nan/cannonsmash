@@ -19,6 +19,16 @@
 #ifndef _Title_
 #define _Title_
 
+// major menu
+#define MENU_MAIN	0
+#define MENU_CONFIG	1
+
+// minor menu
+#define MENU_ALL		0	// 画面内の全メニュー数
+#define MENU_CONFIG_LEVEL	1	// レベル(Configメニュー内)
+#define MENU_CONFIG_MODE	2	// モード(Configメニュー内)
+#define MENU_CONFIG_SOUND	3	// サウンド(Configメニュー内)
+
 class TitleView;
 
 class Title {
@@ -33,11 +43,14 @@ public:
 		     int Histptr );
 
   long GetSelected();
+  long GetSelectMode();
   long GetCount();
-  static long GetMenuNum() {return 3;}
+  long GetMenuNum( long major, long minor=0 );
 protected:
   TitleView *m_View;
   long m_selected;	// 選択された : m_selected > 0
+  long m_selectMode;	// 基本選択   : 0
+			// config選択  : 1
   long m_count;
 };
 

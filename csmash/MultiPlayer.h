@@ -16,38 +16,21 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#ifndef _Sound_
-#define _Sound_
+#ifndef _MultiPlyaer_
+#define _MultiPlayer_
 
-#define SOUND_NONE	-1
-#define SOUND_ESD	0
-#define SOUND_OSS	1
-#define SOUND_WIN32	2
+void EndianCheck();
 
-class Sound {
-public:
-  Sound();
-  virtual ~Sound();
+bool SendDouble( int sd, double d );
+bool SendLong( int sd, long l );
+char *ReadDouble( char *buf, double& d );
+char *ReadLong( char *buf, long& l );
 
-  virtual bool Init();
+void WritePlayerData();
+Player *ReadPlayerData();
+bool AcceptClient();
 
-  bool Play( char *sndData, long count );
-  bool Play( long soundID );
+void StartServer();
+void StartClient();
 
-  long GetSoundMode();
-  bool SetSoundMode( long mode );
-private:
-#ifdef HAVE_LIBESD
-  int m_fd[5];
-  int m_sndfd;
-
-  int m_ossfd;
-#endif
-
-  char *m_sound[16];
-  int  m_soundSize[16];
-
-  long m_soundMode;
-};
-
-#endif // _Sound_
+#endif	// _MultiPlayer_

@@ -16,6 +16,11 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+#ifndef _ttinc_
+#define _ttinc_
+
+#define CSMASH_PORT	3573	// TCP Port num. 
+
 #ifdef _WIN32
 #define WIN32
 #endif
@@ -68,7 +73,7 @@
 #define BUTTON_MIDDLE (1<<1)
 #define BUTTON_RIGHT  (1<<2)
 
-#define MAX_HISTORY (128)
+#define MAX_HISTORY (1024)
 
 // モード
 #define MODE_PLAY   (1)		// Play
@@ -76,20 +81,30 @@
 #define MODE_DEMO   (3)		// Demo Play
 #define MODE_TITLE  (4)		// Title
 #define MODE_HOWTO  (5)		// How to Play
+#define MODE_TRAINING (6)	// Training
 
 // サウンド
 #define SOUND_RACKET (0)
 #define SOUND_TABLE  (1)
 #define SOUND_CLICK  (2)
 
+// 通信対戦
+#define DATA_PV      (0)
+#define DATA_PS      (1)
+#define DATA_BT      (2)
+#define DATA_BV      (3)
+
 // その他
 #define RAND(N) ((int)((double)(N)*rand()/RAND_MAX))
 
 // 強さ
 enum level {LEVEL_EASY, LEVEL_NORMAL, LEVEL_HARD, LEVEL_TSUBORISH};
+enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 
 #ifdef WIN32
+#include <winsock2.h>
 #include <windows.h>
+#include <io.h>
 #endif
 
 #ifdef HAVE_UNISTD_H
@@ -119,6 +134,14 @@ enum level {LEVEL_EASY, LEVEL_NORMAL, LEVEL_HARD, LEVEL_TSUBORISH};
 #include "z.h"
 #endif
 
+#include <sys/types.h>
+#ifndef WIN32
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#endif
+
 #include "LoadImage.h"
 #include "Ball.h"
 #include "Event.h"
@@ -133,7 +156,12 @@ enum level {LEVEL_EASY, LEVEL_NORMAL, LEVEL_HARD, LEVEL_TSUBORISH};
 #include "comPenAttack.h"
 #include "comShakeCut.h"
 #include "comPenDrive.h"
+#include "ComTrainingPenAttack.h"
+#include "TrainingPenAttack.h"
+#include "ComTrainingPenDrive.h"
+#include "TrainingPenDrive.h"
 #include "PlayerView.h"
+#include "parts.h"
 #include "HitMark.h"
 #include "PlayerSelect.h"
 #include "PlayerSelectView.h"
@@ -142,3 +170,8 @@ enum level {LEVEL_EASY, LEVEL_NORMAL, LEVEL_HARD, LEVEL_TSUBORISH};
 #include "Howto.h"
 #include "HowtoView.h"
 #include "Sound.h"
+#include "MultiPlayer.h"
+
+void xerror(const char *str, ...);
+
+#endif // _ttinc_

@@ -16,38 +16,31 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#ifndef _Sound_
-#define _Sound_
+#ifndef _ComTrainingPenAttack_
+#define _ComTrainingPenAttack_
 
-#define SOUND_NONE	-1
-#define SOUND_ESD	0
-#define SOUND_OSS	1
-#define SOUND_WIN32	2
-
-class Sound {
+class ComTrainingPenAttack : public ComPenAttack {
 public:
-  Sound();
-  virtual ~Sound();
+  ComTrainingPenAttack();
+  ComTrainingPenAttack(long side);
+  ComTrainingPenAttack( long playerType, long side,
+			double x, double y, double z, 
+			double vx, double vy, double vz,
+			long status, long swing, 
+			long swingType, long afterSwing, long swingError, 
+			double targetX, double targetY,
+			double eyeX, double eyeY, double eyeZ,
+			long pow, double spin, double stamina );
 
-  virtual bool Init();
+  virtual ~ComTrainingPenAttack();
 
-  bool Play( char *sndData, long count );
-  bool Play( long soundID );
+protected:
+  virtual bool Think();
 
-  long GetSoundMode();
-  bool SetSoundMode( long mode );
-private:
-#ifdef HAVE_LIBESD
-  int m_fd[5];
-  int m_sndfd;
+  virtual bool Hitarea( double &hitX, double &hitY);
 
-  int m_ossfd;
-#endif
-
-  char *m_sound[16];
-  int  m_soundSize[16];
-
-  long m_soundMode;
+  virtual bool HitBall();
 };
 
-#endif // _Sound_
+#endif // _ComTrainingPenAttack_
+

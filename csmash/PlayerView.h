@@ -19,17 +19,7 @@
 #ifndef _PlayerView_
 #define _PlayerView_
 
-class MotionData {
-public:
-  MotionData();
-  virtual ~MotionData();
-
-  bool LoadData( char *fname, int points );
-
-  GLfloat   m_points[50][1024][3];
-  GLshort   m_poly[50][4096][4];
-  GLfloat   m_normal[50][4096][3];	// 法線ベクトル
-};
+class partsmotion;
 
 class PlayerView : public View {
 public:
@@ -41,22 +31,19 @@ public:
   virtual bool Redraw();
   virtual bool RedrawAlpha();
 
-protected:
-  GLuint       m_textures[1];
-
 private:
   Player  *m_player;	// Model
 
-  MotionData *m_Fnormal;
-  MotionData *m_Bnormal;
-  MotionData *m_Fdrive;
-  MotionData *m_Bdrive;
-  MotionData *m_Fcut;
-  MotionData *m_Bcut;
-  MotionData *m_Fpeck;
-  MotionData *m_Bpeck;
-  MotionData *m_Fsmash;
-  MotionData *m_Bsmash;
+  partsmotion *m_Fnormal;
+  partsmotion *m_Bnormal;
+  partsmotion *m_Fdrive;
+  partsmotion *m_Bdrive;
+  partsmotion *m_Fcut;
+  partsmotion *m_Bcut;
+  partsmotion *m_Fpeck;
+  partsmotion *m_Bpeck;
+  partsmotion *m_Fsmash;
+  partsmotion *m_Bsmash;
 
   bool SubRedraw();
 };

@@ -21,6 +21,47 @@
 
 // Event Handle Classの定義
 
+struct PlayerData {
+  long playerType;
+  long side;
+  double x;
+  double y;
+  double z;
+  double vx;
+  double vy;
+  double vz;
+  long status;
+  long swing;
+  long swingType;
+  long afterSwing;
+  long swingError;
+  double targetX;
+  double targetY;
+  double eyeX;
+  double eyeY;
+  double eyeZ;
+  long pow;
+  double spin;
+  double stamina;
+};
+
+struct Backtrack {
+  long sec;		// 秒
+  char count;		// 1/100秒単位
+  Ball theBall;
+  PlayerData thePlayer;
+  PlayerData comPlayer;
+};
+
+struct ExternalData {
+  long side;
+  long dataType;
+  long sec;
+  char count;
+  char data[256];
+  struct ExternalData *next;
+};
+
 class Event {
 public:
 
@@ -33,15 +74,26 @@ public:
   void MotionFunc( long x, long y );
   void ButtonFunc( long button, long state, long x, long y );
 
+  bool SendSwing( int sd, Player *player );
+  bool SendPlayer( int sd, Player *player );
+  bool SendBall( int sd );
+
 #ifdef PTHREAD
   void MoveCursor();
 #endif
 protected:
+  bool Move();
+  void Record();
+
   unsigned long m_KeyHistory[MAX_HISTORY];		// キー入力履歴
   long m_MouseXHistory[MAX_HISTORY];			// マウス履歴
   long m_MouseYHistory[MAX_HISTORY];			// マウス履歴
   unsigned long m_MouseBHistory[MAX_HISTORY];		// マウスボタン履歴
-  unsigned int  m_Histptr;
+  int  m_Histptr;
+
+  struct ExternalData *m_External;
+  struct Backtrack m_BacktrackBuffer[MAX_HISTORY];
+  bool m_backtrack;		// 現在backtrack中か否か
 };
 
 #endif	// _Event_

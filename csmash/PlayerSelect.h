@@ -35,12 +35,10 @@ public:
 		     int Histptr );
 
   long GetRotate();
-  long GetLevel();
   long GetSelected();
 protected:
   PlayerSelectView *m_View;
   long m_rotate;	// 表示画面の回転角度
-  long m_level;		// レベル
   long m_selected;	// 選択された : m_selected > 0
 };
 

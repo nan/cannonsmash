@@ -19,6 +19,11 @@
 #ifndef _Sound_
 #define _Sound_
 
+#define SOUND_NONE	-1
+#define SOUND_ESD	0
+#define SOUND_OSS	1
+#define SOUND_WIN32	2
+
 class Sound {
 public:
   Sound();
@@ -28,14 +33,21 @@ public:
 
   bool Play( char *sndData, long count );
   bool Play( long soundID );
+
+  long GetSoundMode();
+  bool SetSoundMode( long mode );
 private:
 #ifdef HAVE_LIBESD
   int m_fd[5];
   int m_sndfd;
+
+  int m_ossfd;
 #endif
 
   char *m_sound[16];
   int  m_soundSize[16];
+
+  long m_soundMode;
 };
 
 #endif // _Sound_

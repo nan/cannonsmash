@@ -47,8 +47,13 @@ public:
 
   bool Move();	// 1turn後(0.01秒)の状態に移行する
 
-  bool Hit( double vx, double vy, double vz, double spin );	// 打球
+  bool Hit( double vx, double vy, double vz, double spin, Player *player );
+  						// 打球
   bool Toss( Player *player, long power );	// トス
+
+  void Warp( double x, double y, double z, double vx, double vy, double vz, 
+	     double spin, long status );
+  void Warp( char *buf );
 
   // 落下目標地点からvy, vzを求める
   bool TargetToV( double targetX, double targetY, double height, double spin, 
@@ -61,6 +66,9 @@ public:
   bool IsGameEnd();	// ゲーム終了チェック
   void EndGame();
 
+  bool Send( int sd );
+
+  long m_count;		// Training用カウンタ
 protected:
   double m_x;		// ballの位置
   double m_y;

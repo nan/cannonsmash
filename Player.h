@@ -20,10 +20,10 @@
 #define _Player_
 
 // m_playerType
-#define PLAYER_PROTO	0	// プロトタイプPlayer
-#define PLAYER_PEKO	1	// 裏ペン速攻
-#define PLAYER_SMILE	2	// カット
-#define PLAYER_PENDRIVE	3	// ペンドライブ
+#define PLAYER_PROTO		0	// プロトタイプPlayer
+#define PLAYER_PENATTACK	1	// 裏ペン速攻
+#define PLAYER_SHAKECUT		2	// カット
+#define PLAYER_PENDRIVE		3	// ペンドライブ
 
 
 // m_swingType
@@ -50,10 +50,18 @@ class Player {
   friend class Howto;
 public:
   Player();
+  Player( long side );
+  Player( long playerType, long side, double x, double y, double z, 
+	  double vx, double vy, double vz,long status, long swing, 
+	  long swingType, long afterSwing, long swingError, 
+	  double targetX, double targetY, double eyeX, double eyeY,
+	  double eyeZ, long pow, double spin, double stamina );
 
   virtual ~Player();
 
   virtual bool Init();
+
+  virtual bool Reset( struct PlayerData *p );
 
   virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,
@@ -82,6 +90,7 @@ public:
   virtual long   GetSwing();
   virtual long   GetSwingType();
   virtual long   GetSwingError();
+  virtual long   GetAfterSwing();
 
   virtual bool   GetShoulder( double &x, double &y, double &deg );
   virtual bool   GetElbow( double &degx, double& degy );
@@ -92,6 +101,17 @@ public:
 // true  -> フォア
 // false -> バック
   virtual bool ForeOrBack();
+
+  virtual bool Warp( double x, double y, double z,
+		     double vx, double vy, double vz );
+  virtual bool ExternalSwing( long pow, double spin, long swingType, long swing );
+
+  virtual bool Warp( char *buf );
+  virtual bool ExternalSwing( char *buf );
+
+  virtual bool SendSwing( int sd );
+  virtual bool SendLocation( int sd );
+  virtual bool SendAll( int sd );
 
 protected:
   long m_playerType;	// Playerの種類
@@ -129,6 +149,7 @@ protected:
   double m_stamina;	// 体力
 
   PlayerView* m_View;
+
   HitMark *m_hitMark;
 
 // Moveから呼び出される

@@ -32,7 +32,9 @@ public:
 protected:
   Title       *m_title;
   GLubyte      m_image[800*100/8];
-  GLubyte      m_choice[4][400*70/8];
+  GLubyte      m_choice[8][400*70/8];
+  GLubyte      m_configChoice[16][200*35/8];
+  GLubyte      m_configTitle[4][200*35/8];
 };
 
 #endif	// _TitleView_
