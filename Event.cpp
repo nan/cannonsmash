@@ -433,8 +433,6 @@ Event::ClearObject() {
 
 bool
 Event::BackTrack( long Histptr ) {
-  //printf( "%d\n", Histptr );
-
   theBall = m_BacktrackBuffer[Histptr].theBall;
   thePlayer->Reset( &m_BacktrackBuffer[Histptr].thePlayer );
   comPlayer->Reset( &m_BacktrackBuffer[Histptr].comPlayer );
@@ -510,10 +508,11 @@ Event::ReadData() {
       while (1) {
 	if ( fTheBall )
 	  theBall.Move();
-	if ( fThePlayer ) {
+
+        if ( fThePlayer )
 	  thePlayer->Move( m_KeyHistory, m_MouseXHistory,
-			   m_MouseYHistory, m_MouseBHistory, btHistptr );
-	}
+			   m_MouseYHistory, m_MouseBHistory, m_Histptr );
+
 	if ( fComPlayer )
 	  comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
 
@@ -541,9 +540,9 @@ Event::ReadData() {
 //		m_lastTime.time, m_lastTime.millitm/10,	theBall.GetStatus(),
 //		theBall.GetX(), theBall.GetY(), theBall.GetZ(), theBall.GetSpin() );
 
-	btHistptr++;
-	if ( btHistptr == MAX_HISTORY )
-	  btHistptr = 0;
+	m_Histptr++;
+	if ( m_Histptr == MAX_HISTORY )
+	  m_Histptr = 0;
 
 	m_lastTime.millitm += 10;
 	if ( m_lastTime.millitm >= 1000 ) {
@@ -552,10 +551,18 @@ Event::ReadData() {
 	}
 
 	btCount--;
-	if ( btCount < 0 )
+	if ( btCount <= 0 )
 	  break;
       }
+
+      if (!fTheBall)
+	theBall = m_BacktrackBuffer[m_Histptr].theBall;
+      if (!fThePlayer)
+	thePlayer->Reset( &m_BacktrackBuffer[m_Histptr].thePlayer );
+      if (!fComPlayer)
+	comPlayer->Reset( &m_BacktrackBuffer[m_Histptr].comPlayer );
     }
+
   }
 }
 

@@ -398,12 +398,12 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
     m_vx = 0.0;
   }
   else if ( m_x <= -TABLEWIDTH/2 && m_x+m_vx*TICK >= -TABLEWIDTH/2 &&
-	    m_y > -TABLELENGTH/2 && m_y < TABLELENGTH/2 ){
+	    m_y > -TABLELENGTH/2+0.5 && m_y < TABLELENGTH/2-0.5 ){
     m_x = -TABLEWIDTH/2;
     m_vx = 0.0;
   }
   else if ( m_x >= TABLEWIDTH/2 && m_x+m_vx*TICK <= TABLEWIDTH/2 &&
-	    m_y > -TABLELENGTH/2 && m_y < TABLELENGTH/2 ){
+	    m_y > -TABLELENGTH/2+0.5 && m_y < TABLELENGTH/2-0.5 ){
     m_x = TABLEWIDTH/2;
     m_vx = 0.0;
   }
