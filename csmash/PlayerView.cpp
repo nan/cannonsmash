@@ -94,7 +94,7 @@ PlayerView::Init( Player *player ) {
 
 bool
 PlayerView::Redraw() {
-  static GLfloat mat_green[] = { 0.4F, 0.4F, 0.4F, 1.0F };
+  static GLfloat mat_green[] = { 0.1F, 0.1F, 0.1F, 1.0F };
 
   if ( m_player == comPlayer ) {
     if ( isLighting ) {
