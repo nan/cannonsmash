@@ -54,6 +54,15 @@ BallView::Init() {
 
   for ( int i = 0 ; i < 10 ; i++ ) {
     Image.LoadPPM( &num[i][0] );
+    for ( int j = 0 ; j < Image.GetWidth() ; j++ ) {
+      for ( int k = 0 ; k < Image.GetHeight() ; k++ ) {
+	if ( Image.GetPixel( j, k, 0 ) >= 5 )
+	  Image.SetPixel( j, k, 3 , 255 );
+	else
+	  Image.SetPixel( j, k, 3 , 0 );
+      }
+    }
+
     glBindTexture( GL_TEXTURE_2D, m_number[i] );
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
@@ -197,6 +206,7 @@ BallView::RedrawAlpha() {
 
     if ( theRC->isTexture || theBall.GetStatus() < -10 ) {
       long score1, score2;
+      long game1, game2;
 
       glEnable(GL_TEXTURE_2D);
       glColor3f( 0.0F, 0.0F, 0.0F );
@@ -253,6 +263,27 @@ BallView::RedrawAlpha() {
 	glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.0F, 0.4F, 0.0F );
 	glEnd();
       }
+
+#if 0
+      game1 = ((PlayGame *)Control::TheControl())->GetGame(1);
+      game2 = ((PlayGame *)Control::TheControl())->GetGame(-1);
+
+      glBindTexture(GL_TEXTURE_2D, m_number[game1] );
+      glBegin(GL_QUADS);
+      glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.0F, -0.3F, 0.2F );
+      glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.0F, -0.3F, 0.3F );
+      glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.0F, -0.2F, 0.3F );
+      glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.0F, -0.2F, 0.2F );
+      glEnd();
+
+      glBindTexture(GL_TEXTURE_2D, m_number[game2] );
+      glBegin(GL_QUADS);
+      glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.0F, 0.2F, 0.2F );
+      glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.0F, 0.2F, 0.3F );
+      glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.0F, 0.3F, 0.3F );
+      glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.0F, 0.3F, 0.2F );
+      glEnd();
+#endif
 
       glDisable(GL_TEXTURE_2D);
     }
