@@ -64,6 +64,16 @@ AC_CHECK_HEADERS(sys/time.h unistd.h)
 AC_CHECK_HEADER(windows.h, [AC_DEFINE(WIN32,,[Are we on Windows?])
 			LIBS="$LIBS -lwinmm"])
 
+AC_MSG_CHECKING(if --enable-ipv6 option specified)
+AC_ARG_ENABLE(ipv6,[  --enable-ipv6            trun on ipv6 [default no]],,
+	[enable_ipv6="no"])
+AC_MSG_RESULT($enable_ipv6)
+
+if test x$enable_ipv6 = xyes; then
+  AC_DEFINE(ENABLE_IPV6,,[Define to enable IPv6.])
+fi
+
+
 case "$target" in
 	*-*-cygwin* | *-*-mingw32*)
 		LIBS="$LIBS -lws2_32 -liberty"

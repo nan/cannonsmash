@@ -47,13 +47,9 @@ typedef int socklen_t;		/* mimic Penguin's typedef */
 #endif
 
 bool endian;
-
 extern int theSocket;
-
 extern Ball theBall;
-
 extern RCFile *theRC;
-
 extern long mode;
 
 // convert endian
@@ -349,9 +345,18 @@ ReadBI() {
 #endif
 }
 
+#ifdef ENABLE_IPV6
+void
+findhostname( struct addrinfo *saddr ) {
+#else
 void
 findhostname( struct sockaddr_in *saddr ) {
+#endif
   if (1 == theRC->serverName[0]) { // Broadcast mode
+#ifdef ENABLE_IPV6
+    printf( "Broadcast is not supported\n" );
+    exit(1);
+#else
     struct sockaddr_in sba;
     memset(&sba, 0, sizeof(sba));
     unsigned int sb;
@@ -405,10 +410,22 @@ findhostname( struct sockaddr_in *saddr ) {
       exit(1);
     }
     saddr->sin_addr.s_addr = sba.sin_addr.s_addr;
+#endif
   } else {
+#ifdef ENABLE_IPV6
+    struct addrinfo hent, *res;
+
+    hent.ai_family = PF_UNSPEC;
+    hent.ai_socktype = SOCK_STREAM;
+
+    getaddrinfo( theRC->serverName, NULL, &hent, &res );
+
+    memcpy( saddr->ai_addr, res->ai_addr, res->ai_addrlen );
+#else
     struct hostent *hent;
     hent = gethostbyname( theRC->serverName );
     memcpy( &saddr->sin_addr, hent->h_addr, hent->h_length );
+#endif
   }
 }
 
