@@ -28,6 +28,7 @@ extern RCFile *theRC;
 
 extern void StartGame();
 extern void EventLoop();
+extern void EndGame();
 
 extern bool WriteRCFile();
 
@@ -404,6 +405,7 @@ ModeNote::StartGame( GtkWidget *widget, gpointer data ) {
     mode = MODE_TITLE;
   ::StartGame();
   ::EventLoop();
+  ::EndGame();
 }
 
 void
@@ -415,6 +417,7 @@ ModeNote::LANStartGame( GtkWidget *widget, gpointer data ) {
   mode = MODE_SELECT;
   ::StartGame();
   ::EventLoop();
+  ::EndGame();
 }
 
 void

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
+// Copyright (C) 2001  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ extern bool isWaiting;
 
 extern void StartGame();
 extern void EventLoop();
+extern void EndGame();
 extern bool PollEvent();
 
 extern void QuitGame();
@@ -259,9 +260,10 @@ LobbyClient::PollServerMessage( gpointer data ) {
 	long len = 0;
 	SendLong( lobby->m_socket, len );
 
-	StartGame();
-	EventLoop();
-
+	::StartGame();
+	::EventLoop();
+	::EndGame();
+	
 	send( lobby->m_socket, "QP", 2, 0 );
 	len = 8;
 	SendLong( lobby->m_socket, len );
@@ -326,7 +328,7 @@ LobbyClient::WarmUp( GtkWidget *widget, gpointer data ) {
   LobbyClient *lobby = (LobbyClient *)data;
 
   isWaiting = true;
-  StartGame();
+  ::StartGame();
 
   lobby->m_idle = gtk_idle_add( LobbyClient::IdleFunc, data );
 }
@@ -336,6 +338,7 @@ LobbyClient::IdleFunc( gpointer data ) {
   LobbyClient *lobby = (LobbyClient *)data;
 
   if ( !PollEvent() ) {
+    ::EndGame();
     return 0;
     //gtk_idle_remove( lobby->m_idle );
   }
@@ -573,7 +576,8 @@ PIDialog::PIOK( GtkWidget *widget, gpointer data ) {
 
   StartGame();
   EventLoop();
-
+  EndGame();
+  
   send( piDialog->m_parent->GetSocket(), "QP", 2, 0 );
   len = 8;
   SendLong( piDialog->m_parent->GetSocket(), len );

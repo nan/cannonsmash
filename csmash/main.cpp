@@ -57,47 +57,39 @@ SDL_mutex *loadMutex;
 
 extern void QuitGame();
 void StartGame();
+void EndGame();
 void EventLoop();
 bool PollEvent();
 
-#if defined(WIN32)
-static int win32ver = 0;	//0: win9x, 1: nt4 2: nt5
+#ifdef WIN32
+#ifdef main
+#undef main
 #endif
 
 #ifdef __CYGWIN__
 #include <getopt.h>
-int main(int argc, char** argv) {
-#elif defined(WIN32)
+#else
 #include "win32/getopt.h"
+#endif /*__CYGWIN__*/
 
-#ifndef WIN32CONSOLE
+static int win32ver = 0;	//0: win9x, 1: nt4 2: nt5
+
+#if !defined(WIN32CONSOLE)
+#define main theMain
 #include "win32/GetArgs.h"
-
-int WINAPI WinMain_(HINSTANCE, HINSTANCE, LPSTR, int);
-
-int WINAPI WinMain(HINSTANCE hI, HINSTANCE hP, LPSTR, int nCmdShow)
-{
-  return WinMain_(hI, hP, GetCommandLine(), nCmdShow);
-}
-
-int WINAPI WinMain_(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-      LPSTR lpCmdLine, int nCmdShow )
+static int theMain(int argc, char** argv);
+int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR CmdLine, int nShow)
 {
   int argc;
   char **argv;
 
-  GetArgs(&argc, &argv, lpCmdLine);
-#else
+  GetArgs(&argc, &argv, GetCommandLine());
+  return theMain(argc, argv);
+}
+#endif /* WIN32CONSOLE */
+#endif /* WIN32 */
 
-#ifdef main
-# undef main
-#endif
-int main(int argc, char **argv) {
-
-#endif
-#else /* WIN32 */
 int main(int argc, char** argv) {
-#endif
 
     /* initialize i18n */
 #ifdef WIN32
@@ -223,14 +215,11 @@ int main(int argc, char** argv) {
   printf( dataDir );
 
   struct timeb tb;
-#ifndef WIN32
-  struct timeval tv;
-  struct timezone tz;
-#endif
-
 #ifdef WIN32
   ftime( &tb );
 #else
+  struct timeval tv;
+  struct timezone tz;
   gettimeofday( &tv, &tz );
   tb.time = tv.tv_sec;
   tb.millitm = tv.tv_usec/1000;
@@ -251,6 +240,7 @@ int main(int argc, char** argv) {
   } else {
     ::StartGame();
     ::EventLoop();
+    ::EndGame();
   }
 
   return 0;
@@ -298,15 +288,14 @@ StartGame() {
   Event::TheEvent()->Init();
 
   SDL_EnableUNICODE(1);
-}
 
-void EventLoop() {
 #if defined(CHIYO)
   parts::realizeobjects();
 #endif
+}
 
-  while ( PollEvent() );
-
+void EndGame()
+{
   Event::ClearObject();
   BaseView::TheView()->QuitGame();
   Sound::TheSound()->Clear();
@@ -325,6 +314,10 @@ void EventLoop() {
 #endif
 
   SDL_Quit();
+}
+
+void EventLoop() {
+  while ( PollEvent() );
 }
 
 bool PollEvent() {
