@@ -19,19 +19,27 @@
 #include "ttinc.h"
 
 extern Ball   theBall;
+extern Player *thePlayer;
+
+extern int theSocket;
+extern Event theEvent;
 
 PenAttack::PenAttack() {
-  m_playerType = PLAYER_PEKO;
+  m_playerType = PLAYER_PENATTACK;
 }
 
-PenAttack::PenAttack(long side) {
-  ::PenAttack();
+PenAttack::PenAttack(long side) : Player(side) {
+  m_playerType = PLAYER_PENATTACK;
+}
 
-  if ( side < 0 ) {
-    m_side = -1;
-    m_y = -m_y;
-    m_targetY = -m_targetY;
-  }
+PenAttack::PenAttack( long playerType, long side, double x, double y, double z,
+		      double vx, double vy, double vz,long status, long swing,
+		      long swingType, long afterSwing, long swingError,
+		      double targetX, double targetY, double eyeX, double eyeY,
+		      double eyeZ, long pow, double spin, double stamina ) :
+  Player( playerType, side, x, y, z, vx, vy, vz, status, swing, swingType,
+	  afterSwing, swingError, targetX, targetY, eyeX, eyeY, eyeZ,
+	  pow, spin, stamina ) {
 }
 
 PenAttack::~PenAttack() {
@@ -51,8 +59,14 @@ PenAttack::Move( unsigned long *KeyHistory, long *MouseXHistory,
 		Histptr );
 
 // status $B7W;;(B
-  if ( hypot( m_vx, m_vy ) < 1.0 && m_swing <= 10 )
-    AddStatus( 1 );
+  static bool stAdj = false;
+  if ( hypot( m_vx, m_vy ) < 1.0 && m_swing <= 10 ) {
+    if ( stAdj ) {
+      AddStatus( 1 );
+      stAdj = false;
+    } else
+      stAdj = true;
+  }
 
   return true;
 }
@@ -79,6 +93,9 @@ PenAttack::Swing( long power, double spin ) {
   SwingType( tmpBall );
 
   delete tmpBall;
+
+  if ( thePlayer == this && theSocket >= 0 )
+    theEvent.SendSwing( theSocket, this );
 
   return true;
 }
@@ -107,6 +124,8 @@ PenAttack::StartSwing( long power, double spin ) { // $B0z?t$O%5!<%V;~$N$_M-8z
 	(theBall.GetStatus() == 7 && m_side == -1) ){	// $B%5!<%V(B
       m_swingType = SWING_POKE;
       m_spin = -m_pow*0.25;
+      if ( thePlayer == this && theSocket >= 0 )
+	theEvent.SendSwing( theSocket, this );
     } else
       SwingType( tmpBall );
 
@@ -142,7 +161,7 @@ PenAttack::HitBall() {
 
     theBall.TargetToVS( m_targetX, m_targetY, level, m_spin, vx, vy, vz );
 
-    theBall.Hit( vx, vy, vz, m_spin );
+    theBall.Hit( vx, vy, vz, m_spin, this );
   } else {
     if ( ((m_side == 1 && theBall.GetStatus() == 3) ||
 	  (m_side ==-1 && theBall.GetStatus() == 1)) &&
@@ -158,18 +177,13 @@ PenAttack::HitBall() {
 
       SwingError();
 
-      if ( fabs(m_targetY) < TABLELENGTH/16*2 )
-	level = 0.95 - diff*1.0;
-      else if ( fabs(m_targetY) < TABLELENGTH/16*4 )
-	  level = 0.90-diff*2.0;
-      else if ( fabs(m_targetY) < TABLELENGTH/16*6 )
-	  level = 0.80-diff*4.0;
-      else
-	level = 0.80-diff*4.0;
+      level = 1 - fabs(m_targetY)/(TABLELENGTH/16)/40 -
+	diff*fabs(m_targetY)/(TABLELENGTH/16);
 
       level -= (1-level)*m_spin/2;
 
       if ( diff*1000 > m_status ) {
+#if 0
 	switch ( RAND(3) ) {
 	case 0:		// $B%*!<%P!<%_%9(B
 	  theBall.TargetToV( m_targetX, m_targetY+TABLELENGTH*m_side, level,
@@ -192,8 +206,11 @@ PenAttack::HitBall() {
 	  break;
 	}
 
-	theBall.Hit( vx, vy, vz, m_spin );
+	theBall.Hit( vx, vy, vz, m_spin, this );
 	return true;
+#else
+	level *= 0.5;
+#endif
       }
 
       double maxVy;
@@ -234,24 +251,23 @@ PenAttack::HitBall() {
         }
       }
 
-      double targetX, targetY;
+      double rad, Xdiff, Ydiff;
       if ( theBall.GetX()-m_x > 0 )
-	targetX = m_targetX + (theBall.GetX()-m_x-0.3)/0.6*TABLEWIDTH
-	  *(220-m_status)/220;
+	Xdiff = (theBall.GetX()-m_x-0.3)/0.6*TABLEWIDTH*(220-m_status)/220;
       else
-	targetX = m_targetX + (theBall.GetX()-m_x+0.3)/0.6*TABLEWIDTH
-	  *(220-m_status)/220;
+	Xdiff = (theBall.GetX()-m_x+0.3)/0.6*TABLEWIDTH*(220-m_status)/220;
 
       if ( (m_y-theBall.GetY())*m_side < 0.3 &&
 	   (m_y-theBall.GetY())*m_side > 0 )
-	targetY = m_targetY + (theBall.GetY()-m_y)/0.6*TABLELENGTH/2
-	  *(220-m_status)/220;
+	Ydiff = (theBall.GetY()-m_y)/0.6*TABLELENGTH/2*(220-m_status)/220;
       else
-	targetY = m_targetY + (theBall.GetY()-m_y)/1.2*TABLELENGTH/2
-	  *(220-m_status)/220;
+	Ydiff = (theBall.GetY()-m_y)/1.2*TABLELENGTH/2*(220-m_status)/220;
 
-      theBall.TargetToV( targetX, m_targetY, level, m_spin,
-			 vx, vy, vz, 0.1, maxVy );
+      rad = RAND(360)*3.141592/180.0;
+
+      theBall.TargetToV( m_targetX + Xdiff*cos(rad),
+			 m_targetY + Ydiff*sin(rad),
+			 level, m_spin, vx, vy, vz, 0.1, maxVy );
 
       // $B%\!<%k$N6/$5$K$h$C$FBN@*%2!<%8$r8:$i$9(B
       m_afterSwing = (long)(
@@ -266,7 +282,7 @@ PenAttack::HitBall() {
       if ( m_status == 1 )
 	m_afterSwing *= 3;
 
-      theBall.Hit( vx, vy, vz, m_spin );
+      theBall.Hit( vx, vy, vz, m_spin, this );
     } else
       m_swingError = SWING_MISS;
   }

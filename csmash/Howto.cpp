@@ -182,7 +182,7 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
       m_mouseB = 1;
     } else if ( m_count > 50 && m_count < 100 ) {
       m_mouseB = 1;
-    } else if ( m_count == 170 ) {
+    } else if ( m_count == 160 ) {
       comPlayer->m_targetX = -TABLEWIDTH/2*0.3;
       comPlayer->Swing( 1, 0.5 );
       m_mouseB = 0;
@@ -191,10 +191,10 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     }
     break;
   case 4:	// 打球2
-    if ( m_count == 455 ) {
+    if ( m_count == 395 ) {
       thePlayer->Swing( 1, 0.5 );
       m_mouseB = 1;
-    } else if ( m_count > 455 && m_count < 600 ) {
+    } else if ( m_count > 395 && m_count < 600 ) {
       m_mouseB = 1;
     } else {
       m_mouseB = 0;
@@ -223,7 +223,7 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     }
     break;
   case 3:
-    if ( m_count > 500 ) {
+    if ( m_count > 400 ) {
       m_mode = 4;
       m_count = 0;
     }
@@ -274,12 +274,12 @@ Howto::IsMove() {
   case 2:
     return true;
   case 3:
-    if ( m_count > 185 )
+    if ( m_count > 175 )
       return false;
     else
       return true;
   case 4:
-    if ( m_count < 455 ) {
+    if ( m_count < 395 ) {
       if ( m_count%10 == 0 )
 	return true;
       else

@@ -19,19 +19,27 @@
 #include "ttinc.h"
 
 extern Ball   theBall;
+extern Player *thePlayer;
+
+extern int theSocket;
+extern Event theEvent;
 
 PenDrive::PenDrive() {
   m_playerType = PLAYER_PENDRIVE;
 }
 
-PenDrive::PenDrive(long side) {
-  ::PenDrive();
+PenDrive::PenDrive(long side) : Player(side) {
+  m_playerType = PLAYER_PENDRIVE;
+}
 
-  if ( side < 0 ) {
-    m_side = -1;
-    m_y = -m_y;
-    m_targetY = -m_targetY;
-  }
+PenDrive::PenDrive( long playerType, long side, double x, double y, double z,
+		    double vx, double vy, double vz,long status, long swing,
+		    long swingType, long afterSwing, long swingError,
+		    double targetX, double targetY, double eyeX, double eyeY,
+		    double eyeZ, long pow, double spin, double stamina ) :
+  Player( playerType, side, x, y, z, vx, vy, vz, status, swing, swingType,
+	  afterSwing, swingError, targetX, targetY, eyeX, eyeY, eyeZ,
+	  pow, spin, stamina ) {
 }
 
 PenDrive::~PenDrive() {
@@ -80,6 +88,9 @@ PenDrive::Swing( long power, double spin ) {
 
   delete tmpBall;
 
+  if ( thePlayer == this && theSocket >= 0 )
+    theEvent.SendSwing( theSocket, this );
+
   return true;
 }
 
@@ -106,6 +117,8 @@ PenDrive::StartSwing( long power, double spin ) { // $B0z?t$O%5!<%V;~$N$_M-8z(
 	(theBall.GetStatus() == 7 && m_side == -1) ) {	// $B%5!<%V(B
       m_swingType = SWING_POKE;
       m_spin = -m_pow*0.25;
+      if ( thePlayer == this && theSocket >= 0 )
+	theEvent.SendSwing( theSocket, this );
     } else
       SwingType( tmpBall );
 
@@ -141,7 +154,7 @@ PenDrive::HitBall() {
 
     theBall.TargetToVS( m_targetX, m_targetY, level, m_spin, vx, vy, vz );
 
-    theBall.Hit( vx, vy, vz, m_spin );
+    theBall.Hit( vx, vy, vz, m_spin, this );
   } else {
     if ( ((m_side == 1 && theBall.GetStatus() == 3) ||
 	  (m_side ==-1 && theBall.GetStatus() == 1)) &&
@@ -157,29 +170,20 @@ PenDrive::HitBall() {
 
       SwingError();
 
-      if ( m_swingType == SWING_DRIVE ){
-	if ( fabs(m_targetY) < TABLELENGTH/16*2 )
-	  level = 0.95 - diff*1.2;
-	else if ( fabs(m_targetY) < TABLELENGTH/16*4 )
-	  level = 0.95-diff*1.8;	
-	else if ( fabs(m_targetY) < TABLELENGTH/16*6 )
-	  level = 0.90-diff*3.6;
-	else
-	  level = 0.90-diff*3.6;
-      } else {
-	if ( fabs(m_targetY) < TABLELENGTH/16*2 )
-	  level = 0.95 - diff*1.2;
-	else if ( fabs(m_targetY) < TABLELENGTH/16*4 )
-	  level = 0.90-diff*2.4;	
-	else if ( fabs(m_targetY) < TABLELENGTH/16*6 )
-	  level = 0.80-diff*4.8;
-	else
-	  level = 0.80-diff*4.8;
-      }
+      if ( m_swingType == SWING_DRIVE )
+	level = 1 - fabs(m_targetY)/(TABLELENGTH/16)/40/1.5 -
+	  diff*fabs(m_targetY)/(TABLELENGTH/16)*0.8;
+      else if ( m_swingType == SWING_NORMAL || m_swingType == SWING_SMASH )
+	level = 1 - fabs(m_targetY)/(TABLELENGTH/16)/40 -
+	  diff*fabs(m_targetY)/(TABLELENGTH/16);
+      else
+	level = 1 - fabs(m_targetY)/(TABLELENGTH/16)/40 -
+	  diff*fabs(m_targetY)/(TABLELENGTH/16)*1.2;
 
       level -= (1-level)*m_spin/2;
 
       if ( diff*1000 > m_status ) {
+#if 0
 	switch ( RAND(3) ) {
 	case 0:		// $B%*!<%P!<%_%9(B
 	  theBall.TargetToV( m_targetX, m_targetY+TABLELENGTH*m_side, level,
@@ -202,8 +206,11 @@ PenDrive::HitBall() {
 	  break;
 	}
 
-	theBall.Hit( vx, vy, vz, m_spin );
+	theBall.Hit( vx, vy, vz, m_spin, this );
 	return true;
+#else
+	level *= 0.5;
+#endif
       }
 
       double maxVy;
@@ -247,24 +254,23 @@ PenDrive::HitBall() {
         }
       }
 
-      double targetX, targetY;
+      double rad, Xdiff, Ydiff;
       if ( theBall.GetX()-m_x > 0 )
-	targetX = m_targetX + (theBall.GetX()-m_x-0.3)/0.6*TABLEWIDTH
-	  *(220-m_status)/220;
+	Xdiff = (theBall.GetX()-m_x-0.3)/0.6*TABLEWIDTH*(220-m_status)/220;
       else
-	targetX = m_targetX + (theBall.GetX()-m_x+0.3)/0.6*TABLEWIDTH
-	  *(220-m_status)/220;
+	Xdiff = (theBall.GetX()-m_x+0.3)/0.6*TABLEWIDTH*(220-m_status)/220;
 
       if ( (m_y-theBall.GetY())*m_side < 0.3 &&
 	   (m_y-theBall.GetY())*m_side > 0 )
-	targetY = m_targetY + (theBall.GetY()-m_y)/0.6*TABLELENGTH/2
-	  *(220-m_status)/220;
+	Ydiff = (theBall.GetY()-m_y)/0.6*TABLELENGTH/2*(220-m_status)/220;
       else
-	targetY = m_targetY + (theBall.GetY()-m_y)/1.2*TABLELENGTH/2
-	  *(220-m_status)/220;
+	Ydiff = (theBall.GetY()-m_y)/1.2*TABLELENGTH/2*(220-m_status)/220;
 
-      theBall.TargetToV( targetX, m_targetY, level, m_spin,
-			 vx, vy, vz, 0.1, maxVy );
+      rad = RAND(360)*3.141592/180.0;
+
+      theBall.TargetToV( m_targetX + Xdiff*cos(rad),
+			 m_targetY + Ydiff*sin(rad),
+			 level, m_spin, vx, vy, vz, 0.1, maxVy );
 
       // $B%\!<%k$N6/$5$K$h$C$FBN@*%2!<%8$r8:$i$9(B
       m_afterSwing = (long)(hypot(m_vx*0.8-vx, m_vy*0.8+vy)*(1.0+diff*10.0) +
@@ -278,7 +284,7 @@ PenDrive::HitBall() {
       if ( m_status == 1 )
 	m_afterSwing *= 3;
 
-      theBall.Hit( vx, vy, vz, m_spin );
+      theBall.Hit( vx, vy, vz, m_spin, this );
     } else
       m_swingError = SWING_MISS;
   }

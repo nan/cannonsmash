@@ -22,6 +22,8 @@
 #include <io.h>
 #include <direct.h>
 #define F_OK 0 /* if exist */
+#else
+#define closesocket(FD) close(FD)
 #endif
 
 void Draw(void);
@@ -29,15 +31,15 @@ void Keyboard( unsigned char key, int x, int y );
 void KeyUp( unsigned char key, int x, int y );
 void MouseMove( int x, int y );
 void MouseButton( int button, int state, int x, int y );
-#if HAVE_LIBPTHREAD & USETHREAD
-void *ThreadTimer( void *dum );
-#endif
 void Timer();
+void Reshape( int width, int height );
+
 void PlayInit( long player, long com );
 void DemoInit();
 void SelectInit();
 void TitleInit();
 void HowtoInit();
+void TrainingInit( long player, long com );
 void *LoadData( void *dum );
 
 Ball theBall;
@@ -49,6 +51,14 @@ Player *thePlayer = NULL;
 Player *comPlayer = NULL;
 Event theEvent;
 
+int theSocket = -1;
+bool isComm = false;		// 通信対戦か
+char serverName[256];
+
+bool fullScreen = false;
+
+long timeAdj = 0;
+
 bool isLighting	= true;
 bool isFog	= true;
 bool isTexture	= true;
@@ -58,6 +68,7 @@ long winHeight	= WINYSIZE;
 
 long wins	= 0;		// 勝ち抜き数
 long gameLevel  = LEVEL_NORMAL;	// 強さ
+long gameMode   = GAME_21PTS;	// ゲームの長さ
 
 PlayerSelect* theSelect = NULL;
 Title*        theTitle  = NULL;
@@ -67,12 +78,11 @@ long mode = MODE_TITLE;
 
 char *dataDir = NULL;
 
-#if HAVE_LIBPTHREAD & USETHREAD
-pthread_mutex_t drawMutex = PTHREAD_MUTEX_INITIALIZER;
-#endif
 #if HAVE_LIBPTHREAD
 pthread_mutex_t loadMutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
+
+#if 0
 MotionData *motion_Fnormal;
 MotionData *motion_Bnormal;
 MotionData *motion_Fdrive;
@@ -81,38 +91,82 @@ MotionData *motion_Bcut;
 MotionData *motion_Fpeck;
 MotionData *motion_Bpeck;
 MotionData *motion_Fsmash;
+#else
+partsmotion *motion_Fnormal = NULL;
+partsmotion *motion_Bnormal = NULL;
+partsmotion *motion_Fdrive = NULL;
+partsmotion *motion_Fcut = NULL;
+partsmotion *motion_Bcut = NULL;
+partsmotion *motion_Fpeck = NULL;
+partsmotion *motion_Bpeck = NULL;
+partsmotion *motion_Fsmash = NULL;
+#endif
 
 #ifdef WIN32
+#include "win32/GetArgs.h"
+#include "win32/getopt.h"
+
 int WINAPI WinMain_(HINSTANCE, HINSTANCE, LPSTR, int);
 
 int main( int argc, char *argv[] )
 {
   HINSTANCE hInstance = GetModuleHandle(NULL);
-  return WinMain_(hInstance, NULL, argv[0], SW_SHOW);
+  return WinMain_(hInstance, NULL, GetCommandLine(), SW_SHOW);
 }
 
 int WINAPI WinMain_(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       LPSTR lpCmdLine, int nCmdShow )
 {
-  int argc = 1;
+  int argc;
   char **argv;
 
-  argv = (char**)malloc(sizeof(char*) * 2);
-  argv[0] = (char*)malloc(32);
-  argv[1] = NULL;
-  strncpy(argv[0], "CannonSmash" ,32);
+  GetArgs(&argc, &argv, lpCmdLine);
 
 #else
 int main(int argc, char** argv) {
 #endif
 
-#ifndef HAVE_LIBZ
-  if ( access( "Motion/Fnormal1.bin", F_OK ) == 0 )
+    int c;
+    while(EOF != (c = getopt(argc, argv, "schf"))) {
+        switch (c) {
+        case 'h':
+	    // brief help
+	    printf("csmash [-s] [ip-address]");
+	    return 0;
+	case 's':
+	    // Server mode
+	    isComm = true;
+	    mode = MODE_SELECT;
+	    serverName[0] = '\0';
+	    break;
+	case 'c':
+	    // Client mode
+	    isComm = true;
+	    mode = MODE_SELECT;
+	    serverName[0] = 1;	// :-p
+	    break;
+	case 'f':
+	    // Fullscreen mode
+	    fullScreen = true;
+	}
+    }
+
+    if (!isComm && argc > optind) {
+      // Client mode
+      isComm = true;
+      mode = MODE_SELECT;
+      strncpy(serverName, argv[optind], sizeof(serverName));
+    }
+
+#if 0
+#define PROBE_FILE "Motion/Fnormal1.bin"
 #else
-  if ( access( "Motion/Fnormal1.bin.gz", F_OK ) == 0 )
+#define PROBE_FILE "Parts/Fnormal/Fnormal-head01.dat"
 #endif
+
+  if ( (access( PROBE_FILE, F_OK ) == 0) ) {
     dataDir = ".";
-  else {
+  } else {
 #ifdef CANNONSMASH_DATADIR
     dataDir = CANNONSMASH_DATADIR;
 #else
@@ -128,8 +182,6 @@ int main(int argc, char** argv) {
 
   printf( dataDir );
 
-  glutInit(&argc, argv);
-
 #if HAVE_LIBPTHREAD
   pthread_t ptid;
 
@@ -138,8 +190,9 @@ int main(int argc, char** argv) {
   LoadData( NULL );
 #endif
 
+  EndianCheck();
+  glutInit(&argc, argv);
   theView.Init();
-
 
   struct timeb tb;
 #ifndef WIN32
@@ -180,19 +233,17 @@ int main(int argc, char** argv) {
   glutKeyboardUpFunc( KeyUp );
 #endif
 
-#if HAVE_LIBPTHREAD & USETHREAD
-  pthread_t tid;
-
-  pthread_create( &tid, NULL, ThreadTimer, NULL );
-#else
   glutIdleFunc( Timer );
-#endif
   glutMotionFunc( MouseMove );
   glutPassiveMotionFunc( MouseMove );
   glutMouseFunc( MouseButton );
+  glutReshapeFunc(Reshape);
 
-//  glutFullScreen();
-//  glutSetCursor( GLUT_CURSOR_NONE );
+  if (fullScreen) {
+    glutFullScreen();
+    glutSetCursor( GLUT_CURSOR_NONE );
+  }
+
   glutWarpPointer( winWidth/2, winHeight/2 );
 
   glutMainLoop();
@@ -201,13 +252,7 @@ int main(int argc, char** argv) {
 
 void
 Draw() {
-#if HAVE_LIBPTHREAD & USETHREAD
-  pthread_mutex_lock( &drawMutex );
-#endif
   theView.RedrawAll();
-#if HAVE_LIBPTHREAD & USETHREAD
-  pthread_mutex_unlock( &drawMutex );
-#endif
 }
 
 void
@@ -230,24 +275,29 @@ MouseButton( int button, int state, int x, int y ) {
   theEvent.ButtonFunc( button, state, x, y );
 }
 
-#if HAVE_LIBPTHREAD & USETHREAD
-void *
-ThreadTimer( void *dum ) {
-  while (1) 
-    theEvent.IdleFunc();
-}
-#else
 void
 Timer() {
   theEvent.IdleFunc();
 }
-#endif
+
+void
+Reshape( int width, int height ) {
+  winWidth = width;
+  winHeight = height;
+
+  glViewport( 0, 0, winWidth, winHeight );
+}
 
 void
 ClearObject() {
   if ( thePlayer && wins == 0 ) {
     delete thePlayer;
     thePlayer = NULL;
+    if ( theSocket != -1 ) {
+      send( theSocket, "QT", 2, 0 );
+      closesocket( theSocket );
+      theSocket = -1;
+    }
   }
   if ( comPlayer ) {
     delete comPlayer;
@@ -266,11 +316,42 @@ ClearObject() {
     theHowto = NULL;
   }
 }
+
 void
 PlayInit( long player, long com ) {
+  long side;
+
   ClearObject();
 
-  if ( thePlayer == NULL ) {
+  if (isComm) {
+    if ( !(serverName[0]) )
+      side = 1;		// server側
+    else
+      side = -1;	// client側
+
+    if ( thePlayer == NULL ) {
+      switch (player) {
+      case 0:
+	thePlayer = new PenAttack(side);
+	break;
+      case 1:
+	thePlayer = new ShakeCut(side);
+	break;
+      case 2:
+	thePlayer = new PenDrive(side);
+	break;
+      default:
+	printf( "no player %ld\n", player );
+	exit(1);
+      }
+    }
+
+    if ( side == 1 ) {
+      StartServer();
+    } else {
+      StartClient();
+    }
+  } else {
     switch (player) {
     case 0:
       thePlayer = new PenAttack(1);
@@ -285,24 +366,23 @@ PlayInit( long player, long com ) {
       printf( "no player %ld\n", player );
     }
 
-    thePlayer->Init();
+    switch(com) {
+    case 0:
+      comPlayer = new ComPenAttack(-1);
+      break;
+    case 1:
+      comPlayer = new ComShakeCut(-1);
+      break;
+    case 2:
+      comPlayer = new ComPenDrive(-1);
+      break;
+    default:
+      comPlayer = new ComPenAttack(-1);
+      break;
+    }
   }
 
-  switch(com) {
-  case 0:
-    comPlayer = new ComPenAttack(-1);
-    break;
-  case 1:
-    comPlayer = new ComShakeCut(-1);
-    break;
-  case 2:
-    comPlayer = new ComPenDrive(-1);
-    break;
-  default:
-    comPlayer = new ComPenAttack(-1);
-    break;
-  }
-
+  thePlayer->Init();
   comPlayer->Init();
 
   glutSetCursor( GLUT_CURSOR_NONE );
@@ -409,12 +489,54 @@ HowtoInit() {
   comPlayer->Init();
 }
 
+void
+TrainingInit( long player, long com ) {
+  long side;
+
+  ClearObject();
+
+  switch (player) {
+  case 0:
+    thePlayer = new TrainingPenAttack(1);
+    break;
+  case 1:
+    thePlayer = new ShakeCut(1);
+    break;
+  case 2:
+    thePlayer = new TrainingPenDrive(1);
+    break;
+  default:
+    printf( "no player %ld\n", player );
+  }
+
+  switch(com) {
+  case 0:
+    comPlayer = new ComTrainingPenAttack(-1);
+    break;
+  case 1:
+    comPlayer = new ComShakeCut(-1);
+    break;
+  case 2:
+    comPlayer = new ComTrainingPenDrive(-1);
+    break;
+  default:
+    comPlayer = new ComPenAttack(-1);
+    break;
+  }
+
+  thePlayer->Init();
+  comPlayer->Init();
+
+  glutSetCursor( GLUT_CURSOR_NONE );
+}
+
 void *
 LoadData( void *dum ) {
 #if HAVE_LIBPTHREAD
   pthread_mutex_lock( &loadMutex );
 #endif
 
+#if 0
   motion_Fnormal = new MotionData();
   motion_Bnormal = new MotionData();
   motion_Fdrive = new MotionData();
@@ -423,16 +545,6 @@ LoadData( void *dum ) {
   motion_Fpeck = new MotionData();
   motion_Bpeck = new MotionData();
   motion_Fsmash = new MotionData();
-#ifdef HAVE_LIBZ
-  motion_Fnormal->LoadData( "Motion/Fnormal%d.bin.gz", 706 );
-  motion_Bnormal->LoadData( "Motion/Bnormal%d.bin.gz", 706 );
-  motion_Fdrive->LoadData( "Motion/Fdrive%d.bin.gz", 706 );
-  motion_Fcut->LoadData( "Motion/Fcut%d.bin.gz", 706 );
-  motion_Bcut->LoadData( "Motion/Bcut%d.bin.gz", 706 );
-  motion_Fpeck->LoadData( "Motion/Fpeck%d.bin.gz", 706 );
-  motion_Bpeck->LoadData( "Motion/Bpeck%d.bin.gz", 664 );
-  motion_Fsmash->LoadData( "Motion/Fsmash%d.bin.gz", 664 );
-#else
   motion_Fnormal->LoadData( "Motion/Fnormal%d.bin", 706 );
   motion_Bnormal->LoadData( "Motion/Bnormal%d.bin", 706 );
   motion_Fdrive->LoadData( "Motion/Fdrive%d.bin", 706 );
@@ -441,8 +553,16 @@ LoadData( void *dum ) {
   motion_Fpeck->LoadData( "Motion/Fpeck%d.bin", 706 );
   motion_Bpeck->LoadData( "Motion/Bpeck%d.bin", 664 );
   motion_Fsmash->LoadData( "Motion/Fsmash%d.bin", 664 );
+#else
+  motion_Fnormal = new partsmotion("Parts/Fnormal/Fnormal");
+  motion_Bnormal = new partsmotion("Parts/Bnormal/Bnormal");
+  motion_Fdrive = new partsmotion("Parts/Fdrive/Fdrive");
+  motion_Fcut = new partsmotion("Parts/Fcut/Fcut");
+  motion_Bcut = new partsmotion("Parts/Bcut/Bcut");
+  motion_Fpeck = new partsmotion("Parts/Fpeck/Fpeck");
+  motion_Bpeck = new partsmotion("Parts/Bpeck/Bpeck");
+  motion_Fsmash = new partsmotion("Parts/Fsmash/Fsmash");
 #endif
-
   theSound.Init();
 
 #if HAVE_LIBPTHREAD

@@ -24,23 +24,23 @@ extern Player *comPlayer;
 
 extern long    gameLevel;
 
-ComPenAttack::ComPenAttack() {
-  ::PenAttack();
-
-  _prevBallstatus = 0;		// 以前のボールの状態
-  _hitX = 0;			// 打球点
-  _hitY = -TABLELENGTH/3;
+ComPenAttack::ComPenAttack() : PenAttack(), ComPlayer() {
 }
 
-ComPenAttack::ComPenAttack(long side) {
-  ::ComPenAttack();
+ComPenAttack::ComPenAttack(long side) : PenAttack(side), ComPlayer() {
+}
 
-  if ( side < 0 ) {
-    m_side = -1;
-    m_y = -m_y;
-    m_targetY = -m_targetY;
-    _hitY = -_hitY;
-  }
+ComPenAttack::ComPenAttack( long playerType, long side,
+			    double x, double y, double z,
+			    double vx, double vy, double vz,
+			    long status, long swing,
+			    long swingType, long afterSwing, long swingError,
+			    double targetX, double targetY,
+			    double eyeX, double eyeY, double eyeZ,
+			    long pow, double spin, double stamina ) :
+  PenAttack( playerType, side, x, y, z, vx, vy, vz, status, swing, swingType,
+	     afterSwing, swingError, targetX, targetY, eyeX, eyeY, eyeZ,
+	     pow, spin, stamina ), ComPlayer() {
 }
 
 ComPenAttack::~ComPenAttack() {
@@ -50,9 +50,9 @@ bool
 ComPenAttack::Move( unsigned long *KeyHistory, long *MouseXHistory,
 		 long *MouseYHistory, unsigned long *MouseBHistory,
 		 int Histptr ) {
-
   PenAttack::Move( KeyHistory, MouseXHistory, MouseYHistory, MouseBHistory,
 		Histptr );
+
   Think();
 
   return true;
@@ -179,9 +179,8 @@ ComPenAttack::Think() {
 	m_targetY = TABLELENGTH/16*6*m_side;
 	Swing( 3, 0.0 );
       }
-
-      delete tmpBall;
     }
+    delete tmpBall;
   }
 
   return true;
@@ -253,6 +252,8 @@ ComPenAttack::SetTargetX( Player *opponent ) {
   case LEVEL_TSUBORISH:
     width = TABLEWIDTH;
     break;
+  default:
+    return false;
   }
 
   if ( opponent->GetPlayerType() == PLAYER_PENDRIVE ) {
@@ -313,4 +314,6 @@ ComPenAttack::SetTargetX( Player *opponent ) {
     m_targetX = TABLEWIDTH*7/16;
   if ( m_targetX < -TABLEWIDTH/2 )
     m_targetX = -TABLEWIDTH*7/16;
+
+  return true;
 }

@@ -109,11 +109,7 @@ BaseView::Init() {
 // テクスチャの設定. 
   ImageData image;
 
-#ifdef HAVE_LIBZ
-  image.LoadPPM( "images/Floor.ppm.gz" );
-#else
   image.LoadPPM( "images/Floor.ppm" );
-#endif
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glGenTextures( 1, &m_floor );
@@ -129,11 +125,8 @@ BaseView::Init() {
 
   glGenTextures( 1, &m_title );
 
-#ifdef HAVE_LIBZ
-  image.LoadPPM( "images/Title.ppm.gz" );
-#else
   image.LoadPPM( "images/Title.ppm" );
-#endif
+
   for ( i = 0 ; i < image.GetWidth() ; i++ ) {
     for ( j = 0 ; j < image.GetHeight() ; j++ ) {
       if ( image.GetPixel( i, j, 0 ) != 0 ||
@@ -181,10 +174,10 @@ BaseView::Init() {
 
   glBegin(GL_QUADS);			// 床の描画
     glNormal3f( 0.0, 0.0, 1.0 );
-    glTexCoord2f(0.0, 0.0); glVertex3f( -AREAXSIZE*2, -AREAYSIZE*2, 0.0 );
-    glTexCoord2f(4.0, 0.0); glVertex3f( -AREAXSIZE*2,  AREAYSIZE*2, 0.0 );
-    glTexCoord2f(4.0, 4.0); glVertex3f(  AREAXSIZE*2,  AREAYSIZE*2, 0.0 );
-    glTexCoord2f(0.0, 4.0); glVertex3f(  AREAXSIZE*2, -AREAYSIZE*2, 0.0 );
+    glTexCoord2f(0.0, 0.0); glVertex3f( -AREAXSIZE*2,  AREAYSIZE*2, 0.0 );
+    glTexCoord2f(4.0, 0.0); glVertex3f( -AREAXSIZE*2, -AREAYSIZE*2, 0.0 );
+    glTexCoord2f(4.0, 4.0); glVertex3f(  AREAXSIZE*2, -AREAYSIZE*2, 0.0 );
+    glTexCoord2f(0.0, 4.0); glVertex3f(  AREAXSIZE*2,  AREAYSIZE*2, 0.0 );
   glEnd();
 
   glEndList();
@@ -205,6 +198,7 @@ BaseView::RedrawAll() {
   }
 
   glColor4f(0.4, 0.2, 0.0, 0.0);
+//  glEnable(GL_CULL_FACE);
 
   glDisable(GL_BLEND);
   Redraw();
@@ -233,7 +227,7 @@ BaseView::RedrawAll() {
   }
 
   glEnable(GL_BLEND);
-
+//  glDisable(GL_CULL_FACE);
   RedrawAlpha();
 
   view = m_View;
@@ -241,6 +235,39 @@ BaseView::RedrawAll() {
     view->RedrawAlpha();
     view = view->m_next;
   }
+
+  // タイトル
+  glPushMatrix();
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  gluOrtho2D( 0.0, (GLfloat)winWidth, 0.0, (GLfloat)winHeight );
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+
+  glColor4f( 0.0, 0.0, 0.0, 1.0 );
+
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+  glEnable(GL_TEXTURE_2D);
+
+  glBindTexture(GL_TEXTURE_2D, m_title );
+  glBegin(GL_QUADS);
+  glTexCoord2f(0.0, 1.0);
+  glVertex2i( winWidth-256, 0 );
+  glTexCoord2f(1.0, 1.0);
+  glVertex2i( winWidth, 0 );
+  glTexCoord2f(1.0, 0.0);
+  glVertex2i( winWidth, 256 );
+  glTexCoord2f(0.0, 0.0);
+  glVertex2i( winWidth-256, 256 );
+  glEnd();
+
+  glDisable(GL_TEXTURE_2D);
+
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
 
   glutSwapBuffers();
 
@@ -263,11 +290,19 @@ BaseView::Redraw() {
   glColor4f(0.8, 0.8, 0.8, 0.0);
 
   glBegin(GL_QUADS);			// 壁の描画
+#if 0
     glNormal3f( 1.0, 0.0, 0.0 );
     glVertex3f( -AREAXSIZE*2, -AREAYSIZE*2, 0.0 );
     glVertex3f( -AREAXSIZE*2,  AREAYSIZE*2, 0.0 );
     glVertex3f( -AREAXSIZE*2,  AREAYSIZE*2, AREAZSIZE*2);
     glVertex3f( -AREAXSIZE*2, -AREAYSIZE*2, AREAZSIZE*2);
+#else
+    glNormal3f( 1.0, 0.0, 0.0 );
+    glVertex3f( -AREAXSIZE*2,  AREAYSIZE*2, 0.0 );
+    glVertex3f( -AREAXSIZE*2, -AREAYSIZE*2, 0.0 );
+    glVertex3f( -AREAXSIZE*2, -AREAYSIZE*2, AREAZSIZE*2);
+    glVertex3f( -AREAXSIZE*2,  AREAYSIZE*2, AREAZSIZE*2);
+#endif
 
     glNormal3f( 0.0, 1.0, 0.0 );
     glVertex3f( -AREAXSIZE*2, -AREAYSIZE*2, 0.0 );
@@ -322,10 +357,10 @@ BaseView::Redraw() {
       glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
 
       glNormal3f( 0.0, 1.0, 0.0 );
-      glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, 0.0 );
       glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, 0.0 );
-      glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
+      glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, 0.0 );
       glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
+      glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
     glEnd();
   }
 
@@ -430,12 +465,6 @@ BaseView::RedrawAlpha() {
 
   glDepthMask(0);
   glBegin(GL_QUADS);			// Tableの描画
-    glNormal3f( 0.0, 0.0, 1.0 );
-    glVertex3f( -TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT );
-    glVertex3f( -TABLEWIDTH/2,  TABLELENGTH/2, TABLEHEIGHT );
-    glVertex3f(  TABLEWIDTH/2,  TABLELENGTH/2, TABLEHEIGHT );
-    glVertex3f(  TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT );
-
   if ( isLighting ) {
     glNormal3f( 0.0, 0.0, -1.0 );
     glVertex3f( -TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
@@ -444,10 +473,10 @@ BaseView::RedrawAlpha() {
     glVertex3f(  TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
 
     glNormal3f( 1.0, 0.0, 0.0 );
-    glVertex3f( TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT );
     glVertex3f( TABLEWIDTH/2,  TABLELENGTH/2, TABLEHEIGHT );
-    glVertex3f( TABLEWIDTH/2,  TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
+    glVertex3f( TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT );
     glVertex3f( TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
+    glVertex3f( TABLEWIDTH/2,  TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
 
     glNormal3f( -1.0, 0.0, 0.0 );
     glVertex3f( -TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT );
@@ -467,6 +496,12 @@ BaseView::RedrawAlpha() {
     glVertex3f(  TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
     glVertex3f(  TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT );
   }
+
+    glNormal3f( 0.0, 0.0, 1.0 );
+    glVertex3f( -TABLEWIDTH/2,  TABLELENGTH/2, TABLEHEIGHT );
+    glVertex3f( -TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT );
+    glVertex3f(  TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT );
+    glVertex3f(  TABLEWIDTH/2,  TABLELENGTH/2, TABLEHEIGHT );
   glEnd();
   glDepthMask(1);
 
@@ -536,38 +571,7 @@ BaseView::RedrawAlpha() {
 
 //  glBlendFunc(GL_ONE, GL_SRC_ALPHA);
 
-  // タイトル
-  glPushMatrix();
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  gluOrtho2D( 0.0, (GLfloat)winWidth, 0.0, (GLfloat)winHeight );
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
-  glColor4f( 0.0, 0.0, 0.0, 1.0 );
-
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-  glEnable(GL_TEXTURE_2D);
-
-  glBindTexture(GL_TEXTURE_2D, m_title );
-  glBegin(GL_QUADS);
-  glTexCoord2f(0.0, 1.0);
-  glVertex2i( winWidth-256, 0 );
-  glTexCoord2f(1.0, 1.0);
-  glVertex2i( winWidth, 0 );
-  glTexCoord2f(1.0, 0.0);
-  glVertex2i( winWidth, 256 );
-  glTexCoord2f(0.0, 0.0);
-  glVertex2i( winWidth-256, 256 );
-  glEnd();
-
-  glDisable(GL_TEXTURE_2D);
-
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
+  return true;
 }
 
 bool
@@ -588,6 +592,7 @@ BaseView::SetLookAt() {
   switch ( mode ){
   case MODE_PLAY:
   case MODE_DEMO:
+  case MODE_TRAINING:
     x = thePlayer->GetX() + thePlayer->GetEyeX();
     y = thePlayer->GetY() + thePlayer->GetEyeY();
     z = thePlayer->GetZ() + thePlayer->GetEyeZ();
@@ -606,9 +611,14 @@ BaseView::SetLookAt() {
     theHowto->LookAt( x, y, z );
   }
 
-  gluLookAt( x, y, z, m_centerX, m_centerY, m_centerZ, 0.0, 0.0, 0.5 );
-  /* 視点, 視線設定. 視点x, y, z, 視点(視線ベクトルの通る点)x, y, z, 
-     上向きベクトル(画面上の上に向かうベクトル)x, y, z */
+  if ( thePlayer ) {
+    gluLookAt( x, y, z, m_centerX, m_centerY*thePlayer->GetSide(), m_centerZ,
+	       0.0, 0.0, 0.5 );
+    /* 視点, 視線設定. 視点x, y, z, 視点(視線ベクトルの通る点)x, y, z, 
+       上向きベクトル(画面上の上に向かうベクトル)x, y, z */
+  } else {
+    gluLookAt( x, y, z, m_centerX, m_centerY, m_centerZ, 0.0, 0.0, 0.5 );
+  }
 }
 
 bool
@@ -642,11 +652,7 @@ BaseView::RemoveView( View *view ) {
 // 終了処理. 
 void
 BaseView::EndGame() {
-#ifdef HAVE_LIBZ
-  static char file[][30] = {"images/win.ppm.gz", "images/lose.ppm.gz"};
-#else
   static char file[][30] = {"images/win.ppm", "images/lose.ppm"};
-#endif
   GLubyte bmp[400*70/8];
 #ifndef HAVE_LIBZ
   FILE *fp;

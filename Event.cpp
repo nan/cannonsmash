@@ -26,7 +26,8 @@ extern PlayerSelect* theSelect;
 extern Title* theTitle;
 extern Howto* theHowto;
 extern long mode;
-extern long gameLevel;
+
+extern long timeAdj;
 
 extern void Timer( int value );
 struct timeb m_lastTime = {0, 0, 0, 0};	// 直前にTimerEventが呼ばれたときの時刻
@@ -36,6 +37,9 @@ extern void DemoInit();
 extern void SelectInit();
 extern void TitleInit();
 extern void HowtoInit();
+extern void TrainingInit( long player, long com );
+
+extern int theSocket;
 
 extern bool isLighting;
 extern bool isFog;
@@ -46,13 +50,11 @@ extern long winHeight;
 
 extern long wins;
 
-#if HAVE_LIBPTHREAD & USETHREAD
-extern pthread_mutex_t drawMutex;
-pthread_mutex_t inputMutex = PTHREAD_MUTEX_INITIALIZER;
-#endif
-
 long _perfCount;
 long perfs;
+
+void CopyPlayerData( struct PlayerData& dest, Player* src );
+bool GetExternalData( struct ExternalData **ext, int sd, long side );
 
 Event::Event() {
   m_KeyHistory[0] = 0;
@@ -60,6 +62,8 @@ Event::Event() {
   m_MouseYHistory[0] = winHeight/2;
   m_MouseBHistory[0] = 0;
   m_Histptr = 0;
+
+  m_External = NULL;
 }
 
 Event::~Event() {
@@ -69,14 +73,8 @@ void
 Event::IdleFunc() {
   struct timeb tb;
 
-  int i;
   long diffsec, diffmsec;
-  long millisec;
   long diffcount = 0;
-  long key;
-  long x, y;
-  long btn;
-  long preMode = mode;
   bool reDraw = false;
 
 #ifndef WIN32
@@ -96,6 +94,18 @@ Event::IdleFunc() {
     m_lastTime = tb;
     _perfCount = 0;
     perfs = 0;
+
+    for ( int i = 0 ; i < MAX_HISTORY ; i++ ) {
+      m_MouseXHistory[i] = 0;
+      m_MouseYHistory[i] = 0;
+      m_MouseBHistory[i] = 0;
+      m_BacktrackBuffer[i].sec = m_lastTime.time;
+      m_BacktrackBuffer[i].count = m_lastTime.millitm;
+      m_BacktrackBuffer[i].theBall = theBall;
+      CopyPlayerData( m_BacktrackBuffer[i].thePlayer, thePlayer );
+      CopyPlayerData( m_BacktrackBuffer[i].comPlayer, comPlayer );
+    }
+
     return;
   }
 
@@ -111,149 +121,305 @@ Event::IdleFunc() {
   perfs +=diffcount;
   _perfCount++;
 
-#if HAVE_LIBPTHREAD & USETHREAD
-  pthread_mutex_lock( &inputMutex );
-#endif
-  for ( i = 0 ; i < diffcount ; i++ ){
-    switch ( mode ){
-    case MODE_PLAY:
-      theBall.Move();
-      reDraw |= thePlayer->Move( m_KeyHistory, m_MouseXHistory,
-				 m_MouseYHistory, m_MouseBHistory, m_Histptr );
+  for ( int i = 0 ; i < diffcount ; i++ ) {
+    reDraw |= Move();
+//    printf( "sec=%d count=%d status=%d\nx=%f y=%f z=%f spin = %f\n",
+//	    m_lastTime.time, m_lastTime.millitm/10, theBall.GetStatus(),
+//	    theBall.GetX(), theBall.GetY(), theBall.GetZ(), theBall.GetSpin() );
+    Record();
 
-      reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
-      break;
-    case MODE_SELECT:
-      reDraw |= theSelect->Move( m_KeyHistory, m_MouseXHistory,
-				 m_MouseYHistory, m_MouseBHistory, m_Histptr );
-      break;
-    case MODE_DEMO:
-      theBall.Move();
-      reDraw |= thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
-      reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
-
-      if ( (m_MouseXHistory[m_Histptr] - winWidth/2) / (winWidth/40) ||
-	   (m_MouseYHistory[m_Histptr] - winHeight/2) / (winHeight/40) ||
-	   m_MouseBHistory[m_Histptr] || m_KeyHistory[m_Histptr] ) {
-	theBall.EndGame();
-      }
-
-      reDraw = true;
-      break;
-    case MODE_TITLE:
-      theBall.Move();
-      reDraw |= thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
-      reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
-
-      reDraw |= theTitle->Move( m_KeyHistory, m_MouseXHistory,
-				m_MouseYHistory, m_MouseBHistory, m_Histptr );
-      break;
-    case MODE_HOWTO:
-      if ( theHowto->IsMove() ) {
-	theBall.Move();
-	reDraw |= thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
-	reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
-      }
-
-      reDraw |= theHowto->Move( m_KeyHistory, m_MouseXHistory,
-				m_MouseYHistory, m_MouseBHistory, m_Histptr );
-      break;
+    m_lastTime.millitm += 10;
+    if ( m_lastTime.millitm > 1000 ) {
+      m_lastTime.time++;
+      m_lastTime.millitm -= 1000;
     }
-
-    if ( mode != preMode ){	// モード変更あり
-#if HAVE_LIBPTHREAD & USETHREAD
-      pthread_mutex_lock( &drawMutex );
-#endif
-      long p;
-
-      switch ( mode ){
-      case MODE_PLAY:
-	if ( theSelect->GetRotate() < 0 )
-	  p = (360+(theSelect->GetRotate()%360))/(360/PLAYERS);
-	else
-	  p = (theSelect->GetRotate()%360)/(360/PLAYERS);
-
-	gameLevel = theSelect->GetLevel();
-	PlayInit( p, (p+wins+1)%PLAYERS );
-	break;
-      case MODE_SELECT:
-	SelectInit();
-	break;
-      case MODE_DEMO:
-	DemoInit();
-	break;
-      case MODE_TITLE:
-	TitleInit();
-	break;
-      case MODE_HOWTO:
-	HowtoInit();
-	break;
-      }
-
-      preMode = mode;
-      reDraw = true;
-
-#if HAVE_LIBPTHREAD & USETHREAD
-      pthread_mutex_unlock( &drawMutex );
-#endif
-    }
-
-    x = m_MouseXHistory[m_Histptr];
-    y = m_MouseYHistory[m_Histptr];
-    key = m_KeyHistory[m_Histptr];
-    btn = m_MouseBHistory[m_Histptr];
-
-    m_Histptr++;
-    if ( m_Histptr == MAX_HISTORY )
-      m_Histptr = 0;
-
-    m_KeyHistory[m_Histptr] = 0;
-//    m_MouseXHistory[m_Histptr] = winWidth/2 + (x-winWidth/2)*7/8;
-//    m_MouseYHistory[m_Histptr] = winHeight/2 + (y-winHeight/2)*7/8;
-    if ( mode == MODE_TITLE ) {
-      m_MouseXHistory[m_Histptr] = x;
-      m_MouseYHistory[m_Histptr] = y;
-    } else if ( mode == MODE_SELECT ) {
-      m_MouseXHistory[m_Histptr] = winWidth/2 + (x-winWidth/2)*15/16;
-      m_MouseYHistory[m_Histptr] = y;
-    } else {
-      m_MouseXHistory[m_Histptr] = winWidth/2 + (x-winWidth/2)*15/16;
-      m_MouseYHistory[m_Histptr] = winHeight/2 + (y-winHeight/2)*15/16;
-    }
-    m_MouseBHistory[m_Histptr] = btn;
   }
 
-  millisec = (long)tb.millitm - (diffmsec-diffcount*10);
+  if ( theSocket >= 0 ) {
+    // 情報受信
+    fd_set rdfds;
+    struct timeval to;
 
-  while ( millisec < 0 ){
-    tb.time--;
-    millisec += 1000;
+    while (1) {
+      FD_ZERO( &rdfds );
+      FD_SET( theSocket, &rdfds );
+
+      to.tv_sec = to.tv_usec = 0;
+
+      if ( select( theSocket+1, &rdfds, NULL, NULL, &to ) > 0 ) {
+	GetExternalData( &m_External, theSocket, comPlayer->GetSide());
+      } else
+	break;
+    }
+
+    // externalDataの先頭までbacktrackする
+    long btCount;
+    struct ExternalData *externalOld;
+    long btHistptr;
+    while ( m_External ) {	// 捨てる?
+      btCount = (m_lastTime.time-m_External->sec)*100 + 
+	(m_lastTime.millitm/10-m_External->count);
+      if ( btCount > MAX_HISTORY ) {
+	externalOld = m_External;
+	m_External = m_External->next;
+	delete externalOld;
+	continue;
+      }
+      if ( btCount <= MAX_HISTORY )
+	break;
+    }
+
+    if ( m_External ) {
+      if ( btCount >= 0 ) {
+	btHistptr = m_Histptr - btCount;
+	if ( btHistptr < 0 )
+	  btHistptr += MAX_HISTORY;
+
+	long mtime = m_lastTime.millitm - btCount*10;
+	while ( mtime < 0 ) {
+	  mtime += 1000;
+	  m_lastTime.time--;
+	}
+	m_lastTime.millitm = mtime;
+
+	bool fTheBall, fThePlayer, fComPlayer;
+	fTheBall = fThePlayer = fComPlayer = false;
+
+//	theBall = m_BacktrackBuffer[btHistptr].theBall;
+//	thePlayer->Reset( &m_BacktrackBuffer[btHistptr].thePlayer );
+//	comPlayer->Reset( &m_BacktrackBuffer[btHistptr].comPlayer );
+
+	// 適用する -> 進めるをbtCount繰り返す
+	while (1) {
+	  if ( fTheBall )
+	    theBall.Move();
+	  if ( fThePlayer ) {
+	    thePlayer->Move( m_KeyHistory, m_MouseXHistory,
+			     m_MouseYHistory, m_MouseBHistory, btHistptr );
+	  }
+	  if ( fComPlayer )
+	    comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+
+	  while ( m_External && m_External->sec == m_lastTime.time &&
+		  m_External->count == m_lastTime.millitm/10 ) {
+	    Player *targetPlayer;
+	    if ( m_External->side == thePlayer->GetSide() )
+	      targetPlayer = thePlayer;
+	    else if ( m_External->side == comPlayer->GetSide() )
+	      targetPlayer = comPlayer;
+	    else
+	      exit(1);
+
+	    switch ( m_External->dataType ) {
+	    case DATA_PV:
+	      targetPlayer->Warp( m_External->data );
+	      if ( targetPlayer == thePlayer )
+		fThePlayer = true;
+	      else if ( targetPlayer == comPlayer )
+		fComPlayer = true;
+
+//	      printf( "PV: sec = %d count = %d\n",
+//		      m_External->sec, m_External->count);
+//	      printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n",
+//		      x, y, z, vx, vy, vz );
+//	      fflush(0);
+	      break;
+	    case DATA_PS:
+	      targetPlayer->ExternalSwing( m_External->data );
+	      if ( targetPlayer == thePlayer )
+		fThePlayer = true;
+	      else if ( targetPlayer == comPlayer )
+		fComPlayer = true;
+
+//	      printf( "PS: sec = %d count = %d swing = %d\n",
+//		      m_External->sec, m_External->count, swing);
+//	      fflush(0);
+	      break;
+	    case DATA_BV:
+	      theBall.Warp( m_External->data );
+	      fTheBall = true;
+
+//	      printf( "BV: sec = %d count = %d\n",
+//		      m_External->sec, m_External->count);
+//	      printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n",
+//		      x, y, z, vx, vy, vz );
+//	      fflush(0);
+	      break;
+	    }
+	    externalOld = m_External;
+	    m_External = m_External->next;
+	    delete externalOld;
+	  }
+
+//	  printf( "sec=%d count=%d status=%d\nx=%f y=%f z=%f spin = %f\n",
+//		  m_lastTime.time, m_lastTime.millitm/10,	theBall.GetStatus(),
+//		  theBall.GetX(), theBall.GetY(), theBall.GetZ(), theBall.GetSpin() );
+
+	  btHistptr++;
+	  if ( btHistptr == MAX_HISTORY )
+	    btHistptr = 0;
+
+	  m_lastTime.millitm += 10;
+	  if ( m_lastTime.millitm >= 1000 ) {
+	    m_lastTime.millitm -= 1000;
+	    m_lastTime.time++;
+	  }
+
+	  btCount--;
+	  if ( btCount < 0 )
+	    break;
+	}
+      }
+    }
   }
 
-  tb.millitm = millisec;
-  m_lastTime = tb;
-
-#if HAVE_LIBPTHREAD & USETHREAD
-  pthread_mutex_lock( &drawMutex );
-#endif
   if ( mode != MODE_TITLE )
     glutWarpPointer( m_MouseXHistory[m_Histptr], m_MouseYHistory[m_Histptr] );
 
   if ( reDraw )
     glutPostRedisplay();
-#if HAVE_LIBPTHREAD & USETHREAD
-  pthread_mutex_unlock( &drawMutex );
-#endif
-#if HAVE_LIBPTHREAD & USETHREAD
-  pthread_mutex_unlock( &inputMutex );
-#endif
+}
+
+bool
+Event::Move() {
+  bool reDraw = false;
+  long preMode = mode;
+
+  switch ( mode ){
+  case MODE_PLAY:
+    theBall.Move();
+    reDraw |= thePlayer->Move( m_KeyHistory, m_MouseXHistory,
+			       m_MouseYHistory, m_MouseBHistory, m_Histptr );
+    reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+    break;
+  case MODE_SELECT:
+    reDraw |= theSelect->Move( m_KeyHistory, m_MouseXHistory,
+			       m_MouseYHistory, m_MouseBHistory, m_Histptr );
+    break;
+  case MODE_DEMO:
+    theBall.Move();
+    reDraw |= thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
+    reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+
+    if ( (m_MouseXHistory[m_Histptr] - winWidth/2) / (winWidth/40) ||
+	 (m_MouseYHistory[m_Histptr] - winHeight/2) / (winHeight/40) ||
+	 m_MouseBHistory[m_Histptr] || m_KeyHistory[m_Histptr] ) {
+      theBall.EndGame();
+    }
+
+    reDraw = true;
+    break;
+  case MODE_TITLE:
+    theBall.Move();
+    reDraw |= thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
+    reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+
+    reDraw |= theTitle->Move( m_KeyHistory, m_MouseXHistory,
+			      m_MouseYHistory, m_MouseBHistory, m_Histptr );
+    break;
+  case MODE_HOWTO:
+    if ( theHowto->IsMove() ) {
+      theBall.Move();
+      reDraw |= thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
+      reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+    }
+
+    reDraw |= theHowto->Move( m_KeyHistory, m_MouseXHistory,
+			      m_MouseYHistory, m_MouseBHistory, m_Histptr );
+    break;
+  case MODE_TRAINING:
+    theBall.Move();
+    reDraw |= thePlayer->Move( m_KeyHistory, m_MouseXHistory,
+			       m_MouseYHistory, m_MouseBHistory, m_Histptr );
+    reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+    break;
+  }
+
+  if ( mode != preMode ){	// モード変更あり
+    long p;
+
+    switch ( mode ){
+    case MODE_PLAY:
+      if ( theSelect->GetRotate() < 0 )
+	p = (360+(theSelect->GetRotate()%360))/(360/PLAYERS);
+      else
+	p = (theSelect->GetRotate()%360)/(360/PLAYERS);
+
+      PlayInit( p, (p+wins+1)%PLAYERS );
+      break;
+    case MODE_SELECT:
+      SelectInit();
+      break;
+    case MODE_DEMO:
+      DemoInit();
+      break;
+    case MODE_TITLE:
+      TitleInit();
+      break;
+    case MODE_HOWTO:
+      HowtoInit();
+      break;
+    case MODE_TRAINING:
+      TrainingInit( 2, 2 );	// Temporary
+      break;
+    }
+
+    preMode = mode;
+    reDraw = true;
+  }
+
+  return reDraw;
 }
 
 void
+Event::Record() {
+  long x, y;
+  long key;
+  long btn;
+
+  x = m_MouseXHistory[m_Histptr];
+  y = m_MouseYHistory[m_Histptr];
+  key = m_KeyHistory[m_Histptr];
+  btn = m_MouseBHistory[m_Histptr];
+
+  m_Histptr++;
+  if ( m_Histptr == MAX_HISTORY )
+    m_Histptr = 0;
+
+  m_KeyHistory[m_Histptr] = 0;
+//    m_MouseXHistory[m_Histptr] = winWidth/2 + (x-winWidth/2)*7/8;
+//    m_MouseYHistory[m_Histptr] = winHeight/2 + (y-winHeight/2)*7/8;
+  if ( mode == MODE_TITLE ) {
+    m_MouseXHistory[m_Histptr] = x;
+    m_MouseYHistory[m_Histptr] = y;
+  } else if ( mode == MODE_SELECT ) {
+    m_MouseXHistory[m_Histptr] = winWidth/2 + (x-winWidth/2)*15/16;
+    m_MouseYHistory[m_Histptr] = y;
+  } else {
+    m_MouseXHistory[m_Histptr] = winWidth/2 + (x-winWidth/2)*15/16;
+    m_MouseYHistory[m_Histptr] = winHeight/2 + (y-winHeight/2)*15/16;
+  }
+  m_MouseBHistory[m_Histptr] = btn;
+
+  if ( theSocket >= 0 ) {
+    m_BacktrackBuffer[m_Histptr].sec = m_lastTime.time;
+    m_BacktrackBuffer[m_Histptr].count = m_lastTime.millitm;
+    while ( m_BacktrackBuffer[m_Histptr].count > 100 ) {
+      m_BacktrackBuffer[m_Histptr].sec--;
+      m_BacktrackBuffer[m_Histptr].count += 100;
+    }
+    m_BacktrackBuffer[m_Histptr].theBall = theBall;
+    CopyPlayerData( m_BacktrackBuffer[m_Histptr].thePlayer, thePlayer );
+    CopyPlayerData( m_BacktrackBuffer[m_Histptr].comPlayer, comPlayer );
+  }
+
+  return;
+}
+
+
+
+void
 Event::KeyboardFunc( unsigned char key, int x, int y ) {
-#if HAVE_LIBPTHREAD & USETHREAD
-  pthread_mutex_lock( &inputMutex );
-#endif
 #if (GLUT_API_VERSION < 4 && GLUT_XLIB_IMPLEMENTATION < 13)
   if ( key == 'Q' ) {
     printf( "Avg = %f\n", (double)perfs/_perfCount );
@@ -261,9 +427,6 @@ Event::KeyboardFunc( unsigned char key, int x, int y ) {
   }
 #endif
   m_KeyHistory[m_Histptr] = key;
-#if HAVE_LIBPTHREAD & USETHREAD
-  pthread_mutex_unlock( &inputMutex );
-#endif
 }
 
 void
@@ -276,22 +439,12 @@ Event::KeyUpFunc( unsigned char key, int x, int y ) {
 
 void
 Event::MotionFunc( long x, long y ) {
-#if HAVE_LIBPTHREAD & USETHREAD
-  pthread_mutex_lock( &inputMutex );
-#endif
   m_MouseXHistory[m_Histptr] = x;
   m_MouseYHistory[m_Histptr] = y;
-
-#if HAVE_LIBPTHREAD & USETHREAD
-  pthread_mutex_unlock( &inputMutex );
-#endif
 }
 
 void
 Event::ButtonFunc( long button, long state, long x, long y ) {
-#if HAVE_LIBPTHREAD & USETHREAD
-  pthread_mutex_lock( &inputMutex );
-#endif
   if ( state == GLUT_DOWN ){
     switch ( button ){
     case GLUT_LEFT_BUTTON:
@@ -321,7 +474,192 @@ Event::ButtonFunc( long button, long state, long x, long y ) {
 
   m_MouseXHistory[m_Histptr] = x;
   m_MouseYHistory[m_Histptr] = y;
-#if HAVE_LIBPTHREAD & USETHREAD
-  pthread_mutex_unlock( &inputMutex );
-#endif
+}
+
+void
+CopyPlayerData( struct PlayerData& dest, Player* src ) {
+  if ( !src )
+    return;
+
+  dest.playerType = src->GetPlayerType();
+  dest.side = src->GetSide();
+  dest.x = src->GetX();
+  dest.y = src->GetY();
+  dest.z = src->GetZ();
+  dest.vx = src->GetVX();
+  dest.vy = src->GetVY();
+  dest.vz = src->GetVZ();
+  dest.status = src->GetStatus();
+  dest.swing = src->GetSwing();
+  dest.swingType = src->GetSwingType();
+  dest.swingError = src->GetSwingError();
+  dest.targetX = src->GetTargetX();
+  dest.targetY = src->GetTargetY();
+  dest.eyeX = src->GetEyeX();
+  dest.eyeY = src->GetEyeY();
+  dest.eyeZ = src->GetEyeZ();
+  dest.pow = src->GetPower();
+  dest.spin = src->GetSpin();
+  dest.stamina = src->GetStamina();
+}
+
+void
+ReadTime( int sd, long *sec, char *count ) {
+  char buf[256];
+  long len = 0;
+  long ctmp;
+
+  while (1) {
+    if ( (len+=recv( sd, buf+len, 5-len, 0 )) == 5 )
+      break;
+  }
+  memcpy( sec, &buf[0], 4 );
+  memcpy( count, &buf[4], 1 );
+
+  ctmp = *count;
+  ctmp -= timeAdj;
+
+  while ( ctmp >= 100 ) {
+    ctmp -= 100;
+    (*sec)++;
+  }
+  while ( ctmp < 0 ) {
+    ctmp += 100;
+    (*sec)--;
+  }
+  *count = ctmp;
+}
+
+void SendTime( int sd ) {
+  char v;
+  long time, millitm;
+
+  time = m_lastTime.time;
+  millitm = m_lastTime.millitm/10;
+
+  millitm += timeAdj;
+
+  while ( millitm >= 100 ) {
+    millitm -= 100;
+    time++;
+  }
+  while ( millitm < 0 ) {
+    millitm += 100;
+    time--;
+  }
+
+  send( sd, (char *)&time, 4, 0 );
+  v = (char)(millitm);
+  send( sd, (char *)&v, 1, 0 );
+}
+
+bool
+GetExternalData( struct ExternalData **ext, int sd, long side ) {
+  char buf[256];
+  struct ExternalData *extNow;
+  long len;
+
+  if ( recv( sd, buf, 2, 0 ) != 2 )
+    return false;
+
+  extNow = new struct ExternalData;
+  extNow->side = side;
+  memset( extNow->data, 0, 256 );
+  extNow->next = NULL;
+
+  if ( !strncmp( buf, "PV", 2 ) ) {
+    extNow->dataType = DATA_PV;
+    ReadTime( sd, &extNow->sec, &extNow->count );
+
+    len = 0;
+    while (1) {
+      if ( (len+=recv( sd, extNow->data+len, 48-len, 0 )) == 48 )
+	break;
+    }
+//    printf( "Get PV : %d %d\n", extNow->sec, extNow->count );
+  } else if ( !strncmp( buf, "PS", 2 ) ) {
+    extNow->dataType = DATA_PS;
+    ReadTime( sd, &extNow->sec, &extNow->count );
+
+    len = 0;
+    while (1) {
+      if ( (len+=recv( sd, extNow->data+len, 20-len, 0 )) == 20 )
+	break;
+    }
+  } else if ( !strncmp( buf, "BV", 2 ) ) {
+    extNow->dataType = DATA_BV;
+    ReadTime( sd, &extNow->sec, &extNow->count );
+
+    len = 0;
+    while (1) {
+      if ( (len+=recv( sd, extNow->data+len, 60-len, 0 )) == 60 )
+	break;
+    }
+  } else
+    return false;
+
+  if ( !(*ext) ) {
+    extNow->next = NULL;
+    *ext = extNow;
+  } else if ( (*ext)->sec > extNow->sec || 
+	      ((*ext)->sec == extNow->sec && (*ext)->count > extNow->count) ) {
+    extNow->next = *ext;
+    *ext = extNow;
+  } else {
+    struct ExternalData *ext2 = *ext;
+
+    while ( ext2->next ) {
+      if ( ext2->next->sec > extNow->sec || 
+	   (ext2->next->sec == extNow->sec &&
+	    ext2->next->count > extNow->count ) ) {
+	extNow->next = ext2->next;
+	ext2->next = extNow;
+	break;
+      }
+      ext2 = ext2->next;
+    }
+    if ( !ext2->next )
+      ext2->next = extNow;
+  }
+
+  return true;
+}
+
+bool
+Event::SendSwing( int sd, Player *player ) {
+  if ( m_backtrack || mode != MODE_PLAY )
+    return false;
+
+  send( sd, "PS", 2, 0 );
+  SendTime( sd );
+
+  player->SendSwing( sd );
+
+  return true;
+}
+
+bool
+Event::SendPlayer( int sd, Player *player ) {
+  if ( m_backtrack || mode != MODE_PLAY )
+    return false;
+
+  send( sd, "PV", 2, 0 );
+  SendTime( sd );
+
+  player->SendLocation( sd );
+
+  return true;
+}
+
+bool
+Event::SendBall( int sd ) {
+  if ( m_backtrack || mode != MODE_PLAY )
+    return false;
+
+  send( sd, "BV", 2, 0 );
+  SendTime( sd );
+
+  theBall.Send( sd );
+
+  return true;
 }

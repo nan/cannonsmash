@@ -19,6 +19,9 @@
 #include "ttinc.h"
 
 ComPlayer::ComPlayer() {
+  _prevBallstatus = 0;		// 以前のボールの状態
+  _hitX = 0;			// 打球点
+  _hitY = -TABLELENGTH/3;
 }
 
 ComPlayer::~ComPlayer() {

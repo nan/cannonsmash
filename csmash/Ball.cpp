@@ -22,10 +22,14 @@ extern double maglate;
 extern Player* thePlayer;
 extern Player* comPlayer;
 extern Ball theBall;
+extern Event theEvent;
 extern BaseView theView;
 extern long mode;
 extern Sound theSound;
 
+extern int theSocket;
+
+extern long gameMode;
 extern long wins;
 
 Ball::Ball() {
@@ -49,10 +53,12 @@ Ball::Ball( double x, double y, double z, double vx, double vy, double vz,
 
   m_Score1 = m_Score2 = 0;
   m_View = NULL;
+
+  m_count = 0;
 }
 
 Ball::~Ball() {
-  if ( m_View ){
+  if ( m_View && &theBall == this){
     theView.RemoveView( m_View );
     delete m_View;
   }
@@ -111,14 +117,29 @@ Ball::GetStatus() {
 
 long
 Ball::GetService() {
-  if ( m_Score1 > 19 && m_Score2 > 19 ) {	// Deuce
+  switch ( gameMode ) {
+  case GAME_5PTS:
     return ((m_Score1+m_Score2) & 1 ? -1 : 1);
-  } else {
-    if ( (m_Score1 + m_Score2)%10 >= 5 )
-      return -1;
-    else
-      return 1;
+  case GAME_11PTS:
+    if ( m_Score1 > 9 && m_Score2 > 9 ) {	// Deuce
+      return ((m_Score1+m_Score2) & 1 ? -1 : 1);
+    } else {
+      if ( (m_Score1 + m_Score2)%10 >= 5 )
+	return -1;
+      else
+	return 1;
+    }
+  case GAME_21PTS:
+    if ( m_Score1 > 19 && m_Score2 > 19 ) {	// Deuce
+      return ((m_Score1+m_Score2) & 1 ? -1 : 1);
+    } else {
+      if ( (m_Score1 + m_Score2)%10 >= 5 )
+	return -1;
+      else
+	return 1;
+    }
   }
+  return 0;
 }
 
 long
@@ -140,12 +161,18 @@ Ball::Move() {
     m_status--;
 
   if ( m_status < -100 || m_status == 8 ){
+    Player *player;
+    if ( GetService() == thePlayer->GetSide() )
+      player = thePlayer;
+    else
+      player = comPlayer;
+
     if ( GetService() > 0 ) {
-      m_x = thePlayer->GetX()+0.3;
-      m_y = thePlayer->GetY();
+      m_x = player->GetX()+0.3;
+      m_y = player->GetY();
     } else {
-      m_x = comPlayer->GetX()-0.3;
-      m_y = comPlayer->GetY();
+      m_x = player->GetX()-0.3;
+      m_y = player->GetY();
     }
 
     m_z = TABLEHEIGHT + 0.15;
@@ -351,12 +378,15 @@ Ball::Move() {
 
 // ボールのインパクト処理
 bool
-Ball::Hit( double vx, double vy, double vz, double spin ) {
-
+Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
 // 一般の打球
-
   if ( this == &theBall ) {
       theSound.Play( SOUND_RACKET );
+  }
+
+  // 外部Playerはボールに影響を与えない. BVプロトコルを使用する. 
+  if ( player == comPlayer && theSocket >= 0 ) {
+    return true;
   }
 
   m_spin = spin;
@@ -374,6 +404,11 @@ Ball::Hit( double vx, double vy, double vz, double spin ) {
   m_vy = vy;
   m_vz = vz;
 
+  if ( player == thePlayer && theSocket >= 0 ) {
+    theEvent.SendPlayer( theSocket, player );
+    theEvent.SendBall( theSocket );
+  }
+
   return true;
 }
 
@@ -386,7 +421,41 @@ Ball::Toss( Player *player , long power ) {
   else
     m_status = 7;
 
+  if ( player == thePlayer && theSocket >= 0 ) {
+    theEvent.SendPlayer( theSocket, player );
+    theEvent.SendBall( theSocket );
+  }
+
   return true;
+}
+
+void
+Ball::Warp( double x, double y, double z, double vx, double vy, double vz, 
+	    double spin, long status ) {
+  m_x = x;
+  m_y = y;
+  m_z = z;
+  m_vx = vx;
+  m_vy = vy;
+  m_vz = vz;
+
+  m_spin = spin;
+  m_status = status;
+}
+
+void
+Ball::Warp( char *buf ) {
+  char *b = buf;
+
+  b = ReadDouble( b, m_x );
+  b = ReadDouble( b, m_y );
+  b = ReadDouble( b, m_z );
+  b = ReadDouble( b, m_vx );
+  b = ReadDouble( b, m_vy );
+  b = ReadDouble( b, m_vz );
+
+  b = ReadDouble( b, m_spin );
+  b = ReadLong( b, m_status );
 }
 
 // 空気抵抗あり版
@@ -534,7 +603,7 @@ Ball::EndGame() {
 
     if ( wins > 0 )
       mode = MODE_SELECT;
-    else
+   else
       mode = MODE_TITLE;
   }
 
@@ -546,17 +615,55 @@ void
 Ball::ChangeScore() {
   if ( mode == MODE_PLAY || mode == MODE_DEMO || mode == MODE_TITLE ){
     if ( m_status == 0 || m_status == 3 || m_status == 4 || m_status == 6 ) {
-      m_Score2++;
-    } else
-      m_Score1++;
+      if ( thePlayer->GetSide() > 0 )
+	m_Score2++;
+      else
+	m_Score1++;
+    } else {
+      if ( thePlayer->GetSide() > 0 )
+	m_Score1++;
+      else
+	m_Score2++;
+    }
   }
 }
 
 bool
 Ball::IsGameEnd() {
-  if ( (m_Score1 > 20 || m_Score2 > 20) && abs( m_Score1-m_Score2 ) > 1 &&
-       this == &theBall ){
-    return true;
-  } else
+  if ( this != &theBall )
     return false;
+
+  switch ( gameMode ) {
+  case GAME_5PTS:
+    if ( (m_Score1 > 4 || m_Score2 > 4) )
+      return true;
+    else
+      return false;
+  case GAME_11PTS:
+    if ( (m_Score1 > 10 || m_Score2 > 10) && abs( m_Score1-m_Score2 ) > 1 )
+      return true;
+    else
+      return false;
+  case GAME_21PTS:
+    if ( (m_Score1 > 20 || m_Score2 > 20) && abs( m_Score1-m_Score2 ) > 1 )
+      return true;
+    else
+      return false;
+  }
+
+  return false;
+}
+
+bool
+Ball::Send( int sd ) {
+  SendDouble( theSocket, m_x );
+  SendDouble( theSocket, m_y );
+  SendDouble( theSocket, m_z );
+  SendDouble( theSocket, m_vx );
+  SendDouble( theSocket, m_vy );
+  SendDouble( theSocket, m_vz );
+
+  SendDouble( theSocket, m_spin );
+  SendLong( theSocket, m_status );
+  return true;
 }

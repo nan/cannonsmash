@@ -35,6 +35,9 @@ HowtoView::Init( Howto *howto ) {
   int i, j, k;
 #ifndef HAVE_LIBZ
   FILE *fp;
+#else
+  gzFile fp;
+#endif
 
   static char fname[][30] = {"images/Mouse1.ppm", "images/Mouse2.ppm",
 			     "images/Mouse3.ppm", "images/Mouse4.ppm"};
@@ -45,21 +48,6 @@ HowtoView::Init( Howto *howto ) {
   static char howtoText[][30] = {"images/Howto1.ppm", "images/Howto2.ppm", 
 				 "images/Howto3.ppm", "images/Howto4.ppm", 
 				 "images/Howto5.ppm"};
-#else
-  gzFile fp;
-
-  static char fname[][30] = {"images/Mouse1.ppm.gz", "images/Mouse2.ppm.gz",
-			     "images/Mouse3.ppm.gz", "images/Mouse4.ppm.gz"};
-  static char arrowname[][30] = {"images/rightArrow.ppm.gz",
-				 "images/downArrow.ppm.gz",
-				 "images/leftArrow.ppm.gz",
-				 "images/upArrow.ppm.gz"};
-  static char howtoText[][30] = {"images/Howto1.ppm.gz",
-				 "images/Howto2.ppm.gz",
-				 "images/Howto3.ppm.gz",
-				 "images/Howto4.ppm.gz",
-				 "images/Howto5.ppm.gz"};
-#endif
 
   m_howto = howto;
 
@@ -135,11 +123,7 @@ HowtoView::Init( Howto *howto ) {
   }
 
   glGenTextures( 1, m_keyboard );
-#ifdef HAVE_LIBZ
-  image.LoadPPM( "images/Keyboard.ppm.gz" );
-#else
   image.LoadPPM( "images/Keyboard.ppm" );
-#endif
   for ( j = 0 ; j < image.GetWidth() ; j++ ) {
     for ( k = 0 ; k < image.GetHeight() ; k++ ) {
       if ( image.GetPixel( j, k, 0 ) == 255 ||
@@ -165,119 +149,6 @@ HowtoView::Init( Howto *howto ) {
 
 bool
 HowtoView::Redraw() {
-#if 0
-  glPushMatrix();
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  gluOrtho2D( 0.0, (GLfloat)winWidth, 0.0, (GLfloat)winHeight );
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
-  glDisable(GL_DEPTH_TEST);
-
-  switch ( m_howto->GetMode() ) {	// 背景
-  case 0:
-  case 1:
-  case 3:
-  case 4:
-    glColor4f( 0.0, 0.0, 0.0, 0.5 );
-    glBegin(GL_QUADS);
-    glVertex2i(             0,               0);
-    glVertex2i(IMAGE_WIDTH+50,               0);
-    glVertex2i(IMAGE_WIDTH+50, IMAGE_HEIGHT+50);
-    glVertex2i(             0, IMAGE_HEIGHT+50);
-    glEnd();
-
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, m_textures[m_howto->GetMouseB()] );
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 1.0);
-    glVertex2i( m_howto->GetMouseX(), m_howto->GetMouseY() );
-    glTexCoord2f(1.0, 1.0);
-    glVertex2i( IMAGE_WIDTH+m_howto->GetMouseX(), m_howto->GetMouseY() );
-    glTexCoord2f(1.0, 0.0);
-    glVertex2i( IMAGE_WIDTH+m_howto->GetMouseX(),
-		IMAGE_HEIGHT+m_howto->GetMouseY() );
-    glTexCoord2f(0.0, 0.0);
-    glVertex2i( m_howto->GetMouseX(), IMAGE_HEIGHT+m_howto->GetMouseY() );
-    glEnd();
-    glDisable(GL_TEXTURE_2D);
-
-    break;
-  case 2:
-    if ( m_howto->GetCount() > 100 && m_howto->GetCount() < 1000 ) {
-      glColor4f( 0.0, 0.0, 0.0, 1.0 );
-
-      glEnable(GL_TEXTURE_2D);
-      glBindTexture(GL_TEXTURE_2D, m_keyboard[0] );
-      glBegin(GL_QUADS);
-      glTexCoord2f(0.0, 1.0); glVertex2i( 190, -300 );
-      glTexCoord2f(1.0, 1.0); glVertex2i( 610, -300 );
-      glTexCoord2f(1.0, 0.0); glVertex2i( 610,  300 );
-      glTexCoord2f(0.0, 0.0); glVertex2i( 190,  300 );
-      glEnd();
-      glDisable(GL_TEXTURE_2D);
-    }
-    break;
-  }
-
-  switch ( m_howto->GetMode() ) {
-  case 0:
-    glColor4f( 1.0, 1.0, 1.0, 0.0 );
-    switch ( (m_howto->GetCount()%400)/100 ) {
-    case 0:
-      glRasterPos2i( IMAGE_WIDTH, IMAGE_HEIGHT/2 );
-      break;
-    case 1:
-      glRasterPos2i( IMAGE_WIDTH/2, 0 );
-      break;
-    case 2:
-      glRasterPos2i( 0, IMAGE_HEIGHT/2 );
-      break;
-    case 3:
-      glRasterPos2i( IMAGE_WIDTH/2, IMAGE_HEIGHT );
-      break;
-    }
-
-    glBitmap( 50, 50, 0.0, 0.0, 0.0, 0, 
-	      &m_arrow[(m_howto->GetCount()%400)/100][0] );
-    break;
-  case 2:
-    glColor4f( 0.0, 0.5, 0.0, 1.0 );
-    if ( m_howto->GetCount() > 200 && m_howto->GetCount() < 1000 &&
-	 m_howto->GetCount()%100 > 0 && m_howto->GetCount()%100 < 30 ) {
-      glBegin(GL_QUADS);
-      glVertex2i( 202+m_howto->GetMouseX()*36, 297-m_howto->GetMouseY()*72 );
-      glVertex2i( 235+m_howto->GetMouseX()*36, 297-m_howto->GetMouseY()*72 );
-      glVertex2i( 235+m_howto->GetMouseX()*36, 252-m_howto->GetMouseY()*72 );
-      glVertex2i( 202+m_howto->GetMouseX()*36, 252-m_howto->GetMouseY()*72 );
-      glEnd();
-    }
-    break;
-  case 4:
-    glColor4f( 1.0, 1.0, 1.0, 0.0 );
-    glRasterPos2i( 470, 170 );
-
-    glBitmap( 50, 50, 0.0, 0.0, 0.0, 0, &m_arrow[1][0] );
-    break;
-  }
-
-  glColor4f( 1.0, 1.0, 1.0, 0.0 );
-  if ( m_howto->GetCount()%100 < 75 ) {
-    glRasterPos2i( 10, 450 );
-    glBitmap( 400, 100, 0.0, 0.0, 0.0, 0,
-	      &m_howtoText[m_howto->GetMode()][0] );
-  }
-
-  glEnable(GL_DEPTH_TEST);
-
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-#endif
-
   return true;
 }
 

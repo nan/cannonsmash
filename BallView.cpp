@@ -36,19 +36,11 @@ BallView::~BallView() {
 bool
 BallView::Init() {
   ImageData numImage;
-#ifdef HAVE_LIBZ
-  static char num[][20] = {"images/zero.ppm.gz", "images/one.ppm.gz",
-			   "images/two.ppm.gz", "images/three.ppm.gz",
-			   "images/four.ppm.gz", "images/five.ppm.gz",
-			   "images/six.ppm.gz", "images/seven.ppm.gz",
-			   "images/eight.ppm.gz", "images/nine.ppm.gz"};
-#else
   static char num[][20] = {"images/zero.ppm", "images/one.ppm",
 			   "images/two.ppm", "images/three.ppm",
 			   "images/four.ppm", "images/five.ppm",
 			   "images/six.ppm", "images/seven.ppm",
 			   "images/eight.ppm", "images/nine.ppm"};
-#endif
 
   if ( m_number[0] == 0 ) {
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -110,7 +102,11 @@ BallView::Redraw() {
   }
 
   // ボールの将来の軌跡を表示する
-  if ( theBall.GetStatus() == 2 || theBall.GetStatus() == 3 ){
+  if ( thePlayer &&
+       (((theBall.GetStatus() == 2 || theBall.GetStatus() == 3) &&
+	thePlayer->GetSide() > 0) ||
+       ((theBall.GetStatus() == 0 || theBall.GetStatus() == 1) &&
+	thePlayer->GetSide() < 0)) ){
     tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
 			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
 			theBall.GetSpin(), theBall.GetStatus() );
@@ -234,5 +230,41 @@ BallView::RedrawAlpha() {
     glDisable(GL_TEXTURE_2D);
 
     glPopMatrix();
+  } else if ( mode == MODE_TRAINING ){
+    glPushMatrix();
+    glTranslatef( TABLEWIDTH/2-0.3, 0, TABLEHEIGHT+NETHEIGHT );
+
+    glEnable(GL_TEXTURE_2D);
+    glColor3f( 0.0, 0.0, 0.0 );
+
+    if ( theBall.m_count < 10 ) {
+      glBindTexture(GL_TEXTURE_2D, m_number[theBall.m_count] );
+      glBegin(GL_QUADS);
+      glTexCoord2f(0.0, 1.0); glVertex3f( 0.2, 0.0, 0.0 );
+      glTexCoord2f(0.0, 0.0); glVertex3f( 0.2, 0.0, 0.2 );
+      glTexCoord2f(1.0, 0.0); glVertex3f( 0.4, 0.0, 0.2 );
+      glTexCoord2f(1.0, 1.0); glVertex3f( 0.4, 0.0, 0.0 );
+      glEnd();
+    } else {	/* Y2K :-) */
+      glBindTexture(GL_TEXTURE_2D, m_number[(theBall.m_count/10)%10] );
+      glBegin(GL_QUADS);
+      glTexCoord2f(0.0, 1.0); glVertex3f( 0.2, 0.0, 0.0 );
+      glTexCoord2f(0.0, 0.0); glVertex3f( 0.2, 0.0, 0.2 );
+      glTexCoord2f(1.0, 0.0); glVertex3f( 0.3, 0.0, 0.2 );
+      glTexCoord2f(1.0, 1.0); glVertex3f( 0.3, 0.0, 0.0 );
+      glEnd();
+      glBindTexture(GL_TEXTURE_2D, m_number[theBall.m_count%10] );
+      glBegin(GL_QUADS);
+      glTexCoord2f(0.0, 1.0); glVertex3f( 0.3, 0.0, 0.0 );
+      glTexCoord2f(0.0, 0.0); glVertex3f( 0.3, 0.0, 0.2 );
+      glTexCoord2f(1.0, 0.0); glVertex3f( 0.4, 0.0, 0.2 );
+      glTexCoord2f(1.0, 1.0); glVertex3f( 0.4, 0.0, 0.0 );
+      glEnd();
+    }
+    glDisable(GL_TEXTURE_2D);
+
+    glPopMatrix();
   }
+
+  return true;
 }
