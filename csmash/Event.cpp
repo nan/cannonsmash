@@ -383,21 +383,6 @@ Event::GetExternalData( ExternalData *&ext, long side ) {
   return true;
 }
 
-#if 0
-bool
-Event::SendSwing( Player *player ) {
-  if ( m_backtrack || mode != MODE_MULTIPLAY )
-    return false;
-
-  send( theSocket, "PS", 2, 0 );
-  //SendTime( theSocket );
-  ((MultiPlay *)theControl)->SendTime();
-
-  player->SendSwing( theSocket );
-
-  return true;
-}
-#else
 bool
 Event::SendSwing( Player *player ) {
   char buf[256];
@@ -413,23 +398,7 @@ Event::SendSwing( Player *player ) {
   send( theSocket, buf, 31, 0 );
   return true;
 }
-#endif
 
-#if 0
-bool
-Event::SendPlayer( Player *player ) {
-  if ( m_backtrack || mode != MODE_MULTIPLAY )
-    return false;
-
-  send( theSocket, "PV", 2, 0 );
-  //SendTime( theSocket );
-  ((MultiPlay *)theControl)->SendTime();
-
-  player->SendLocation( theSocket );
-
-  return true;
-}
-#else
 bool
 Event::SendPlayer( Player *player ) {
   char buf[256];
@@ -446,23 +415,7 @@ Event::SendPlayer( Player *player ) {
 
   return true;
 }
-#endif
 
-#if 0
-bool
-Event::SendBall() {
-  if ( m_backtrack || mode != MODE_MULTIPLAY )
-    return false;
-
-  send( theSocket, "BV", 2, 0 );
-  //SendTime( theSocket );
-  ((MultiPlay *)theControl)->SendTime();
-
-  theBall.Send( theSocket );
-
-  return true;
-}
-#else
 bool
 Event::SendBall() {
   char buf[256];
@@ -479,7 +432,6 @@ Event::SendBall() {
 
   return true;
 }
-#endif
 
 void
 Event::ClearObject() {

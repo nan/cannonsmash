@@ -1253,17 +1253,6 @@ Player::SendSwing_forNODELAY( char *buf ) {
   return buf;
 }
 
-bool
-Player::SendSwing( int sd ) {
-  SendLong( sd, m_pow );
-  SendDouble( sd, m_spin );
-  SendLong( sd, m_swingType );
-  SendLong( sd, (long)m_swingSide );
-  SendLong( sd, m_swing );
-
-  return true;
-}
-
 // 位置情報を送信
 bool
 Player::SendLocation( int sd ) {

@@ -338,6 +338,9 @@ BaseView::EndGame() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
+  printf( "EndGame %d : %d\n", ((PlayGame *)theControl)->GetScore(thePlayer), 
+    ((PlayGame *)theControl)->GetScore(comPlayer) );
+
   if ( theControl->IsPlaying() && 
        ((PlayGame *)theControl)->GetScore(thePlayer) >
        ((PlayGame *)theControl)->GetScore(comPlayer) ) {
