@@ -149,4 +149,6 @@ TitleView2D::GetDamageRect() {
     }
     break;
   }
+
+  return true;
 }
