@@ -42,7 +42,8 @@
  ***********************************************************************/
 polyhedron::polyhedron(const char* filename)
   : numPoints(0), numPolygons(0), numEdges(0),
-    points(NULL), polygons(NULL), normals(NULL), planeNormal(NULL), edges(NULL)
+    points(NULL), polygons(NULL), normals(NULL), planeNormal(NULL), edges(NULL),
+    filename(strdup(filename))
 {
     FILE *in = fopen(filename, "r");
     if (NULL == in) return;
@@ -77,10 +78,10 @@ polyhedron::polyhedron(const char* filename)
 	    plane_t &f = loop[numPolygons];
 	    f[3] = -1;
 	    f.cindex = 0;
-	    while ((NULL != (token = strtok(NULL, delim))) && (4 > i)) {
+	    while (NULL != (token = strtok(NULL, delim))) {
 		if ('#' == *token) break;
 		else if ('C' == *token) f.cindex = atoi(token+1);
-		else f[i++] = atoi(token);
+		else if (4 > i) f[i++] = atoi(token);
 	    }
 	    numPolygons++;
 	}
@@ -114,6 +115,7 @@ polyhedron::~polyhedron()
     delete[] normals;
     delete[] planeNormal;
     delete[] edges;
+    if (filename) free((void*)filename);
 }
 
 /***********************************************************************
@@ -395,9 +397,9 @@ partsmotion::partsmotion(const char *basename)
     const char *partnames[] = {
 	"head", "chest", "hip", "racket",
 	"Rshoulder", "Rarm", "Relbow", "Rforearm", "Rhand",
-	"Rthigh", "Rknee", "Rshin", "Rankle", "Rfoot",
+	"Rthigh"/*, "Rknee"*/, "Rshin"/*, "Rankle"*/, "Rfoot",
 	"Lshoulder", "Larm", "Lelbow", "Lforearm", "Lhand",
-	"Lthigh", "Lknee", "Lshin", "Lankle", "Lfoot",
+	"Lthigh"/*, "Lknee"*/, "Lshin"/*, "Lankle"*/, "Lfoot",
     };
     numParts = sizeof(partnames) / sizeof(const char *);
     parts = new affinemotion*[numParts];
@@ -430,17 +432,22 @@ partsmotion::~partsmotion()
     
 bool partsmotion::render(int frame)
 {
-#define c(R,G,B) { R/255.0F, G/255.0F, B/255.0F}
-    GLfloat colors[][3] = {
-//	{ 0.4F, 0.4F, 0.4F },	// C0 default
-	c(250,188,137),		// C0 default(skin)
-	c(0, 0, 0),		// C1 eye
-	c(42, 19, 5), 		// C2 hair
-	c(250,188,137),		// C3 skin
-	c(225, 7, 47),		// C4 shirts
-	c(2, 55, 32),		// C5 pants
-	c(102, 7, 3),		// C6 skin/shadow
-	{-1, -1, -1}		// stop
+#define c(R,G,B,A) { R/255.0F, G/255.0F, B/255.0F, A/255.0F}
+    GLfloat colors[][4] = {
+//	{ 0.4F, 0.4F, 0.4F, 1.0F},	// C0 default
+	c(250, 188, 137, 255),		// C0 default(skin)
+	c(1, 1, 1, 255),		// C1 eye
+	c(42, 19, 5, 255), 		// C2 hair
+	c(250, 188, 137, 255),		// C3 skin
+//	c(225, 7, 47, 255),		// C4 shirts (red)
+	c(3, 87, 125, 255),		// C4 shirts (blue)
+//	c(2, 13, 24, 255),		// C5 pants  (green)
+	c(0, 0, 0, 255),		// C5 pants  (black)
+	c(102, 7, 3, 255),		// C6 skin/shadow
+	c(255, 0, 0, 255),		// C7 racket/front
+	c(0, 0, 0, 255),		// C8 racket/back
+
+	{-1, -1, -1, -1}		// stop
     };
 #undef c
 
