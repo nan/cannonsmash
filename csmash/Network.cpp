@@ -306,10 +306,10 @@ SendSwing( Player *player ) {
   player->SendSwing( &(buf[7]) );
 
   // Player 位置情報も送信する
-  strncpy( &(buf[31]), "PV", 2 );
-  ((MultiPlay *)Control::TheControl())->SendTime( &(buf[33]) );
+  strncpy( &(buf[39]), "PV", 2 );
+  ((MultiPlay *)Control::TheControl())->SendTime( &(buf[41]) );
 
-  player->SendLocation( &(buf[38]) );
+  player->SendLocation( &(buf[46]) );
 
   send( theSocket, buf, 39+55, 0 );
 }
