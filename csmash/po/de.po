@@ -3,7 +3,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2002-02-05 02:43+0900\n"
+"POT-Creation-Date: 2002-02-22 02:13+0900\n"
 "PO-Revision-Date: 2002-01-20 22:22GMT\n"
 "Last-Translator: J. Henning Schwentner <hschwentner@hamburg.de>\n"
 "Language-Team: Deutsch <de@li.org>\n"
@@ -16,174 +16,161 @@ msgstr ""
 msgid "CannonSmash"
 msgstr "CannonSmash"
 
-#: BaseView.cpp:361
+#: BaseView.cpp:357
 #, c-format
 msgid "EndGame %d : %d\n"
 msgstr "Endstand: %d : %d\n"
 
-#: Event.cpp:313
+#: BaseView.cpp:364 BaseView.cpp:366 MenuItemView.cpp:41
+#, c-format
+msgid "%s.pbm"
+msgstr "%s.de.pbm"
+
+#: Event.cpp:413
 #, c-format
 msgid "Toggled fullscreen mode - now %s\n"
 msgstr "Vollbildmodus umgestellt - jetzt: %s\n"
 
-#: Event.cpp:314
+#: Event.cpp:414
 msgid "fullscreen"
 msgstr "Vollbild"
 
-#: Event.cpp:314
+#: Event.cpp:414
 msgid "windowed"
 msgstr "Fenster"
 
-#: Event.cpp:316
+#: Event.cpp:416
 msgid "Unable to toggle fullscreen mode\n"
 msgstr "Kann Vollbildmodus nicht umschalten\n"
 
-#: Event.cpp:709
+#: Event.cpp:813
 #, c-format
 msgid "Avg = %f\n"
 msgstr "Durchschnitt = %f\n"
 
-#: Event.cpp:710
+#: Event.cpp:814
 #, c-format
 msgid "BackTrack = %f\n"
 msgstr "BackTrack = %f\n"
 
-#: FieldView.cpp:89
+#: FieldView.cpp:82
 #, c-format
 msgid "%s.ppm"
 msgstr "%s.de.ppm"
 
-#: Launcher.cpp:62
+#: Launcher.cpp:63
 msgid "FullScreen"
 msgstr "Vollbild"
 
-#: Launcher.cpp:67
+#: Launcher.cpp:68
 msgid "On"
 msgstr "An"
 
-#: Launcher.cpp:78
+#: Launcher.cpp:79
 msgid "Off"
 msgstr "Aus"
 
-#: Launcher.cpp:102
+#: Launcher.cpp:103
 msgid "Graphics"
 msgstr "Grafik"
 
-#: Launcher.cpp:115
+#: Launcher.cpp:117 Launcher.cpp:119
 msgid "Simple"
 msgstr "Einfach"
 
-#: Launcher.cpp:123
+#: Launcher.cpp:129
 msgid "Normal"
 msgstr "Normal"
 
-#: Launcher.cpp:241
+#: Launcher.cpp:249
 msgid "Solo"
 msgstr "Allein"
 
-#: Launcher.cpp:246
+#: Launcher.cpp:254
 msgid "LAN"
 msgstr "LAN"
 
-#: Launcher.cpp:251
+#: Launcher.cpp:259
 msgid "Internet(Experimental)"
 msgstr "Internet (experimentell)"
 
 #. lowest area(start button)
-#: Launcher.cpp:266 Launcher.cpp:331
+#: Launcher.cpp:274 Launcher.cpp:339
 msgid "Game Start!"
 msgstr "Spiel starten!"
 
-#: Launcher.cpp:292
+#: Launcher.cpp:300
 msgid "Server"
 msgstr "Server"
 
-#: Launcher.cpp:296
+#: Launcher.cpp:304
 msgid "Client"
 msgstr "Client"
 
-#: Launcher.cpp:310
+#: Launcher.cpp:318
 msgid "Server name:"
 msgstr "Servername:"
 
-#: Launcher.cpp:353
+#: Launcher.cpp:361
 msgid "Nickname:"
 msgstr "Spitzname:"
 
-#: Launcher.cpp:363
+#: Launcher.cpp:371
 msgid "Message:"
 msgstr "Nachricht:"
 
-#: Launcher.cpp:376
+#: Launcher.cpp:384
 msgid "Connect to Lobby Server"
 msgstr "Zu Lobby Server verbinden"
 
-#: Launcher.cpp:446
-msgid "-unknown-MS UI Gothic-normal-r-normal--12-100-*-*-*-*-windows-*"
-msgstr ""
-
-#: Launcher.cpp:454 LobbyClient.cpp:151 LobbyClient.cpp:513
+#: Launcher.cpp:466 LobbyClient.cpp:152 LobbyClient.cpp:516
 msgid "Cannon Smash"
 msgstr "Cannon Smash"
 
-#: Launcher.cpp:471
+#: Launcher.cpp:483
 msgid "Quit"
 msgstr "Beenden"
 
-#: LobbyClient.cpp:167
+#: LobbyClient.cpp:168
 msgid "Nickname"
 msgstr "Spitzname"
 
-#: LobbyClient.cpp:167
+#: LobbyClient.cpp:168
 msgid "Message"
 msgstr "Nachricht"
 
-#: LobbyClient.cpp:181
+#: LobbyClient.cpp:182
 msgid "connect"
 msgstr "verbinden"
 
-#: LobbyClient.cpp:189
+#: LobbyClient.cpp:190
 msgid "warm up"
 msgstr "aufwdrmen"
 
-#: LobbyClient.cpp:196
+#: LobbyClient.cpp:197
 msgid "close"
 msgstr "schlie_en"
 
-#: LobbyClient.cpp:522
+#: LobbyClient.cpp:525
 #, c-format
 msgid "\"%s\" (message: %s)want to play with you. OK?\n"
 msgstr "\"%s\" (Nachricht: %s) will mit dir spielen. OK?\n"
 
-#: LobbyClient.cpp:537
+#: LobbyClient.cpp:540
 msgid "OK!"
 msgstr "OK!"
 
-#: LobbyClient.cpp:548
+#: LobbyClient.cpp:551
 msgid "No!"
 msgstr "Nein!"
 
-#: main.cpp:126
-msgid "UTF-8"
-msgstr ""
-
-#: main.cpp:128
-#, fuzzy
-msgid "iconv_open failed\n"
-msgstr "SDL Mix_OpenAudio failed\n"
-
-#: main.cpp:192 main.cpp:207
+#: main.cpp:195 main.cpp:210
 msgid "No datafile directory.\n"
 msgstr "Kein Datenverzeichnis.\n"
 
-#: main.cpp:259 main.cpp:264 main.cpp:270
+#: main.cpp:260 main.cpp:265 main.cpp:271
 msgid "SDL initialize failed\n"
 msgstr "Konnte SDL nicht initialisieren.\n"
-
-#: MenuItemView.cpp:38
-#, c-format
-msgid "%s.pbm"
-msgstr "%s.de.pbm"
 
 #: parts.cpp:128
 #, c-format
@@ -222,3 +209,7 @@ msgstr "Kann Konfigurationsdatei %s nicht vffnen.\n"
 #: Sound.cpp:84
 msgid "SDL Mix_OpenAudio failed\n"
 msgstr "SDL Mix_OpenAudio failed\n"
+
+#, fuzzy
+#~ msgid "iconv_open failed\n"
+#~ msgstr "SDL Mix_OpenAudio failed\n"
