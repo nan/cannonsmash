@@ -26,6 +26,7 @@ public:
 
   virtual bool Redraw() = 0;
   virtual bool RedrawAlpha();
+  virtual bool GetDamageRect();
 
   View *m_next;
 };

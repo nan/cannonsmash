@@ -30,3 +30,9 @@ bool
 View::RedrawAlpha() {
   return true;
 }
+
+bool
+View::GetDamageRect(){
+  return true;
+}
+
