@@ -585,3 +585,12 @@ MultiPlay::LookAt( double &srcX, double &srcY, double &srcZ,
 
   return true;
 }
+
+ExternalData::ExternalData( long s ) {
+  side = s;
+  dataType = 0;
+  sec = 0;
+  count = 0;
+  memset( data, 0, 256 );
+  next = NULL;
+}

@@ -35,13 +35,33 @@ void StartClient();
 
 class ExternalData {
 public:
+  ExternalData( long side );
+
   long side;
   long dataType;
   long sec;
   char count;
   char data[256];
   ExternalData *next;
+  //virtual bool Apply( Player *targetPlayer ) = 0;
 };
+
+#if 0
+class ExternalPVData : ExternalData {
+public:
+  //virtual bool Apply( Player *targetPlayer );
+};
+
+class ExternalPSData : ExternalData {
+public:
+  //virtual bool Apply( Player *targetPlayer );
+};
+
+class ExternalBVData : ExternalData {
+public:
+  //virtual bool Apply( Player *targetPlayer );
+};
+#endif
 
 class MultiPlay : public Control {
 public:

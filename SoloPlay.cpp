@@ -146,7 +146,7 @@ SoloPlay::LookAt( double &srcX, double &srcY, double &srcZ,
 	destZ = thePlayer->GetLookAtZ();
 	break;
       default:
-	printf( "%d\n", m_smashCount );
+	printf( "%d\n", (int)m_smashCount );
       }
     } else {
       srcX = thePlayer->GetX() + thePlayer->GetEyeX();

@@ -408,10 +408,15 @@ GetExternalData( ExternalData **ext, int sd, long side ) {
   if ( recv( sd, buf, 2, 0 ) != 2 )
     return false;
 
+#if 0
   extNow = new ExternalData();
   extNow->side = side;
   memset( extNow->data, 0, 256 );
   extNow->next = NULL;
+#else
+  extNow = new ExternalData(side);
+  memset( extNow->data, 0, 256 );
+#endif
 
   if ( !strncmp( buf, "PV", 2 ) ) {
     extNow->dataType = DATA_PV;

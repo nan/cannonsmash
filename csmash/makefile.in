@@ -65,7 +65,7 @@ PKGDATA = @PKGDATA@
 VERSION = @VERSION@
 
 bin_PROGRAMS = csmash
-csmash_SOURCES = main.cpp Ball.cpp Event.cpp BaseView.cpp BallView.cpp View.cpp Player.cpp comPlayer.cpp parts.cpp PlayerView.cpp HitMark.cpp PenAttack.cpp ShakeCut.cpp PenDrive.cpp comPenAttack.cpp comShakeCut.cpp comPenDrive.cpp ComTrainingPenAttack.cpp TrainingPenAttack.cpp ComTrainingPenDrive.cpp TrainingPenDrive.cpp PlayerSelect.cpp PlayerSelectView.cpp TrainingSelect.cpp TrainingSelectView.cpp Title.cpp TitleView.cpp Howto.cpp HowtoView.cpp Sound.cpp LoadImage.cpp z.cpp MultiPlayer.cpp affine auto float matrix xerror.cpp ttinc.h Ball.h Event.h BaseView.h BallView.h View.h Player.h comPlayer.h parts.h PlayerView.h HitMark.h PenAttack.h ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h comPenDrive.h ComTrainingPenAttack.h TrainingPenAttack.h ComTrainingPenDrive.h TrainingPenDrive.h PlayerSelect.h PlayerSelectView.h TrainingSelect.h TrainingSelectView.h Title.h TitleView.h Howto.h HowtoView.h Sound.h LoadImage.h z.h MultiPlayer.h win32.h
+csmash_SOURCES = main.cpp Ball.cpp Event.cpp Control.cpp View.cpp BaseView.cpp BallView.cpp Player.cpp comPlayer.cpp parts.cpp PlayerView.cpp HitMark.cpp PenAttack.cpp ShakeCut.cpp PenDrive.cpp comPenAttack.cpp comShakeCut.cpp comPenDrive.cpp ComTrainingPenAttack.cpp TrainingPenAttack.cpp ComTrainingPenDrive.cpp TrainingPenDrive.cpp PlayerSelect.cpp PlayerSelectView.cpp TrainingSelect.cpp TrainingSelectView.cpp SoloPlay.cpp Title.cpp TitleView.cpp Howto.cpp HowtoView.cpp Training.cpp TrainingView.cpp Sound.cpp LoadImage.cpp z.cpp MultiPlay.cpp affine auto float matrix xerror.cpp ttinc.h Ball.h Event.h Control.h View.h BaseView.h BallView.h Player.h comPlayer.h parts.h PlayerView.h HitMark.h PenAttack.h ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h comPenDrive.h ComTrainingPenAttack.h TrainingPenAttack.h ComTrainingPenDrive.h TrainingPenDrive.h PlayerSelect.h PlayerSelectView.h TrainingSelect.h TrainingSelectView.h SoloPlay.h Title.h TitleView.h Howto.h HowtoView.h Training.h TrainingView.h Sound.h LoadImage.h z.h MultiPlay.h win32.h
 SUBDIRS = Parts images wav win32
 EXTRA_DIST = README.en README.nt Makefile.nt CREDITS csmash.spec
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -78,13 +78,14 @@ DEFS = @DEFS@ -I. -I$(srcdir)
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-csmash_OBJECTS =  main.o Ball.o Event.o BaseView.o BallView.o View.o \
-Player.o comPlayer.o parts.o PlayerView.o HitMark.o PenAttack.o \
-ShakeCut.o PenDrive.o comPenAttack.o comShakeCut.o comPenDrive.o \
-ComTrainingPenAttack.o TrainingPenAttack.o ComTrainingPenDrive.o \
-TrainingPenDrive.o PlayerSelect.o PlayerSelectView.o TrainingSelect.o \
-TrainingSelectView.o Title.o TitleView.o Howto.o HowtoView.o Sound.o \
-LoadImage.o z.o MultiPlayer.o xerror.o
+csmash_OBJECTS =  main.o Ball.o Event.o Control.o View.o BaseView.o \
+BallView.o Player.o comPlayer.o parts.o PlayerView.o HitMark.o \
+PenAttack.o ShakeCut.o PenDrive.o comPenAttack.o comShakeCut.o \
+comPenDrive.o ComTrainingPenAttack.o TrainingPenAttack.o \
+ComTrainingPenDrive.o TrainingPenDrive.o PlayerSelect.o \
+PlayerSelectView.o TrainingSelect.o TrainingSelectView.o SoloPlay.o \
+Title.o TitleView.o Howto.o HowtoView.o Training.o TrainingView.o \
+Sound.o LoadImage.o z.o MultiPlay.o xerror.o
 csmash_LDADD = $(LDADD)
 csmash_DEPENDENCIES = 
 csmash_LDFLAGS = 
@@ -106,14 +107,15 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/Ball.P .deps/BallView.P .deps/BaseView.P \
-.deps/ComTrainingPenAttack.P .deps/ComTrainingPenDrive.P .deps/Event.P \
-.deps/HitMark.P .deps/Howto.P .deps/HowtoView.P .deps/LoadImage.P \
-.deps/MultiPlayer.P .deps/PenAttack.P .deps/PenDrive.P .deps/Player.P \
-.deps/PlayerSelect.P .deps/PlayerSelectView.P .deps/PlayerView.P \
-.deps/ShakeCut.P .deps/Sound.P .deps/Title.P .deps/TitleView.P \
-.deps/TrainingPenAttack.P .deps/TrainingPenDrive.P \
-.deps/TrainingSelect.P .deps/TrainingSelectView.P .deps/View.P \
-.deps/comPenAttack.P .deps/comPenDrive.P .deps/comPlayer.P \
+.deps/ComTrainingPenAttack.P .deps/ComTrainingPenDrive.P \
+.deps/Control.P .deps/Event.P .deps/HitMark.P .deps/Howto.P \
+.deps/HowtoView.P .deps/LoadImage.P .deps/MultiPlay.P .deps/PenAttack.P \
+.deps/PenDrive.P .deps/Player.P .deps/PlayerSelect.P \
+.deps/PlayerSelectView.P .deps/PlayerView.P .deps/ShakeCut.P \
+.deps/SoloPlay.P .deps/Sound.P .deps/Title.P .deps/TitleView.P \
+.deps/Training.P .deps/TrainingPenAttack.P .deps/TrainingPenDrive.P \
+.deps/TrainingSelect.P .deps/TrainingSelectView.P .deps/TrainingView.P \
+.deps/View.P .deps/comPenAttack.P .deps/comPenDrive.P .deps/comPlayer.P \
 .deps/comShakeCut.P .deps/main.P .deps/parts.P .deps/xerror.P .deps/z.P
 SOURCES = $(csmash_SOURCES)
 OBJECTS = $(csmash_OBJECTS)
