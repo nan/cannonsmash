@@ -18,7 +18,6 @@
 
 #include "ttinc.h"
 
-void Draw(void);
 void Reshape( int width, int height );
 
 void *LoadData( void *dum );
@@ -140,10 +139,15 @@ int main(int argc, char** argv) {
   printf( dataDir );
 
 #if HAVE_LIBPTHREAD
-  pthread_t ptid;
+  pthread_t ptid1, ptid2;
+  pthread_mutex_lock( &loadMutex );
 
-  pthread_create( &ptid, NULL, LoadData, NULL );
+  pthread_create( &ptid1, NULL, PlayerView::LoadData(), NULL );
+  pthread_create( &ptid2, NULL, LoadData, NULL );
+
+  pthread_mutex_unlock( &loadMutex );
 #else
+  PlayerView::LoadData(NULL);
   LoadData( NULL );
 #endif
 
@@ -190,17 +194,12 @@ Reshape( int width, int height ) {
   glViewport( 0, 0, winWidth, winHeight );
 }
 
+// 後でSoundもここから追い出して廃止する. 
 void *
 LoadData( void *dum ) {
-#if HAVE_LIBPTHREAD
-  pthread_mutex_lock( &loadMutex );
-#endif
-
-  PlayerView::LoadData();
   theSound.Init();
 
 #if HAVE_LIBPTHREAD
-  pthread_mutex_unlock( &loadMutex );
   pthread_detach(pthread_self());
   pthread_exit(NULL);
   return NULL;
