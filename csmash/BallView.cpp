@@ -186,11 +186,16 @@ BallView::RedrawAlpha() {
     glTranslatef( -TABLEWIDTH/2-0.3, 0, TABLEHEIGHT );
 
     if ( isTexture ) {
+      long score1, score2;
+
       glEnable(GL_TEXTURE_2D);
       glColor3f( 0.0, 0.0, 0.0 );
 
-      if ( ((PlayGame *)theControl)->GetScore(thePlayer) < 10 ) {
-	glBindTexture(GL_TEXTURE_2D, m_number[((PlayGame *)theControl)->GetScore(thePlayer)] );
+      score1 = ((PlayGame *)theControl)->GetScore(1);
+      score2 = ((PlayGame *)theControl)->GetScore(-1);
+
+      if ( score1 < 10 ) {
+	glBindTexture(GL_TEXTURE_2D, m_number[score1] );
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0, 1.0); glVertex3f( 0.0, -0.4, 0.0 );
 	glTexCoord2f(0.0, 0.0); glVertex3f( 0.0, -0.4, 0.2 );
@@ -198,14 +203,14 @@ BallView::RedrawAlpha() {
 	glTexCoord2f(1.0, 1.0); glVertex3f( 0.0, -0.2, 0.0 );
 	glEnd();
       } else {	/* Y2K :-) */
-	glBindTexture(GL_TEXTURE_2D, m_number[((PlayGame *)theControl)->GetScore(thePlayer)/10] );
+	glBindTexture(GL_TEXTURE_2D, m_number[score1/10] );
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0, 1.0); glVertex3f( 0.0, -0.4, 0.0 );
 	glTexCoord2f(0.0, 0.0); glVertex3f( 0.0, -0.4, 0.2 );
 	glTexCoord2f(1.0, 0.0); glVertex3f( 0.0, -0.3, 0.2 );
 	glTexCoord2f(1.0, 1.0); glVertex3f( 0.0, -0.3, 0.0 );
 	glEnd();
-	glBindTexture(GL_TEXTURE_2D, m_number[((PlayGame *)theControl)->GetScore(thePlayer)%10] );
+	glBindTexture(GL_TEXTURE_2D, m_number[score1%10] );
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0, 1.0); glVertex3f( 0.0, -0.3, 0.0 );
 	glTexCoord2f(0.0, 0.0); glVertex3f( 0.0, -0.3, 0.2 );
@@ -214,8 +219,8 @@ BallView::RedrawAlpha() {
 	glEnd();
       }
 
-      if ( ((PlayGame *)theControl)->GetScore(comPlayer) < 10 ) {
-	glBindTexture(GL_TEXTURE_2D, m_number[((PlayGame *)theControl)->GetScore(comPlayer)] );
+      if ( score2 < 10 ) {
+	glBindTexture(GL_TEXTURE_2D, m_number[score2] );
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0, 1.0); glVertex3f( 0.0, 0.2, 0.0 );
 	glTexCoord2f(0.0, 0.0); glVertex3f( 0.0, 0.2, 0.2 );
@@ -223,14 +228,14 @@ BallView::RedrawAlpha() {
 	glTexCoord2f(1.0, 1.0); glVertex3f( 0.0, 0.4, 0.0 );
 	glEnd();
       } else {	/* Y2K :-) */
-	glBindTexture(GL_TEXTURE_2D, m_number[((PlayGame *)theControl)->GetScore(comPlayer)/10] );
+	glBindTexture(GL_TEXTURE_2D, m_number[score2/10] );
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0, 1.0); glVertex3f( 0.0, 0.2, 0.0 );
 	glTexCoord2f(0.0, 0.0); glVertex3f( 0.0, 0.2, 0.2 );
 	glTexCoord2f(1.0, 0.0); glVertex3f( 0.0, 0.3, 0.2 );
 	glTexCoord2f(1.0, 1.0); glVertex3f( 0.0, 0.3, 0.0 );
 	glEnd();
-	glBindTexture(GL_TEXTURE_2D, m_number[((PlayGame *)theControl)->GetScore(comPlayer)%10] );
+	glBindTexture(GL_TEXTURE_2D, m_number[score2%10] );
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0, 1.0); glVertex3f( 0.0, 0.3, 0.0 );
 	glTexCoord2f(0.0, 0.0); glVertex3f( 0.0, 0.3, 0.2 );

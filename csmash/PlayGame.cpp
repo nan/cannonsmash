@@ -76,6 +76,18 @@ PlayGame::GetScore( Player *p ) {
   }
 }
 
+long
+PlayGame::GetScore( long side ) {
+  if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ) {
+    if ( side > 0 )
+      return m_Score1;
+    else
+      return m_Score2;
+  } else {	// Training
+    return m_Score1;
+  }
+}
+
 void
 PlayGame::ChangeScore() {
   if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ) {

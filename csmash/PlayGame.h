@@ -37,6 +37,7 @@ public:
 
   long GetService();
   long GetScore( Player *p );	// スコア取得. 
+  long GetScore( long side );	// スコア取得. 
 
   bool IsGameEnd();	// ゲーム終了チェック
   void EndGame();
