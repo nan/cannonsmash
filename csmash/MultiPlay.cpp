@@ -85,19 +85,7 @@ MultiPlay::Init() {
 
   // Init timer again
   struct timeb tb;
-
-#ifndef WIN32
-  struct timeval tv;
-  struct timezone tz;
-#endif
-
-#ifdef WIN32
-  ftime( &tb );
-#else
-  gettimeofday( &tv, &tz );
-  tb.time = tv.tv_sec;
-  tb.millitm = tv.tv_usec/1000;
-#endif
+  getcurrenttime(&tb);
 
   Event::m_lastTime = tb;
 
