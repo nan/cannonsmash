@@ -7,6 +7,7 @@ Event.cpp
 Launcher.cpp
 LobbyClient.cpp
 main.cpp
+MenuItemView.cpp
 parts.cpp
 Player.cpp
 PlayGame.cpp

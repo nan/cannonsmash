@@ -175,6 +175,11 @@ msgstr ""
 msgid "SDL initialize failed\n"
 msgstr ""
 
+#: MenuItemView.cpp:46
+#, c-format
+msgid "%s.pbm"
+msgstr "%s.ja.pbm"
+
 #: parts.cpp:72
 #, c-format
 msgid "%s:%d vertex buffer overflow\n"
