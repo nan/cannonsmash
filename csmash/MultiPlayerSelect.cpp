@@ -31,6 +31,7 @@
 #include "MultiPlay.h"
 #include "Network.h"
 #include "RCFile.h"
+#include "LobbyClient.h"
 
 #ifdef LOGGING
 #include "Logging.h"
@@ -306,6 +307,18 @@ MultiPlayerSelect::SendPT( char fixed ) {
   send( theSocket, &fixed, 1, 0 );
   rotate = GetRotate();
   SendLong( theSocket, rotate );
+
+  int lobbySocket;
+  if ( fixed &&
+       LobbyClient::TheLobbyClient() && 
+       (lobbySocket = LobbyClient::TheLobbyClient()->GetSocket()) > 0 ) {
+    send( lobbySocket, "PT", 2, 0 );
+    long len = 5;
+    SendLong( lobbySocket, len );
+    send( lobbySocket, &fixed, 1, 0 );
+    rotate = GetRotate();
+    SendLong( lobbySocket, rotate );
+  }
 
 #ifdef LOGGING
   char buf[256];
