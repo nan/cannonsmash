@@ -104,9 +104,9 @@ FieldView::Redraw() {
     glEnable(GL_TEXTURE_2D);
 
   if ( !isSimple ) {
-    glCallList( m_offset );
-
     glColor4f(0.8, 0.8, 0.8, 0.0);
+
+    glCallList( m_offset );
 
     glBindTexture( GL_TEXTURE_2D, m_wall[0] );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );

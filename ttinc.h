@@ -83,11 +83,14 @@
 #define MODE_HOWTO          (5)	// How to Play
 #define MODE_TRAININGSELECT (6)	// Training Select
 #define MODE_TRAINING       (7)	// Training
+#define MODE_OPENING        (8)	// Opening
 
 // サウンド
 #define SOUND_RACKET (0)
 #define SOUND_TABLE  (1)
 #define SOUND_CLICK  (2)
+
+#define SOUND_OPENING "danslatristesse2-48.mp3"
 
 // 通信対戦
 #define DATA_PV      (0)
@@ -177,6 +180,8 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 #include "PlayGame.h"
 #include "SoloPlay.h"
 #include "MultiPlay.h"
+#include "Opening.h"
+#include "OpeningView.h"
 #include "Title.h"
 #include "TitleView.h"
 #include "Howto.h"

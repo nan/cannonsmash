@@ -48,6 +48,8 @@ class HitMark;
 
 class Player {
   friend class Howto;
+  friend class Opening;
+  friend class OpeningView;
 public:
   Player();
   Player( long side );

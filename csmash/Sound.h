@@ -36,12 +36,21 @@ public:
 
   long GetSoundMode();
   bool SetSoundMode( long mode );
+
+  long InitBGM( char *filename );
+  long PlayBGM();
+  long SkipBGM();
+
 private:
 #ifdef HAVE_LIBESD
   int m_fd[5];
   int m_sndfd;
 
   int m_ossfd;
+
+  // BGM用
+  int m_bgminfd;
+  int m_bgmoutfd;
 #endif
 
   char *m_sound[16];

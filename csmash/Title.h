@@ -31,7 +31,6 @@
 
 class TitleView;
 
-//class Title : public Control {
 class Title : public Control {
 public:
   Title();

@@ -16,49 +16,36 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#ifndef _Title_
-#define _Title_
+#ifndef _Opening_
+#define _Opening_
 
-// major menu
-#define MENU_MAIN	0
-#define MENU_CONFIG	1
+class OpeningView;
 
-// minor menu
-#define MENU_ALL		0	// 画面内の全メニュー数
-#define MENU_CONFIG_LEVEL	1	// レベル(Configメニュー内)
-#define MENU_CONFIG_MODE	2	// モード(Configメニュー内)
-#define MENU_CONFIG_SOUND	3	// サウンド(Configメニュー内)
-
-class TitleView;
-
-class Title : public Control {
+class Opening : public Control {
 public:
-  Title();
-  virtual ~Title();
+  Opening();
+  virtual ~Opening();
 
   virtual bool Init();
 
-  static Title* Create();
+  static Opening* Create();
 
   virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,
 		     int Histptr );
 
-  long GetSelected();
-  long GetSelectMode();
-  long GetCount();
-  long GetMenuNum( long major, long minor=0 );
-
   virtual bool LookAt( double &srcX, double &srcY, double &srcZ,
 		       double &destX, double &destY, double &destZ );
 
+  long GetCount() { return m_count; };
+  void GetPhrase( long &phrase, long &mod );
+
   virtual bool IsPlaying() { return false; };
 protected:
-  TitleView *m_View;
-  long m_selected;	// 選択された : m_selected > 0
-  long m_selectMode;	// 基本選択   : 0
-			// config選択  : 1
+  OpeningView *m_View;
   long m_count;
+  long m_bgmCount;
+  long m_pid;
 };
 
-#endif	// _Title_
+#endif	// _Opening_

@@ -158,7 +158,7 @@ Ball::Move() {
 
       m_status = 8;
     }
-      
+
     return true;
   }
 

@@ -265,3 +265,76 @@ Sound::SetSoundMode( long mode ) {
 
   return true;
 }
+
+long
+Sound::InitBGM( char *filename ) {
+  int filedes[2];
+  long pid;
+
+  pipe( filedes );
+  if ( (pid = fork()) == 0 ) {
+    dup2( filedes[1], 1 );
+    execl( "/usr/bin/mpg123", "mpg123", "-q", "-s", filename, NULL );
+    return -1;
+  }
+  m_bgminfd = filedes[0];
+  m_bgmoutfd = esd_play_stream( ESD_BITS16|ESD_STEREO|ESD_SAMPLE, 44100, NULL,
+				NULL );
+
+  return pid;
+}
+
+// 別スレッド化したい
+long
+Sound::PlayBGM() {
+#ifdef HAVE_LIBESD
+  switch ( m_soundMode ) {
+  case SOUND_ESD:
+    char buf[44100*2+2];
+    static long bytes = 0;
+
+    fd_set rdfds;
+    struct timeval to;
+
+    FD_ZERO( &rdfds );
+    FD_SET( m_bgminfd, &rdfds );
+    to.tv_sec = to.tv_usec = 0;
+
+    if ( select( m_bgminfd+1, &rdfds, NULL, NULL, &to ) > 0 )
+      bytes = read( m_bgminfd, buf, 44100*2*2 );
+
+    if ( bytes > 0 ) {
+      write( m_bgmoutfd, buf, bytes );
+      return bytes;
+    }
+  }
+#endif
+
+  return 0;
+}
+
+long
+Sound::SkipBGM() {
+#ifdef HAVE_LIBESD
+  switch ( m_soundMode ) {
+  case SOUND_ESD:
+    char buf[4410*2+2];
+    long bytes = 0;
+
+    fd_set rdfds;
+    struct timeval to;
+
+    FD_ZERO( &rdfds );
+    FD_SET( m_bgminfd, &rdfds );
+    to.tv_sec = to.tv_usec = 0;
+
+    if ( select( m_bgminfd+1, &rdfds, NULL, NULL, &to ) > 0 ) {
+      bytes = read( m_bgminfd, buf, 4410*2*2 );
+
+      return bytes;
+    }
+  }
+#endif
+
+  return 0;
+}

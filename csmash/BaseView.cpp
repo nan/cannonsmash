@@ -73,10 +73,10 @@ BaseView::Init() {
   /* 遠近法設定. 視野角, x/y比, 有効距離(手前), 有効距離(奥) */
   glMatrixMode(GL_MODELVIEW);
 
-//  GLfloat light_position[] = { 0.0, -TABLELENGTH, 1.0, 1.0 };
   GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
   GLfloat light_intensity_amb[] = { 0.6, 0.6, 0.6, 1.0 };
   GLfloat light_intensity_dif[] = { 1.0, 1.0, 1.0, 1.0 };
+  GLfloat light_intensity_none[] = { 0.0, 0.0, 0.0, 0.0 };
 
   glShadeModel (GL_SMOOTH);
   glEnable(GL_DEPTH_TEST);
@@ -158,6 +158,8 @@ BaseView::RedrawAll() {
   } else {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   }
+
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
   glColor4f(0.4, 0.2, 0.0, 0.0);
 //  glEnable(GL_CULL_FACE);

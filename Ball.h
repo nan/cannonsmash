@@ -24,6 +24,7 @@ class Player;
 class BallView;
 
 class Ball {
+  friend class Opening;
 public:
   Ball();
   Ball( double _x, double _y, double _z, double _vx, double _vy, double _vz,

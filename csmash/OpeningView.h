@@ -16,47 +16,21 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#ifndef _Sound_
-#define _Sound_
+#ifndef _OpeningView_
+#define _OpeningView_
 
-#define SOUND_NONE	-1
-#define SOUND_ESD	0
-#define SOUND_OSS	1
-#define SOUND_WIN32	2
-
-class Sound {
+class OpeningView : public View {
 public:
-  Sound();
-  virtual ~Sound();
+  OpeningView();
+  virtual ~OpeningView();
 
-  virtual bool Init();
+  bool Init( Opening * );
 
-  bool Play( char *sndData, long count );
-  bool Play( long soundID );
+  virtual bool Redraw();
+  virtual bool RedrawAlpha();
 
-  long GetSoundMode();
-  bool SetSoundMode( long mode );
-
-  long InitBGM( char *filename );
-  long PlayBGM();
-  long SkipBGM();
-
-private:
-#ifdef HAVE_LIBESD
-  int m_fd[5];
-  int m_sndfd;
-
-  int m_ossfd;
-
-  // BGM用
-  int m_bgminfd;
-  int m_bgmoutfd;
-#endif
-
-  char *m_sound[16];
-  int  m_soundSize[16];
-
-  long m_soundMode;
+protected:
+  Opening     *m_opening;
 };
 
-#endif // _Sound_
+#endif	// _OpeningView_

@@ -47,7 +47,7 @@ long gameMode   = GAME_21PTS;	// ゲームの長さ
 
 Control*      theControl = NULL;
 
-long mode = MODE_TITLE;
+long mode = MODE_OPENING;
 
 #undef HAVE_LIBPTHREAD
 
@@ -146,6 +146,10 @@ int main(int argc, char** argv) {
 
   printf( dataDir );
 
+  if ( mode == MODE_OPENING && (access( SOUND_OPENING, F_OK ) != 0) ) {
+    mode = MODE_TITLE;
+  }
+
 #if HAVE_LIBPTHREAD
   pthread_t ptid1, ptid2;
   pthread_mutex_lock( &loadMutex );
@@ -160,6 +164,7 @@ int main(int argc, char** argv) {
 #endif
 
   EndianCheck();
+
   glutInit(&argc, argv);
 
   struct timeb tb;

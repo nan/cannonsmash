@@ -74,6 +74,9 @@ Event::Init() {
   case MODE_TITLE:
     theControl = Title::Create();
     break;
+  case MODE_OPENING:
+    theControl = Opening::Create();
+    break;
   }
 
   theBall.Init();
@@ -164,7 +167,7 @@ Event::IdleFunc() {
   if ( mode == MODE_MULTIPLAY )
     theEvent.ReadData();
 
-  if ( mode != MODE_TITLE )
+  if ( mode != MODE_TITLE && mode != MODE_OPENING )
     glutWarpPointer( theEvent.m_MouseXHistory[theEvent.m_Histptr],
 		     theEvent.m_MouseYHistory[theEvent.m_Histptr] );
 
@@ -197,6 +200,9 @@ Event::Move() {
       break;
     case MODE_TITLE:
       theControl = Title::Create();
+      break;
+    case MODE_OPENING:
+      theControl = Opening::Create();
       break;
     case MODE_HOWTO:
       theControl = Howto::Create();
@@ -270,6 +276,7 @@ Event::KeyboardFunc( unsigned char key, int x, int y ) {
 #if (GLUT_API_VERSION < 4 && GLUT_XLIB_IMPLEMENTATION < 13)
   if ( key == 'Q' ) {
     printf( "Avg = %f\n", (double)perfs/_perfCount );
+    ClearObject();
     exit(0);
   }
 #endif
@@ -280,6 +287,7 @@ void
 Event::KeyUpFunc( unsigned char key, int x, int y ) {
   if ( key == 'Q' ) {
     printf( "Avg = %f\n", (double)perfs/_perfCount );
+    ClearObject();
     exit(0);
   }
 }
