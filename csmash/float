@@ -27,6 +27,22 @@ typedef double Float;
 #define Float_EPS DBL_EPSILON
 #endif
 
+#ifdef __CYGWIN__
+inline float fabsF(float f) { return fabs(f); }
+inline float floorF(float f) { return floor(f); }
+inline float ceilF(float f) { return ceil(f); }
+inline float sqrtF(float f) { return sqrt(f); }
+inline float sinF(float f) { return sin(f); }
+inline float cosF(float f) { return cos(f); }
+inline float tanF(float f) { return tan(f); }
+inline float asinF(float f) { return asin(f); }
+inline float acosF(float f) { return acos(f); }
+inline float atan2F(float y, float x) { return atan2(y, x); }
+inline float expF(float f) { return exp(f); }
+inline float logF(float f) { return log(f); }
+inline float log10F(float f) { return log10(f); }
+inline float powF(float x, float y) { return pow(x, y); }
+#else
 inline float fabsF(float f) { return fabsf(f); }
 inline float floorF(float f) { return floorf(f); }
 inline float ceilF(float f) { return ceilf(f); }
@@ -41,6 +57,7 @@ inline float expF(float f) { return expf(f); }
 inline float logF(float f) { return logf(f); }
 inline float log10F(float f) { return log10f(f); }
 inline float powF(float x, float y) { return powf(x, y); }
+#endif
 
 
 inline double fabsF(double f) { return fabs(f); }
