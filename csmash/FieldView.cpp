@@ -277,7 +277,7 @@ FieldView::Redraw() {
     if ( Control::TheControl()->IsPlaying() ) {
       int rotation;
 
-      if ( Event::m_lastTime.time % 5 == 0 ) {
+      if ( Event::m_lastTime.time % 5 == 4 ) {
 	rotation = (Event::m_lastTime.time%40)/5*32
 	  + Event::m_lastTime.millitm/30;
       } else{
