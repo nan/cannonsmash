@@ -11,23 +11,39 @@ pkgdata_ppm = Bad.ppm Easy.ppm Hard.ppm Howto.ppm Howto1.ppm \
 		upArrow.ppm win.ppm ModeSelect.ppm \
 		5point.ppm 11point.ppm 21point.ppm \
 		SoundSelect.ppm Transparent.ppm WireFrame.ppm ArctanX.ppm \
-		Practice.ppm Pause.ppm EasyTutorial.ppm EasyTutorial.ja.ppm \
-		11point.ja.pbm 11point.pbm 21point.ja.pbm 21point.pbm \
-		5point.ja.pbm 5point.pbm ArctanX.ja.pbm ArctanX.pbm \
-		Config.ja.pbm Config.pbm Easy.ja.pbm Easy.pbm Hard.ja.pbm \
-		Hard.pbm Howto.ja.pbm Howto.pbm Howto1.ja.pbm Howto1.pbm \
-		Howto2.ja.pbm Howto2.pbm Howto3.ja.pbm Howto3.pbm \
-		Howto4.ja.pbm Howto4.pbm Howto5.ja.pbm Howto5.pbm \
-		LevelSelect.ja.pbm LevelSelect.pbm ModeSelect.ja.pbm \
-		ModeSelect.pbm Normal.ja.pbm Normal.pbm \
-		Pause.ja.pbm Pause.pbm  Practice.ja.pbm Practice.pbm \
-		Quit.ja.pbm Quit.pbm SelectPlayer.ja.pbm SelectPlayer.pbm \
-		StartGame.ja.pbm StartGame.pbm Training.ja.pbm Training.pbm \
-		Transparent.ja.pbm Transparent.pbm \
-		Tsuborish.ja.pbm Tsuborish.pbm WireFrame.ja.pbm WireFrame.pbm \
-		downArrow.ja.pbm downArrow.pbm leftArrow.ja.pbm leftArrow.pbm \
-		lose.ja.pbm lose.pbm rightArrow.ja.pbm rightArrow.pbm \
-		upArrow.ja.pbm upArrow.pbm win.ja.pbm win.pbm
+		Practice.ppm Pause.ppm EasyTutorial.ja.ppm \
+		EasyTutorial.de.ppm EasyTutorial.ppm \
+		11point.ja.pbm 11point.de.pbm 11point.pbm \
+		21point.ja.pbm 21point.de.pbm 21point.pbm \
+		5point.ja.pbm 5point.de.pbm 5point.pbm \
+		ArctanX.ja.pbm ArctanX.de.pbm ArctanX.pbm \
+		Config.ja.pbm Config.de.pbm Config.pbm \
+		Easy.ja.pbm Easy.de.pbm Easy.pbm \
+		Hard.ja.pbm Hard.de.pbm Hard.pbm \
+		Howto.ja.pbm Howto.de.pbm Howto.pbm \
+		Howto1.ja.pbm Howto1.de.pbm Howto1.pbm \
+		Howto2.ja.pbm Howto2.de.pbm Howto2.pbm \
+		Howto3.ja.pbm Howto3.de.pbm Howto3.pbm \
+		Howto4.ja.pbm Howto4.de.pbm Howto4.pbm \
+		Howto5.ja.pbm Howto5.de.pbm Howto5.pbm \
+		LevelSelect.ja.pbm LevelSelect.de.pbm LevelSelect.pbm \
+		ModeSelect.ja.pbm ModeSelect.de.pbm ModeSelect.pbm \
+		Normal.ja.pbm Normal.de.pbm Normal.pbm \
+		Pause.ja.pbm Pause.de.pbm Pause.pbm \
+		Practice.ja.pbm Practice.de.pbm Practice.pbm \
+		Quit.ja.pbm Quit.de.pbm Quit.pbm \
+		SelectPlayer.ja.pbm SelectPlayer.de.pbm SelectPlayer.pbm \
+		StartGame.ja.pbm StartGame.de.pbm StartGame.pbm \
+		Training.ja.pbm Training.de.pbm Training.pbm \
+		Transparent.ja.pbm Transparent.de.pbm Transparent.pbm \
+		Tsuborish.ja.pbm Tsuborish.de.pbm Tsuborish.pbm \
+		WireFrame.ja.pbm WireFrame.de.pbm WireFrame.pbm \
+		downArrow.ja.pbm downArrow.de.pbm downArrow.pbm \
+		leftArrow.ja.pbm leftArrow.de.pbm leftArrow.pbm \
+		lose.ja.pbm lose.de.pbm lose.pbm \
+		rightArrow.ja.pbm rightArrow.de.pbm rightArrow.pbm \
+		upArrow.ja.pbm upArrow.de.pbm upArrow.pbm \
+		win.ja.pbm win.de.pbm win.pbm
 
 pkgdata_jpg = Floor.jpg Mouse1.jpg Mouse2.jpg Mouse3.jpg Mouse4.jpg \
 		PenDrive.jpg PenAttack.jpg ShakeCut.jpg \

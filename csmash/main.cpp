@@ -103,6 +103,8 @@ int main(int argc, char** argv) {
     GetLocaleInfo( LOCALE_SYSTEM_DEFAULT, LOCALE_SENGLANGUAGE, buf, 256 );
     if ( strcmp( buf, "Japanese" ) == 0 ) {
       putenv("LANGUAGE=ja"); // Japanese
+    } else if ( strcmp( buf, "German" ) == 0 ) {
+      putenv("LANGUAGE=de"); // German
     }
 #endif
 

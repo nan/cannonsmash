@@ -50,6 +50,11 @@ msgstr "Durchschnitt = %f\n"
 msgid "BackTrack = %f\n"
 msgstr "BackTrack = %f\n"
 
+#: FieldView.cpp:89
+#, c-format
+msgid "%s.ppm"
+msgstr "%s.de.ppm"
+
 #: Launcher.cpp:62
 msgid "FullScreen"
 msgstr "Vollbild"
@@ -163,6 +168,11 @@ msgstr "Kein Datenverzeichnis.\n"
 #: main.cpp:229 main.cpp:234 main.cpp:240
 msgid "SDL initialize failed\n"
 msgstr "Konnte SDL nicht initialisieren.\n"
+
+#: MenuItemView.cpp:38
+#, c-format
+msgid "%s.pbm"
+msgstr "%s.de.pbm"
 
 #: parts.cpp:128
 #, c-format
