@@ -63,7 +63,7 @@ public:
   void Init( GtkBox *box );
 
   GtkWidget *m_serverName;		///< Server name input area. (For LAN)
-  GtkWidget *m_lobbyEdit[2];		///< Name and message input area (For internet). 
+  GtkWidget *m_lobbyEdit[3];		///< Name and message input area (For internet). 
 protected:
   GtkWidget * InitSoloPlayPanel();
   GtkWidget * InitLANPlayPanel();

@@ -682,6 +682,7 @@ ModeNote::InitLANPlayPanel() {
  * This method creates button and edit control in the panel. 
  * 
  * @return returns the box of "Internet play" panel. 
+ * \todo: password encryption
  */
 GtkWidget *
 ModeNote::InitInternetPlayPanel() {
@@ -708,17 +709,20 @@ ModeNote::InitInternetPlayPanel() {
   gtk_entry_set_text( GTK_ENTRY(m_lobbyEdit[0]), theRC->nickname );
   gtk_widget_show (m_lobbyEdit[0]);
 
-#if 0
-  label = gtk_label_new( _("Message:") );
+  label = gtk_label_new( _("Password:\n(optional)") );
   gtk_table_attach( GTK_TABLE(editBox), label, 0, 1, 1, 2,
 		    GTK_FILL, GTK_EXPAND, 0, 0 );
   gtk_widget_show (label);
   m_lobbyEdit[1] = gtk_entry_new();
+  gtk_entry_set_visibility( GTK_ENTRY(m_lobbyEdit[1]), FALSE );
   gtk_table_attach( GTK_TABLE(editBox), m_lobbyEdit[1], 1, 2, 1, 2,
 		    GTK_FILL, GTK_EXPAND, 0, 0 );
   gtk_widget_show (m_lobbyEdit[1]);
   gtk_entry_set_text( GTK_ENTRY(m_lobbyEdit[1]), theRC->message );
-#endif
+
+  m_lobbyEdit[2] = gtk_check_button_new_with_label(_("Accept ping from others"));
+  gtk_box_pack_start( GTK_BOX(box), m_lobbyEdit[2], FALSE, FALSE, 0 );
+  gtk_widget_show(m_lobbyEdit[2]);
 
   button = gtk_button_new_with_label(_("Connect to Lobby Server"));
   gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
@@ -801,13 +805,9 @@ ModeNote::InternetStartGame( GtkWidget *widget, gpointer data ) {
   LobbyClient *lb;
   lb = LobbyClient::Create();
   if ( lb->
-#if 0
        Init((char *)gtk_entry_get_text(GTK_ENTRY(((GtkWidget **)data)[0])),
-	    (char *)gtk_entry_get_text(GTK_ENTRY(((GtkWidget **)data)[1])))
-#else
-       Init((char *)gtk_entry_get_text(GTK_ENTRY(((GtkWidget **)data)[0])),
-	    "")
-#endif
+	    (char *)gtk_entry_get_text(GTK_ENTRY(((GtkWidget **)data)[1])),
+	    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(((GtkWidget **)data)[2])))
        == false ) {
     LauncherView::ConnectionFailedDialog();
   }
@@ -918,10 +918,8 @@ LauncherView::Destroy(GtkWidget *widget, gpointer data) {
 	   gtk_entry_get_text( GTK_ENTRY(note->m_serverName) ), 256 );
   strncpy( theRC->nickname,
 	   gtk_entry_get_text( GTK_ENTRY(note->m_lobbyEdit[0]) ), 32 );
-#if 0
   strncpy( theRC->message,
 	   gtk_entry_get_text( GTK_ENTRY(note->m_lobbyEdit[1]) ), 64 );
-#endif
 
   theRC->WriteRCFile();
 
