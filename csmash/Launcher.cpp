@@ -159,7 +159,7 @@ ModeNote::Init( GtkBox *box ) {
 
   // Internet Play
   noteBox = InitInternetPlayPanel();
-  label = gtk_label_new( "Internet" );
+  label = gtk_label_new( "Internet(Experimental)" );
   gtk_notebook_append_page( GTK_NOTEBOOK(notebook), noteBox, label);
 
   gtk_box_pack_start( box, notebook, FALSE, FALSE, 10 );
