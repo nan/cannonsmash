@@ -25,6 +25,7 @@
 
 #if !defined(WIN32)
 #include <netinet/tcp.h>
+#include <locale.h>
 #endif
 
 extern RCFile *theRC;
