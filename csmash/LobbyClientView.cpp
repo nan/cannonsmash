@@ -697,9 +697,6 @@ LobbyClientView::ShowUpdateDialog( char *version, char *URL ) {
  */
 void
 LobbyClientView::AddChatMessage( long channelID, char *message ) {
-  char buf[32];
-  getcurrenttimestr( buf );
-
   GtkTextBuffer *buffer;
   int i;
 
@@ -715,7 +712,6 @@ LobbyClientView::AddChatMessage( long channelID, char *message ) {
 
   GtkTextIter iter;
   gtk_text_buffer_get_end_iter( buffer, &iter );
-  gtk_text_buffer_insert( buffer, &iter, buf, -1 );
   gtk_text_buffer_insert( buffer, &iter, message, -1 );
   gtk_text_buffer_insert( buffer, &iter, "\n", -1 );
 
