@@ -97,10 +97,8 @@ MultiPlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( m_lastRotate == 0 ) {
       if ( MouseXHistory[Histptr] - BaseView::GetWinWidth()/2 > 10 ) {
 	m_lastRotate = 2;
-	SendPT(0);
       } else if ( MouseXHistory[Histptr] - BaseView::GetWinWidth()/2 < -10 ) {
 	m_lastRotate = -2;
-	SendPT(0);
       }
 
       if ( m_lastRotate != 0 ) {
@@ -109,6 +107,7 @@ MultiPlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	  m_rotate += 360;
 	else
 	  m_rotate %= 360;
+	SendPT(0);
       }
     } else {
       long nextRotate = m_rotate + m_lastRotate;
@@ -193,8 +192,14 @@ MultiPlayerSelect::ReadPT( char *data ) {
   // get player type
   ReadLong( &(data[1]), rotate );
 
-  if ( rotate%(360/PLAYERS) != 0 )
-    m_lastOpponentRotate = rotate-m_opponentRotate;
+  m_lastOpponentRotate = rotate%(360/PLAYERS);
+
+  while ( m_lastOpponentRotate > 10 )
+    m_lastOpponentRotate -= (360/PLAYERS);
+
+  while ( m_lastOpponentRotate < -10 )
+    m_lastOpponentRotate += (360/PLAYERS);
+
   m_opponentRotate = rotate;
 
   if ( data[0] != 0 )
