@@ -12,3 +12,6 @@
 *.idb
 *.pdb
 *.ilk
+Makefile
+Makefile.in
+
