@@ -87,6 +87,8 @@ protected:
   long m_lastSendCount;
 private:
   void BallDead();
+  bool Reset();
+  bool CollisionCheck(vector3d &x, vector3d &v);
 };
 
 #endif // _Ball_

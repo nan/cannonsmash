@@ -100,223 +100,37 @@ Ball::Init() {
 
 bool
 Ball::Move() {
-  double netT , tableT;        /* Flag for bound on the table, hit net */
-  vector3d x;                  /* Hold x,y */
-  double tableY;               /* Hold y on bounding */
+  vector3d oldX, oldV;
 
-// Return ball immidiately when ball dead
+  // Return ball immidiately when ball dead
   if ( m_status < 0 )
     m_status--;
 
-  if ( m_status < -100 || m_status == 8 ){
-    if ( Control::TheControl()->IsPlaying() ) {
-      Player *player;
-
-      if ( ((PlayGame *)Control::TheControl())->GetService() == Control::TheControl()->GetThePlayer()->GetSide() )
-	player = Control::TheControl()->GetThePlayer();
-      else
-	player = Control::TheControl()->GetComPlayer();
-
-      if ( ((PlayGame *)Control::TheControl())->GetService() > 0 ) {
-	m_x[0] = player->GetX()[0]+0.3;
-	m_x[1] = player->GetX()[1];
-      } else {
-	m_x[0] = player->GetX()[0]-0.3;
-	m_x[1] = player->GetX()[1];
-      }
-
-      m_x[2] = TABLEHEIGHT + 0.15;
-      m_v[0] = m_v[1] = m_v[2] = 0.0;
-
-      m_status = 8;
-
-      if ( &theBall == this &&
-	   ((PlayGame *)Control::TheControl())->IsGameEnd() == true ){
-	BaseView::TheView()->EndGame();
-	((PlayGame *)Control::TheControl())->EndGame();
-      }
-
-      // To Fix the possibility of score mismatch
-      if ( mode == MODE_MULTIPLAY && &theBall == this &&
-	   Control::TheControl()->GetThePlayer()->GetSide() > 0 ) {
-	m_lastSendCount++;
-	if ( m_lastSendCount >= 100 ) {
-	  Event::TheEvent()->SendBall();
-	  m_lastSendCount = 0;
-	}
-      }
-    } else {
-      m_x[0] = Control::TheControl()->GetThePlayer()->GetX()[0]+0.3;
-      m_x[1] = Control::TheControl()->GetThePlayer()->GetX()[1];
-
-      m_x[2] = TABLEHEIGHT + 0.15;
-      m_v[0] = m_v[1] = m_v[2] = 0.0;
-
-      m_status = 8;
-    }
-
-    return true;
+  if ( m_status < -100 || m_status == 8 ) {
+    return Reset();
   }
 
-/* Add velocity */ 
-  x = m_x;
+  // Update velocity
+  oldX = m_x;
+  oldV = m_v;
 
-  m_x[0] += (m_v[0]*2-PHY*m_v[0]*TICK)/2*TICK;
-  m_x[1] += (m_v[1]*2-PHY*m_v[1]*TICK)/2*TICK;
-  m_x[2] += (m_v[2]*2-GRAVITY(m_spin[1])*TICK-PHY*m_v[2]*TICK)/2*TICK;
+  m_v[2] -= GRAVITY(m_spin[1])*TICK;	// Gravity
 
-/* Collision check */
-  if ( x[1]*m_x[1] <= 0.0 ){
-    netT = fabs( x[1]/((m_x[1]-x[1])/TICK) );
-    if ( x[2]+(m_x[2]-x[2])*netT/TICK < TABLEHEIGHT ||
-	 x[2]+(m_x[2]-x[2])*netT/TICK > TABLEHEIGHT+NETHEIGHT ||
-	 x[0]+(m_x[0]-x[0])*netT/TICK < -TABLEWIDTH/2-NETHEIGHT ||
-	 x[0]+(m_x[0]-x[0])*netT/TICK > TABLEWIDTH/2+NETHEIGHT )
-      netT = TICK*100;
-  } else
-    netT = TICK*100;
-
-  if ( (x[2]-TABLEHEIGHT)*(m_x[2]-TABLEHEIGHT) <= 0.0 ){
-    tableT = fabs( (x[2]-TABLEHEIGHT)/((m_x[2]-x[2])/TICK) );
-    if ( tableT <= 0.0 || x[1]+(m_x[1]-x[1])*tableT/TICK < -TABLELENGTH/2 ||
-	 x[1]+(m_x[1]-x[1])*tableT/TICK > TABLELENGTH/2 ||
-	 x[0]+(m_x[0]-x[0])*tableT/TICK < -TABLEWIDTH/2 ||
-	 x[0]+(m_x[0]-x[0])*tableT/TICK > TABLEWIDTH/2 )
-      tableT = TICK*100;
-  } else
-    tableT = TICK*100;
-
-  if ( netT < tableT ){	// Hit net
-    m_v[0] *= 0.5;
-    m_v[1] *= -0.2;
-    m_spin *= -0.8;
-
-    m_x[1] = m_v[1]*(TICK-netT);
-  }
-
-  if ( tableT < netT ){	// Bound on the table
-    if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE, m_x );
-    }
-    tableY = x[1]+m_v[1]*tableT;
-    if ( tableY < 0 ){		// Table of my side
-      switch( m_status ){
-      case 2:
-	m_status = 3;
-	break;
-      case 4:
-	m_status = 0;
-	break;
-      default:
-	BallDead();
-      }
-    } else {			// Table of opponent side
-      switch( m_status ) {
-      case 0:
-	m_status = 1;
-	break;
-      case 5:
-	m_status = 2;
-	break;
-      default:
-	BallDead();
-      }
-    }
-
-    m_v[2] -= GRAVITY(m_spin[1])*tableT;
-    m_v[2] += -PHY*m_v[2]*tableT;
-    m_v[2] *= -TABLE_E;
-    m_x[2] = TABLEHEIGHT + (TICK-tableT)*m_v[2];
-    m_v[2] -= GRAVITY(m_spin[1])*(TICK-tableT);
-    m_v[2] += -PHY*m_v[2]*(TICK-tableT);
-
-    m_v[1] += -PHY*m_v[1]*tableT;
-
-    if ( m_v[1] > 0 )
-      m_v[1] += m_spin[1]*0.8;
-    else
-      m_v[1] -= m_spin[1]*0.8;
-
-    m_v[1] += -PHY*m_v[1]*(TICK-tableT);
-    m_v[0] += -PHY*m_v[0]*TICK;
-
-    m_spin[0] *= 0.95;
-    m_spin[1] *= 0.8;
-
-    return true;
-  }
-
-/* Collision check with walls */
-  if ( m_x[0] < -AREAXSIZE/2 ){
-    m_x[0] = -AREAXSIZE/2;
-    m_v[0] = -m_v[0]*TABLE_E/2;
-    if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE, m_x );
-    }
-    BallDead();
-  }
-  else if ( m_x[0] > AREAXSIZE/2 ){
-    m_x[0] = AREAXSIZE/2;
-    m_v[0] = -m_v[0]*TABLE_E/2;
-    if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE, m_x );
-    }
-    BallDead();
-  }
-
-  if ( m_x[1] < -AREAYSIZE/2 ){
-    m_x[1] = -AREAYSIZE/2;
-    m_v[1] = -m_v[1]*TABLE_E/2;
-    if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE, m_x );
-    }
-    BallDead();
-  }
-  else if ( m_x[1] > AREAYSIZE/2 ){
-    m_x[1] = AREAYSIZE/2;
-    m_v[1] = -m_v[1]*TABLE_E/2;
-    if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE, m_x );
-    }
-    BallDead();
-  }
-
-  if ( m_x[2] < 0 ){
-    m_x[2] = 0;
-    m_v[2] = -m_v[2]*TABLE_E;
-    if ( m_v[1] > 0 )
-      m_v[1] += m_spin[1]*0.8;
-    else
-      m_v[1] -= m_spin[1]*0.8;
-
-    if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE, m_x );
-    }
-    BallDead();
-  }
-  else if ( m_x[2] > AREAZSIZE ){
-    m_x[2] = AREAZSIZE;
-    m_v[2] = -m_v[2]*0.1;
-    if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE, m_x );
-    }
-    BallDead();
-  }
-
-// Gravity
-  m_v[2] -= GRAVITY(m_spin[1])*TICK;
-
-// Spin
-  //TODO: apply spinX
+  // TODO: Apply spinX
   /*
-  double rotVx = m_vx*cos(m_spinX)-m_vy*sin(m_spinX);
-  double rotVy = m_vx*sin(m_spinX)+m_vy*cos(m_spinX);
+  double rotVx = m_v[0]*cos(m_spin[0])-m_v[1]*sin(m_spin[0]);
+  double rotVy = m_v[0]*sin(m_spin[0])+m_v[1]*cos(m_spin[0]);
 
-  m_vx = rotVx; m_vy = rotVy;
+  m_v[0] = rotVx; m_v[1] = rotVy;
   */
+  
+  m_v = m_v - PHY*TICK*m_v;		// Air resistance
 
-// Air resistance
-  m_v = m_v - PHY*TICK*m_v;
+  // Move
+  m_x = m_x + (oldV+m_v)/2*TICK;
+
+  // Collision check
+  CollisionCheck(oldX, oldV);
 
   return true;
 }
@@ -324,7 +138,7 @@ Ball::Move() {
 // Ball inpact
 bool
 Ball::Hit( const vector3d v, const vector2d spin, Player *player ) {
-// Normal inpact
+  // Normal inpact
   if ( this == &theBall ) {
       Sound::TheSound()->Play( SOUND_RACKET, m_x );
   }
@@ -419,7 +233,7 @@ Ball::TargetToV( vector2d target, double level, const vector2d spin,
 
   vyMax = fabs(target[1]-m_x[1])/hypot(target[0]-m_x[0], target[1]-m_x[1])*vMax;
 
-  if ( target[1] < m_x[1] ){
+  if ( target[1] < m_x[1] ) {
     y = -m_x[1];
     target[1] = -target[1];
   } else
@@ -440,7 +254,6 @@ Ball::TargetToV( vector2d target, double level, const vector2d spin,
 	v[2] = m_x[2];
 	v[0] = m_x[0];
     }
-
 
     if ( y != m_x[1] )
       v[1] = -v[1];
@@ -633,4 +446,202 @@ Ball::Send( char *buf ) {
 #endif
 
   return buf;
+}
+
+// Reset ball location and status
+bool
+Ball::Reset() {
+  PlayGame *control = (PlayGame *)Control::TheControl();
+
+  if ( control->IsPlaying() ) {
+    Player *player;
+
+    if ( control->GetService() == control->GetThePlayer()->GetSide() )
+      player = control->GetThePlayer();
+    else
+      player = control->GetComPlayer();
+
+    if ( control->GetService() > 0 ) {
+      m_x[0] = player->GetX()[0]+0.3;
+      m_x[1] = player->GetX()[1];
+    } else {
+      m_x[0] = player->GetX()[0]-0.3;
+      m_x[1] = player->GetX()[1];
+    }
+
+    m_x[2] = TABLEHEIGHT + 0.15;
+    m_v[0] = m_v[1] = m_v[2] = 0.0;
+
+    m_status = 8;
+
+    if ( &theBall == this && control->IsGameEnd() == true ) {
+      BaseView::TheView()->EndGame();
+      ((PlayGame *)Control::TheControl())->EndGame();
+    }
+
+    // To Fix the possibility of score mismatch
+    if ( mode == MODE_MULTIPLAY && &theBall == this &&
+	 Control::TheControl()->GetThePlayer()->GetSide() > 0 ) {
+      m_lastSendCount++;
+      if ( m_lastSendCount >= 100 ) {
+	Event::TheEvent()->SendBall();
+	m_lastSendCount = 0;
+      }
+    }
+  } else {
+    m_x[0] = control->GetThePlayer()->GetX()[0]+0.3;
+    m_x[1] = control->GetThePlayer()->GetX()[1];
+
+    m_x[2] = TABLEHEIGHT + 0.15;
+    m_v[0] = m_v[1] = m_v[2] = 0.0;
+
+    m_status = 8;
+  }
+
+  return true;
+}
+
+bool
+Ball::CollisionCheck( vector3d &x, vector3d &v ) {
+  double netT , tableT;        /* Flag for bound on the table, hit net */
+  double tableY;               /* Hold y on bounding */
+
+  if ( x[1]*m_x[1] <= 0.0 ) {
+    netT = fabs( x[1]/((m_x[1]-x[1])/TICK) );
+    if ( x[2]+(m_x[2]-x[2])*netT/TICK < TABLEHEIGHT ||
+	 x[2]+(m_x[2]-x[2])*netT/TICK > TABLEHEIGHT+NETHEIGHT ||
+	 x[0]+(m_x[0]-x[0])*netT/TICK < -TABLEWIDTH/2-NETHEIGHT ||
+	 x[0]+(m_x[0]-x[0])*netT/TICK > TABLEWIDTH/2+NETHEIGHT )
+      netT = TICK*100;
+  } else {
+    netT = TICK*100;
+  }
+
+  if ( (x[2]-TABLEHEIGHT)*(m_x[2]-TABLEHEIGHT) <= 0.0 ) {
+    tableT = fabs( (x[2]-TABLEHEIGHT)/((m_x[2]-x[2])/TICK) );
+    if ( tableT <= 0.0 || x[1]+(m_x[1]-x[1])*tableT/TICK < -TABLELENGTH/2 ||
+	 x[1]+(m_x[1]-x[1])*tableT/TICK > TABLELENGTH/2 ||
+	 x[0]+(m_x[0]-x[0])*tableT/TICK < -TABLEWIDTH/2 ||
+	 x[0]+(m_x[0]-x[0])*tableT/TICK > TABLEWIDTH/2 )
+      tableT = TICK*100;
+  } else {
+    tableT = TICK*100;
+  }
+
+  if ( netT < tableT ){	// Hit net
+    m_v[0] *= 0.5;
+    m_v[1] *= -0.2;
+    m_spin *= -0.8;
+
+    m_x[1] = m_v[1]*(TICK-netT);
+  }
+
+  if ( tableT < netT ){	// Bound on the table
+    if ( this == &theBall ) {
+      Sound::TheSound()->Play( SOUND_TABLE, m_x );
+    }
+    tableY = x[1]+m_v[1]*tableT;
+    if ( tableY < 0 ){		// Table of my side
+      switch( m_status ){
+      case 2:
+	m_status = 3;
+	break;
+      case 4:
+	m_status = 0;
+	break;
+      default:
+	BallDead();
+      }
+    } else {			// Table of opponent side
+      switch( m_status ) {
+      case 0:
+	m_status = 1;
+	break;
+      case 5:
+	m_status = 2;
+	break;
+      default:
+	BallDead();
+      }
+    }
+
+    m_v[2] = v[2] - GRAVITY(m_spin[1])*tableT;
+    m_v[2] += -PHY*m_v[2]*tableT;
+    m_v[2] *= -TABLE_E;
+    m_x[2] = TABLEHEIGHT + (TICK-tableT)*m_v[2];
+    m_v[2] -= GRAVITY(m_spin[1])*(TICK-tableT);
+    m_v[2] += -PHY*m_v[2]*(TICK-tableT);
+
+    m_v[1] = v[1] -PHY*v[1]*tableT;
+
+    if ( m_v[1] > 0 )
+      m_v[1] += m_spin[1]*0.8;
+    else
+      m_v[1] -= m_spin[1]*0.8;
+
+    m_v[1] += -PHY*m_v[1]*(TICK-tableT);
+
+    m_v[0] = v[0] -PHY*v[0]*TICK;
+
+    m_spin[0] *= 0.95;
+    m_spin[1] *= 0.8;
+
+    return true;
+  }
+
+  /* Collision check with walls */
+  if ( m_x[0] < -AREAXSIZE/2 ){
+    m_x[0] = -AREAXSIZE/2;
+    m_v[0] = -m_v[0]*TABLE_E/2;
+    if ( this == &theBall ) {
+      Sound::TheSound()->Play( SOUND_TABLE, m_x );
+    }
+    BallDead();
+  } else if ( m_x[0] > AREAXSIZE/2 ){
+    m_x[0] = AREAXSIZE/2;
+    m_v[0] = -m_v[0]*TABLE_E/2;
+    if ( this == &theBall ) {
+      Sound::TheSound()->Play( SOUND_TABLE, m_x );
+    }
+    BallDead();
+  }
+
+  if ( m_x[1] < -AREAYSIZE/2 ){
+    m_x[1] = -AREAYSIZE/2;
+    m_v[1] = -m_v[1]*TABLE_E/2;
+    if ( this == &theBall ) {
+      Sound::TheSound()->Play( SOUND_TABLE, m_x );
+    }
+    BallDead();
+  } else if ( m_x[1] > AREAYSIZE/2 ){
+    m_x[1] = AREAYSIZE/2;
+    m_v[1] = -m_v[1]*TABLE_E/2;
+    if ( this == &theBall ) {
+      Sound::TheSound()->Play( SOUND_TABLE, m_x );
+    }
+    BallDead();
+  }
+
+  if ( m_x[2] < 0 ){
+    m_x[2] = 0;
+    m_v[2] = -m_v[2]*TABLE_E;
+    if ( m_v[1] > 0 )
+      m_v[1] += m_spin[1]*0.8;
+    else
+      m_v[1] -= m_spin[1]*0.8;
+
+    if ( this == &theBall ) {
+      Sound::TheSound()->Play( SOUND_TABLE, m_x );
+    }
+    BallDead();
+  } else if ( m_x[2] > AREAZSIZE ){
+    m_x[2] = AREAZSIZE;
+    m_v[2] = -m_v[2]*0.1;
+    if ( this == &theBall ) {
+      Sound::TheSound()->Play( SOUND_TABLE, m_x );
+    }
+    BallDead();
+  }
+
+  return true;
 }
