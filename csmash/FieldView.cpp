@@ -32,7 +32,7 @@ FieldView::~FieldView() {
 
 bool
 FieldView::Init() {
-  int i, j;
+  int i;
 // Set texture
   ImageData image;
 
@@ -75,11 +75,11 @@ FieldView::Init() {
 
   if (isSimple) {
     glBegin(GL_LINE_LOOP);			// Draw floor
-      glNormal3f( 0.0, 0.0, 1.0 );
-      glVertex3f( -AREAXSIZE,  AREAYSIZE, 0.0 );
-      glVertex3f( -AREAXSIZE, -AREAYSIZE, 0.0 );
-      glVertex3f(  AREAXSIZE, -AREAYSIZE, 0.0 );
-      glVertex3f(  AREAXSIZE,  AREAYSIZE, 0.0 );
+      glNormal3f( 0.0F, 0.0F, 1.0F );
+      glVertex3f( -AREAXSIZE,  AREAYSIZE, 0.0F );
+      glVertex3f( -AREAXSIZE, -AREAYSIZE, 0.0F );
+      glVertex3f(  AREAXSIZE, -AREAYSIZE, 0.0F );
+      glVertex3f(  AREAXSIZE,  AREAYSIZE, 0.0F );
     glEnd();
   } else {
     glBindTexture( GL_TEXTURE_2D, m_floor );
@@ -89,11 +89,11 @@ FieldView::Init() {
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 
     glBegin(GL_QUADS);				// Draw floor
-      glNormal3f( 0.0, 0.0, 1.0 );
-      glTexCoord2f(0.0, 0.0); glVertex3f( -AREAXSIZE*2,  AREAYSIZE*2, 0.0 );
-      glTexCoord2f(4.0, 0.0); glVertex3f( -AREAXSIZE*2, -AREAYSIZE*2, 0.0 );
-      glTexCoord2f(4.0, 4.0); glVertex3f(  AREAXSIZE*2, -AREAYSIZE*2, 0.0 );
-      glTexCoord2f(0.0, 4.0); glVertex3f(  AREAXSIZE*2,  AREAYSIZE*2, 0.0 );
+      glNormal3f( 0.0F, 0.0F, 1.0F );
+      glTexCoord2f(0.0F, 0.0F); glVertex3f( -AREAXSIZE*2,  AREAYSIZE*2, 0.0F );
+      glTexCoord2f(4.0F, 0.0F); glVertex3f( -AREAXSIZE*2, -AREAYSIZE*2, 0.0F );
+      glTexCoord2f(4.0F, 4.0F); glVertex3f(  AREAXSIZE*2, -AREAYSIZE*2, 0.0F );
+      glTexCoord2f(0.0F, 4.0F); glVertex3f(  AREAXSIZE*2,  AREAYSIZE*2, 0.0F );
     glEnd();
   }
 
@@ -108,41 +108,41 @@ FieldView::Redraw() {
     glEnable(GL_TEXTURE_2D);
 
   if ( !isSimple )
-    glColor4f(0.8, 0.8, 0.8, 0.0);
+    glColor4f(0.8F, 0.8F, 0.8F, 0.0F);
   else
-    glColor4f(0.6, 0.4, 0.2, 0.0);
+    glColor4f(0.6F, 0.4F, 0.2F, 0.0F);
 
   glCallList( m_offset );
 
   if (isSimple) {
     glBegin(GL_LINE_LOOP);			// Draw wall
-      glNormal3f( 1.0, 0.0, 0.0 );
-      glVertex3f( -AREAXSIZE,  AREAYSIZE, 0.0 );
-      glVertex3f( -AREAXSIZE, -AREAYSIZE, 0.0 );
+      glNormal3f( 1.0F, 0.0F, 0.0F );
+      glVertex3f( -AREAXSIZE,  AREAYSIZE, 0.0F );
+      glVertex3f( -AREAXSIZE, -AREAYSIZE, 0.0F );
       glVertex3f( -AREAXSIZE, -AREAYSIZE, AREAZSIZE);
       glVertex3f( -AREAXSIZE,  AREAYSIZE, AREAZSIZE);
     glEnd();
 
     glBegin(GL_LINE_LOOP);
-    glNormal3f( 0.0, 1.0, 0.0 );
-      glVertex3f( -AREAXSIZE, -AREAYSIZE, 0.0 );
-      glVertex3f(  AREAXSIZE, -AREAYSIZE, 0.0 );
+    glNormal3f( 0.0F, 1.0F, 0.0F );
+      glVertex3f( -AREAXSIZE, -AREAYSIZE, 0.0F );
+      glVertex3f(  AREAXSIZE, -AREAYSIZE, 0.0F );
       glVertex3f(  AREAXSIZE, -AREAYSIZE, AREAZSIZE);
       glVertex3f( -AREAXSIZE, -AREAYSIZE, AREAZSIZE);
     glEnd();
 
     glBegin(GL_LINE_LOOP);
-      glNormal3f( -1.0, 0.0, 0.0 );
-      glVertex3f(  AREAXSIZE, -AREAYSIZE, 0.0 );
-      glVertex3f(  AREAXSIZE,  AREAYSIZE, 0.0 );
+      glNormal3f( -1.0F, 0.0F, 0.0F );
+      glVertex3f(  AREAXSIZE, -AREAYSIZE, 0.0F );
+      glVertex3f(  AREAXSIZE,  AREAYSIZE, 0.0F );
       glVertex3f(  AREAXSIZE,  AREAYSIZE, AREAZSIZE);
       glVertex3f(  AREAXSIZE, -AREAYSIZE, AREAZSIZE);
     glEnd();
 
     glBegin(GL_LINE_LOOP);
-      glNormal3f( 0.0, -1.0, 0.0 );
-      glVertex3f(  AREAXSIZE, AREAYSIZE, 0.0 );
-      glVertex3f( -AREAXSIZE, AREAYSIZE, 0.0 );
+      glNormal3f( 0.0F, -1.0F, 0.0F );
+      glVertex3f(  AREAXSIZE, AREAYSIZE, 0.0F );
+      glVertex3f( -AREAXSIZE, AREAYSIZE, 0.0F );
       glVertex3f( -AREAXSIZE, AREAYSIZE, AREAZSIZE);
       glVertex3f(  AREAXSIZE, AREAYSIZE, AREAZSIZE);
     glEnd();
@@ -153,11 +153,11 @@ FieldView::Redraw() {
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glBegin(GL_QUADS);			// Draw wall
-      glNormal3f( 1.0, 0.0, 0.0 );
-      glTexCoord2f(0.0, 1.0); glVertex3f( -AREAXSIZE,  AREAYSIZE, 0.0 );
-      glTexCoord2f(1.0, 1.0); glVertex3f( -AREAXSIZE, -AREAYSIZE, 0.0 );
-      glTexCoord2f(1.0, 0.0); glVertex3f( -AREAXSIZE, -AREAYSIZE, AREAZSIZE);
-      glTexCoord2f(0.0, 0.0); glVertex3f( -AREAXSIZE,  AREAYSIZE, AREAZSIZE);
+      glNormal3f( 1.0F, 0.0F, 0.0F );
+      glTexCoord2f(0.0F, 1.0F); glVertex3f( -AREAXSIZE,  AREAYSIZE, 0.0F );
+      glTexCoord2f(1.0F, 1.0F); glVertex3f( -AREAXSIZE, -AREAYSIZE, 0.0F );
+      glTexCoord2f(1.0F, 0.0F); glVertex3f( -AREAXSIZE, -AREAYSIZE, AREAZSIZE);
+      glTexCoord2f(0.0F, 0.0F); glVertex3f( -AREAXSIZE,  AREAYSIZE, AREAZSIZE);
     glEnd();
 
     glBindTexture( GL_TEXTURE_2D, m_wall[1] );
@@ -166,11 +166,11 @@ FieldView::Redraw() {
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glBegin(GL_QUADS);
-    glNormal3f( 0.0, 1.0, 0.0 );
-      glTexCoord2f(0.0, 1.0); glVertex3f( -AREAXSIZE, -AREAYSIZE, 0.0 );
-      glTexCoord2f(1.0, 1.0); glVertex3f(  AREAXSIZE, -AREAYSIZE, 0.0 );
-      glTexCoord2f(1.0, 0.0); glVertex3f(  AREAXSIZE, -AREAYSIZE, AREAZSIZE);
-      glTexCoord2f(0.0, 0.0); glVertex3f( -AREAXSIZE, -AREAYSIZE, AREAZSIZE);
+    glNormal3f( 0.0F, 1.0F, 0.0F );
+      glTexCoord2f(0.0F, 1.0F); glVertex3f( -AREAXSIZE, -AREAYSIZE, 0.0F );
+      glTexCoord2f(1.0F, 1.0F); glVertex3f(  AREAXSIZE, -AREAYSIZE, 0.0F );
+      glTexCoord2f(1.0F, 0.0F); glVertex3f(  AREAXSIZE, -AREAYSIZE, AREAZSIZE);
+      glTexCoord2f(0.0F, 0.0F); glVertex3f( -AREAXSIZE, -AREAYSIZE, AREAZSIZE);
     glEnd();
 
     glBindTexture( GL_TEXTURE_2D, m_wall[2] );
@@ -179,11 +179,11 @@ FieldView::Redraw() {
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glBegin(GL_QUADS);
-      glNormal3f( -1.0, 0.0, 0.0 );
-      glTexCoord2f(0.0, 1.0); glVertex3f(  AREAXSIZE, -AREAYSIZE, 0.0 );
-      glTexCoord2f(1.0, 1.0); glVertex3f(  AREAXSIZE,  AREAYSIZE, 0.0 );
-      glTexCoord2f(1.0, 0.0); glVertex3f(  AREAXSIZE,  AREAYSIZE, AREAZSIZE);
-      glTexCoord2f(0.0, 0.0); glVertex3f(  AREAXSIZE, -AREAYSIZE, AREAZSIZE);
+      glNormal3f( -1.0F, 0.0F, 0.0F );
+      glTexCoord2f(0.0F, 1.0F); glVertex3f(  AREAXSIZE, -AREAYSIZE, 0.0F );
+      glTexCoord2f(1.0F, 1.0F); glVertex3f(  AREAXSIZE,  AREAYSIZE, 0.0F );
+      glTexCoord2f(1.0F, 0.0F); glVertex3f(  AREAXSIZE,  AREAYSIZE, AREAZSIZE);
+      glTexCoord2f(0.0F, 0.0F); glVertex3f(  AREAXSIZE, -AREAYSIZE, AREAZSIZE);
     glEnd();
 
     glBindTexture( GL_TEXTURE_2D, m_wall[3] );
@@ -192,19 +192,19 @@ FieldView::Redraw() {
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glBegin(GL_QUADS);
-      glNormal3f( 0.0, -1.0, 0.0 );
-      glTexCoord2f(0.0, 1.0); glVertex3f(  AREAXSIZE, AREAYSIZE, 0.0 );
-      glTexCoord2f(1.0, 1.0); glVertex3f( -AREAXSIZE, AREAYSIZE, 0.0 );
-      glTexCoord2f(1.0, 0.0); glVertex3f( -AREAXSIZE, AREAYSIZE, AREAZSIZE);
-      glTexCoord2f(0.0, 0.0); glVertex3f(  AREAXSIZE, AREAYSIZE, AREAZSIZE);
+      glNormal3f( 0.0F, -1.0F, 0.0F );
+      glTexCoord2f(0.0F, 1.0F); glVertex3f(  AREAXSIZE, AREAYSIZE, 0.0F );
+      glTexCoord2f(1.0F, 1.0F); glVertex3f( -AREAXSIZE, AREAYSIZE, 0.0F );
+      glTexCoord2f(1.0F, 0.0F); glVertex3f( -AREAXSIZE, AREAYSIZE, AREAZSIZE);
+      glTexCoord2f(0.0F, 0.0F); glVertex3f(  AREAXSIZE, AREAYSIZE, AREAZSIZE);
     glEnd();
 
     if ( isTexture )
       glDisable(GL_TEXTURE_2D);
 
-    glColor4f(0.1, 0.1, 0.1, 0.0);
+    glColor4f(0.1F, 0.1F, 0.1F, 0.0F);
     glBegin(GL_QUADS);			// Draw ceiling
-      glNormal3f( 0.0, 0.0, -1.0 );
+      glNormal3f( 0.0F, 0.0F, -1.0F );
       glVertex3f(  AREAXSIZE*2,  AREAYSIZE*2, AREAZSIZE);
       glVertex3f( -AREAXSIZE*2,  AREAYSIZE*2, AREAZSIZE);
       glVertex3f( -AREAXSIZE*2, -AREAYSIZE*2, AREAZSIZE);
@@ -212,125 +212,125 @@ FieldView::Redraw() {
     glEnd();
 
     if ( isLighting ) {
-      glColor4f(0.0, 0.2, 0.0, 0.0);
-      static GLfloat mat_board[] = { 0.0, 0.2, 0.0, 0.0 };
+      glColor4f(0.0F, 0.2F, 0.0F, 0.0F);
+      static GLfloat mat_board[] = { 0.0F, 0.2F, 0.0F, 0.0F };
       glMaterialfv(GL_FRONT, GL_SPECULAR, mat_board);
 
       glBegin(GL_QUADS);			// Draw ball stopper
-        glNormal3f( 1.0, 0.0, 0.0 );
-	glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, 0.0 );
-	glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, 0.0 );
+        glNormal3f( 1.0F, 0.0F, 0.0F );
+	glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, 0.0F );
+	glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, 0.0F );
 	glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
 	glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
 
-	glNormal3f( -1.0, 0.0, 0.0 );
-	glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, 0.0 );
-	glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, 0.0 );
+	glNormal3f( -1.0F, 0.0F, 0.0F );
+	glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, 0.0F );
+	glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, 0.0F );
 	glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
 	glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
 
-	glNormal3f( 0.0, -1.0, 0.0 );
-	glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, 0.0 );
-	glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, 0.0 );
+	glNormal3f( 0.0F, -1.0F, 0.0F );
+	glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, 0.0F );
+	glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, 0.0F );
 	glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
 	glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
 
-	glNormal3f( 0.0, 1.0, 0.0 );
-	glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, 0.0 );
-	glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, 0.0 );
+	glNormal3f( 0.0F, 1.0F, 0.0F );
+	glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, 0.0F );
+	glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, 0.0F );
 	glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
 	glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
       glEnd();
     }
   }
 
-  glColor4f(0.4, 0.4, 0.4, 0.0);
-  static GLfloat mat_leg[] = { 0.0, 0.4, 0.0, 0.0 };
+  glColor4f(0.4F, 0.4F, 0.4F, 0.0F);
+  static GLfloat mat_leg[] = { 0.0F, 0.4F, 0.0F, 0.0F };
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_leg);
 
   glBegin(GL_QUADS);			// Draw table legs
-    glVertex3f(-TABLEWIDTH/2+0.1, -TABLELENGTH/2+0.1,  0.0);
-    glVertex3f(-TABLEWIDTH/2+0.1, -TABLELENGTH/2+0.1,  TABLEHEIGHT-TABLETHICK);
-    glVertex3f(-TABLEWIDTH/2+0.1, -TABLELENGTH/2+0.13, TABLEHEIGHT-TABLETHICK);
-    glVertex3f(-TABLEWIDTH/2+0.1, -TABLELENGTH/2+0.13, 0.0);
+    glVertex3f(-TABLEWIDTH/2+0.1F, -TABLELENGTH/2+0.1F,  0.0F);
+    glVertex3f(-TABLEWIDTH/2+0.1F, -TABLELENGTH/2+0.1F,  TABLEHEIGHT-TABLETHICK);
+    glVertex3f(-TABLEWIDTH/2+0.1F, -TABLELENGTH/2+0.13F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f(-TABLEWIDTH/2+0.1F, -TABLELENGTH/2+0.13F, 0.0F);
 
-    glVertex3f(-TABLEWIDTH/2+0.1, -TABLELENGTH/2+0.13, 0.0);
-    glVertex3f(-TABLEWIDTH/2+0.1, -TABLELENGTH/2+0.13, TABLEHEIGHT-TABLETHICK);
-    glVertex3f(-TABLEWIDTH/2+0.13,-TABLELENGTH/2+0.13, TABLEHEIGHT-TABLETHICK);
-    glVertex3f(-TABLEWIDTH/2+0.13,-TABLELENGTH/2+0.13, 0.0);
+    glVertex3f(-TABLEWIDTH/2+0.1F, -TABLELENGTH/2+0.13F, 0.0F);
+    glVertex3f(-TABLEWIDTH/2+0.1F, -TABLELENGTH/2+0.13F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f(-TABLEWIDTH/2+0.13F,-TABLELENGTH/2+0.13F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f(-TABLEWIDTH/2+0.13F,-TABLELENGTH/2+0.13F, 0.0F);
 
-    glVertex3f(-TABLEWIDTH/2+0.13, -TABLELENGTH/2+0.1, 0.0);
-    glVertex3f(-TABLEWIDTH/2+0.13, -TABLELENGTH/2+0.1, TABLEHEIGHT-TABLETHICK);
-    glVertex3f(-TABLEWIDTH/2+0.13,-TABLELENGTH/2+0.13, TABLEHEIGHT-TABLETHICK);
-    glVertex3f(-TABLEWIDTH/2+0.13,-TABLELENGTH/2+0.13, 0.0);
+    glVertex3f(-TABLEWIDTH/2+0.13F, -TABLELENGTH/2+0.1F, 0.0F);
+    glVertex3f(-TABLEWIDTH/2+0.13F, -TABLELENGTH/2+0.1F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f(-TABLEWIDTH/2+0.13F,-TABLELENGTH/2+0.13F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f(-TABLEWIDTH/2+0.13F,-TABLELENGTH/2+0.13F, 0.0F);
 
-    glVertex3f(-TABLEWIDTH/2+0.1, -TABLELENGTH/2+0.1,  0.0);
-    glVertex3f(-TABLEWIDTH/2+0.1, -TABLELENGTH/2+0.1,  TABLEHEIGHT-TABLETHICK);
-    glVertex3f(-TABLEWIDTH/2+0.13,-TABLELENGTH/2+0.1,  TABLEHEIGHT-TABLETHICK);
-    glVertex3f(-TABLEWIDTH/2+0.13,-TABLELENGTH/2+0.1,  0.0);
-
-
-    glVertex3f(-TABLEWIDTH/2+0.1,  TABLELENGTH/2-0.1,  0.0);
-    glVertex3f(-TABLEWIDTH/2+0.1,  TABLELENGTH/2-0.1,  TABLEHEIGHT-TABLETHICK);
-    glVertex3f(-TABLEWIDTH/2+0.1,  TABLELENGTH/2-0.13, TABLEHEIGHT-TABLETHICK);
-    glVertex3f(-TABLEWIDTH/2+0.1,  TABLELENGTH/2-0.13, 0.0);
-
-    glVertex3f(-TABLEWIDTH/2+0.1,  TABLELENGTH/2-0.13, 0.0);
-    glVertex3f(-TABLEWIDTH/2+0.1,  TABLELENGTH/2-0.13, TABLEHEIGHT-TABLETHICK);
-    glVertex3f(-TABLEWIDTH/2+0.13, TABLELENGTH/2-0.13, TABLEHEIGHT-TABLETHICK);
-    glVertex3f(-TABLEWIDTH/2+0.13, TABLELENGTH/2-0.13, 0.0);
-
-    glVertex3f(-TABLEWIDTH/2+0.13, TABLELENGTH/2-0.1,  0.0);
-    glVertex3f(-TABLEWIDTH/2+0.13, TABLELENGTH/2-0.1,  TABLEHEIGHT-TABLETHICK);
-    glVertex3f(-TABLEWIDTH/2+0.13, TABLELENGTH/2-0.13, TABLEHEIGHT-TABLETHICK);
-    glVertex3f(-TABLEWIDTH/2+0.13, TABLELENGTH/2-0.13, 0.0);
-
-    glVertex3f(-TABLEWIDTH/2+0.1,  TABLELENGTH/2-0.1,  0.0);
-    glVertex3f(-TABLEWIDTH/2+0.1,  TABLELENGTH/2-0.1,  TABLEHEIGHT-TABLETHICK);
-    glVertex3f(-TABLEWIDTH/2+0.13, TABLELENGTH/2-0.1,  TABLEHEIGHT-TABLETHICK);
-    glVertex3f(-TABLEWIDTH/2+0.13, TABLELENGTH/2-0.1,  0.0);
+    glVertex3f(-TABLEWIDTH/2+0.1F, -TABLELENGTH/2+0.1F,  0.0F);
+    glVertex3f(-TABLEWIDTH/2+0.1F, -TABLELENGTH/2+0.1F,  TABLEHEIGHT-TABLETHICK);
+    glVertex3f(-TABLEWIDTH/2+0.13F,-TABLELENGTH/2+0.1F,  TABLEHEIGHT-TABLETHICK);
+    glVertex3f(-TABLEWIDTH/2+0.13F,-TABLELENGTH/2+0.1F,  0.0F);
 
 
-    glVertex3f( TABLEWIDTH/2-0.1, -TABLELENGTH/2+0.1,  0.0);
-    glVertex3f( TABLEWIDTH/2-0.1, -TABLELENGTH/2+0.1,  TABLEHEIGHT-TABLETHICK);
-    glVertex3f( TABLEWIDTH/2-0.1, -TABLELENGTH/2+0.13, TABLEHEIGHT-TABLETHICK);
-    glVertex3f( TABLEWIDTH/2-0.1, -TABLELENGTH/2+0.13, 0.0);
+    glVertex3f(-TABLEWIDTH/2+0.1F,  TABLELENGTH/2-0.1F,  0.0F);
+    glVertex3f(-TABLEWIDTH/2+0.1F,  TABLELENGTH/2-0.1F,  TABLEHEIGHT-TABLETHICK);
+    glVertex3f(-TABLEWIDTH/2+0.1F,  TABLELENGTH/2-0.13F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f(-TABLEWIDTH/2+0.1F,  TABLELENGTH/2-0.13F, 0.0F);
 
-    glVertex3f( TABLEWIDTH/2-0.1, -TABLELENGTH/2+0.13, 0.0);
-    glVertex3f( TABLEWIDTH/2-0.1, -TABLELENGTH/2+0.13, TABLEHEIGHT-TABLETHICK);
-    glVertex3f( TABLEWIDTH/2-0.13,-TABLELENGTH/2+0.13, TABLEHEIGHT-TABLETHICK);
-    glVertex3f( TABLEWIDTH/2-0.13,-TABLELENGTH/2+0.13, 0.0);
+    glVertex3f(-TABLEWIDTH/2+0.1F,  TABLELENGTH/2-0.13F, 0.0F);
+    glVertex3f(-TABLEWIDTH/2+0.1F,  TABLELENGTH/2-0.13F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f(-TABLEWIDTH/2+0.13F, TABLELENGTH/2-0.13F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f(-TABLEWIDTH/2+0.13F, TABLELENGTH/2-0.13F, 0.0F);
 
-    glVertex3f( TABLEWIDTH/2-0.13,-TABLELENGTH/2+0.1,  0.0);
-    glVertex3f( TABLEWIDTH/2-0.13,-TABLELENGTH/2+0.1,  TABLEHEIGHT-TABLETHICK);
-    glVertex3f( TABLEWIDTH/2-0.13,-TABLELENGTH/2+0.13, TABLEHEIGHT-TABLETHICK);
-    glVertex3f( TABLEWIDTH/2-0.13,-TABLELENGTH/2+0.13, 0.0);
+    glVertex3f(-TABLEWIDTH/2+0.13F, TABLELENGTH/2-0.1F,  0.0F);
+    glVertex3f(-TABLEWIDTH/2+0.13F, TABLELENGTH/2-0.1F,  TABLEHEIGHT-TABLETHICK);
+    glVertex3f(-TABLEWIDTH/2+0.13F, TABLELENGTH/2-0.13F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f(-TABLEWIDTH/2+0.13F, TABLELENGTH/2-0.13F, 0.0F);
 
-    glVertex3f( TABLEWIDTH/2-0.1, -TABLELENGTH/2+0.1,  0.0);
-    glVertex3f( TABLEWIDTH/2-0.1, -TABLELENGTH/2+0.1,  TABLEHEIGHT-TABLETHICK);
-    glVertex3f( TABLEWIDTH/2-0.13,-TABLELENGTH/2+0.1,  TABLEHEIGHT-TABLETHICK);
-    glVertex3f( TABLEWIDTH/2-0.13,-TABLELENGTH/2+0.1,  0.0);
+    glVertex3f(-TABLEWIDTH/2+0.1F, TABLELENGTH/2-0.1F, 0.0F);
+    glVertex3f(-TABLEWIDTH/2+0.1F, TABLELENGTH/2-0.1F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f(-TABLEWIDTH/2+0.13F, TABLELENGTH/2-0.1F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f(-TABLEWIDTH/2+0.13F, TABLELENGTH/2-0.1F, 0.0F);
 
 
-    glVertex3f( TABLEWIDTH/2-0.1,  TABLELENGTH/2-0.1,  0.0);
-    glVertex3f( TABLEWIDTH/2-0.1,  TABLELENGTH/2-0.1,  TABLEHEIGHT-TABLETHICK);
-    glVertex3f( TABLEWIDTH/2-0.1,  TABLELENGTH/2-0.13, TABLEHEIGHT-TABLETHICK);
-    glVertex3f( TABLEWIDTH/2-0.1,  TABLELENGTH/2-0.13, 0.0);
+    glVertex3f( TABLEWIDTH/2-0.1F,-TABLELENGTH/2+0.1F, 0.0F);
+    glVertex3f( TABLEWIDTH/2-0.1F,-TABLELENGTH/2+0.1F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f( TABLEWIDTH/2-0.1F,-TABLELENGTH/2+0.13F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f( TABLEWIDTH/2-0.1F,-TABLELENGTH/2+0.13F, 0.0F);
 
-    glVertex3f( TABLEWIDTH/2-0.1,  TABLELENGTH/2-0.13, 0.0);
-    glVertex3f( TABLEWIDTH/2-0.1,  TABLELENGTH/2-0.13, TABLEHEIGHT-TABLETHICK);
-    glVertex3f( TABLEWIDTH/2-0.13, TABLELENGTH/2-0.13, TABLEHEIGHT-TABLETHICK);
-    glVertex3f( TABLEWIDTH/2-0.13, TABLELENGTH/2-0.13, 0.0);
+    glVertex3f( TABLEWIDTH/2-0.1F,-TABLELENGTH/2+0.13F, 0.0F);
+    glVertex3f( TABLEWIDTH/2-0.1F,-TABLELENGTH/2+0.13F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f( TABLEWIDTH/2-0.13F,-TABLELENGTH/2+0.13F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f( TABLEWIDTH/2-0.13F,-TABLELENGTH/2+0.13F, 0.0F);
 
-    glVertex3f( TABLEWIDTH/2-0.13, TABLELENGTH/2-0.1,  0.0);
-    glVertex3f( TABLEWIDTH/2-0.13, TABLELENGTH/2-0.1,  TABLEHEIGHT-TABLETHICK);
-    glVertex3f( TABLEWIDTH/2-0.13, TABLELENGTH/2-0.13, TABLEHEIGHT-TABLETHICK);
-    glVertex3f( TABLEWIDTH/2-0.13, TABLELENGTH/2-0.13, 0.0);
+    glVertex3f( TABLEWIDTH/2-0.13F,-TABLELENGTH/2+0.1F, 0.0F);
+    glVertex3f( TABLEWIDTH/2-0.13F,-TABLELENGTH/2+0.1F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f( TABLEWIDTH/2-0.13F,-TABLELENGTH/2+0.13F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f( TABLEWIDTH/2-0.13F,-TABLELENGTH/2+0.13F, 0.0F);
 
-    glVertex3f( TABLEWIDTH/2-0.1,  TABLELENGTH/2-0.1,  0.0);
-    glVertex3f( TABLEWIDTH/2-0.1,  TABLELENGTH/2-0.1,  TABLEHEIGHT-TABLETHICK);
-    glVertex3f( TABLEWIDTH/2-0.13, TABLELENGTH/2-0.1,  TABLEHEIGHT-TABLETHICK);
-    glVertex3f( TABLEWIDTH/2-0.13, TABLELENGTH/2-0.1,  0.0);
+    glVertex3f( TABLEWIDTH/2-0.1F,-TABLELENGTH/2+0.1F, 0.0F);
+    glVertex3f( TABLEWIDTH/2-0.1F,-TABLELENGTH/2+0.1F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f( TABLEWIDTH/2-0.13F,-TABLELENGTH/2+0.1F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f( TABLEWIDTH/2-0.13F,-TABLELENGTH/2+0.1F, 0.0F);
+
+
+    glVertex3f( TABLEWIDTH/2-0.1F, TABLELENGTH/2-0.1F, 0.0F);
+    glVertex3f( TABLEWIDTH/2-0.1F, TABLELENGTH/2-0.1F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f( TABLEWIDTH/2-0.1F, TABLELENGTH/2-0.13F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f( TABLEWIDTH/2-0.1F, TABLELENGTH/2-0.13F, 0.0F);
+
+    glVertex3f( TABLEWIDTH/2-0.1F, TABLELENGTH/2-0.13F, 0.0F);
+    glVertex3f( TABLEWIDTH/2-0.1F, TABLELENGTH/2-0.13F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f( TABLEWIDTH/2-0.13F, TABLELENGTH/2-0.13F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f( TABLEWIDTH/2-0.13F, TABLELENGTH/2-0.13F, 0.0F);
+
+    glVertex3f( TABLEWIDTH/2-0.13F, TABLELENGTH/2-0.1F, 0.0F);
+    glVertex3f( TABLEWIDTH/2-0.13F, TABLELENGTH/2-0.1F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f( TABLEWIDTH/2-0.13F, TABLELENGTH/2-0.13F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f( TABLEWIDTH/2-0.13F, TABLELENGTH/2-0.13F, 0.0F);
+
+    glVertex3f( TABLEWIDTH/2-0.1F, TABLELENGTH/2-0.1F, 0.0F);
+    glVertex3f( TABLEWIDTH/2-0.1F, TABLELENGTH/2-0.1F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f( TABLEWIDTH/2-0.13F, TABLELENGTH/2-0.1F, TABLEHEIGHT-TABLETHICK);
+    glVertex3f( TABLEWIDTH/2-0.13F, TABLELENGTH/2-0.1F, 0.0F);
   glEnd();
 
   return true;
@@ -339,45 +339,45 @@ FieldView::Redraw() {
 // Draw transparent object
 bool
 FieldView::RedrawAlpha() {
-  glColor4f(0.0, 0.0, 0.3, 0.7);
-  static GLfloat mat_table[] = { 0.0, 0.0, 0.3, 1.0 };
+  glColor4f(0.0F, 0.0F, 0.3F, 0.7F);
+  static GLfloat mat_table[] = { 0.0F, 0.0F, 0.3F, 1.0F };
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_table);
 
   glDepthMask(0);
   glBegin(GL_QUADS);			// Draw table
   if ( isLighting && !isSimple ) {
-    glNormal3f( 0.0, 0.0, -1.0 );
+    glNormal3f( 0.0F, 0.0F, -1.0 );
     glVertex3f( -TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
     glVertex3f( -TABLEWIDTH/2,  TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
     glVertex3f(  TABLEWIDTH/2,  TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
     glVertex3f(  TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
 
-    glNormal3f( 1.0, 0.0, 0.0 );
+    glNormal3f( 1.0, 0.0F, 0.0F );
     glVertex3f( TABLEWIDTH/2,  TABLELENGTH/2, TABLEHEIGHT );
     glVertex3f( TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT );
     glVertex3f( TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
     glVertex3f( TABLEWIDTH/2,  TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
 
-    glNormal3f( -1.0, 0.0, 0.0 );
+    glNormal3f( -1.0, 0.0F, 0.0F );
     glVertex3f( -TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT );
     glVertex3f( -TABLEWIDTH/2,  TABLELENGTH/2, TABLEHEIGHT );
     glVertex3f( -TABLEWIDTH/2,  TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
     glVertex3f( -TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
 
-    glNormal3f( 0.0, 1.0, 0.0 );
+    glNormal3f( 0.0F, 1.0, 0.0F );
     glVertex3f( -TABLEWIDTH/2, TABLELENGTH/2, TABLEHEIGHT );
     glVertex3f( -TABLEWIDTH/2, TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
     glVertex3f(  TABLEWIDTH/2, TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
     glVertex3f(  TABLEWIDTH/2, TABLELENGTH/2, TABLEHEIGHT );
 
-    glNormal3f( 0.0, -1.0, 0.0 );
+    glNormal3f( 0.0F, -1.0, 0.0F );
     glVertex3f( -TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT );
     glVertex3f( -TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
     glVertex3f(  TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
     glVertex3f(  TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT );
   }
 
-    glNormal3f( 0.0, 0.0, 1.0 );
+    glNormal3f( 0.0F, 0.0F, 1.0 );
     glVertex3f( -TABLEWIDTH/2,  TABLELENGTH/2, TABLEHEIGHT );
     glVertex3f( -TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT );
     glVertex3f(  TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT );
@@ -385,68 +385,68 @@ FieldView::RedrawAlpha() {
   glEnd();
   glDepthMask(1);
 
-  static GLfloat mat_default[] = { 0.0, 0.0, 0.0, 1.0 };
+  static GLfloat mat_default[] = { 0.0F, 0.0F, 0.0F, 1.0F };
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_default);
 
   if ( isLighting ) {
-    glColor4f(1.0, 1.0, 1.0, 1.0);
+    glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
     glBegin(GL_QUADS);		// Draw white line
-      glNormal3f( 0.0, 0.0, 1.0 );
+      glNormal3f( 0.0F, 0.0F, 1.0F );
       glVertex3f( -TABLEWIDTH/2,       TABLELENGTH/2, TABLEHEIGHT );
       glVertex3f( -TABLEWIDTH/2,      -TABLELENGTH/2, TABLEHEIGHT );
-      glVertex3f( -TABLEWIDTH/2+0.02, -TABLELENGTH/2+0.02, TABLEHEIGHT );
-      glVertex3f( -TABLEWIDTH/2+0.02,  TABLELENGTH/2-0.02, TABLEHEIGHT );
+      glVertex3f( -TABLEWIDTH/2+0.02F, -TABLELENGTH/2+0.02F, TABLEHEIGHT );
+      glVertex3f( -TABLEWIDTH/2+0.02F,  TABLELENGTH/2-0.02F, TABLEHEIGHT );
 
-      glNormal3f( 0.0, 0.0, 1.0 );
+      glNormal3f( 0.0F, 0.0F, 1.0F );
       glVertex3f( -TABLEWIDTH/2,      -TABLELENGTH/2, TABLEHEIGHT );
       glVertex3f(  TABLEWIDTH/2,      -TABLELENGTH/2, TABLEHEIGHT );
-      glVertex3f(  TABLEWIDTH/2-0.02, -TABLELENGTH/2+0.02, TABLEHEIGHT );
-      glVertex3f( -TABLEWIDTH/2+0.02, -TABLELENGTH/2+0.02, TABLEHEIGHT );
+      glVertex3f(  TABLEWIDTH/2-0.02F, -TABLELENGTH/2+0.02F, TABLEHEIGHT );
+      glVertex3f( -TABLEWIDTH/2+0.02F, -TABLELENGTH/2+0.02F, TABLEHEIGHT );
 
-      glNormal3f( 0.0, 0.0, 1.0 );
+      glNormal3f( 0.0F, 0.0F, 1.0F );
       glVertex3f(  TABLEWIDTH/2,      -TABLELENGTH/2, TABLEHEIGHT );
       glVertex3f(  TABLEWIDTH/2,       TABLELENGTH/2, TABLEHEIGHT );
-      glVertex3f(  TABLEWIDTH/2-0.02,  TABLELENGTH/2-0.02, TABLEHEIGHT );
-      glVertex3f(  TABLEWIDTH/2-0.02, -TABLELENGTH/2+0.02, TABLEHEIGHT );
+      glVertex3f(  TABLEWIDTH/2-0.02F,  TABLELENGTH/2-0.02F, TABLEHEIGHT );
+      glVertex3f(  TABLEWIDTH/2-0.02F, -TABLELENGTH/2+0.02F, TABLEHEIGHT );
 
-      glNormal3f( 0.0, 0.0, 1.0 );
+      glNormal3f( 0.0F, 0.0F, 1.0F );
       glVertex3f(  TABLEWIDTH/2,       TABLELENGTH/2, TABLEHEIGHT );
       glVertex3f( -TABLEWIDTH/2,       TABLELENGTH/2, TABLEHEIGHT );
-      glVertex3f( -TABLEWIDTH/2+0.02,  TABLELENGTH/2-0.02, TABLEHEIGHT );
-      glVertex3f(  TABLEWIDTH/2-0.02,  TABLELENGTH/2-0.02, TABLEHEIGHT );
+      glVertex3f( -TABLEWIDTH/2+0.02F,  TABLELENGTH/2-0.02F, TABLEHEIGHT );
+      glVertex3f(  TABLEWIDTH/2-0.02F,  TABLELENGTH/2-0.02F, TABLEHEIGHT );
     glEnd();
 
     glBegin(GL_LINES);
-      glVertex3f( 0.0, -TABLELENGTH/2, TABLEHEIGHT );
-      glVertex3f( 0.0,  TABLELENGTH/2, TABLEHEIGHT );
+      glVertex3f( 0.0F, -TABLELENGTH/2, TABLEHEIGHT );
+      glVertex3f( 0.0F,  TABLELENGTH/2, TABLEHEIGHT );
     glEnd();
   }
 
-  glColor4f(0.0, 0.2, 0.0, 0.9);
+  glColor4f(0.0F, 0.2F, 0.0F, 0.9F);
 
-  static GLfloat mat_net[] = { 0.0, 0.2, 0.0, 1.0 };
+  static GLfloat mat_net[] = { 0.0F, 0.2F, 0.0F, 1.0F };
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_net);
   glBegin(GL_QUADS);			// Draw net
-    glNormal3f( 0.0, 1.0, 0.0 );
-    glVertex3f( -TABLEWIDTH/2-NETHEIGHT, 0.0, TABLEHEIGHT );
-    glVertex3f( -TABLEWIDTH/2-NETHEIGHT, 0.0, TABLEHEIGHT+NETHEIGHT-0.01 );
-    glVertex3f(  TABLEWIDTH/2+NETHEIGHT, 0.0, TABLEHEIGHT+NETHEIGHT-0.01 );
-    glVertex3f(  TABLEWIDTH/2+NETHEIGHT, 0.0, TABLEHEIGHT );
+    glNormal3f( 0.0F, 1.0F, 0.0F );
+    glVertex3f( -TABLEWIDTH/2-NETHEIGHT, 0.0F, TABLEHEIGHT );
+    glVertex3f( -TABLEWIDTH/2-NETHEIGHT, 0.0F, TABLEHEIGHT+NETHEIGHT-0.01F );
+    glVertex3f(  TABLEWIDTH/2+NETHEIGHT, 0.0F, TABLEHEIGHT+NETHEIGHT-0.01F );
+    glVertex3f(  TABLEWIDTH/2+NETHEIGHT, 0.0F, TABLEHEIGHT );
   glEnd();
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_default);
 
   if ( isLighting ) {
-    glColor4f(1.0, 1.0, 1.0, 1.0);
+    glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
     glBegin(GL_QUADS);
-      glNormal3f( 0.0, 1.0, 0.0 );
-      glVertex3f( -TABLEWIDTH/2-NETHEIGHT, 0.0, TABLEHEIGHT+NETHEIGHT );
-      glVertex3f( -TABLEWIDTH/2-NETHEIGHT, 0.0, TABLEHEIGHT+NETHEIGHT-0.01 );
-      glVertex3f(  TABLEWIDTH/2+NETHEIGHT, 0.0, TABLEHEIGHT+NETHEIGHT-0.01 );
-      glVertex3f(  TABLEWIDTH/2+NETHEIGHT, 0.0, TABLEHEIGHT+NETHEIGHT );
+      glNormal3f( 0.0F, 1.0F, 0.0F );
+      glVertex3f( -TABLEWIDTH/2-NETHEIGHT, 0.0F, TABLEHEIGHT+NETHEIGHT );
+      glVertex3f( -TABLEWIDTH/2-NETHEIGHT, 0.0F, TABLEHEIGHT+NETHEIGHT-0.01F );
+      glVertex3f(  TABLEWIDTH/2+NETHEIGHT, 0.0F, TABLEHEIGHT+NETHEIGHT-0.01F );
+      glVertex3f(  TABLEWIDTH/2+NETHEIGHT, 0.0F, TABLEHEIGHT+NETHEIGHT );
     glEnd();
-    glColor4f( 0.2, 1.0, 0.2, 1.0 );	// Why? But my RIVA128 need it.
+    glColor4f( 0.2F, 1.0F, 0.2F, 1.0F );	// Why? But my RIVA128 need it.
   }
 
 //  glBlendFunc(GL_ONE, GL_SRC_ALPHA);

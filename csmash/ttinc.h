@@ -29,35 +29,35 @@
 #define WINXSIZE	800
 #define WINYSIZE	600
 // Field size
-#define AREAXSIZE	8.0
-#define AREAYSIZE	12.0
-#define AREAZSIZE	6.0
+#define AREAXSIZE	8.0F
+#define AREAYSIZE	12.0F
+#define AREAZSIZE	6.0F
 
 // Player size
-#define UPPERARM	0.25
-#define FOREARM		0.30
+#define UPPERARM	0.25F
+#define FOREARM		0.30F
 
 // Table size
-#define TABLELENGTH	((double)(2.74))
-#define TABLEWIDTH	((double)(1.525))
-#define TABLEHEIGHT	((double)(0.76))
-#define	TABLETHICK	((double)(0.1))
+#define TABLELENGTH	((float)(2.74))
+#define TABLEWIDTH	((float)(1.525))
+#define TABLEHEIGHT	((float)(0.76))
+#define	TABLETHICK	((float)(0.1))
 // Net height
-#define NETHEIGHT	((double)(0.1525))
+#define NETHEIGHT	((float)(0.1525))
 // Ball R
-#define BALL_R		((double)(0.019))
+#define BALL_R		((float)(0.019))
 
-#define TABLE_E		((double)(0.8))
-#define PHY		((double)(0.15))
+#define TABLE_E		((float)(0.8))
+#define PHY		((float)(0.15))
 
 // Image size
 #define IMAGE_WIDTH	256
 #define IMAGE_HEIGHT	256
 
-#define GRAV		(9.8+m_spin*5)
-#define GRAVITY(spin)	(9.8+spin*5)
+#define GRAV		((float)(9.8+m_spin*5))
+#define GRAVITY(spin)	((float)(9.8+spin*5))
 
-#define	TICK		(0.01)		// Turn length (in second)
+#define	TICK		(0.01F)		// Turn length (in second)
 
 // Key
 #define KEY_LEFT    (1<<0)
@@ -110,7 +110,7 @@
 #define SOUND_SDL	3
 
 // Others
-#define RAND(N) ((int)((double)(N)*rand()/RAND_MAX))
+#define RAND(N) ((int)((float)(N)*rand()/RAND_MAX))
 
 // Player::m_swingError
 #define SWING_PERFECT	0

@@ -196,6 +196,8 @@ int main(int argc, char** argv) {
 
   Launcher *launcher = new Launcher();
   launcher->Init();
+
+  return 0;
 }
 
 void

@@ -78,7 +78,7 @@ PlayerSelectView::Init( PlayerSelect *playerSelect ) {
 
   for ( i = 69 ; i >= 0 ; i-- ) {
     for ( j = 0 ; j < 400/8 ; j++ ) {
-      m_selectPlayer[i*50+j] = strtol( getWord(fp), NULL, 16 );
+      m_selectPlayer[i*50+j] = (unsigned char)strtol( getWord(fp), NULL, 16 );
     }
   }
 
@@ -109,20 +109,20 @@ PlayerSelectView::Redraw() {
     if ( m_playerSelect->GetSelected() < 100 ) {
       if ( !isSimple )
 	glEnable(GL_TEXTURE_2D);
-      glTranslatef( -0.01*m_playerSelect->GetSelected(),
-		    -1.5+0.01*m_playerSelect->GetSelected(), 1.4 );
-      glRotatef( m_playerSelect->GetSelected()*360.0/100.0, 0.0, 0.0, 1.0 );
+      glTranslatef( -0.01F*m_playerSelect->GetSelected(),
+		    -1.5F+0.01F*m_playerSelect->GetSelected(), 1.4F );
+      glRotatef( m_playerSelect->GetSelected()*360.0F/100, 0.0F, 0.0F, 1.0F );
     } else {
       glEnable(GL_TEXTURE_2D);
-      glTranslatef( -0.01*100, -1.5+0.01*100, 1.4 );
+      glTranslatef( -0.01F*100, -1.5F+0.01F*100, 1.4F );
     }
 
     glBindTexture(GL_TEXTURE_2D, m_textures[player] );
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 1.0); glVertex3f(-0.60, 0.0, -0.84);
-    glTexCoord2f(0.0, 0.0); glVertex3f(-0.60, 0.0,  0.84);
-    glTexCoord2f(1.0, 0.0); glVertex3f( 0.60, 0.0,  0.84);
-    glTexCoord2f(1.0, 1.0); glVertex3f( 0.60, 0.0, -0.84);
+    glTexCoord2f(0.0F, 1.0F); glVertex3f(-0.60F, 0.0F, -0.84F);
+    glTexCoord2f(0.0F, 0.0F); glVertex3f(-0.60F, 0.0F,  0.84F);
+    glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.60F, 0.0F,  0.84F);
+    glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.60F, 0.0F, -0.84F);
     glEnd();
     glPopMatrix();
 
@@ -130,17 +130,17 @@ PlayerSelectView::Redraw() {
       if ( m_playerSelect->GetSelected() > 100 ) {
 	glPushMatrix();
 	if ( m_playerSelect->GetSelected() < 150 )
-	  glTranslatef( 0.02*(m_playerSelect->GetSelected()-100),
-			18.5-0.4*(m_playerSelect->GetSelected()-100), 1.4 );
+	  glTranslatef( 0.02F*(m_playerSelect->GetSelected()-100),
+			18.5F-0.4F*(m_playerSelect->GetSelected()-100), 1.4F );
 	else
-	  glTranslatef( 0.01*100, -1.5+0.01*100, 1.4 );
+	  glTranslatef( 0.01F*100, -1.5F+0.01F*100, 1.4F );
 
 	glBindTexture(GL_TEXTURE_2D, m_textures[(player+wins+1)%PLAYERS] );
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.0, 1.0); glVertex3f(-0.60, 0.0, -0.84);
-	glTexCoord2f(0.0, 0.0); glVertex3f(-0.60, 0.0,  0.84);
-	glTexCoord2f(1.0, 0.0); glVertex3f( 0.60, 0.0,  0.84);
-	glTexCoord2f(1.0, 1.0); glVertex3f( 0.60, 0.0, -0.84);
+	glTexCoord2f(0.0F, 1.0F); glVertex3f(-0.60F, 0.0F, -0.84F);
+	glTexCoord2f(0.0F, 0.0F); glVertex3f(-0.60F, 0.0F,  0.84F);
+	glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.60F, 0.0F,  0.84F);
+	glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.60F, 0.0F, -0.84F);
 	glEnd();
 	glPopMatrix();
       }
@@ -151,30 +151,30 @@ PlayerSelectView::Redraw() {
 
     for ( i = 0 ; i < PLAYERS ; i++ ){
       glPushMatrix();
-        glRotatef( m_playerSelect->GetRotate()-i*360/PLAYERS, 0.0, 0.0, 1.0 );
+        glRotatef( m_playerSelect->GetRotate()-i*360.0F/PLAYERS, 0.0F, 0.0F, 1.0F );
 	glBindTexture(GL_TEXTURE_2D, m_textures[i] );
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.0, 1.0); glVertex3f(-0.60, -1.5, 1.4-0.84);
-	glTexCoord2f(0.0, 0.0); glVertex3f(-0.60, -1.5, 1.4+0.84);
-	glTexCoord2f(1.0, 0.0); glVertex3f( 0.60, -1.5, 1.4+0.84);
-	glTexCoord2f(1.0, 1.0); glVertex3f( 0.60, -1.5, 1.4-0.84);
+	glTexCoord2f(0.0F, 1.0F); glVertex3f(-0.60F, -1.5F, 1.4F-0.84F);
+	glTexCoord2f(0.0F, 0.0F); glVertex3f(-0.60F, -1.5F, 1.4F+0.84F);
+	glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.60F, -1.5F, 1.4F+0.84F);
+	glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.60F, -1.5F, 1.4F-0.84F);
 	glEnd();
       glPopMatrix();
     }
 
-    glColor4f( 1.0, 1.0, 1.0, 0.0 );
+    glColor4f( 1.0F, 1.0F, 1.0F, 0.0F );
 
     glPushMatrix();
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    gluOrtho2D( 0.0, (GLfloat)BaseView::GetWinWidth(),
-		0.0, (GLfloat)BaseView::GetWinHeight() );
+    gluOrtho2D( 0.0F, (GLfloat)BaseView::GetWinWidth(),
+		0.0F, (GLfloat)BaseView::GetWinHeight() );
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
     glRasterPos2i( 200, 100 );
-    glBitmap( 400, 70, 0.0, 0.0, 0.0, 0, m_selectPlayer );
+    glBitmap( 400, 70, 0.0F, 0.0F, 0.0F, 0, m_selectPlayer );
 
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();

@@ -59,7 +59,7 @@ MenuItemView::Init( MenuItem *menu, char *fileName ) {
 
   for ( j = m_menuItem->GetHeight()-1 ; j >= 0 ; j-- ) {
     for ( k = 0 ; k < m_menuItem->GetWidth()/8 ; k++ ) {
-      m_image[j*m_menuItem->GetWidth()/8+k] = strtol( getWord(fp), NULL, 16 );
+      m_image[j*m_menuItem->GetWidth()/8+k] = (unsigned char)strtol( getWord(fp), NULL, 16 );
     }
   }
 
@@ -79,27 +79,27 @@ MenuItemView::Redraw() {
 
 bool
 MenuItemView::RedrawAlpha() {
-  glColor4f( 1.0, 1.0, 1.0, 0.0 );
+  glColor4f( 1.0F, 1.0F, 1.0F, 0.0F );
 
   glPushMatrix();
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
-  gluOrtho2D( 0.0, (GLfloat)BaseView::GetWinWidth(),
-	      0.0, (GLfloat)BaseView::GetWinHeight() );
+  gluOrtho2D( 0.0F, (GLfloat)BaseView::GetWinWidth(),
+	      0.0F, (GLfloat)BaseView::GetWinHeight() );
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
   glDepthMask(0);
 
   if ( m_menuItem->GetSelected() )
-    glColor4f( 1.0, 1.0, 0.0, 0.0 );
+    glColor4f( 1.0F, 1.0F, 0.0F, 0.0F );
   else
-    glColor4f( 1.0, 1.0, 1.0, 0.0 );
+    glColor4f( 1.0F, 1.0F, 1.0F, 0.0F );
 
   glRasterPos2i( m_menuItem->GetX(), m_menuItem->GetY() );
   glBitmap( m_menuItem->GetWidth(), m_menuItem->GetHeight(),
-	    0.0, 0.0, 0.0, 0, m_image );
+	    0.0F, 0.0F, 0.0F, 0, m_image );
 
   glDepthMask(1);
 

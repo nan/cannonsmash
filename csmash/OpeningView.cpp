@@ -39,8 +39,8 @@ OpeningView::Init( Opening *opening ) {
 
 bool
 OpeningView::Redraw() {
-  GLfloat light_intensity_amb[] = { 0.6, 0.6, 0.6, 1.0 };
-  GLfloat light_intensity_dif[] = { 1.0, 1.0, 1.0, 1.0 };
+  GLfloat light_intensity_amb[] = { 0.6F, 0.6F, 0.6F, 1.0F };
+  GLfloat light_intensity_dif[] = { 1.0F, 1.0F, 1.0F, 1.0F };
 
   long phrase, mod;
 
@@ -48,29 +48,29 @@ OpeningView::Redraw() {
 
   if ( phrase < 56 ) {
   } else if ( phrase < 64 ) {
-    light_intensity_amb[0] *= (3200-m_opening->GetCount())/400.0;
-    light_intensity_amb[1] *= (3200-m_opening->GetCount())/400.0;
-    light_intensity_amb[2] *= (3200-m_opening->GetCount())/400.0;
-    light_intensity_dif[0] *= (3200-m_opening->GetCount())/400.0;
-    light_intensity_dif[1] *= (3200-m_opening->GetCount())/400.0;
-    light_intensity_dif[2] *= (3200-m_opening->GetCount())/400.0;
+    light_intensity_amb[0] *= (3200-m_opening->GetCount())/400.0F;
+    light_intensity_amb[1] *= (3200-m_opening->GetCount())/400.0F;
+    light_intensity_amb[2] *= (3200-m_opening->GetCount())/400.0F;
+    light_intensity_dif[0] *= (3200-m_opening->GetCount())/400.0F;
+    light_intensity_dif[1] *= (3200-m_opening->GetCount())/400.0F;
+    light_intensity_dif[2] *= (3200-m_opening->GetCount())/400.0F;
   } else if ( phrase < 72 ) {
     if ( phrase >= 68 && mod > 20 ) {
       /*
-      light_intensity_amb[0] *= (10-mod)/10.0;
-      light_intensity_amb[1] *= (10-mod)/10.0;
-      light_intensity_amb[2] *= (10-mod)/10.0;
-      light_intensity_dif[0] *= (10-mod)/10.0;
-      light_intensity_dif[1] *= (10-mod)/10.0;
-      light_intensity_dif[2] *= (10-mod)/10.0;
+      light_intensity_amb[0] *= (10-mod)/10.0F;
+      light_intensity_amb[1] *= (10-mod)/10.0F;
+      light_intensity_amb[2] *= (10-mod)/10.0F;
+      light_intensity_dif[0] *= (10-mod)/10.0F;
+      light_intensity_dif[1] *= (10-mod)/10.0F;
+      light_intensity_dif[2] *= (10-mod)/10.0F;
       */
     } else {
-      light_intensity_amb[0] *= 0.0;
-      light_intensity_amb[1] *= 0.0;
-      light_intensity_amb[2] *= 0.0;
-      light_intensity_dif[0] *= 0.0;
-      light_intensity_dif[1] *= 0.0;
-      light_intensity_dif[2] *= 0.0;
+      light_intensity_amb[0] *= 0.0F;
+      light_intensity_amb[1] *= 0.0F;
+      light_intensity_amb[2] *= 0.0F;
+      light_intensity_dif[0] *= 0.0F;
+      light_intensity_dif[1] *= 0.0F;
+      light_intensity_dif[2] *= 0.0F;
     }
   }
 

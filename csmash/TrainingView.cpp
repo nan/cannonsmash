@@ -62,68 +62,68 @@ TrainingView::Redraw() {
 bool
 TrainingView::RedrawAlpha() {
   glPushMatrix();
-  glTranslatef( TABLEWIDTH/2-0.3, 0, TABLEHEIGHT+NETHEIGHT );
+  glTranslatef( TABLEWIDTH/2-0.3F, 0, TABLEHEIGHT+NETHEIGHT );
 
   glEnable(GL_TEXTURE_2D);
-  glColor3f( 0.0, 0.0, 0.0 );
+  glColor3f( 0.0F, 0.0F, 0.0F );
 
   glBindTexture(GL_TEXTURE_2D, m_max );
   glBegin(GL_QUADS);
-  glTexCoord2f(0.0, 80.0/256.0); glVertex3f(-0.2, 0.0, 0.2 );
-  glTexCoord2f(0.0,        0.0); glVertex3f(-0.2, 0.0, 0.4 );
-  glTexCoord2f(1.0,        0.0); glVertex3f( 0.2, 0.0, 0.4 );
-  glTexCoord2f(1.0, 80.0/256.0); glVertex3f( 0.2, 0.0, 0.2 );
+  glTexCoord2f(0.0F, 80.0F/256); glVertex3f(-0.2F, 0.0F, 0.2F );
+  glTexCoord2f(0.0F,      0.0F); glVertex3f(-0.2F, 0.0F, 0.4F );
+  glTexCoord2f(1.0F,      0.0F); glVertex3f( 0.2F, 0.0F, 0.4F );
+  glTexCoord2f(1.0F, 80.0F/256); glVertex3f( 0.2F, 0.0F, 0.2F );
   glEnd();
 
   if ( m_training->GetTrainingCount() < 10 ) {
     glBindTexture(GL_TEXTURE_2D, theBall.GetView()->m_number[m_training->GetTrainingCount()] );
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 1.0); glVertex3f( 0.2, 0.0, 0.0 );
-    glTexCoord2f(0.0, 0.0); glVertex3f( 0.2, 0.0, 0.2 );
-    glTexCoord2f(1.0, 0.0); glVertex3f( 0.4, 0.0, 0.2 );
-    glTexCoord2f(1.0, 1.0); glVertex3f( 0.4, 0.0, 0.0 );
+    glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.2F, 0.0F, 0.0F );
+    glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.2F, 0.0F, 0.2F );
+    glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.4F, 0.0F, 0.2F );
+    glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.4F, 0.0F, 0.0F );
     glEnd();
   } else {	/* Y2K :-) */
     glBindTexture(GL_TEXTURE_2D, theBall.GetView()->m_number[(m_training->GetTrainingCount()/10)%10] );
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 1.0); glVertex3f( 0.2, 0.0, 0.0 );
-    glTexCoord2f(0.0, 0.0); glVertex3f( 0.2, 0.0, 0.2 );
-    glTexCoord2f(1.0, 0.0); glVertex3f( 0.3, 0.0, 0.2 );
-    glTexCoord2f(1.0, 1.0); glVertex3f( 0.3, 0.0, 0.0 );
+    glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.2F, 0.0F, 0.0F );
+    glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.2F, 0.0F, 0.2F );
+    glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.3F, 0.0F, 0.2F );
+    glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.3F, 0.0F, 0.0F );
     glEnd();
     glBindTexture(GL_TEXTURE_2D, theBall.GetView()->m_number[m_training->GetTrainingCount()%10] );
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 1.0); glVertex3f( 0.3, 0.0, 0.0 );
-    glTexCoord2f(0.0, 0.0); glVertex3f( 0.3, 0.0, 0.2 );
-    glTexCoord2f(1.0, 0.0); glVertex3f( 0.4, 0.0, 0.2 );
-    glTexCoord2f(1.0, 1.0); glVertex3f( 0.4, 0.0, 0.0 );
+    glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.3F, 0.0F, 0.0F );
+    glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.3F, 0.0F, 0.2F );
+    glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.4F, 0.0F, 0.2F );
+    glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.4F, 0.0F, 0.0F );
     glEnd();
   }
   if ( m_training->GetTrainingMax() < 10 ) {
     glBindTexture(GL_TEXTURE_2D,
 		  theBall.GetView()->m_number[m_training->GetTrainingMax()] );
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 1.0); glVertex3f( 0.2, 0.0, 0.2 );
-    glTexCoord2f(0.0, 0.0); glVertex3f( 0.2, 0.0, 0.4 );
-    glTexCoord2f(1.0, 0.0); glVertex3f( 0.4, 0.0, 0.4 );
-    glTexCoord2f(1.0, 1.0); glVertex3f( 0.4, 0.0, 0.2 );
+    glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.2F, 0.0F, 0.2F );
+    glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.2F, 0.0F, 0.4F );
+    glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.4F, 0.0F, 0.4F );
+    glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.4F, 0.0F, 0.2F );
     glEnd();
   } else {	/* Y2K :-) */
     glBindTexture(GL_TEXTURE_2D,
 		  theBall.GetView()->m_number[(m_training->GetTrainingMax()/10)%10] );
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 1.0); glVertex3f( 0.2, 0.0, 0.2 );
-    glTexCoord2f(0.0, 0.0); glVertex3f( 0.2, 0.0, 0.4 );
-    glTexCoord2f(1.0, 0.0); glVertex3f( 0.3, 0.0, 0.4 );
-    glTexCoord2f(1.0, 1.0); glVertex3f( 0.3, 0.0, 0.2 );
+    glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.2F, 0.0F, 0.2F );
+    glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.2F, 0.0F, 0.4F );
+    glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.3F, 0.0F, 0.4F );
+    glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.3F, 0.0F, 0.2F );
     glEnd();
     glBindTexture(GL_TEXTURE_2D,
 		  theBall.GetView()->m_number[m_training->GetTrainingMax()%10] );
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 1.0); glVertex3f( 0.3, 0.0, 0.2 );
-    glTexCoord2f(0.0, 0.0); glVertex3f( 0.3, 0.0, 0.4 );
-    glTexCoord2f(1.0, 0.0); glVertex3f( 0.4, 0.0, 0.4 );
-    glTexCoord2f(1.0, 1.0); glVertex3f( 0.4, 0.0, 0.2 );
+    glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.3F, 0.0F, 0.2F );
+    glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.3F, 0.0F, 0.4F );
+    glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.4F, 0.0F, 0.4F );
+    glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.4F, 0.0F, 0.2F );
     glEnd();
   }
 

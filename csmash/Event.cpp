@@ -173,8 +173,8 @@ Event::IdleFunc() {
     theEvent.ReadData();
 
   if ( mode != MODE_OPENING && mode != MODE_TITLE )
-    SDL_WarpMouse( theEvent.m_MouseXHistory[theEvent.m_Histptr],
-		     theEvent.m_MouseYHistory[theEvent.m_Histptr] );
+    SDL_WarpMouse((unsigned short)theEvent.m_MouseXHistory[theEvent.m_Histptr],
+		  (unsigned short)theEvent.m_MouseYHistory[theEvent.m_Histptr] );
 
   if ( reDraw )
     theView.DisplayFunc();
@@ -398,7 +398,6 @@ CopyPlayerData( Player& dest, Player* src ) {
 
 bool
 Event::GetExternalData( ExternalData *&ext, long side ) {
-  char buf[256];
   ExternalData *extNow;
 
   if ( !(extNow = ExternalData::ReadData( side )) )

@@ -91,7 +91,7 @@ HowtoView::Init( Howto *howto ) {
 
     for ( j = 99 ; j >= 0 ; j-- ) {
       for ( k = 0 ; k < 400/8 ; k++ ) {
-	m_howtoText[i][j*50+k] = strtol( getWord(fp), NULL, 16 );
+	m_howtoText[i][j*50+k] = (unsigned char)strtol( getWord(fp), NULL, 16 );
       }
     }
 
@@ -113,7 +113,7 @@ HowtoView::Init( Howto *howto ) {
 
     for ( j = 49 ; j >= 0 ; j-- ) {
       for ( k = 0 ; k < 50/8+1 ; k++ ) {
-	m_arrow[i][j*(50/8+1)+k] = strtol( getWord(fp), NULL, 16 );
+	m_arrow[i][j*(50/8+1)+k] = (unsigned char)strtol( getWord(fp), NULL, 16 );
       }
     }
 

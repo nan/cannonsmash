@@ -757,7 +757,7 @@ ExternalData::ReadTime( int sd, long *sec, char *count ) {
     ctmp += 100;
     (*sec)--;
   }
-  *count = ctmp;
+  *count = (char)ctmp;
 }
 
 ExternalData *

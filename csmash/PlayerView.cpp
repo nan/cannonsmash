@@ -94,14 +94,14 @@ PlayerView::Init( Player *player ) {
 
 bool
 PlayerView::Redraw() {
-  static GLfloat mat_green[] = { 0.4, 0.4, 0.4, 1.0 };
+  static GLfloat mat_green[] = { 0.4F, 0.4F, 0.4F, 1.0F };
 
   if ( m_player == comPlayer ) {
     if ( isLighting ) {
-      glColor4f( 0.4, 0.4, 0.4, 0.0 );
+      glColor4f( 0.4F, 0.4F, 0.4F, 0.0F );
       glMaterialfv(GL_FRONT, GL_SPECULAR, mat_green);
     } else {
-      glColor4f( 0.3, 0.3, 0.3, 1.0 );
+      glColor4f( 0.3F, 0.3F, 0.3F, 1.0F );
     }
 
     return SubRedraw();
@@ -112,18 +112,18 @@ PlayerView::Redraw() {
 
 bool
 PlayerView::RedrawAlpha() {
-  static GLfloat mat_black[] = { 0.0, 0.0, 0.0, 1.0 };
+  static GLfloat mat_black[] = { 0.0F, 0.0F, 0.0F, 1.0F };
 
   if ( m_player == thePlayer ) {
     if ( isLighting ) {
       if ( isWireFrame ) {
-	glColor4f( 1.0, 1.0, 1.0, 1.0 );
+	glColor4f( 1.0F, 1.0F, 1.0F, 1.0F );
       } else {
-	glColor4f( 0.05, 0.05, 0.05, 1.0 );
+	glColor4f( 0.05F, 0.05F, 0.05F, 1.0F );
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_black);
       }
     } else {
-      glColor4f( 0.1, 0.1, 0.1, 1.0 );
+      glColor4f( 0.1F, 0.1F, 0.1F, 1.0F );
     }
 
     return SubRedraw();
@@ -140,15 +140,15 @@ PlayerView::SubRedraw() {
 
   glPushMatrix();
   if ( isPolygon )
-    glTranslatef( m_player->GetX()-0.3*m_player->GetSide(),
+    glTranslatef( m_player->GetX()-0.3F*m_player->GetSide(),
 		  m_player->GetY(), 0 );
   else
-    glTranslatef( m_player->GetX()-0.3*m_player->GetSide(),
+    glTranslatef( m_player->GetX()-0.3F*m_player->GetSide(),
 		  m_player->GetY(), m_player->GetZ() );
 
   glRotatef( -atan2( m_player->GetTargetX()-m_player->GetX(),
-		     m_player->GetTargetY()-m_player->GetY() )*180.0/3.141592, 
-	     0.0, 0.0, 1.0 );
+		     m_player->GetTargetY()-m_player->GetY() )*180/3.141592F, 
+	     0.0F, 0.0F, 1.0F );
 
   if ( isPolygon ) {
     int swing;
@@ -215,18 +215,18 @@ PlayerView::SubRedraw() {
   } else {
     m_player->GetShoulder( x, y, deg );
 
-    glTranslatef( -0.15, 0.0, 0.0 );
+    glTranslatef( -0.15F, 0.0F, 0.0F );
 
     // Head
     glPushMatrix();
-    glTranslatef( x, 0.0, 0.0 );
+    glTranslatef( x, 0.0F, 0.0F );
     if ( m_player->GetSide() < 0 ) {
-      //glutWireSphere( 0.15, 8, 8 );
+      //glutWireSphere( 0.15F, 8, 8 );
     }
     glPopMatrix();
 
     // Body
-    glRotatef( deg, 0.0, 0.0, 1.0 );
+    glRotatef( deg, 0.0F, 0.0F, 1.0F );
 
     // On the table
     if ( m_player->GetY() > -TABLELENGTH/2 &&
@@ -243,60 +243,60 @@ PlayerView::SubRedraw() {
       ydiff = 0.0;
 
     glBegin(GL_LINE_LOOP);
-      glVertex3f( 0.15, ydiff, -0.15-0.3+y );
-      glVertex3f( -0.15, ydiff, -0.15-0.3+y );
-      glVertex3f( -0.15+x, 0.0, 0.15-0.3+y );
-      glVertex3f( 0.15+x, 0.0, 0.15-0.3+y );
+      glVertex3f( 0.15F, ydiff, -0.15F-0.3F+y );
+      glVertex3f( -0.15F, ydiff, -0.15F-0.3F+y );
+      glVertex3f( -0.15F+x, 0.0F, 0.15F-0.3F+y );
+      glVertex3f( 0.15F+x, 0.0F, 0.15F-0.3F+y );
     glEnd();
 
     // Left arm
     glBegin(GL_LINE_STRIP);
-      glVertex3f( -0.15+x, 0.0, 0.15-0.3+y );
-      glVertex3f( -0.15-0.10+x, 0.0, 0.15-0.3-0.25+y );
-      glVertex3f( -0.15-0.10+x, 0.30, 0.15-0.3-0.25+y );
+      glVertex3f( -0.15F+x, 0.0F, 0.15F-0.3F+y );
+      glVertex3f( -0.15F-0.10F+x, 0.0F, 0.15F-0.3F-0.25F+y );
+      glVertex3f( -0.15F-0.10F+x, 0.30F, 0.15F-0.3F-0.25F+y );
     glEnd();
 
     // Right arm
     // origin = right shoulder
-    glTranslatef( 0.15+x, 0.0, -0.15+y );
+    glTranslatef( 0.15F+x, 0.0F, -0.15F+y );
 
     m_player->GetElbow( degx, degy );
-    glRotatef( degx, 1.0, 0.0, 0.0 );
-    glRotatef( degy, 0.0, 1.0, 0.0 );
+    glRotatef( degx, 1.0F, 0.0F, 0.0F );
+    glRotatef( degy, 0.0F, 1.0F, 0.0F );
 
     glBegin(GL_LINE_STRIP);
-      glVertex3f( 0.0, 0.0, 0.0 );
-      glVertex3f( 0.0, 0.0, -UPPERARM );
+      glVertex3f( 0.0F, 0.0F, 0.0F );
+      glVertex3f( 0.0F, 0.0F, -UPPERARM );
     glEnd();
 
-    glTranslatef( 0.0, 0.0, -UPPERARM );
+    glTranslatef( 0.0F, 0.0F, -UPPERARM );
 
     m_player->GetHand( degx, degy, degz );
-    glRotatef( degz, 0.0, 0.0, 1.0 );
-    glRotatef( degx, 1.0, 0.0, 0.0 );
-    glRotatef( degy, 0.0, 1.0, 0.0 );
+    glRotatef( degz, 0.0F, 0.0F, 1.0F );
+    glRotatef( degx, 1.0F, 0.0F, 0.0F );
+    glRotatef( degy, 0.0F, 1.0F, 0.0F );
 
     glBegin(GL_LINE_STRIP);
-      glVertex3f( 0.0, 0.0, 0.0 );
-      glVertex3f( 0.0, FOREARM, 0.0 );
+      glVertex3f( 0.0F, 0.0F, 0.0F );
+      glVertex3f( 0.0F, FOREARM, 0.0F );
     glEnd();
 
     // Racket
     glBegin(GL_LINE_LOOP);
-      glVertex3f( 0.0, FOREARM, -0.05 );
-      glVertex3f( 0.0, FOREARM, 0.05 );
-      glVertex3f( 0.0, FOREARM+0.2, 0.05 );
-      glVertex3f( 0.0, FOREARM+0.2, -0.05 );
+      glVertex3f( 0.0F, FOREARM, -0.05F );
+      glVertex3f( 0.0F, FOREARM, 0.05F );
+      glVertex3f( 0.0F, FOREARM+0.2F, 0.05F );
+      glVertex3f( 0.0F, FOREARM+0.2F, -0.05F );
     glEnd();
   }
 
   glPopMatrix();
 
   // Target
-  glColor4f( 0.5, 0.0, 0.0, 1.0 );
+  glColor4f( 0.5F, 0.0F, 0.0F, 1.0F );
 
   if ( isLighting ) {
-    static GLfloat mat_default[] = { 0.0, 0.0, 0.0, 1.0 };
+    static GLfloat mat_default[] = { 0.0F, 0.0F, 0.0F, 1.0F };
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_default);
   }
 
@@ -311,51 +311,51 @@ PlayerView::SubRedraw() {
 
     double diff;
 
-    diff = (double)(220-m_player->GetStatus())/220*3.141592/18;
+    diff = (double)(220-m_player->GetStatus())/220*3.141592F/18;
     DrawTargetCircle( diff );
 
     targetX = thePlayer->GetTargetX();
     targetY = thePlayer->GetTargetY();
 
-    glColor4f( 1.0, 0.0, 0.0, 0.0 );
+    glColor4f( 1.0F, 0.0F, 0.0F, 0.0F );
     glBegin(GL_POLYGON);
-      glNormal3f( 0.0, 1.0, 0.0 );
-      glVertex3f( targetX-0.08, targetY, TABLEHEIGHT+1.7320508*0.08 );
-      glVertex3f( targetX+0.08, targetY, TABLEHEIGHT+1.7320508*0.08 );
+      glNormal3f( 0.0F, 1.0F, 0.0F );
+      glVertex3f( targetX-0.08F, targetY, TABLEHEIGHT+1.7320508F*0.08F );
+      glVertex3f( targetX+0.08F, targetY, TABLEHEIGHT+1.7320508F*0.08F );
       glVertex3f( targetX, targetY, TABLEHEIGHT );
     glEnd();
 
     // Hit point
     static long count = 0;
 
-    glColor4f(0.5, 0.0, 0.0, 1.0);
+    glColor4f(0.5F, 0.0F, 0.0F, 1.0F );
     glPushMatrix();
-      glTranslatef( thePlayer->GetX()+0.3, thePlayer->GetY(), 1.0 );
-      glRotatef( count, 0.0, 0.0, 1.0 );
+      glTranslatef( thePlayer->GetX()+0.3F, thePlayer->GetY(), 1.0F );
+      glRotatef( count, 0.0F, 0.0F, 1.0F );
       glBegin(GL_QUADS);
-        glVertex3f( -0.1, -0.01, 0.0 );
-        glVertex3f( -0.1,  0.01, 0.0 );
-        glVertex3f(  0.1,  0.01, 0.0 );
-        glVertex3f(  0.1, -0.01, 0.0 );
-        glVertex3f( -0.01, -0.1, 0.0 );
-        glVertex3f( -0.01,  0.1, 0.0 );
-        glVertex3f(  0.01,  0.1, 0.0 );
-        glVertex3f(  0.01, -0.1, 0.0 );
+        glVertex3f( -0.1F, -0.01F, 0.0F );
+        glVertex3f( -0.1F,  0.01F, 0.0F );
+        glVertex3f(  0.1F,  0.01F, 0.0F );
+        glVertex3f(  0.1F, -0.01F, 0.0F );
+        glVertex3f( -0.01F, -0.1F, 0.0F );
+        glVertex3f( -0.01F,  0.1F, 0.0F );
+        glVertex3f(  0.01F,  0.1F, 0.0F );
+        glVertex3f(  0.01F, -0.1F, 0.0F );
       glEnd();
     glPopMatrix();
 
     glPushMatrix();
-      glTranslatef( thePlayer->GetX()-0.3, thePlayer->GetY(), 1.0 );
-      glRotatef( count, 0.0, 0.0, 1.0 );
+      glTranslatef( thePlayer->GetX()-0.3F, thePlayer->GetY(), 1.0F );
+      glRotatef( count, 0.0F, 0.0F, 1.0F );
       glBegin(GL_QUADS);
-        glVertex3f( -0.1, -0.01, 0.0 );
-        glVertex3f( -0.1,  0.01, 0.0 );
-        glVertex3f(  0.1,  0.01, 0.0 );
-        glVertex3f(  0.1, -0.01, 0.0 );
-        glVertex3f( -0.01, -0.1, 0.0 );
-        glVertex3f( -0.01,  0.1, 0.0 );
-        glVertex3f(  0.01,  0.1, 0.0 );
-        glVertex3f(  0.01, -0.1, 0.0 );
+        glVertex3f( -0.1F, -0.01F, 0.0F );
+        glVertex3f( -0.1F,  0.01F, 0.0F );
+        glVertex3f(  0.1F,  0.01F, 0.0F );
+        glVertex3f(  0.1F, -0.01F, 0.0F );
+        glVertex3f( -0.01F, -0.1F, 0.0F );
+        glVertex3f( -0.01F,  0.1F, 0.0F );
+        glVertex3f(  0.01F,  0.1F, 0.0F );
+        glVertex3f(  0.01F, -0.1F, 0.0F );
       glEnd();
     glPopMatrix();
     count++;
@@ -371,7 +371,7 @@ PlayerView::DrawTargetCircle( double diff ) {
   Ball *tmpBall;
   double vx, vy, vz;
   double rad;
-  static double ballHeight = 1.4;
+  static double ballHeight = 1.4F;
   static bool count = true;
 
   if (isSimple) {
@@ -398,13 +398,13 @@ PlayerView::DrawTargetCircle( double diff ) {
       tmpBall->Move();
 
     if ( tmpBall->GetStatus() < 0 )
-      tmpBall->Warp( m_player->GetX()+0.3*m_player->GetSide(),
+      tmpBall->Warp( m_player->GetX()+0.3F*m_player->GetSide(),
 		     m_player->GetY(), ballHeight, 
-		     0.0, 0.0, 0.0, 0.0, 3 );
+		     0.0F, 0.0F, 0.0F, 0.0F, 3 );
   } else {
-    tmpBall = new Ball( m_player->GetX()+0.3*m_player->GetSide(),
+    tmpBall = new Ball( m_player->GetX()+0.3F*m_player->GetSide(),
 			m_player->GetY(), ballHeight, 
-			0.0, 0.0, 0.0, 0.0, 3 );
+			0.0F, 0.0F, 0.0F, 0.0F, 3 );
   }
 
   // Calc initial speed of the ball when the player hit the ball
@@ -412,7 +412,7 @@ PlayerView::DrawTargetCircle( double diff ) {
 
   m_player->CalcLevel( tmpBall, dum, level, maxVy );
   tmpBall->TargetToV( m_player->GetTargetX(), m_player->GetTargetY(), 
-		      level, m_player->GetSpin(), vx, vy, vz, 0.1, maxVy );
+		      level, m_player->GetSpin(), vx, vy, vz, 0.1F, maxVy );
 
   // Add difference to the initial speed. Calc bound location
   double v, v1x, v1y, v1z;
@@ -430,7 +430,7 @@ PlayerView::DrawTargetCircle( double diff ) {
   n2y = vy*vz/(v*hypot(vx, vy)) * v*tan(diff);
   n2z = (vx*vx+vy*vy)/(v*hypot(vx, vy)) * v*tan(diff);
 
-  for ( rad = 0.0 ; rad < 3.141592*2 ; rad += 3.141592/32.0 ) {
+  for ( rad = 0.0 ; rad < 3.141592F*2 ; rad += 3.141592F/32 ) {
     v1x = vx+n1x*cos(rad)+n2x*sin(rad);
     v1y = vy+n1y*cos(rad)+n2y*sin(rad);
     v1z = vz+n1z*cos(rad)+n2z*sin(rad);
@@ -456,7 +456,7 @@ PlayerView::DrawTargetCircle( double diff ) {
     if ( tmpBall->GetY()*m_player->GetSide() > 0.0 ) {
       polygon1[polyNum1][0] = tmpBall->GetX();
       polygon1[polyNum1][1] = tmpBall->GetY();
-      polygon1[polyNum1][2] = TABLEHEIGHT+0.01;
+      polygon1[polyNum1][2] = TABLEHEIGHT+0.01F;
       polyNum1++;
     } else {
       polygon2[polyNum2][0] = tmpBall->GetX();

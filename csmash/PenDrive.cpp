@@ -174,7 +174,7 @@ PenDrive::HitBall() {
   if ( ( (m_side == 1 && theBall.GetStatus() == 6) ||
          (m_side ==-1 && theBall.GetStatus() == 7) ) &&
        fabs( m_x-theBall.GetX() ) < 0.6 && fabs( m_y-theBall.GetY() ) < 0.3 ) {
-    AddStatus( -fabs(fabs(m_x-theBall.GetX())-0.3)*100 );
+    AddStatus( (long)-fabs(fabs(m_x-theBall.GetX())-0.3)*100 );
     diff = fabs( m_y-theBall.GetY() )*0.3;
 
     SwingError();
@@ -219,7 +219,7 @@ PenDrive::HitBall() {
       theBall.TargetToV( targetX, targetY, level, m_spin, vx, vy, vz,
 			 0.1, maxVy );
 
-      double v, v1x, v1y, v1z;
+      double v;
       double n1x, n1y, n1z, n2x, n2y, n2z;
       double radDiff, radRand;
 

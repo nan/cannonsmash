@@ -83,10 +83,10 @@ BaseView::Init() {
   gluPerspective(60.0, 1.0, 0.1, 30.0);
   glMatrixMode(GL_MODELVIEW);
 
-  //GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
-  GLfloat light_intensity_amb[] = { 0.6, 0.6, 0.6, 1.0 };
-  GLfloat light_intensity_dif[] = { 1.0, 1.0, 1.0, 1.0 };
-  GLfloat light_intensity_none[] = { 0.0, 0.0, 0.0, 0.0 };
+  //GLfloat light_position[] = { 1.0F, 1.0F, 1.0F, 0.0F };
+  GLfloat light_intensity_amb[] = { 0.6F, 0.6F, 0.6F, 1.0F };
+  GLfloat light_intensity_dif[] = { 1.0F, 1.0F, 1.0F, 1.0F };
+  GLfloat light_intensity_none[] = { 0.0F, 0.0F, 0.0F, 0.0F };
 
   if (!isSimple) {
     glShadeModel (GL_SMOOTH);
@@ -109,16 +109,16 @@ BaseView::Init() {
 
   if (!isSimple) {
     glEnable(GL_FOG);
-    GLfloat fogcolor[] = {0.2, 0.2, 0.2, 1.0};
+    GLfloat fogcolor[] = {0.2F, 0.2F, 0.2F, 1.0F};
     glFogi(GL_FOG_MODE, GL_EXP);
     glFogfv(GL_FOG_COLOR, fogcolor);
-    glFogf(GL_FOG_DENSITY, 0.05);
+    glFogf(GL_FOG_DENSITY, 0.05F);
     glHint(GL_FOG_HINT, GL_DONT_CARE);
-    glFogf(GL_FOG_START, 1.0);
+    glFogf(GL_FOG_START, 1.0F);
     glFogf(GL_FOG_END, AREAYSIZE*2);
   }
 
-  glClearColor (0.2, 0.2, 0.2, 1.0);
+  glClearColor(0.2F, 0.2F, 0.2F, 1.0F);
   if (isSimple) {
     glClear(GL_COLOR_BUFFER_BIT);
   } else {
@@ -166,7 +166,7 @@ BaseView::DisplayFunc() {
 bool
 BaseView::RedrawAll() {
   View *view;
-  GLfloat light_position[] = { 1.0, -1.0, 1.0, 0.0 };
+  GLfloat light_position[] = { 1.0F, -1.0F, 1.0F, 0.0F };
 
   SetViewPosition();
 
@@ -182,7 +182,7 @@ BaseView::RedrawAll() {
   if ( mode == MODE_OPENING )	// Must be improved
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-  glColor4f(0.4, 0.2, 0.0, 0.0);
+  glColor4f(0.4F, 0.2F, 0.0F, 0.0F);
 //  glEnable(GL_CULL_FACE);
 
   glDisable(GL_BLEND);
@@ -231,11 +231,11 @@ BaseView::RedrawAll() {
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
-  gluOrtho2D( 0.0, (GLfloat)m_winWidth, 0.0, (GLfloat)m_winHeight );
+  gluOrtho2D( 0.0F, (GLfloat)m_winWidth, 0.0F, (GLfloat)m_winHeight );
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  glColor4f( 0.0, 0.0, 0.0, 1.0 );
+  glColor4f( 0.0F, 0.0F, 0.0F, 1.0F );
 
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
@@ -244,13 +244,13 @@ BaseView::RedrawAll() {
 
     glBindTexture(GL_TEXTURE_2D, m_title );
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 1.0);
-    glVertex2i( m_winWidth-256, 0 );
-    glTexCoord2f(1.0, 1.0);
+    glTexCoord2f(0.0F, 1.0F);
+    glVertex2i( m_winWidth-256, 0);
+    glTexCoord2f(1.0F, 1.0F);
     glVertex2i( m_winWidth, 0 );
-    glTexCoord2f(1.0, 0.0);
+    glTexCoord2f(1.0F, 0.0F);
     glVertex2i( m_winWidth, 256 );
-    glTexCoord2f(0.0, 0.0);
+    glTexCoord2f(0.0F, 0.0F);
     glVertex2i( m_winWidth-256, 256 );
     glEnd();
 
@@ -284,7 +284,7 @@ BaseView::SetLookAt() {
   double srcX, srcY, srcZ;
   double destX, destY, destZ;
 
-  srcX = srcY = srcZ = 0.0;
+  srcX = srcY = srcZ = 0.0F;
   destX = m_centerX;
   if (thePlayer)
     destY = m_centerY*thePlayer->GetSide();
@@ -294,7 +294,7 @@ BaseView::SetLookAt() {
 
   theControl->LookAt( srcX, srcY, srcZ, destX, destY, destZ );
 
-  gluLookAt( srcX, srcY, srcZ, destX, destY, destZ, 0.0, 0.0, 0.5 );
+  gluLookAt( srcX, srcY, srcZ, destX, destY, destZ, 0.0F, 0.0F, 0.5F );
   /* 視点, 視線設定. 視点x, y, z, 視点(視線ベクトルの通る点)x, y, z, 
      上向きベクトル(画面上の上に向かうベクトル)x, y, z */
 }
@@ -338,13 +338,13 @@ BaseView::EndGame() {
 #endif
   int i, j;
 
-  glColor4f(1.0, 1.0, 1.0, 0.0);
+  glColor4f(1.0F, 1.0F, 1.0F, 0.0F);
 
   glPushMatrix();
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
-  gluOrtho2D( 0.0, (GLfloat)m_winWidth, 0.0, (GLfloat)m_winHeight );
+  gluOrtho2D( 0.0F, (GLfloat)m_winWidth, 0.0F, (GLfloat)m_winHeight );
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
@@ -373,7 +373,7 @@ BaseView::EndGame() {
 
   for ( i = 69 ; i >= 0 ; i-- ) {
     for ( j = 0 ; j < 400/8 ; j++ ) {
-      bmp[i*50+j] = strtol( getWord(fp), NULL, 16 );
+      bmp[i*50+j] = (unsigned char)strtol( getWord(fp), NULL, 16 );
     }
   }
 
@@ -384,7 +384,7 @@ BaseView::EndGame() {
 #endif
 
   glRasterPos2i( 220, 330 );
-  glBitmap( 400, 70, 0.0, 0.0, 0.0, 0, bmp );
+  glBitmap( 400, 70, 0.0F, 0.0F, 0.0F, 0, bmp );
 
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();

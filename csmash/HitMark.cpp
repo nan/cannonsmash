@@ -140,33 +140,33 @@ HitMark::RedrawAlpha() {
   glDepthMask(0);
   
   glPushMatrix();
-  glTranslatef( m_x, m_y, TABLEHEIGHT+0.5 );
+  glTranslatef( (float)m_x, (float)m_y, TABLEHEIGHT+0.5F );
 
   switch ( m_swingError ) {
   case SWING_PERFECT:
     glEnable(GL_TEXTURE_2D);
-    glColor3f( 0.0, 0.0, 0.0 );
+    glColor3f( 0.0F, 0.0F, 0.0F );
 //    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glBindTexture(GL_TEXTURE_2D, m_textures[0] );
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 1.0); glVertex3f( -0.3*m_time/50, 0.0, -0.42*m_time/50);
-    glTexCoord2f(0.0, 0.0); glVertex3f( -0.3*m_time/50, 0.0,  0.42*m_time/50);
-    glTexCoord2f(1.0, 0.0); glVertex3f(  0.3*m_time/50, 0.0,  0.42*m_time/50);
-    glTexCoord2f(1.0, 1.0); glVertex3f(  0.3*m_time/50, 0.0, -0.42*m_time/50);
+    glTexCoord2f(0.0F, 1.0F); glVertex3f( -0.3F*m_time/50, 0.0F, -0.42F*m_time/50);
+    glTexCoord2f(0.0F, 0.0F); glVertex3f( -0.3F*m_time/50, 0.0F,  0.42F*m_time/50);
+    glTexCoord2f(1.0F, 0.0F); glVertex3f(  0.3F*m_time/50, 0.0F,  0.42F*m_time/50);
+    glTexCoord2f(1.0F, 1.0F); glVertex3f(  0.3F*m_time/50, 0.0F, -0.42F*m_time/50);
     glEnd();
 //    glBlendFunc(GL_ONE, GL_SRC_ALPHA);
     glDisable(GL_TEXTURE_2D);
     break;
   case SWING_GREAT:
     glEnable(GL_TEXTURE_2D);
-    glColor3f( 0.0, 0.0, 0.0 );
+    glColor3f( 0.0F, 0.0F, 0.0F );
 //    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glBindTexture(GL_TEXTURE_2D, m_textures[0] );
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 1.0); glVertex3f( -0.3*m_time/50, 0.0, -0.42*m_time/50);
-    glTexCoord2f(0.0, 0.0); glVertex3f( -0.3*m_time/50, 0.0,  0.42*m_time/50);
-    glTexCoord2f(1.0, 0.0); glVertex3f(  0.3*m_time/50, 0.0,  0.42*m_time/50);
-    glTexCoord2f(1.0, 1.0); glVertex3f(  0.3*m_time/50, 0.0, -0.42*m_time/50);
+    glTexCoord2f(0.0F, 1.0F); glVertex3f( -0.3F*m_time/50, 0.0F, -0.42F*m_time/50);
+    glTexCoord2f(0.0F, 0.0F); glVertex3f( -0.3F*m_time/50, 0.0F,  0.42F*m_time/50);
+    glTexCoord2f(1.0F, 0.0F); glVertex3f(  0.3F*m_time/50, 0.0F,  0.42F*m_time/50);
+    glTexCoord2f(1.0F, 1.0F); glVertex3f(  0.3F*m_time/50, 0.0F, -0.42F*m_time/50);
     glEnd();
 //    glBlendFunc(GL_ONE, GL_SRC_ALPHA);
     glDisable(GL_TEXTURE_2D);
@@ -177,24 +177,24 @@ HitMark::RedrawAlpha() {
 //    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glBindTexture(GL_TEXTURE_2D, m_textures[1] );
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 1.0); glVertex3f( -0.3*m_time/50, 0.0, -0.42*m_time/50);
-    glTexCoord2f(0.0, 0.0); glVertex3f( -0.3*m_time/50, 0.0,  0.42*m_time/50);
-    glTexCoord2f(1.0, 0.0); glVertex3f(  0.3*m_time/50, 0.0,  0.42*m_time/50);
-    glTexCoord2f(1.0, 1.0); glVertex3f(  0.3*m_time/50, 0.0, -0.42*m_time/50);
+    glTexCoord2f(0.0F, 1.0F); glVertex3f( -0.3F*m_time/50, 0.0F, -0.42F*m_time/50);
+    glTexCoord2f(0.0F, 0.0F); glVertex3f( -0.3F*m_time/50, 0.0F,  0.42F*m_time/50);
+    glTexCoord2f(1.0F, 0.0F); glVertex3f(  0.3F*m_time/50, 0.0F,  0.42F*m_time/50);
+    glTexCoord2f(1.0F, 1.0F); glVertex3f(  0.3F*m_time/50, 0.0F, -0.42F*m_time/50);
     glEnd();
 //    glBlendFunc(GL_ONE, GL_SRC_ALPHA);
     glDisable(GL_TEXTURE_2D);
     break;
   case SWING_BOO:
     glEnable(GL_TEXTURE_2D);
-    glColor3f( 0.0, 0.0, 0.0 );
+    glColor3f( 0.0F, 0.0F, 0.0F );
 //    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glBindTexture(GL_TEXTURE_2D, m_textures[1] );
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 1.0); glVertex3f( -0.3*m_time/50, 0.0, -0.42*m_time/50);
-    glTexCoord2f(0.0, 0.0); glVertex3f( -0.3*m_time/50, 0.0,  0.42*m_time/50);
-    glTexCoord2f(1.0, 0.0); glVertex3f(  0.3*m_time/50, 0.0,  0.42*m_time/50);
-    glTexCoord2f(1.0, 1.0); glVertex3f(  0.3*m_time/50, 0.0, -0.42*m_time/50);
+    glTexCoord2f(0.0F, 1.0F); glVertex3f( -0.3F*m_time/50, 0.0F, -0.42F*m_time/50);
+    glTexCoord2f(0.0F, 0.0F); glVertex3f( -0.3F*m_time/50, 0.0F,  0.42F*m_time/50);
+    glTexCoord2f(1.0F, 0.0F); glVertex3f(  0.3F*m_time/50, 0.0F,  0.42F*m_time/50);
+    glTexCoord2f(1.0F, 1.0F); glVertex3f(  0.3F*m_time/50, 0.0F, -0.42F*m_time/50);
     glEnd();
 //    glBlendFunc(GL_ONE, GL_SRC_ALPHA);
     glDisable(GL_TEXTURE_2D);
@@ -202,14 +202,14 @@ HitMark::RedrawAlpha() {
   case SWING_MISS:
 /*
     glEnable(GL_TEXTURE_2D);
-    glColor3f( 0.0, 0.0, 0.0 );
+    glColor3f( 0.0F, 0.0F, 0.0F );
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glBindTexture(GL_TEXTURE_2D, m_textures[0] );
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 1.0); glVertex3f( -0.3*time/50, 0.0, -0.42*time/50);
-    glTexCoord2f(0.0, 0.0); glVertex3f( -0.3*time/50, 0.0,  0.42*time/50);
-    glTexCoord2f(1.0, 0.0); glVertex3f(  0.3*time/50, 0.0,  0.42*time/50);
-    glTexCoord2f(1.0, 1.0); glVertex3f(  0.3*time/50, 0.0, -0.42*time/50);
+    glTexCoord2f(0.0F, 1.0F); glVertex3f( -0.3F*time/50, 0.0F, -0.42F*time/50);
+    glTexCoord2f(0.0F, 0.0F); glVertex3f( -0.3F*time/50, 0.0F,  0.42F*time/50);
+    glTexCoord2f(1.0F, 0.0F); glVertex3f(  0.3F*time/50, 0.0F,  0.42F*time/50);
+    glTexCoord2f(1.0F, 1.0F); glVertex3f(  0.3F*time/50, 0.0F, -0.42F*time/50);
     glEnd();
     glBlendFunc(GL_ONE, GL_SRC_ALPHA);
     glDisable(GL_TEXTURE_2D);

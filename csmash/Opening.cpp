@@ -1263,7 +1263,7 @@ Opening::GetPhrase( long &phrase, long &mod ) {
     phrase = 64;
     mod = 0;
   } else {
-    phrase = 67 + (m_count-3292)/35.65;
-    mod = (m_count-3292) - (phrase-67)*35.65;
+    phrase = 67 + (long)((m_count-3292)/35.65);
+    mod = (m_count-3292) - (long)((phrase-67)*35.65);
   }
 }

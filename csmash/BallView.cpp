@@ -78,24 +78,24 @@ bool
 BallView::Redraw() {
   double rad;
   Ball* tmpBall;
-  const static GLfloat mat_yel[] = { 1.0, 0.8, 0.0, 0.0 };
+  const static GLfloat mat_yel[] = { 1.0F, 0.8F, 0.0F, 0.0F };
 
   // Draw the Ball itself
 #if 1
-  glColor4f(1.0, 0.8, 0.0, 0.0);
+  glColor4f(1.0F, 0.8F, 0.0F, 0.0F);
 #else
-  if ( theBall.GetSpin() > 0.0 )
-    glColor4f(1.0, 0.8-theBall.GetSpin()*0.8, 0.0, 0.0);
+  if ( theBall.GetSpin() > 0.0F )
+    glColor4f(1.0F, 0.8F-theBall.GetSpin()*0.8F, 0.0F, 0.0F);
   else
-    glColor4f(1.0+theBall.GetSpin(), 0.8+theBall.GetSpin()*0.8,
-	      -theBall.GetSpin(), 0.0);
+    glColor4f(1.0F+theBall.GetSpin(), 0.8F+theBall.GetSpin()*0.8F,
+	      -theBall.GetSpin(), 0.0F);
 #endif
   if ( isLighting ) {
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_yel);
   }
 
   glPushMatrix();
-    glTranslatef( theBall.GetX(), theBall.GetY(), theBall.GetZ() );
+    glTranslatef( (float)theBall.GetX(), (float)theBall.GetY(), (float)theBall.GetZ() );
 
     gluQuadricDrawStyle( m_quad, GLU_FILL );
     gluQuadricNormals( m_quad, GLU_SMOOTH );
@@ -106,17 +106,17 @@ BallView::Redraw() {
   glColor4f(0.0, 0.0, 0.0, 0.0);
   if ( theBall.GetY() > -TABLELENGTH/2 && theBall.GetY() < TABLELENGTH/2 ){
     glBegin(GL_POLYGON);
-      for ( rad = 0.0 ; rad < 3.141592*2 ; rad += 3.141592/4.0 )
-	glVertex3f( theBall.GetX()+BALL_R*cos(rad),
-		    theBall.GetY()+BALL_R*sin(rad),
-		    TABLEHEIGHT+0.01 );
+      for ( rad = 0.0F ; rad < 3.141592F*2 ; rad += 3.141592F/4 )
+	glVertex3f( (float)(theBall.GetX()+BALL_R*cos(rad)),
+		    (float)(theBall.GetY()+BALL_R*sin(rad)),
+		    TABLEHEIGHT+0.01F );
     glEnd();
   } else {
     glBegin(GL_POLYGON);
-      for ( rad = 0.0 ; rad < 3.141592*2 ; rad += 3.141592/4.0 )
-	glVertex3f( theBall.GetX()+BALL_R*cos(rad),
-		    theBall.GetY()+BALL_R*sin(rad),
-		    0.01 );
+      for ( rad = 0.0F ; rad < 3.141592F*2 ; rad += 3.141592F/4 )
+	glVertex3f( (float)(theBall.GetX()+BALL_R*cos(rad)),
+		    (float)(theBall.GetY()+BALL_R*sin(rad)),
+		    0.01F );
     glEnd();
   }
 
@@ -150,13 +150,13 @@ BallView::Redraw() {
       tmpBall->Move();
       t2++;
       if ( t1-10 == t2 ){
-	glColor4f(1.0, 0.0, 0.0, 0.0);
+	glColor4f(1.0F, 0.0F, 0.0F, 0.0F);
 	if ( isLighting ) {
-	  const static GLfloat mat_red[] = { 1.0, 0.0, 0.0, 0.0 };
+	  const static GLfloat mat_red[] = { 1.0F, 0.0F, 0.0F, 0.0F };
 	  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_red);
 	}
 	glPushMatrix();
-	glTranslatef( tmpBall->GetX(), tmpBall->GetY(), tmpBall->GetZ() );
+	glTranslatef( (float)tmpBall->GetX(), (float)tmpBall->GetY(), (float)tmpBall->GetZ() );
 
 	gluQuadricDrawStyle( m_quad, GLU_FILL );
 	gluQuadricNormals( m_quad, GLU_SMOOTH );
@@ -164,11 +164,11 @@ BallView::Redraw() {
 
 	glPopMatrix();
       } else if ( t1 == t2 ){
-	glColor4f(1.0, 0.8, 0.0, 0.0);
+	glColor4f(1.0F, 0.8F, 0.0F, 0.0F);
 	if ( isLighting )
 	  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_yel);
 	glPushMatrix();
-	glTranslatef( tmpBall->GetX(), tmpBall->GetY(), tmpBall->GetZ() );
+	glTranslatef( (float)tmpBall->GetX(), (float)tmpBall->GetY(), (float)tmpBall->GetZ() );
 
 	gluQuadricDrawStyle( m_quad, GLU_FILL );
 	gluQuadricNormals( m_quad, GLU_SMOOTH );
@@ -176,13 +176,13 @@ BallView::Redraw() {
 
 	glPopMatrix();
       } else if ( (t2%5) == (t1%5) ){
-	glColor4f(0.8, 0.8, 0.8, 0.0);
+	glColor4f(0.8F, 0.8F, 0.8F, 0.0F);
 	if ( isLighting ) {
-	  const static GLfloat mat_white[] = { 0.8, 0.8, 0.8, 0.0 };
+	  const static GLfloat mat_white[] = { 0.8F, 0.8F, 0.8F, 0.0F };
 	  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_white);
 	}
 	glPushMatrix();
-	glTranslatef( tmpBall->GetX(), tmpBall->GetY(), tmpBall->GetZ() );
+	glTranslatef( (float)tmpBall->GetX(), (float)tmpBall->GetY(), (float)tmpBall->GetZ() );
 
 	gluQuadricDrawStyle( m_quad, GLU_FILL );
 	gluQuadricNormals( m_quad, GLU_SMOOTH );
@@ -202,13 +202,13 @@ BallView::RedrawAlpha() {
   // Score
   if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ){
     glPushMatrix();
-    glTranslatef( -TABLEWIDTH/2-0.3, 0, TABLEHEIGHT );
+    glTranslatef( -TABLEWIDTH/2-0.3F, 0, TABLEHEIGHT );
 
     if ( isTexture || theBall.GetStatus() < -10 ) {
       long score1, score2;
 
       glEnable(GL_TEXTURE_2D);
-      glColor3f( 0.0, 0.0, 0.0 );
+      glColor3f( 0.0F, 0.0F, 0.0F );
 
       score1 = ((PlayGame *)theControl)->GetScore(1);
       score2 = ((PlayGame *)theControl)->GetScore(-1);
@@ -216,50 +216,50 @@ BallView::RedrawAlpha() {
       if ( score1 < 10 ) {
 	glBindTexture(GL_TEXTURE_2D, m_number[score1] );
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.0, 1.0); glVertex3f( 0.0, -0.4, 0.0 );
-	glTexCoord2f(0.0, 0.0); glVertex3f( 0.0, -0.4, 0.2 );
-	glTexCoord2f(1.0, 0.0); glVertex3f( 0.0, -0.2, 0.2 );
-	glTexCoord2f(1.0, 1.0); glVertex3f( 0.0, -0.2, 0.0 );
+	glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.0F, -0.4F, 0.0F );
+	glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.0F, -0.4F, 0.2F );
+	glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.0F, -0.2F, 0.2F );
+	glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.0F, -0.2F, 0.0F );
 	glEnd();
       } else {	/* Y2K :-) */
 	glBindTexture(GL_TEXTURE_2D, m_number[score1/10] );
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.0, 1.0); glVertex3f( 0.0, -0.4, 0.0 );
-	glTexCoord2f(0.0, 0.0); glVertex3f( 0.0, -0.4, 0.2 );
-	glTexCoord2f(1.0, 0.0); glVertex3f( 0.0, -0.3, 0.2 );
-	glTexCoord2f(1.0, 1.0); glVertex3f( 0.0, -0.3, 0.0 );
+	glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.0F, -0.4F, 0.0F );
+	glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.0F, -0.4F, 0.2F );
+	glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.0F, -0.3F, 0.2F );
+	glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.0F, -0.3F, 0.0F );
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, m_number[score1%10] );
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.0, 1.0); glVertex3f( 0.0, -0.3, 0.0 );
-	glTexCoord2f(0.0, 0.0); glVertex3f( 0.0, -0.3, 0.2 );
-	glTexCoord2f(1.0, 0.0); glVertex3f( 0.0, -0.2, 0.2 );
-	glTexCoord2f(1.0, 1.0); glVertex3f( 0.0, -0.2, 0.0 );
+	glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.0F, -0.3F, 0.0F );
+	glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.0F, -0.3F, 0.2F );
+	glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.0F, -0.2F, 0.2F );
+	glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.0F, -0.2F, 0.0F );
 	glEnd();
       }
 
       if ( score2 < 10 ) {
 	glBindTexture(GL_TEXTURE_2D, m_number[score2] );
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.0, 1.0); glVertex3f( 0.0, 0.2, 0.0 );
-	glTexCoord2f(0.0, 0.0); glVertex3f( 0.0, 0.2, 0.2 );
-	glTexCoord2f(1.0, 0.0); glVertex3f( 0.0, 0.4, 0.2 );
-	glTexCoord2f(1.0, 1.0); glVertex3f( 0.0, 0.4, 0.0 );
+	glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.0F, 0.2F, 0.0F );
+	glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.0F, 0.2F, 0.2F );
+	glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.0F, 0.4F, 0.2F );
+	glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.0F, 0.4F, 0.0F );
 	glEnd();
       } else {	/* Y2K :-) */
 	glBindTexture(GL_TEXTURE_2D, m_number[score2/10] );
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.0, 1.0); glVertex3f( 0.0, 0.2, 0.0 );
-	glTexCoord2f(0.0, 0.0); glVertex3f( 0.0, 0.2, 0.2 );
-	glTexCoord2f(1.0, 0.0); glVertex3f( 0.0, 0.3, 0.2 );
-	glTexCoord2f(1.0, 1.0); glVertex3f( 0.0, 0.3, 0.0 );
+	glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.0F, 0.2F, 0.0F );
+	glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.0F, 0.2F, 0.2F );
+	glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.0F, 0.3F, 0.2F );
+	glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.0F, 0.3F, 0.0F );
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, m_number[score2%10] );
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.0, 1.0); glVertex3f( 0.0, 0.3, 0.0 );
-	glTexCoord2f(0.0, 0.0); glVertex3f( 0.0, 0.3, 0.2 );
-	glTexCoord2f(1.0, 0.0); glVertex3f( 0.0, 0.4, 0.2 );
-	glTexCoord2f(1.0, 1.0); glVertex3f( 0.0, 0.4, 0.0 );
+	glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.0F, 0.3F, 0.0F );
+	glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.0F, 0.3F, 0.2F );
+	glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.0F, 0.4F, 0.2F );
+	glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.0F, 0.4F, 0.0F );
 	glEnd();
       }
 
