@@ -217,7 +217,7 @@ PlayerView::SubRedraw() {
 
     glTranslatef( -0.15, 0.0, 0.0 );
 
-    // 頭
+    // Head
     glPushMatrix();
     glTranslatef( x, 0.0, 0.0 );
     if ( m_player->GetSide() < 0 ) {
@@ -225,10 +225,10 @@ PlayerView::SubRedraw() {
     }
     glPopMatrix();
 
-    // 体
+    // Body
     glRotatef( deg, 0.0, 0.0, 1.0 );
 
-    // 台上処理
+    // On the table
     if ( m_player->GetY() > -TABLELENGTH/2 &&
 	 m_player->GetY() <= -TABLELENGTH/2+0.5 &&
 	 m_player->GetX() > -TABLEWIDTH/2 &&
@@ -249,18 +249,17 @@ PlayerView::SubRedraw() {
       glVertex3f( 0.15+x, 0.0, 0.15-0.3+y );
     glEnd();
 
-    // 左腕
+    // Left arm
     glBegin(GL_LINE_STRIP);
       glVertex3f( -0.15+x, 0.0, 0.15-0.3+y );
       glVertex3f( -0.15-0.10+x, 0.0, 0.15-0.3-0.25+y );
       glVertex3f( -0.15-0.10+x, 0.30, 0.15-0.3-0.25+y );
     glEnd();
 
-    // 右腕
-    // 右肩を原点に
+    // Right arm
+    // origin = right shoulder
     glTranslatef( 0.15+x, 0.0, -0.15+y );
 
-    // 右上腕
     m_player->GetElbow( degx, degy );
     glRotatef( degx, 1.0, 0.0, 0.0 );
     glRotatef( degy, 0.0, 1.0, 0.0 );
@@ -270,10 +269,8 @@ PlayerView::SubRedraw() {
       glVertex3f( 0.0, 0.0, -UPPERARM );
     glEnd();
 
-    // 右肘を原点に
     glTranslatef( 0.0, 0.0, -UPPERARM );
 
-    // 右下腕
     m_player->GetHand( degx, degy, degz );
     glRotatef( degz, 0.0, 0.0, 1.0 );
     glRotatef( degx, 1.0, 0.0, 0.0 );
@@ -284,7 +281,7 @@ PlayerView::SubRedraw() {
       glVertex3f( 0.0, FOREARM, 0.0 );
     glEnd();
 
-    // ラケット
+    // Racket
     glBegin(GL_LINE_LOOP);
       glVertex3f( 0.0, FOREARM, -0.05 );
       glVertex3f( 0.0, FOREARM, 0.05 );
@@ -295,13 +292,8 @@ PlayerView::SubRedraw() {
 
   glPopMatrix();
 
-  // 落下目標位置
-#if 0
-  if ( m_player->GetStatus() > 100 )
-    glColor4f( 0.2, 0.0, 0.0, 1.0 );
-  else
-#endif
-    glColor4f( 0.5, 0.0, 0.0, 1.0 );
+  // Target
+  glColor4f( 0.5, 0.0, 0.0, 1.0 );
 
   if ( isLighting ) {
     static GLfloat mat_default[] = { 0.0, 0.0, 0.0, 1.0 };
@@ -333,7 +325,7 @@ PlayerView::SubRedraw() {
       glVertex3f( targetX, targetY, TABLEHEIGHT );
     glEnd();
 
-    // 自分の打球位置
+    // Hit point
     static long count = 0;
 
     glColor4f(0.5, 0.0, 0.0, 1.0);
@@ -388,7 +380,7 @@ PlayerView::DrawTargetCircle( double diff ) {
       return;
   }
 
-  // 自Playerの手元に仮想的なBallを生成する
+  // Make pseudo ball near the Player
   if ( (m_player->GetSide() == 1 &&
 	(theBall.GetStatus() == 2 || theBall.GetStatus() == 3 || 
        theBall.GetStatus() == 5)) ||
@@ -415,14 +407,14 @@ PlayerView::DrawTargetCircle( double diff ) {
 			0.0, 0.0, 0.0, 0.0, 3 );
   }
 
-  // ボールを打ったときの初速を計算する
+  // Calc initial speed of the ball when the player hit the ball
   double dum, level, maxVy;
 
   m_player->CalcLevel( tmpBall, dum, level, maxVy );
   tmpBall->TargetToV( m_player->GetTargetX(), m_player->GetTargetY(), 
 		      level, m_player->GetSpin(), vx, vy, vz, 0.1, maxVy );
 
-  // 初速に誤差分を加え, 落下地点を計算
+  // Add difference to the initial speed. Calc bound location
   double v, v1x, v1y, v1z;
   double n1x, n1y, n1z, n2x, n2y, n2z;
   double bx = tmpBall->GetX(), by = tmpBall->GetY(), bz = tmpBall->GetZ();
@@ -448,7 +440,7 @@ PlayerView::DrawTargetCircle( double diff ) {
 		     v1x, v1y, v1z, m_player->GetSpin(), 0 );
       while ( tmpBall->GetZ() > TABLEHEIGHT &&
 	      tmpBall->GetZ()+tmpBall->GetVZ()*TICK > TABLEHEIGHT &&
-	      tmpBall->GetVY() > 0.0 &&	// ネットに当たったとき
+	      tmpBall->GetVY() > 0.0 &&	// When the ball hits the net
 	      tmpBall->GetStatus() == 0 )
 	tmpBall->Move();
     } else {
@@ -456,7 +448,7 @@ PlayerView::DrawTargetCircle( double diff ) {
 		     v1x, v1y, v1z, m_player->GetSpin(), 2 );
       while ( tmpBall->GetZ() > TABLEHEIGHT &&
 	      tmpBall->GetZ()+tmpBall->GetVZ()*TICK > TABLEHEIGHT &&
-	      tmpBall->GetVY() < 0.0 &&	// ネットに当たったとき
+	      tmpBall->GetVY() < 0.0 &&	// When the ball hits the net
 	      tmpBall->GetStatus() == 2 )
 	tmpBall->Move();
     }

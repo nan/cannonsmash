@@ -45,10 +45,11 @@ extern bool fullScreen;
 long BaseView::m_winWidth = WINXSIZE;
 long BaseView::m_winHeight = WINYSIZE;
 
-// x --- x座標軸はネットの底辺とその延長. x=0は, センターラインを含み
-//       台に垂直な平面. 
-// y --- y座標軸はセンターラインとその延長. y=0はネットを含む平面. 
-// z --- z座標軸は台の中心を通る鉛直線. z=0は床面. 
+// x --- x axis is the bottom line of the net. The plane x=0 represents
+//       the vertical plain which includes center line. 
+// y --- y axis is the center line. The plane y=0 includes the net. 
+// z --- z axis is the vertical line which includes the center point of
+//       the table. The plane z=0 is the floor. 
 
 BaseView::BaseView() {
   m_View = (View*)0;
@@ -62,7 +63,7 @@ BaseView::~BaseView() {
 
 bool
 BaseView::Init() {
-// Windowの生成, 初期化
+// Create and initialize Window
 
   if ( fullScreen )
     m_baseSurface = SDL_SetVideoMode( m_winWidth, m_winHeight, 0,
@@ -79,9 +80,7 @@ BaseView::Init() {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   //glOrtho(-2.0, 2.0, -2.0, 2.0, 2.0, -2.0);
-  /* 有効領域設定. 左, 右, 下, 上, 奥, 手前 */
   gluPerspective(60.0, 1.0, 0.1, 30.0);
-  /* 遠近法設定. 視野角, x/y比, 有効距離(手前), 有効距離(奥) */
   glMatrixMode(GL_MODELVIEW);
 
   //GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
@@ -127,7 +126,7 @@ BaseView::Init() {
   }
 
   int i, j;
-// テクスチャの設定. 
+// Set textures. 
   ImageData image;
 
   glGenTextures( 1, &m_title );
@@ -180,7 +179,7 @@ BaseView::RedrawAll() {
     glClear(GL_DEPTH_BUFFER_BIT);
   }
 
-  if ( mode == MODE_OPENING )	// もうちょっとまともにする
+  if ( mode == MODE_OPENING )	// Must be improved
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
   glColor4f(0.4, 0.2, 0.0, 0.0);
@@ -227,7 +226,7 @@ BaseView::RedrawAll() {
     view = view->m_next;
   }
 
-  // タイトル
+  // Title
   glPushMatrix();
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
@@ -279,7 +278,7 @@ BaseView::SetViewPosition() {
   return true;
 }
 
-// 視線をボールの動きに合わせて滑らかに移動させる
+// Move the viewpoint as the player moves
 void
 BaseView::SetLookAt() {
   double srcX, srcY, srcZ;
@@ -328,7 +327,6 @@ BaseView::RemoveView( View *view ) {
   return false;
 }
       
-// 終了処理. 
 void
 BaseView::EndGame() {
   static char file[][30] = {"images/win.ppm", "images/lose.ppm"};

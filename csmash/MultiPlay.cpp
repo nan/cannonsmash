@@ -53,6 +53,8 @@ extern short csmash_port;
 extern int theSocket;
 bool endian;
 
+int listenSocket = 0;
+
 extern long gameLevel;
 
 extern void QuitGame();
@@ -258,23 +260,30 @@ ReadPlayerData() {
 
 bool
 AcceptClient() {
-  int sock;
   socklen_t fromlen;
   struct sockaddr_in saddr, faddr;
 
-  if ( (sock = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
-    xerror("%s(%d) socket", __FILE__, __LINE__);
-    exit(1);
-  }
+  if ( listenSocket == 0 ) {
+    if ( (listenSocket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
+      xerror("%s(%d) socket", __FILE__, __LINE__);
+      exit(1);
+    }
 
-  setsockopt( sock, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(int) );
+    setsockopt( listenSocket, IPPROTO_TCP, TCP_NODELAY,
+		(char*)&one, sizeof(int) );
 
-  saddr.sin_addr.s_addr = htonl(INADDR_ANY);
-  saddr.sin_family = AF_INET;
-  saddr.sin_port = htons(csmash_port);
-  if ( bind( sock, (struct sockaddr *)&saddr, sizeof(saddr) ) < 0 ) {
-    xerror("%s(%d) bind", __FILE__, __LINE__);
-    exit(1);
+    saddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    saddr.sin_family = AF_INET;
+    saddr.sin_port = htons(csmash_port);
+    if ( bind( listenSocket, (struct sockaddr *)&saddr, sizeof(saddr) ) < 0 ) {
+      xerror("%s(%d) bind", __FILE__, __LINE__);
+      exit(1);
+    }
+
+    if ( listen( listenSocket, 1 ) < 0 ) {
+      xerror("%s(%d) socket", __FILE__, __LINE__);
+      exit(1);
+    }
   }
 
   int sb;
@@ -291,11 +300,6 @@ AcceptClient() {
     exit(1);
   }
 
-  if ( listen( sock, 1 ) < 0 ) {
-    xerror("%s(%d) socket", __FILE__, __LINE__);
-    exit(1);
-  }
-
   // wait for connection / broadcast packet
   printf("server selecting\n");
   do {
@@ -303,10 +307,10 @@ AcceptClient() {
 
     fd_set fd;
     FD_ZERO(&fd);
-    FD_SET(sock, &fd);
+    FD_SET(listenSocket, &fd);
     FD_SET(sb, &fd);
 
-    max = sock > sb ? sock : sb;
+    max = listenSocket > sb ? listenSocket : sb;
     if (0 <= select(max+1, &fd, NULL, NULL, NULL)) {
       if (FD_ISSET(sb, &fd)) {
 	// datagram to udp port
@@ -345,7 +349,7 @@ AcceptClient() {
   closesocket(sb);
 
   fromlen = sizeof(faddr);
-  theSocket = accept( sock, (struct sockaddr *)&faddr, &fromlen );
+  theSocket = accept( listenSocket, (struct sockaddr *)&faddr, &fromlen );
   setsockopt( theSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(int) );
 
   if (0 > theSocket) {
@@ -761,8 +765,11 @@ ExternalData::ReadData( long s ) {
   char buf[256];
   ExternalData *extNow;
 
-  if ( recv( theSocket, buf, 2, 0 ) != 2 )
+  if ( recv( theSocket, buf, 2, 0 ) != 2 ) {
+    // いいのか? 
+    //QuitGame();
     return NULL;
+  }
 
   if ( !strncmp( buf, "PV", 2 ) ) {
     extNow = new ExternalPVData(s);
@@ -775,6 +782,7 @@ ExternalData::ReadData( long s ) {
     extNow->Read( theSocket );
   } else if ( !strncmp( buf, "QT", 2 ) ) {
     QuitGame();
+    return NULL;
   } else
     return NULL;
 

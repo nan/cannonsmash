@@ -23,6 +23,7 @@
 #include "BaseView.h"
 
 extern long wins;
+extern bool isSimple;
 
 TrainingSelectView::TrainingSelectView() : PlayerSelectView() {
 }
@@ -87,7 +88,8 @@ bool
 TrainingSelectView::Redraw() {
   int i;
 
-  glEnable(GL_TEXTURE_2D);
+  if ( !isSimple || (m_playerSelect->GetRotate()%360)%(360/PLAYERS) == 0 )
+    glEnable(GL_TEXTURE_2D);
 
   glColor4f( 0.0, 0.0, 0.0, 0.0 );
 

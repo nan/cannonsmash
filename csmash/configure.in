@@ -41,9 +41,6 @@ fi
 AC_SUBST(PKGDATA)
 
 
-dnl AC_CHECK_LIB(pthread, pthread_create, [AC_DEFINE(PTHREAD)
-dnl 				LIBS="$LIBS -lpthread"])
-
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(sys/time.h unistd.h)
@@ -55,7 +52,7 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 
-AM_INIT_AUTOMAKE(csmash, 0.6.0, no-define)
+AM_INIT_AUTOMAKE(csmash, 0.6.1, no-define)
 
 AC_DEFINE_UNQUOTED(CANNONSMASH_DATADIR, "@prefix@/share/$PACKAGE/")
 

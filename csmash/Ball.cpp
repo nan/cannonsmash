@@ -130,11 +130,11 @@ Ball::GetStatus() {
 
 bool
 Ball::Move() {
-  double netT , tableT;         /* ネット、テーブルの衝突判定フラグ */
-  double x , y, z;              /* ボールのx,y座標の保存用 */
-  double tableY;                /* テーブルバウンド時のx座標 */
+  double netT , tableT;         /* Flag for bound on the table, hit net */
+  double x , y, z;              /* Hold x,y */
+  double tableY;                /* Hold y on bounding */
 
-// ボールデッドの時は速やかに元に戻す
+// Return ball immidiately when ball dead
   if ( m_status < 0 )
     m_status--;
 
@@ -181,7 +181,7 @@ Ball::Move() {
     return true;
   }
 
-/* 速度の加算 */ 
+/* Add velocity */ 
   x = m_x;
   y = m_y;
   z = m_z;
@@ -189,7 +189,7 @@ Ball::Move() {
   m_y += (m_vy*2-PHY*m_vy*TICK)/2*TICK;
   m_z += (m_vz*2-GRAV*TICK-PHY*m_vz*TICK)/2*TICK;
 
-/* 衝突判定 */
+/* Collision check */
   if ( y*m_y <= 0.0 ){
     netT = fabs( y/((m_y-y)/TICK) );
     if ( z+(m_z-z)*netT/TICK < TABLEHEIGHT ||
@@ -210,18 +210,18 @@ Ball::Move() {
   } else
     tableT = TICK*100;
 
-  if ( netT < tableT ){	// ネットに接触
+  if ( netT < tableT ){	// Hit net
     m_vx *= 0.5;
     m_vy = -m_vy*0.2;
     m_y = m_vy*(TICK-netT);
   }
 
-  if ( tableT < netT ){	// テーブルに接触
+  if ( tableT < netT ){	// Bound on the table
     if ( this == &theBall ) {
       theSound.Play( SOUND_TABLE );
     }
     tableY = y+m_vy*tableT;
-    if ( tableY < 0 ){		// player側のテーブル
+    if ( tableY < 0 ){		// Table of my side
       switch( m_status ){
       case 2:
 	m_status = 3;
@@ -236,7 +236,7 @@ Ball::Move() {
 	  m_status = -1;
 	}
       }
-    } else {			// COM側のテーブル
+    } else {			// Table of opponent side
       switch( m_status ) {
       case 0:
 	m_status = 1;
@@ -271,7 +271,7 @@ Ball::Move() {
     return true;
   }
 
-/* 周りの壁との衝突判定 */
+/* Collision check with walls */
   if ( m_x < -AREAXSIZE/2 ){
     m_x = -AREAXSIZE/2;
     m_vx = -m_vx*TABLE_E/2;
@@ -328,11 +328,11 @@ Ball::Move() {
     BallDead();
   }
 
-// 重力
+// Gravity
   m_vz -= GRAV*TICK;
 
 
-// 空気抵抗
+// Air resistance
   m_vx += -PHY*m_vx*TICK;
   m_vy += -PHY*m_vy*TICK;
   m_vz += -PHY*m_vz*TICK;
@@ -340,28 +340,13 @@ Ball::Move() {
   return true;
 }
 
-// ボールのインパクト処理
+// Ball inpact
 bool
 Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
-// 一般の打球
+// Normal inpact
   if ( this == &theBall ) {
       theSound.Play( SOUND_RACKET );
   }
-
-  // 外部Playerはボールに影響を与えない. BVプロトコルを使用する. 
-  //if ( player == comPlayer && mode == MODE_MULTIPLAY ) {
-  //  return true;
-  //}
-
-#if 0
-  if ( player == comPlayer && mode == MODE_MULTIPLAY ) {
-    printf( "Hit: sec = %d count = %d\n",
-	    Event::m_lastTime.time, Event::m_lastTime.millitm);
-    printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n", m_x, m_y, m_z, vx, vy, vz );
-
-    fflush(0);
-  }
-#endif
 
   m_spin = spin;
 
@@ -431,10 +416,9 @@ Ball::Warp( char *buf ) {
   b = ReadLong( b, m_status );
 }
 
-// 空気抵抗あり版
-// 現在のボールの位置, target, heightから, ボールの初速を割り出す
-// target --- 目標落下地点
-// level --- 全力の何%で打球するか
+// Get ball initial speed from current ball location, target, height
+// target --- The point where ball will bound
+// level ---  hit power(percentage)
 bool
 Ball::TargetToV( double targetX, double targetY, double level, double spin, 
 		 double &vx, double &vy, double &vz, double vMin, 
@@ -451,13 +435,13 @@ Ball::TargetToV( double targetX, double targetY, double level, double spin,
   } else
     y = m_y;
 
-  if ( targetY*y >= 0 ) {	// ネットを越えない
+  if ( targetY*y >= 0 ) {	// Never go over the net
     vy = vyMax*level*0.5;
 
-    // ボールがtargetYに到達するまでの時間t2を求める. 
+    // t2 = time until ball reaches targetY
     t2 = -LOG( 1- PHY*(targetY-y)/vy ) / PHY;
 
-    // t2時に, z=TABLEHEIGHTとなるvzを求める. 
+    // define vz which satisfy z=TABLEHEIGHT when t=t2
     if (0 != t2) {
 	vz = (PHY*(TABLEHEIGHT-m_z)+GRAVITY(spin)*t2)/(1-exp(-PHY*t2)) -
 	    GRAVITY(spin)/PHY;
@@ -477,13 +461,13 @@ Ball::TargetToV( double targetX, double targetY, double level, double spin,
   while (vyMax-vyMin > 0.001) {
     vy = (vyMin+vyMax)/2;
 
-    // まず, ボールがtargetYに到達するまでの時間t2を求める. 
+    // t2 = time until ball reaches targetY
     t2 = -LOG( 1- PHY*(targetY-y)/vy ) / PHY;
 
-    // ボールがネット上に到達するまでの時間t1を求める. 
+    // t1 = time until ball reaches the net
     t1 = -LOG( 1- PHY*(-y)/vy ) / PHY;
 
-    // t2時に, z=TABLEHEIGHTとなるvzを求める. 
+    // define vz which satisfy z=TABLEHEIGHT when t=t2
     if (0 != t2) {
 	vz = (PHY*(TABLEHEIGHT-m_z)+GRAVITY(spin)*t2)/(1-exp(-PHY*t2)) -
 	    GRAVITY(spin)/PHY;
@@ -491,7 +475,7 @@ Ball::TargetToV( double targetX, double targetY, double level, double spin,
 	vz = m_z;
     }
 
-    // t1時のボールの高さを求める. 
+    // z1 = height of the ball when t=t2
     z1 = -(vz+GRAVITY(spin)/PHY)*exp(-PHY*t1)/PHY - GRAVITY(spin)*t1/PHY +
       (vz+GRAVITY(spin)/PHY)/PHY;
 
@@ -542,10 +526,10 @@ Ball::TargetToVS( double targetX, double targetY, double level, double spin,
     while (vyMax-vyMin > 0.001) {
       vy = (vyMin+vyMax)/2;
 
-      // まず, ボールがboundYに到達するまでの時間t2を求める. 
+      // t2 = time until the ball reaches boundY
       t2 = -LOG( 1- PHY*(boundY-y)/vy ) / PHY;
 
-      // t2時に, z=TABLEHEIGHTとなるvzを求める. 
+      // define vz which satisfy z=TABLEHEIGHT when t=t2
       if (0 != t2) {
 	  vz = (PHY*(TABLEHEIGHT-m_z)+GRAVITY(spin)*t2)/(1-exp(-PHY*t2)) -
 	      GRAVITY(spin)/PHY;
@@ -553,7 +537,7 @@ Ball::TargetToVS( double targetX, double targetY, double level, double spin,
 	  vz = m_z;
       }
 
-      // バウンド
+      // Bound
       vyCurrent = vy*exp(-PHY*t2);
       vzCurrent = (vz+GRAVITY(spin)/PHY)*exp(-PHY*t2) - GRAVITY(spin)/PHY;
 

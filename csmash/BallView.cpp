@@ -80,7 +80,7 @@ BallView::Redraw() {
   Ball* tmpBall;
   const static GLfloat mat_yel[] = { 1.0, 0.8, 0.0, 0.0 };
 
-  // Ball自体の描画
+  // Draw the Ball itself
 #if 1
   glColor4f(1.0, 0.8, 0.0, 0.0);
 #else
@@ -102,7 +102,7 @@ BallView::Redraw() {
     gluSphere( m_quad, BALL_R, 12, 12 );
   glPopMatrix();
 
-  // 影を描画する
+  // Draw the ball shadow
   glColor4f(0.0, 0.0, 0.0, 0.0);
   if ( theBall.GetY() > -TABLELENGTH/2 && theBall.GetY() < TABLELENGTH/2 ){
     glBegin(GL_POLYGON);
@@ -120,7 +120,7 @@ BallView::Redraw() {
     glEnd();
   }
 
-  // ボールの将来の軌跡を表示する
+  // Draw the ball location in the future
   if ( thePlayer &&
        (((theBall.GetStatus() == 2 || theBall.GetStatus() == 3) &&
 	thePlayer->GetSide() > 0) ||
@@ -130,7 +130,7 @@ BallView::Redraw() {
 			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
 			theBall.GetSpin(), theBall.GetStatus() );
     long t1 = 0, t2 = 0;
-    // 打球点に到達するまでの時間を求める
+    // get time until the ball reaches hit point
     while ( tmpBall->GetStatus() != -1 ){
       tmpBall->Move();
       if ( tmpBall->GetY() < thePlayer->GetY() && tmpBall->GetStatus() == 3 )
@@ -138,7 +138,7 @@ BallView::Redraw() {
       t1++;
     }
     if ( tmpBall->GetStatus() == -1 )
-      t1 += 100000;	// 赤玉表示なし
+      t1 += 100000;	// Not red ball
 
     delete tmpBall;
 
@@ -200,12 +200,11 @@ BallView::Redraw() {
 bool
 BallView::RedrawAlpha() {
   // Score
-
   if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ){
     glPushMatrix();
     glTranslatef( -TABLEWIDTH/2-0.3, 0, TABLEHEIGHT );
 
-    if ( isTexture ) {
+    if ( isTexture || theBall.GetStatus() < -10 ) {
       long score1, score2;
 
       glEnable(GL_TEXTURE_2D);

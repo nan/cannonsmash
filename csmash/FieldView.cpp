@@ -24,10 +24,6 @@ extern bool isLighting;
 extern bool isTexture;
 extern bool isSimple;
 
-// x --- x座標軸はネットの底辺とその延長. x=0は, センターラインを含み
-//       台に垂直な平面. 
-// y --- y座標軸はセンターラインとその延長. y=0はネットを含む平面. 
-// z --- z座標軸は台の中心を通る鉛直線. z=0は床面. 
 FieldView::FieldView() {
 }
 
@@ -37,7 +33,7 @@ FieldView::~FieldView() {
 bool
 FieldView::Init() {
   int i, j;
-// テクスチャの設定. 
+// Set texture
   ImageData image;
 
   image.LoadFile( "images/Floor.jpg" );
@@ -78,7 +74,7 @@ FieldView::Init() {
   glNewList( m_offset, GL_COMPILE );
 
   if (isSimple) {
-    glBegin(GL_LINE_LOOP);			// 床の描画
+    glBegin(GL_LINE_LOOP);			// Draw floor
       glNormal3f( 0.0, 0.0, 1.0 );
       glVertex3f( -AREAXSIZE,  AREAYSIZE, 0.0 );
       glVertex3f( -AREAXSIZE, -AREAYSIZE, 0.0 );
@@ -92,7 +88,7 @@ FieldView::Init() {
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 
-    glBegin(GL_QUADS);				// 床の描画
+    glBegin(GL_QUADS);				// Draw floor
       glNormal3f( 0.0, 0.0, 1.0 );
       glTexCoord2f(0.0, 0.0); glVertex3f( -AREAXSIZE*2,  AREAYSIZE*2, 0.0 );
       glTexCoord2f(4.0, 0.0); glVertex3f( -AREAXSIZE*2, -AREAYSIZE*2, 0.0 );
@@ -119,7 +115,7 @@ FieldView::Redraw() {
   glCallList( m_offset );
 
   if (isSimple) {
-    glBegin(GL_LINE_LOOP);			// 壁の描画
+    glBegin(GL_LINE_LOOP);			// Draw wall
       glNormal3f( 1.0, 0.0, 0.0 );
       glVertex3f( -AREAXSIZE,  AREAYSIZE, 0.0 );
       glVertex3f( -AREAXSIZE, -AREAYSIZE, 0.0 );
@@ -156,7 +152,7 @@ FieldView::Redraw() {
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    glBegin(GL_QUADS);			// 壁の描画
+    glBegin(GL_QUADS);			// Draw wall
       glNormal3f( 1.0, 0.0, 0.0 );
       glTexCoord2f(0.0, 1.0); glVertex3f( -AREAXSIZE,  AREAYSIZE, 0.0 );
       glTexCoord2f(1.0, 1.0); glVertex3f( -AREAXSIZE, -AREAYSIZE, 0.0 );
@@ -207,7 +203,7 @@ FieldView::Redraw() {
       glDisable(GL_TEXTURE_2D);
 
     glColor4f(0.1, 0.1, 0.1, 0.0);
-    glBegin(GL_QUADS);			// 天井の描画
+    glBegin(GL_QUADS);			// Draw ceiling
       glNormal3f( 0.0, 0.0, -1.0 );
       glVertex3f(  AREAXSIZE*2,  AREAYSIZE*2, AREAZSIZE);
       glVertex3f( -AREAXSIZE*2,  AREAYSIZE*2, AREAZSIZE);
@@ -220,7 +216,7 @@ FieldView::Redraw() {
       static GLfloat mat_board[] = { 0.0, 0.2, 0.0, 0.0 };
       glMaterialfv(GL_FRONT, GL_SPECULAR, mat_board);
 
-      glBegin(GL_QUADS);			// 仕切り板の描画
+      glBegin(GL_QUADS);			// Draw ball stopper
         glNormal3f( 1.0, 0.0, 0.0 );
 	glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, 0.0 );
 	glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, 0.0 );
@@ -252,7 +248,7 @@ FieldView::Redraw() {
   static GLfloat mat_leg[] = { 0.0, 0.4, 0.0, 0.0 };
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_leg);
 
-  glBegin(GL_QUADS);			// 足の描画
+  glBegin(GL_QUADS);			// Draw table legs
     glVertex3f(-TABLEWIDTH/2+0.1, -TABLELENGTH/2+0.1,  0.0);
     glVertex3f(-TABLEWIDTH/2+0.1, -TABLELENGTH/2+0.1,  TABLEHEIGHT-TABLETHICK);
     glVertex3f(-TABLEWIDTH/2+0.1, -TABLELENGTH/2+0.13, TABLEHEIGHT-TABLETHICK);
@@ -340,7 +336,7 @@ FieldView::Redraw() {
   return true;
 }
 
-// 透明なものの描画
+// Draw transparent object
 bool
 FieldView::RedrawAlpha() {
   glColor4f(0.0, 0.0, 0.3, 0.7);
@@ -348,7 +344,7 @@ FieldView::RedrawAlpha() {
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_table);
 
   glDepthMask(0);
-  glBegin(GL_QUADS);			// Tableの描画
+  glBegin(GL_QUADS);			// Draw table
   if ( isLighting && !isSimple ) {
     glNormal3f( 0.0, 0.0, -1.0 );
     glVertex3f( -TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
@@ -395,7 +391,7 @@ FieldView::RedrawAlpha() {
   if ( isLighting ) {
     glColor4f(1.0, 1.0, 1.0, 1.0);
 
-    glBegin(GL_QUADS);		// 白線の描画
+    glBegin(GL_QUADS);		// Draw white line
       glNormal3f( 0.0, 0.0, 1.0 );
       glVertex3f( -TABLEWIDTH/2,       TABLELENGTH/2, TABLEHEIGHT );
       glVertex3f( -TABLEWIDTH/2,      -TABLELENGTH/2, TABLEHEIGHT );
@@ -431,7 +427,7 @@ FieldView::RedrawAlpha() {
 
   static GLfloat mat_net[] = { 0.0, 0.2, 0.0, 1.0 };
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_net);
-  glBegin(GL_QUADS);			// Netの描画
+  glBegin(GL_QUADS);			// Draw net
     glNormal3f( 0.0, 1.0, 0.0 );
     glVertex3f( -TABLEWIDTH/2-NETHEIGHT, 0.0, TABLEHEIGHT );
     glVertex3f( -TABLEWIDTH/2-NETHEIGHT, 0.0, TABLEHEIGHT+NETHEIGHT-0.01 );

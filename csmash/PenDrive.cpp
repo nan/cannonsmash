@@ -53,7 +53,7 @@ PenDrive::~PenDrive() {
 
 bool
 PenDrive::AddStatus( long diff ) {
-  // 将来的には特色を出す. 
+  // Add something in the future
   return Player::AddStatus( diff );
 }
 
@@ -64,7 +64,7 @@ PenDrive::Move( unsigned long *KeyHistory, long *MouseXHistory,
   Player::Move( KeyHistory, MouseXHistory, MouseYHistory,MouseBHistory,
 		Histptr );
 
-// status 計算
+// Calc status
   if ( hypot( m_vx, m_vy ) < 1.5 )
     AddStatus( 2 );
 
@@ -81,8 +81,8 @@ PenDrive::Swing( long spin ) {
   m_swing = 11;
   m_pow = 8;
 
-  // 予想打球点とボールの性質から打ち方を決める
-  // 0.1秒後のボールの位置を推定する
+  // Decide SwingType by the hit point and spin, etc. 
+  // Calc the ball location of 0.1 second later
   tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
 		      theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
 		      theBall.GetSpin(), theBall.GetStatus() );
@@ -109,7 +109,7 @@ PenDrive::Swing( long spin ) {
 }
 
 bool
-PenDrive::StartSwing( long spin ) { // 引数はサーブ時のみ有効
+PenDrive::StartSwing( long spin ) { // Argument is valid only on serve
   Ball *tmpBall;
 
   if ( m_swing > 10 )
@@ -119,8 +119,8 @@ PenDrive::StartSwing( long spin ) { // 引数はサーブ時のみ有効
     m_swing = 1;
     m_pow = 0;
 
-    // 予想打球点とボールの性質から打ち方を決める
-    // 0.2秒後のボールの位置を推定する
+    // Decide SwingType by the hit point and spin, etc. 
+    // Calc the ball location of 0.2 second later
     tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
 			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
 			theBall.GetSpin(), theBall.GetStatus() );
@@ -129,7 +129,7 @@ PenDrive::StartSwing( long spin ) { // 引数はサーブ時のみ有効
       tmpBall->Move();
 
     if ( (theBall.GetStatus() == 6 && m_side == 1) ||
-	(theBall.GetStatus() == 7 && m_side == -1) ) {	// サーブ
+	(theBall.GetStatus() == 7 && m_side == -1) ) {	// Serve
       switch ( spin-1 ) {
       case 0:
 	m_spin = 0.2;	// straight
@@ -170,7 +170,7 @@ PenDrive::HitBall() {
   double diff;
   double level;
 
-// サーブ
+  // Serve
   if ( ( (m_side == 1 && theBall.GetStatus() == 6) ||
          (m_side ==-1 && theBall.GetStatus() == 7) ) &&
        fabs( m_x-theBall.GetX() ) < 0.6 && fabs( m_y-theBall.GetY() ) < 0.3 ) {
@@ -225,7 +225,7 @@ PenDrive::HitBall() {
 
       radDiff = hypot( fabs(fabs(m_x-theBall.GetX())-0.3)/0.3, 
 		       fabs(m_y-theBall.GetY())/0.3 );
-      radDiff = sqrt( radDiff );	// 分散を大きくする
+      radDiff = sqrt( radDiff );
       radDiff *= (double)(200-m_status)/200*3.141592/18;
 
       v = sqrt(vx*vx+vy*vy+vz*vz);
@@ -236,7 +236,8 @@ PenDrive::HitBall() {
       n2y = vy*vz/(v*hypot(vx, vy)) * v*tan(radDiff);
       n2z = (vx*vx+vy*vy)/(v*hypot(vx, vy)) * v*tan(radDiff);
 
-      // 速く打ちすぎたらネット, 遅く打ちすぎたらオーバー(暫定)
+      // Hit the ball too fast --- net miss
+      // Hit the ball too slow --- over miss
       if ( (m_y-theBall.GetY())*m_side < 0 )
 	radRand = (RAND(180)+180)*3.141592/180.0;
       else
@@ -246,7 +247,7 @@ PenDrive::HitBall() {
       vy += n1y*cos(radRand)+n2y*sin(radRand);
       vz += n1z*cos(radRand)+n2z*sin(radRand);
 
-      // ボールの強さによって体勢ゲージを減らす
+      // Reduce status
       m_afterSwing = (long)(hypot(m_vx*0.8-vx, m_vy*0.8+vy)*(1.0+diff*10.0) +
 			    fabs(m_spin)*5.0+fabs(theBall.GetSpin())*4.0);
 
@@ -272,7 +273,7 @@ PenDrive::SwingType( Ball *ball, long spin ) {
     if ( fabs(ball->GetX()) < TABLEWIDTH/2 &&
 	 fabs(ball->GetY()) < TABLELENGTH/2 &&
 	 (ball->GetZ()-TABLEHEIGHT-NETHEIGHT)/fabs(ball->GetY()) <
-	 NETHEIGHT/(TABLELENGTH/2)*0.5 ) {	// 台上の低い球
+	 NETHEIGHT/(TABLELENGTH/2)*0.5 ) {	// low ball on the table
       if ( ball->GetSpin() < 0 ) {
 	m_swingType = SWING_POKE;
 #if 0
@@ -288,7 +289,7 @@ PenDrive::SwingType( Ball *ball, long spin ) {
 	m_spin = 0.4;
 #endif
       }
-    } else if ( ball->GetZ() < TABLEHEIGHT+NETHEIGHT*2 ) {	// ネットの下
+    } else if ( ball->GetZ() < TABLEHEIGHT+NETHEIGHT*2 ) { // under the net
       if ( ForeOrBack() ) {
 	m_swingType = SWING_DRIVE;
 #if 0
@@ -337,8 +338,9 @@ PenDrive::SwingType( Ball *ball, long spin ) {
   return true;
 }
 
+// Target will be modified by the spin
+// (now invalid)
 #if 0
-// 回転によって修正されたtargetを表示する
 bool
 PenDrive::GetModifiedTarget( double &targetX, double &targetY ) {
   targetX = m_targetX;
@@ -346,7 +348,7 @@ PenDrive::GetModifiedTarget( double &targetX, double &targetY ) {
 
   return true;
 }
-#else	// しばらく封印
+#else
 bool
 PenDrive::GetModifiedTarget( double &targetX, double &targetY ) {
   targetX = m_targetX;

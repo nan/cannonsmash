@@ -20,28 +20,84 @@
 #include "LobbyClient.h"
 #include "MultiPlay.h"
 
+#if !defined(_WIN32)
+#include <netinet/tcp.h>
+#endif
+
+#if defined(_WIN32) || defined(__FreeBSD__)
+
+typedef int socklen_t;		/* mimic Penguin's typedef */
+
+#else	/* ! _WIN32 */
+
+#define closesocket(FD) close(FD)
+
+#endif
+
 extern short csmash_port;
 extern bool isComm;
 extern char serverName[256];
 extern long mode;
 
+extern bool isWaiting;
+
 extern void StartGame();
+extern void EventLoop();
+extern bool PollEvent();
+
+extern void QuitGame();
+
+extern int listenSocket;
+extern int one;
 
 LobbyClient::LobbyClient() {
+  m_playerNum = 0;
   m_timeout = 0;
+  m_idle = 0;
 }
 
 LobbyClient::~LobbyClient() {
   if ( m_timeout > 0 )
     gtk_timeout_remove( m_timeout );
+  if ( m_idle > 0 )
+    gtk_idle_remove( m_idle );
 }
 
 void
 LobbyClient::Init( char *nick, char *message ) {
   char buf[1024];
 
-  // ロビーサーバに接続
-  struct sockaddr_in saddr;
+  // open listening port
+  socklen_t fromlen;
+  struct sockaddr_in saddr, faddr;
+
+  if ( listenSocket == 0 ) {
+    if ( (listenSocket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
+      xerror("%s(%d) socket", __FILE__, __LINE__);
+      gtk_main_quit();
+      exit(1);
+    }
+
+    setsockopt( listenSocket, IPPROTO_TCP, TCP_NODELAY,
+		(char*)&one, sizeof(int) );
+
+    saddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    saddr.sin_family = AF_INET;
+    saddr.sin_port = htons(csmash_port);
+    if ( bind( listenSocket, (struct sockaddr *)&saddr, sizeof(saddr) ) < 0 ) {
+      xerror("%s(%d) bind", __FILE__, __LINE__);
+      gtk_main_quit();
+      exit(1);
+    }
+
+    if ( listen( listenSocket, 1 ) < 0 ) {
+      xerror("%s(%d) socket", __FILE__, __LINE__);
+      gtk_main_quit();
+      exit(1);
+    }
+  }
+
+  // connect to lobby server
   struct hostent *hent;
 
   memset(&saddr, 0, sizeof(saddr));
@@ -69,7 +125,7 @@ LobbyClient::Init( char *nick, char *message ) {
   long len = 7 + 32 + 64;
   SendLong( m_socket, len );
 
-  // バージョン送信(てきとー)
+  // Send version number(Must be changed)
   char ver;
   ver = 0;
   send( m_socket, &ver, 1, 0 );
@@ -78,34 +134,24 @@ LobbyClient::Init( char *nick, char *message ) {
   ver = 0;
   send( m_socket, &ver, 1, 0 );
 
-  // ポート送信(同じくてきとー)
+  // Send port number(Must be changed, too)
   SendLong( m_socket, csmash_port );
 
-  // nick送信
+  // send nick
   strncpy( buf, nick, 32 );
   send( m_socket, buf, 32, 0 );
 
-  // message送信
+  // send message
   strncpy( buf, message, 64 );
   send( m_socket, buf, 64, 0 );
 
-  // データもらう
-  ReadHeader( buf );
-
-  if ( strncmp( buf, "UI", 2 ) ) {
-    xerror("%s(%d) read UI header", __FILE__, __LINE__);
-    gtk_main_quit();
-    exit(1);
-  }
-
-  ReadUI();
-
   m_timeout = gtk_timeout_add( 1000, LobbyClient::PollServerMessage, this );
 
-  // 表示
+  // display
   m_window = gtk_dialog_new();
   gtk_container_border_width (GTK_CONTAINER (m_window), 10);
 
+  gtk_window_set_title( GTK_WINDOW(m_window), "Cannon Smash");
   gtk_widget_show(m_window);
   gtk_window_set_modal( (GtkWindow *)m_window, true );
   gtk_widget_set_usize( m_window, 300, 200 );
@@ -143,12 +189,16 @@ LobbyClient::Init( char *nick, char *message ) {
   gtk_box_pack_start (GTK_BOX (GTK_DIALOG (m_window)->action_area),
 		      m_connectButton, TRUE, TRUE, 0);
 
+  m_warmUpButton = gtk_button_new_with_label ("warm up");
+  gtk_signal_connect (GTK_OBJECT (m_warmUpButton), "clicked",
+		      GTK_SIGNAL_FUNC (LobbyClient::WarmUp), this);
+  gtk_widget_show (m_warmUpButton);
+  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (m_window)->action_area),
+		      m_warmUpButton, TRUE, TRUE, 0);
+
   button = gtk_button_new_with_label ("close");
   gtk_signal_connect (GTK_OBJECT (button), "clicked",
 		      GTK_SIGNAL_FUNC (LobbyClient::Quit), this);
-  //gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
-  //(GtkSignalFunc) gtk_widget_destroy,
-  //GTK_OBJECT (m_window));
 
   GTK_WIDGET_SET_FLAGS (button, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (GTK_DIALOG (m_window)->action_area),
@@ -167,14 +217,27 @@ LobbyClient::PollServerMessage( gpointer data ) {
   struct timeval to;
 
   while (1) {
+    int max;
     FD_ZERO( &rdfds );
     FD_SET( lobby->m_socket, &rdfds );
+    if ( listenSocket )
+      FD_SET( listenSocket, &rdfds );
+
+    if ( lobby->m_socket > listenSocket )
+      max = lobby->m_socket;
+    else
+      max = listenSocket;
 
     to.tv_sec = to.tv_usec = 0;
 
-    if ( select( lobby->m_socket+1, &rdfds, NULL, NULL, &to ) <= 0 )
+    if ( select( max+1, &rdfds, NULL, NULL, &to ) <= 0 ) {
       return 1;
-    else {
+    } else if ( FD_ISSET( listenSocket, &rdfds ) ) {
+      int acSocket;
+      acSocket = accept( listenSocket, NULL, NULL );
+
+      closesocket( acSocket );
+    } else {
       char buf[1024];
 
       lobby->ReadHeader( buf );
@@ -192,10 +255,25 @@ LobbyClient::PollServerMessage( gpointer data ) {
 	mode = MODE_SELECT;
 	serverName[0] = '\0';
 	gtk_widget_set_sensitive (lobby->m_connectButton, true);
+	gtk_widget_set_sensitive (lobby->m_warmUpButton, true);
 	gtk_widget_set_sensitive (lobby->m_table, true);
+
+	send( lobby->m_socket, "SP", 2, 0 );
+	long len = 0;
+	SendLong( lobby->m_socket, len );
+
 	StartGame();
+	EventLoop();
+
+	send( lobby->m_socket, "SP", 2, 0 );
+	len = 8;
+	SendLong( lobby->m_socket, len );
+
+	SendLong( lobby->m_socket, len );	// Temp
+	SendLong( lobby->m_socket, len );
       } else if ( !strncmp( buf, "DP", 2 ) ) {
 	gtk_widget_set_sensitive (lobby->m_connectButton, true);
+	gtk_widget_set_sensitive (lobby->m_warmUpButton, true);
 	gtk_widget_set_sensitive (lobby->m_table, true);
       } else {
 	xerror("%s(%d) read header", __FILE__, __LINE__);
@@ -234,15 +312,38 @@ void
 LobbyClient::Connect( GtkWidget *widget, gpointer data ) {
   LobbyClient *lobby = (LobbyClient *)data;
 
-  // Send Private IRC Message(とりあえずIRC ぢゃないけど)
+  // Send Private IRC Message(Although it is not IRC at now)
   send( lobby->m_socket, "PI", 2, 0 );
   long len = 4;
   SendLong( lobby->m_socket, len );
   SendLong( lobby->m_socket, lobby->m_player[lobby->m_selected].m_ID );
 
   gtk_widget_set_sensitive (lobby->m_connectButton, false);
+  gtk_widget_set_sensitive (lobby->m_warmUpButton, false);
   gtk_widget_set_sensitive (lobby->m_table, false);
   //printf( "%d\n", lobby->m_selected );
+}
+
+void
+LobbyClient::WarmUp( GtkWidget *widget, gpointer data ) {
+  LobbyClient *lobby = (LobbyClient *)data;
+
+  isWaiting = true;
+  StartGame();
+
+  lobby->m_idle = gtk_idle_add( LobbyClient::IdleFunc, data );
+}
+
+gint
+LobbyClient::IdleFunc( gpointer data ) {
+  LobbyClient *lobby = (LobbyClient *)data;
+
+  if ( !PollEvent() ) {
+    return 0;
+    //gtk_idle_remove( lobby->m_idle );
+  }
+
+  return 1;
 }
 
 void
@@ -270,7 +371,7 @@ LobbyClient::ReadHeader( char *buf ) {
 
 void
 LobbyClient::ReadUI() {
-  // 長さ取得
+  // get length
   long protocolLength;
   long len = 0;
   char buf[1024];
@@ -281,7 +382,7 @@ LobbyClient::ReadUI() {
   }
   ReadLong( buf, protocolLength );
 
-  // とりあえず全部読む
+  // First, read all
   char *buffer = new char[protocolLength];
   len = 0;
   while (1) {
@@ -289,13 +390,13 @@ LobbyClient::ReadUI() {
       break;
   }
 
-  // Player 数取得
+  // Get player number
   ReadLong( buffer, m_playerNum );
   len = 4;
 
   m_player = new PlayerInfo[m_playerNum];
 
-  // 実読み込み
+  // Analyse data
   int i, j;
   for ( i = 0 ; i < m_playerNum ; i++ ) {
     if ( buffer[len] )
@@ -312,12 +413,12 @@ LobbyClient::ReadUI() {
 
     strncpy( m_player[i].m_message, &(buffer[len]), 64 );
     len += 64;
-  }	// protocolLen の チェックを追加したい...
+  }	// add protocolLen check later
 }
 
 void
 LobbyClient::ReadPI() {
-  // 長さ取得
+  // get length
   long protocolLength;
   long len = 0;
   char buf[1024];
@@ -329,7 +430,7 @@ LobbyClient::ReadPI() {
   }
   ReadLong( buf, protocolLength );
 
-  // とりあえず全部読む
+  // First, read all
   char *buffer = new char[protocolLength];
   len = 0;
   while (1) {
@@ -338,23 +439,23 @@ LobbyClient::ReadPI() {
       break;
   }
 
-  // uniq ID取得
+  // get uniq ID
   ReadLong( buffer, uniqID );
 
-  // ちょっとイレギュラーだが, 相手の情報を取得する. プロトコル要再考. 
+  // Get opponent info(Not so good. Must be modified later. )
   send( m_socket, "OR", 2, 0 );
   len = 4;
   SendLong( m_socket, len );
   SendLong( m_socket, uniqID );
 
-  // ここに置くのは問題かも
+  // Is it OK to do this here? 
   PIDialog *piDialog = new PIDialog( this );
   piDialog->PopupDialog( uniqID );
 }
 
 void
 LobbyClient::ReadOI() {
-  // 長さ取得
+  // get length
   long protocolLength;
   long len = 0;
   char buf[1024];
@@ -365,7 +466,7 @@ LobbyClient::ReadOI() {
   }
   ReadLong( buf, protocolLength );
 
-  // とりあえず全部読む
+  // First, read all
   char *buffer = new char[protocolLength];
   len = 0;
   while (1) {
@@ -374,16 +475,16 @@ LobbyClient::ReadOI() {
       break;
   }
 
-  // IP address取得
+  // get IP address
   sprintf( serverName, "%d.%d.%d.%d",
 	   (unsigned char)buffer[0], (unsigned char)buffer[1],
 	   (unsigned char)buffer[2], (unsigned char)buffer[3] );
-  // port number取得
+  // get port number
   long tmpPort;
   ReadLong( &(buffer[4]), tmpPort );
   csmash_port = tmpPort;
 
-  // server or client はとりあえず無視. 
+  // At now, Ignore server or client. 
 
   //printf( "%s %d\n", serverName, csmash_port );
 }
@@ -404,9 +505,14 @@ PIDialog::PopupDialog( long uniqID ) {
   GtkWidget *label, *button;
   char buf[256];
 
+  if ( isWaiting ) {
+    QuitGame();
+  }
+
   m_uniqID = uniqID;
 
   m_window = gtk_dialog_new();
+  gtk_window_set_title( GTK_WINDOW(m_window), "Cannon Smash");
   gtk_container_border_width (GTK_CONTAINER (m_window), 10);
   gtk_window_set_modal( (GtkWindow *)m_window, true );
 
@@ -464,6 +570,7 @@ PIDialog::PIOK( GtkWidget *widget, gpointer data ) {
   SendLong( piDialog->m_parent->GetSocket(), piDialog->m_uniqID );
 
   StartGame();
+  EventLoop();
 }
 
 void

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -49,11 +49,11 @@ extern bool isTexture;
 extern bool isPolygon;
 extern bool fullScreen;
 
+extern bool isWaiting;
+
 extern long wins;
 
 extern bool isComm;
-
-extern bool isQuit;
 
 long _perfCount;
 long perfs;
@@ -164,6 +164,9 @@ Event::IdleFunc() {
       m_lastTime.time++;
       m_lastTime.millitm -= 1000;
     }
+  }
+
+  if ( isWaiting ) {
   }
 
   if ( mode == MODE_MULTIPLAY )
@@ -563,7 +566,8 @@ Event::ReadData() {
     to.tv_sec = to.tv_usec = 0;
 
     if ( select( theSocket+1, &rdfds, NULL, NULL, &to ) > 0 ) {
-      GetExternalData( m_External, comPlayer->GetSide() );
+      if ( !GetExternalData( m_External, comPlayer->GetSide() ) )
+	break;
     } else
       break;
   }

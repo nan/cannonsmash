@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ Event theEvent;
 
 short csmash_port = CSMASH_PORT;
 int theSocket = -1;
-bool isComm = false;		// 通信対戦か
+bool isComm = false;		// Network Play?
 char serverName[256];
 
 long timeAdj = 0;
@@ -54,20 +54,24 @@ bool isSimple	= false;
 bool isWireFrame = true;
 bool fullScreen = false;
 
-long wins	= 0;		// 勝ち抜き数
-long gameLevel  = LEVEL_EASY;	// 強さ
-long gameMode   = GAME_21PTS;	// ゲームの長さ
+bool isWaiting = false;		// waiting for opponent player on the internet
+
+long wins	= 0;
+long gameLevel  = LEVEL_EASY;
+long gameMode   = GAME_21PTS;	// game length
 
 Control*      theControl = NULL;
 
 long mode = MODE_OPENING;
 
-long sndMode;			// あとで引数化
+long sndMode;			// This var should be an argument of some func
 
 SDL_mutex *loadMutex;
 
 extern void QuitGame();
 void StartGame();
+void EventLoop();
+bool PollEvent();
 
 #ifdef WIN32
 #include "win32/getopt.h"
@@ -182,7 +186,7 @@ int main(int argc, char** argv) {
   srand(tb.millitm);
 
   EndianCheck();
-// 一時停止
+// Temporal
 #if 0
   loadMutex = SDL_CreateMutex();
   SDL_CreateThread( LoadData, NULL );
@@ -207,7 +211,7 @@ StartGame() {
     exit(1);
   }
 #else
-  if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
+  if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) < 0 ) {
     perror( "SDL initialize failed\n" );
     exit(1);
   }
@@ -222,55 +226,59 @@ StartGame() {
   theView.Init();
   theEvent.Init();
 
+  SDL_EnableUNICODE(1);
+}
+
+void EventLoop() {
+  while ( PollEvent() );
+}
+
+bool PollEvent() {
   SDL_Event event;
 
-  SDL_EnableUNICODE(1);
+  while ( SDL_PollEvent(&event) ) {
+    // Later, change GLUT-like function to SDL
+    switch ( event.type ) {
+    case SDL_KEYDOWN:
+      Event::KeyboardFunc( event, 0, 0 );
+      break;
+    case SDL_KEYUP:
+      Event::KeyUpFunc( event, 0, 0 );
+      break;
+    case SDL_MOUSEMOTION:
+      Event::MotionFunc( event.motion.x, event.motion.y );
+      break;
+    case SDL_MOUSEBUTTONDOWN:
+    case SDL_MOUSEBUTTONUP:
+      Event::ButtonFunc( event.button.button, event.button.type, 
+			 event.motion.x, event.motion.y );
+      break;
+    case SDL_QUIT:
+      Event::ClearObject();
+      theView.QuitGame();
+      theSound.Clear();
 
-  while (1) {
-    while ( SDL_PollEvent(&event) ) {
-      // このあたり, GLUT 風になっているので SDL 風に直す
-      switch ( event.type ) {
-      case SDL_KEYDOWN:
-	Event::KeyboardFunc( event, 0, 0 );
-	break;
-      case SDL_KEYUP:
-	Event::KeyUpFunc( event, 0, 0 );
-	break;
-      case SDL_MOUSEMOTION:
-	Event::MotionFunc( event.motion.x, event.motion.y );
-	break;
-      case SDL_MOUSEBUTTONDOWN:
-      case SDL_MOUSEBUTTONUP:
-	Event::ButtonFunc( event.button.button, event.button.type, 
-			   event.motion.x, event.motion.y );
-	break;
-      case SDL_QUIT:
-	Event::ClearObject();
-	theView.QuitGame();
-	theSound.Clear();
+      HitMark::m_textures[0] = 0;
+      HowtoView::m_textures[0] = 0;
 
-	HitMark::m_textures[0] = 0;
-	HowtoView::m_textures[0] = 0;
+      theSocket = -1;
+      isComm = false;
 
-	theSocket = -1;
-	isComm = false;
+      wins = 0;
+      gameLevel = LEVEL_EASY;
+      gameMode = GAME_21PTS;
+      mode = MODE_OPENING;
 
-	wins = 0;
-	gameLevel = LEVEL_EASY;
-	gameMode = GAME_21PTS;
-	mode = MODE_OPENING;
-
-	SDL_Quit();
-	return;
-      case SDL_SYSWMEVENT:
-	break;
-      }
+      SDL_Quit();
+      return false;
+    case SDL_SYSWMEVENT:
+      break;
     }
-
-    Event::IdleFunc();
   }
 
-  return;
+  Event::IdleFunc();
+
+  return true;
 }
 
 int

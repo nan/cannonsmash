@@ -130,11 +130,13 @@ PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     } else
       nothing++;
 
-    m_rotate += lastRotate;
-    if ( m_rotate < 0 )
-      m_rotate += 360;
-    else
-      m_rotate %= 360;
+    if ( lastRotate != 0 ) {
+      m_rotate += lastRotate;
+      if ( m_rotate < 0 )
+	m_rotate += 360;
+      else
+	m_rotate %= 360;
+    }
   } else {
     long nextRotate = m_rotate + lastRotate;
 
@@ -157,7 +159,10 @@ PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     mode = MODE_TITLE;
   }
 
-  return true;
+  if ( nothing != 0 )
+    return false;
+  else
+    return true;
 }
 
 long

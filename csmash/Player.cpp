@@ -321,7 +321,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
     }
   }
 
-  // 視線方向とボールのなす角が30°を越えたら, ボールに追随する
+  // If the ball goes out of sight, look at the ball direction
   double x, y, z;
   double tx, ty, tz;
   double vx1, vy1, vz1;
@@ -391,7 +391,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
     m_lookAtZ = tz;
   }
 
-// backswing と inpact
+// backswing and inpact
   if ( m_swing == 20 ){
     HitBall();
 
@@ -412,8 +412,8 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
     m_swingType = SWING_NORMAL;
   }
 
-  // ボールに向かってホーミングするサービス. 
-  // 人間にのみ適用. 
+  // Automatically move towards the ball
+  // Only for human. 
   if ( (mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY) && KeyHistory ) {
     if ( m_swing > 10 && m_swing < 20 ) {
       Ball *tmpBall;
@@ -431,21 +431,6 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	double ydiff = tmpBall->GetY() - (m_y+m_vy*(20-m_swing)*TICK);
 
 	double vxdiff, vydiff;
-#if 0	// 難しくなったと言われたのでちょっと戻す
-	if ( fabs(xdiff) > 0.6 ) {
-	  if ( xdiff > 0.0 )
-	    vxdiff = (xdiff-0.3)/TICK/(20-m_swing);
-	  else
-	    vxdiff = (xdiff+0.3)/TICK/(20-m_swing);
-
-	  if ( vxdiff > 5.0 )
-	    vxdiff = 5.0;
-	  else if ( vxdiff < -5.0 )
-	    vxdiff = -5.0;
-
-	  m_vx += vxdiff;
-	}
-#else
 	if ( xdiff > 0.0 )
 	  vxdiff = (xdiff-0.3)/TICK/(20-m_swing);
 	else
@@ -457,7 +442,6 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	  vxdiff = -2.0;
 
 	m_vx += vxdiff;
-#endif
 
 	if ( fabs(ydiff) > 0.3 ) {
 	  vydiff = ydiff/TICK/(20-m_swing);
@@ -472,7 +456,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
     }
   }
 
-// playerの移動
+// move player
   if ( m_x+m_vx*TICK < -AREAXSIZE/2 ){
     m_x = -AREAXSIZE/2;
     m_vx = 0.0;
@@ -515,7 +499,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   else
     m_y += m_vy*TICK;
 
-// サーブ時にはエンドラインの後ろまで下がる
+// Go back to the endline before serve
   if ( theControl->IsPlaying() && theBall.GetStatus() == 8 &&
        ((PlayGame *)theControl)->GetService() == GetSide() ) {
     if ( m_side > 0 && m_y > -TABLELENGTH/2 )
@@ -532,7 +516,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
 			theBall.GetSpin(), theBall.GetStatus() );
 
-    for ( int i = 0 ; i < 30 ; i++ ) {	/* 若干早めに */
+    for ( int i = 0 ; i < 30 ; i++ ) {	/* A bit earlier */
       tmpBall->Move();
 
       if ( ((tmpBall->GetStatus() == 3 && m_side == 1) ||
@@ -546,7 +530,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
     delete tmpBall;
   }
 
-// status 計算
+// calc status
   if ( hypot( m_vx, m_vy ) > 2.0 )
     AddStatus( -1 );
 
@@ -581,11 +565,11 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
 		  int Histptr ) {
   long mouse, lastmouse;
 
-// COM側の場合
+// COM
   if ( !KeyHistory || !MouseXHistory || !MouseYHistory || !MouseBHistory )
     return true;
 
-// 入力の反映
+// key input
   switch ( KeyHistory[Histptr] ) {
   case '1':  case 'q':  case 'a':  case 'z':
   case '2':  case 'w':  case 's':  case 'x':
@@ -676,14 +660,7 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
     }
   }
 
-#if 0
-  m_vx = (MouseXHistory[Histptr] - BaseView::GetWinWidth()/2) /
-    (BaseView::GetWinWidth()/40)*GetSide();
-  m_vy = -(MouseYHistory[Histptr] - BaseView::GetWinHeight()/2) /
-    (BaseView::GetWinHeight()/40)*GetSide();
-  m_vx /= 4;
-  m_vy /= 4;	// 0.25刻み
-#else
+  // Sorry in Japanese...
   // スイング中は速度が変わらないようにする. こうすることで
   // MultiPlay 時により同期をとりやすくなる. 
   // その理由は, スイングを開始した時点で Player のインパクト
@@ -707,9 +684,8 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
     m_vy = -(MouseYHistory[Histptr] - BaseView::GetWinHeight()/2) /
       (BaseView::GetWinHeight()/40)*GetSide();
     m_vx /= 4;
-    m_vy /= 4;	// 0.25刻み
+    m_vy /= 4;
   }
-#endif
 
   mouse = MouseBHistory[Histptr];
   if ( Histptr-1 < 0 )
@@ -763,7 +739,7 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
 
 bool
 Player::AddStatus( long diff ) {
-  if ( diff == 200 ) {	// 筋が悪い
+  if ( diff == 200 ) {	// Not good...
     m_statusMax = 200;
     m_status = 200;
   } else {
@@ -777,7 +753,7 @@ Player::AddStatus( long diff ) {
       m_status = 1;
     }
 
-    if ( diff < -3 ) {	// これもいまいち. 移動以外で status が下がった場合
+    if ( diff < -3 ) {	// Not good... When status decreased without moving...
       if ( this == thePlayer ) {
 	switch (gameLevel) {
 	case LEVEL_EASY:
@@ -802,16 +778,16 @@ Player::AddStatus( long diff ) {
   return true;
 }
 
-// 利き腕の肩の位置を計算する. 
-// x   --- x座標値
-// y   --- y座標値
-// deg --- z軸周りの体の回転角度
+// Calc the shoulder location
+// x   --- x
+// y   --- y
+// deg --- rotation degree around z axis
 bool
 Player::GetShoulder( double &x, double &y, double &deg ) {
   double px, py, bx, by, bvx, bvy;
   double t, btx;
 
-  // 奥側ならば180度回転
+  // rotate 180 when the player is in the opposite side
   if ( m_side < 0 ){
     px = -m_x;
     py = -m_y;
@@ -829,7 +805,7 @@ Player::GetShoulder( double &x, double &y, double &deg ) {
     bvy = theBall.GetVY();
   }
 
-  // ボールの予想到達地点
+  // target
   if ( bvy == 0.0 || m_swing == 0 ){
     btx = bx;
     t = -1;
@@ -839,8 +815,8 @@ Player::GetShoulder( double &x, double &y, double &deg ) {
     btx = bx + bvx*t;
   }
 
-  // フォアかバックか
-  if ( btx - px > 0 ){	// フォア
+  // Forehand or backhand?
+  if ( btx - px > 0 ){	// Forehand
     switch ( m_swingType ){
     case SWING_NORMAL:
     case SWING_DRIVE:
@@ -882,7 +858,7 @@ Player::GetShoulder( double &x, double &y, double &deg ) {
       return true;
     }
 
-    // 理想的な打球位置から, ボールがどれくらいずれているかを計算する
+    // The distance from the ideal location for hitting
     if ( btx - px < 0.6 ){
       x = btx - px - 0.3;
       y = 0.0;
@@ -892,7 +868,7 @@ Player::GetShoulder( double &x, double &y, double &deg ) {
       y = 0.0;
     }
   }
-  else{		// バック
+  else{		// Backhand
     switch ( m_swingType ){
     case SWING_NORMAL:
     case SWING_SMASH:
@@ -925,7 +901,7 @@ Player::GetShoulder( double &x, double &y, double &deg ) {
       return true;
     }
 
-    // 理想的な打球位置から, ボールがどれくらいずれているかを計算する
+    // The distance from the ideal location for hitting
     if ( btx - px > -0.6 ){
       x = btx - px + 0.3;
       y = 0.0;
@@ -947,9 +923,9 @@ Player::GetShoulder( double &x, double &y, double &deg ) {
   return true;
 }
 
-// 利き腕の肘の位置を計算する. 
-// degx --- x軸周りの上腕の回転角度, 腕を前後にどれくらい振るか
-// degy --- y軸周りの上腕の回転角度, 肘をどれくらい上に挙げるか, default=-15
+// Calc the elbow location
+// degx --- rotation degree around x axis
+// degy --- rotation degree around y axis. default=-15
 bool
 Player::GetElbow( double &degx, double &degy ) {
   if ( ForeOrBack() ){
@@ -1032,10 +1008,10 @@ Player::GetElbow( double &degx, double &degy ) {
   return true;
 }
 
-// 利き腕の手の位置を計算する. 
-// degx --- x軸周りの肘の回転角度, 肘の曲がり具合
-// degy --- y軸周りの肘の回転角度, ラケットの角度
-// degz --- z軸周りの肘の回転角度, 腕の開き具合
+// Calc the hand location
+// degx --- rotation degree around x axis
+// degy --- rotation degree around y axis
+// degz --- rotation degree around z axis
 bool
 Player::GetHand( double &degx, double &degy, double &degz ) {
 
@@ -1173,44 +1149,7 @@ Player::GetHand( double &degx, double &degy, double &degz ) {
 
 bool
 Player::ForeOrBack() {
-#if 0
-  double px, py, bx, by, bvx, bvy;
-  double t, btx;
-
-  // 奥側ならば180度回転
-  if ( m_side < 0 ){
-    px = -m_x;
-    py = -m_y;
-    bx = -theBall.GetX();
-    by = -theBall.GetY();
-    bvx = -theBall.GetVX();
-    bvy = -theBall.GetVY();
-  }
-  else{
-    px = m_x;
-    py = m_y;
-    bx = theBall.GetX();
-    by = theBall.GetY();
-    bvx = theBall.GetVX();
-    bvy = theBall.GetVY();
-  }
-
-  // ボールの予想到達地点
-  if ( bvy == 0.0 )
-    btx = bx;
-  else{
-    t = (py - by) / bvy;
-    btx = bx + bvx*t;
-  }
-
-  // フォアかバックか
-  if ( btx - px > 0.0 )		// フォア
-    return true;
-  else
-    return false;
-#else
   return GetSwingSide();
-#endif
 }
 
 bool
@@ -1303,7 +1242,6 @@ Player::SendSwing( char *buf ) {
   return buf;
 }
 
-// 位置情報を送信
 char *
 Player::SendLocation( char *buf ) {
   double d;
@@ -1361,7 +1299,7 @@ Player::SendAll( int sd ) {
   return true;
 }
 
-// 以下, 必ずオーバーライドすること. 
+// Must be overridden
 bool
 Player::GetModifiedTarget( double &targetX, double &targetY ) {
   return false;

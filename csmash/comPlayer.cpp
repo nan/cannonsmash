@@ -20,8 +20,8 @@
 #include "comPlayer.h"
 
 ComPlayer::ComPlayer() {
-  _prevBallstatus = 0;		// 以前のボールの状態
-  _hitX = 0;			// 打球点
+  _prevBallstatus = 0;
+  _hitX = 0;
   _hitY = -TABLELENGTH/3;
 }
 

@@ -19,7 +19,7 @@
 #include <gtk/gtk.h>
 
 #define LOBBYSERVER_NAME	"nan.p.utmc.or.jp"
-#define LOBBYSERVER_PORT	(5733)
+#define LOBBYSERVER_PORT	(5734)
 
 class PlayerInfo;
 
@@ -36,11 +36,14 @@ public:
 
 protected:
   static gint PollServerMessage( gpointer data );
+  static gint IdleFunc( gpointer data );
   static void SelectRow( GtkCList *clist, gint row, gint column,
 			 GdkEventButton *event, gpointer data );
   static void Connect( GtkWidget *widget, gpointer data );
+  static void WarmUp( GtkWidget *widget, gpointer data );
   static void Quit( GtkWidget *widget, gpointer data );
   guint m_timeout;
+  guint m_idle;
 
   void ReadHeader( char *buf );
 
@@ -53,6 +56,7 @@ protected:
   GtkWidget *m_window;
   GtkWidget *m_table;
   GtkWidget *m_connectButton;
+  GtkWidget *m_warmUpButton;
 
   int m_socket;
 

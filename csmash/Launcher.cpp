@@ -27,6 +27,7 @@ extern char serverName[256];
 extern long mode;
 
 extern void StartGame();
+extern void EventLoop();
 
 LauncherHeader::LauncherHeader() {
 }
@@ -198,7 +199,7 @@ ModeNote::InitLANPlayPanel() {
   box = gtk_vbox_new( FALSE, 5 );
   gtk_container_border_width (GTK_CONTAINER (box), 5);
 
-  // 上部 toggle button
+  // Upper toggle button
   toggleBox = gtk_hbox_new( FALSE, 10 );
   gtk_container_border_width (GTK_CONTAINER (toggleBox), 5);
 
@@ -214,7 +215,7 @@ ModeNote::InitLANPlayPanel() {
   gtk_widget_show (toggleBox);
   gtk_box_pack_start( GTK_BOX(box), toggleBox, FALSE, FALSE, 5 );
 
-  // 下部 サーバ名入力欄
+  // Lower input area for server name
   editBox = gtk_table_new( 2, 2, FALSE );
 
   label = gtk_label_new( "Server name:" );
@@ -233,7 +234,7 @@ ModeNote::InitLANPlayPanel() {
   gtk_signal_connect (GTK_OBJECT (toggleButton[1]), "pressed",
 		      GTK_SIGNAL_FUNC (ModeNote::Toggle), edit);
 
-  // 最下部 start ボタン
+  // lowest area(start button)
   button = gtk_button_new_with_label ("Game Start!");
   gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 5 );
   gtk_widget_show (button);
@@ -250,7 +251,7 @@ GtkWidget *
 ModeNote::InitInternetPlayPanel() {
   GtkWidget *box, *editBox;
   GtkWidget *button, *label;
-  static GtkWidget *edit[2];		// ちょっとねー
+  static GtkWidget *edit[2];		// Hmm...
 
   box = gtk_vbox_new( FALSE, 10 );
   gtk_container_border_width (GTK_CONTAINER (box), 5);
@@ -306,6 +307,7 @@ ModeNote::Toggle( GtkWidget *widget, gpointer data ) {
 void
 ModeNote::StartGame( GtkWidget *widget, gpointer data ) {
   ::StartGame();
+  ::EventLoop();
 }
 
 void
@@ -316,6 +318,7 @@ ModeNote::LANStartGame( GtkWidget *widget, gpointer data ) {
   isComm = true;
   mode = MODE_SELECT;
   ::StartGame();
+  ::EventLoop();
 }
 
 void
@@ -340,6 +343,8 @@ Launcher::Init() {
   GtkWidget *edit;
   GtkWidget *button;
 
+  GtkWidget *label;
+
   GtkWidget *allbox, *mainbox, *quitBox;
 
   /* 初期化 */
@@ -347,7 +352,7 @@ Launcher::Init() {
 
   /* Window 生成 */
   m_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  gtk_container_border_width (GTK_CONTAINER (m_window), 10);
+  gtk_container_border_width (GTK_CONTAINER (m_window), 5);
   gtk_window_set_title( GTK_WINDOW(m_window), "Cannon Smash");
 
   allbox = gtk_hbox_new( FALSE, 5 );
@@ -357,6 +362,11 @@ Launcher::Init() {
   m_header->Init( GTK_BOX(mainbox) );
   m_note = new ModeNote();
   m_note->Init( GTK_BOX(mainbox) );
+
+  label = gtk_label_new( "http://CannonSmash.SourceForge.net\nmailto: nan@utmc.or.jp" );
+  gtk_label_set_justify( GTK_LABEL(label), GTK_JUSTIFY_LEFT );
+  gtk_widget_show(label);
+  gtk_box_pack_start( GTK_BOX(mainbox), label, FALSE, TRUE, 0 );
 
   quitBox = gtk_vbox_new( FALSE, 5 );
 
