@@ -76,6 +76,23 @@ LobbyClient::Init( char *nick, char *message ) {
       return false;
   }
 
+  // Get language code
+  int i = 0;
+#ifdef WIN32
+  while ( table[i].langID != -1 ) {
+    if ( PRIMARYLANGID(GetUserDefaultLangID()) == table[i].langID )
+      break;
+    i++;
+  }
+#else
+  while ( table[i].langID != -1 ) {
+    if ( strncmp( setlocale(LC_MESSAGES, NULL), table[i].code, 2 ) == 0 )
+      break;
+    i++;
+  }
+#endif
+  m_lang = i;
+
   // connect to lobby server
 #ifdef ENABLE_IPV6
   int error;
@@ -143,7 +160,7 @@ LobbyClient::Init( char *nick, char *message ) {
 
   // Connect to Lobby Server
   send( m_socket, "CN", 2, 0 );
-  long len = 7 + 32 + 64;
+  long len = 11 + 32 + 64;
   SendLong( m_socket, len );
 
   // Send version number(Must be changed)
@@ -157,6 +174,7 @@ LobbyClient::Init( char *nick, char *message ) {
 
   // Send port number(Must be changed, too)
   SendLong( m_socket, theRC->csmash_port );
+  SendLong( m_socket, table[m_lang].langID );
 
   // send nick
   strncpy( buf, nick, 32 );
