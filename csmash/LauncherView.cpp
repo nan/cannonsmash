@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001, 2002  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002, 2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -483,7 +483,7 @@ ModeNote::LANStartGame( GtkWidget *widget, gpointer data ) {
        strlen(gtk_entry_get_text( GTK_ENTRY(data) )) > 0 )
     strncpy( theRC->serverName, gtk_entry_get_text( GTK_ENTRY(data) ), 256 );
   isComm = true;
-  mode = MODE_SELECT;
+  mode = MODE_MULTIPLAYSELECT;
   try {
     ::StartGame();
   } catch ( MultiPlay::NetworkError ) {
