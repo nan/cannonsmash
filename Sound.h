@@ -52,6 +52,10 @@ private:
   int m_bgminfd;
   int m_bgmoutfd;
 #endif
+#ifdef WIN32
+  // BGM 用
+  char *m_bgmSound;
+#endif
 
   char *m_sound[16];
   int  m_soundSize[16];

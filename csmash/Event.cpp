@@ -124,6 +124,7 @@ Event::IdleFunc() {
     _perfCount = 0;
     perfs = 0;
 
+#if 0
     for ( int i = 0 ; i < MAX_HISTORY ; i++ ) {
       theEvent.m_MouseXHistory[i] = 0;
       theEvent.m_MouseYHistory[i] = 0;
@@ -134,6 +135,9 @@ Event::IdleFunc() {
       CopyPlayerData( theEvent.m_BacktrackBuffer[i].thePlayer, thePlayer );
       CopyPlayerData( theEvent.m_BacktrackBuffer[i].comPlayer, comPlayer );
     }
+#else
+    ClearBacktrack();
+#endif
 
     return;
   }
@@ -218,6 +222,8 @@ Event::Move() {
 
     preMode = mode;
     reDraw = true;
+
+    ClearBacktrack();
   }
 
   return reDraw;
@@ -565,5 +571,19 @@ Event::ReadData() {
 	  break;
       }
     }
+  }
+}
+
+void
+Event::ClearBacktrack() {
+  for ( int i = 0 ; i < MAX_HISTORY ; i++ ) {
+    theEvent.m_MouseXHistory[i] = 0;
+    theEvent.m_MouseYHistory[i] = 0;
+    theEvent.m_MouseBHistory[i] = 0;
+    theEvent.m_BacktrackBuffer[i].sec = m_lastTime.time;
+    theEvent.m_BacktrackBuffer[i].count = m_lastTime.millitm;
+    theEvent.m_BacktrackBuffer[i].theBall = theBall;
+    CopyPlayerData( theEvent.m_BacktrackBuffer[i].thePlayer, thePlayer );
+    CopyPlayerData( theEvent.m_BacktrackBuffer[i].comPlayer, comPlayer );
   }
 }

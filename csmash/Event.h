@@ -93,6 +93,8 @@ protected:
 
   bool GetExternalData( ExternalData *&ext, long side );
 
+  static void ClearBacktrack();
+
   unsigned long m_KeyHistory[MAX_HISTORY];		// キー入力履歴
   long m_MouseXHistory[MAX_HISTORY];			// マウス履歴
   long m_MouseYHistory[MAX_HISTORY];			// マウス履歴

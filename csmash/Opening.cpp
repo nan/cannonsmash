@@ -47,9 +47,12 @@ Opening::~Opening() {
     delete m_View;
   }
 
+#ifndef WIN32
   if ( m_pid > 0 ) {
     kill ( m_pid, SIGKILL );
   }
+#endif
+
 }
 
 bool
@@ -990,14 +993,23 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     }
   }
 
+#ifdef WIN32
+  if ( m_count == 0 )
+    theSound.PlayBGM();
+#endif
+
   m_count++;
 
 #ifdef HAVE_LIBESD
+  /*
   if ( m_count >= (m_bgmCount+4410*2*2)/(441*2*2) ) {
     m_bgmCount += theSound.SkipBGM();
   } else if ( m_count >= m_bgmCount/(441*2*2) ) {
     m_bgmCount += theSound.PlayBGM();
-  }
+  }*/
+  if ( m_count >= m_bgmCount/(441*2*2) )
+    m_bgmCount += theSound.PlayBGM();
+
 #endif
 
   if ( KeyHistory[Histptr] == 27 || MouseBHistory[Histptr] ) {	// ESC

@@ -159,7 +159,8 @@ BaseView::RedrawAll() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   }
 
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  if ( mode == MODE_OPENING )	// もうちょっとまともにする
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
   glColor4f(0.4, 0.2, 0.0, 0.0);
 //  glEnable(GL_CULL_FACE);

@@ -48,6 +48,7 @@ SRCS = \
 	MultiPlay.cpp TrainingPenDrive.cpp ComTrainingPenDrive.cpp \
 	TrainingSelect.cpp TrainingSelectView.cpp TrainingView.cpp \
 	FieldView.cpp SoloPlay.cpp PlayGame.cpp Control.cpp Training.cpp \
+	Opening.cpp OpeningView.cpp \
 	main.cpp z.cpp parts.cpp xerror.cpp
 
 OBJS = $(SRCS:.cpp=.obj)

@@ -268,6 +268,7 @@ Sound::SetSoundMode( long mode ) {
 
 long
 Sound::InitBGM( char *filename ) {
+#ifdef HAVE_LIBESD
   int filedes[2];
   long pid;
 
@@ -282,6 +283,18 @@ Sound::InitBGM( char *filename ) {
 				NULL );
 
   return pid;
+#endif
+
+#ifdef WIN32
+  int fd;
+
+  fd = open( SOUND_OPENING, O_RDONLY );
+  m_bgmSound = (char *)GlobalAlloc( GMEM_SHARE, 4*1024*1024 );
+  read( fd, m_bgmSound, 4*1024*1024 );
+  close( fd );
+#endif
+
+  return 0;
 }
 
 // 別スレッド化したい
@@ -300,14 +313,27 @@ Sound::PlayBGM() {
     FD_SET( m_bgminfd, &rdfds );
     to.tv_sec = to.tv_usec = 0;
 
-    if ( select( m_bgminfd+1, &rdfds, NULL, NULL, &to ) > 0 )
+    if ( select( m_bgminfd+1, &rdfds, NULL, NULL, &to ) > 0 &&
+	 FD_ISSET( m_bgminfd, &rdfds ) ) {
       bytes = read( m_bgminfd, buf, 44100*2*2 );
-
-    if ( bytes > 0 ) {
-      write( m_bgmoutfd, buf, bytes );
+      if ( bytes > 0 ) {
+	write( m_bgmoutfd, buf, bytes );
+	return bytes;
+      }
+    } else {
+      bytes = SkipBGM();
+      printf( "skip %d\n", bytes );
       return bytes;
     }
   }
+#endif
+
+#ifdef WIN32
+  char *data;
+
+  data = (char *)GlobalLock( m_bgmSound );
+  PlaySound( data, NULL, SND_MEMORY|SND_ASYNC ); 
+  GlobalUnlock( m_bgmSound );
 #endif
 
   return 0;
@@ -319,6 +345,7 @@ Sound::SkipBGM() {
   switch ( m_soundMode ) {
   case SOUND_ESD:
     char buf[4410*2+2];
+#if 0
     long bytes = 0;
 
     fd_set rdfds;
@@ -330,9 +357,14 @@ Sound::SkipBGM() {
 
     if ( select( m_bgminfd+1, &rdfds, NULL, NULL, &to ) > 0 ) {
       bytes = read( m_bgminfd, buf, 4410*2*2 );
-
+      
       return bytes;
     }
+#else
+    long bytes = 0;
+    bytes = read( m_bgminfd, buf, 4410*2*2 );
+    return bytes;
+#endif
   }
 #endif
 

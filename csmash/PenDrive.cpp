@@ -332,7 +332,6 @@ PenDrive::CalcLevel( Ball *ball, double &diff, double &level, double &maxVy ) {
     case SWING_SMASH:
       maxVy = hypot(ball->GetVX(), ball->GetVY())*0.4 + 20.0 -
 	(fabs(m_spin)+fabs(ball->GetSpin()))*3.0;
-      printf( "level = %f, max = %f\n", level, maxVy );
       break;
     default:
       maxVy = hypot(ball->GetVX(), ball->GetVY())*0.4 + 12.0 -

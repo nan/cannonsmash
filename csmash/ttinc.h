@@ -90,7 +90,11 @@
 #define SOUND_TABLE  (1)
 #define SOUND_CLICK  (2)
 
+#ifdef WIN32
+#define SOUND_OPENING "danslatristesse2-48.wav"
+#else
 #define SOUND_OPENING "danslatristesse2-48.mp3"
+#endif
 
 // 通信対戦
 #define DATA_PV      (0)
