@@ -333,6 +333,8 @@ Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
   //if ( player == comPlayer && mode == MODE_MULTIPLAY ) {
   //  return true;
   //}
+
+#if 0
   if ( player == comPlayer && mode == MODE_MULTIPLAY ) {
     printf( "Hit: sec = %d count = %d\n",
 	    Event::m_lastTime.time, Event::m_lastTime.millitm);
@@ -340,6 +342,7 @@ Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
 
     fflush(0);
   }
+#endif
 
   m_spin = spin;
 

@@ -1,6 +1,6 @@
 Summary: CannonSmash is a 3D tabletennis game.
 Name: csmash
-%define version 0.4.7
+%define version 0.5.0
 Version: %{version}
 Release: 1
 Group: Games

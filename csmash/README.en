@@ -49,10 +49,33 @@ of them are old, so please install from source package if you can.
 
 4. Multiplayer mode
 Cannon Smash supports multiplayer mode since version 0.4.0. 
-Two PC connected by LAN is needed to play multiplayer game. 
-You have to run the program in the sequence described below. 
+Two PC connected by LAN or the internet is needed to play
+multiplayer game. You have to run the program in the sequence
+described below. 
+
+
+  [About Cannon Smash over the internet]
+  Cannon Smash development team have been testing this function as mush as
+  possible. But our machines and internet environments are restricted, 
+  so we can't test for all environments. 
+
+  As we have developed this function for a few months, and finally we can
+  play this game between a machine in Japan and a machine in U.S.A. 
+  We think that this is sufficient and we decided to publish the new
+  version, but we have to say that we can't guarantee that you can play
+  this game over the internet if your machine and network environment
+  don't match our environment. 
+
+  Multiplayer mode need more machine power than single player mode. 
+  If your machine can't run this game smoothly on single player mode, 
+  it is hard to play on multiplayer mode with the machine. 
+  Of course, network environment also affects the possibility of
+  multiplayer mode. 
+
 
 (1) Start game on server machine with "-s" option. 
+    You can use "-p" option to change port number, but usually you 
+    don't have to set this option. 
 
 Ex.
 # csmash -s
@@ -61,9 +84,11 @@ Ex.
     wait for a while until client machine will be connected. 
 
 (3) Start game on client machine with server machine name.
+    You can use "-p" option to change port number, but usually you 
+    don't have to set this option. 
 
 Ex.
-# csmash servername
+# csmash servername.xxx.com
 
 (4) You can see Player Select on client machine. After you select player, 
     client machine makes connection with server machine and game starts. 
