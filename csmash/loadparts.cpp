@@ -430,7 +430,7 @@ bool parts::load_anim(int lineno, anim_parts* object,
 	}
     }
     if (!i) {
-	printf("%d: %s is empty object\n", lineno, object->name);
+	printf("%d: %s is empty object\n", lineno, object->name.c_str());
     }
     return true;
 }
