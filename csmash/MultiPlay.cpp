@@ -77,7 +77,7 @@ MultiPlay::StartClient() {
   int i;
 
 #ifdef ENABLE_IPV6
-  struct addrinfo *saddr, *res, *res0;
+  struct addrinfo *saddr, saddr2, *res, *res0;
   char hbuf[32];
   char port[10];
   int error;
@@ -90,12 +90,15 @@ MultiPlay::StartClient() {
 		    hbuf, sizeof(hbuf), NULL, 0, 0 ) == 0 )
     printf( "server is %s\n", hbuf );
 
+  memset( &saddr2, 0, sizeof(saddr2) );
   if ( theRC->protocol == IPv6 )
-    saddr->ai_family = PF_UNSPEC;
+    saddr2.ai_family = PF_UNSPEC;
   else
-    saddr->ai_family = PF_INET;
-  saddr->ai_socktype = SOCK_STREAM;
-  error = getaddrinfo( hbuf, port, saddr, &res0 );
+    saddr2.ai_family = PF_INET;
+  saddr2.ai_socktype = SOCK_STREAM;
+
+  error = getaddrinfo( hbuf, port, &saddr2, &res0 );
+
   if (error) {
     xerror("%s: %s(%d) getaddrinfo",
 	   gai_strerror(error), __FILE__, __LINE__);
