@@ -247,39 +247,41 @@ LobbyClientView::Init( LobbyClient *lobby ) {
 
   GtkWidget *notebook = gtk_notebook_new();
   GtkWidget *label;
+  int i = 0;
 
-  scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-  m_chat[0] = gtk_text_view_new();
-  gtk_text_view_set_editable( GTK_TEXT_VIEW(m_chat[0]), FALSE );
-
-  gtk_scrolled_window_set_policy( GTK_SCROLLED_WINDOW (scrolled_window),
-				  GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS );
-  gtk_scrolled_window_add_with_viewport( GTK_SCROLLED_WINDOW(scrolled_window),
-					 m_chat[0] );
-  gtk_widget_show(m_chat[0]);
-  gtk_widget_show(scrolled_window);
-
-  label = gtk_label_new( _("English") );
-  m_langID[0] = 0x09;
-
-  gtk_notebook_append_page( GTK_NOTEBOOK(notebook), scrolled_window, label);
-
-  m_langID[1] = table[m_parent->GetLang()].langID;
-  if ( m_langID[1] != 0x09 ) {
+  m_langID[i] = table[m_parent->GetLang()].langID;
+  if ( m_langID[i] != 0x09 ) {
     scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-    m_chat[1] = gtk_text_view_new();
-    gtk_text_view_set_editable( GTK_TEXT_VIEW(m_chat[1]), FALSE );
+    m_chat[i] = gtk_text_view_new();
+    gtk_text_view_set_editable( GTK_TEXT_VIEW(m_chat[i]), FALSE );
 
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
 				   GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
-					  m_chat[1] );
-    gtk_widget_show(m_chat[1]);
+					  m_chat[i] );
+    gtk_widget_show(m_chat[i]);
     gtk_widget_show(scrolled_window);
 
     label = gtk_label_new( _(table[m_parent->GetLang()].langname) );
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), scrolled_window, label);
+    i++;
   }
+
+  m_langID[i] = 0x09;	// English
+  scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+  m_chat[i] = gtk_text_view_new();
+  gtk_text_view_set_editable( GTK_TEXT_VIEW(m_chat[i]), FALSE );
+
+  gtk_scrolled_window_set_policy( GTK_SCROLLED_WINDOW (scrolled_window),
+				  GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS );
+  gtk_scrolled_window_add_with_viewport( GTK_SCROLLED_WINDOW(scrolled_window),
+					 m_chat[i] );
+  gtk_widget_show(m_chat[i]);
+  gtk_widget_show(scrolled_window);
+
+  label = gtk_label_new( _("English") );
+
+  gtk_notebook_append_page( GTK_NOTEBOOK(notebook), scrolled_window, label);
 
   gtk_box_pack_start( GTK_BOX(GTK_DIALOG(m_window)->vbox), notebook,
 		      TRUE, TRUE, 0 );
@@ -350,9 +352,10 @@ LobbyClientView::UpdateTable() {
   GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(m_table));
 
   gtk_list_store_clear( GTK_LIST_STORE(model) );
+  gtk_widget_set_sensitive(m_connectButton, false);
 
   std::string nickname, message;
-
+  bool selected = false;
   for ( int i = 0 ; i < m_parent->m_playerNum ; i++ ) {
     GtkTreeIter iter;
     gtk_list_store_append( GTK_LIST_STORE(model), &iter );
@@ -374,12 +377,19 @@ LobbyClientView::UpdateTable() {
       message += "</span>";
     }
     gtk_list_store_set( GTK_LIST_STORE(model), &iter,
-			0, nickname.c_str(), 
-			1, message.c_str(), 
+			0, nickname.c_str(),
+			1, message.c_str(),
 			-1 );
+    if ( m_parent->m_player[i].m_ID == m_parent->m_selected ) {
+      GtkTreeSelection *selection =
+	gtk_tree_view_get_selection(GTK_TREE_VIEW(m_table));
+      gtk_tree_selection_select_iter( selection, &iter );
+      selected = true;
+    }
   }
 
-  gtk_widget_set_sensitive(m_connectButton, false);
+  if ( selected == false )
+    m_parent->m_selected = -1;    
 }
 
 gboolean
@@ -400,12 +410,11 @@ LobbyClientView::checkSelection( GtkTreeSelection *selection,
 	selectedPlayer.m_canBeServer == false) ) {
     return FALSE;
   } else {
-    lobby->m_parent->m_selected = selected;
+    lobby->m_parent->m_selected = selectedPlayer.m_ID;
     gtk_widget_set_sensitive(lobby->m_connectButton, true);
     return TRUE;
   }
 }
-
 
 void
 LobbyClientView::WarmUp( GtkWidget *widget, gpointer data ) {

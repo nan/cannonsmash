@@ -46,6 +46,7 @@ LobbyClient* LobbyClient::m_lobbyClient = NULL;
 LobbyClient::LobbyClient() {
   m_playerNum = 0;
   m_canBeServer = false;
+  m_selected = -1;
 }
 
 LobbyClient::~LobbyClient() {
@@ -292,13 +293,13 @@ LobbyClient::Connect( GtkWidget *widget, gpointer data ) {
   send( lobby->m_socket, "OR", 2, 0 );
   long len = 4;
   SendLong( lobby->m_socket, len );
-  SendLong( lobby->m_socket, lobby->m_player[lobby->m_selected].m_ID );
+  SendLong( lobby->m_socket, lobby->m_selected );
 
   // Send Private IRC Message(Although it is not IRC at now)
   send( lobby->m_socket, "PI", 2, 0 );
   len = 4;
   SendLong( lobby->m_socket, len );
-  SendLong( lobby->m_socket, lobby->m_player[lobby->m_selected].m_ID );
+  SendLong( lobby->m_socket, lobby->m_selected );
 
   lobby->m_view->SetSensitive( false );
   //printf( "%d\n", lobby->m_selected );
