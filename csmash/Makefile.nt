@@ -51,6 +51,7 @@ SRCS = \
 	comShakeCut.cpp ComTrainingPenAttack.cpp TrainingPenAttack.cpp \
 	MultiPlay.cpp TrainingPenDrive.cpp ComTrainingPenDrive.cpp \
 	TrainingSelect.cpp TrainingSelectView.cpp TrainingView.cpp \
+	PracticePlay.cpp PracticeSelect.cpp PracticeSelectView.cpp \
 	FieldView.cpp SoloPlay.cpp PlayGame.cpp Control.cpp Training.cpp \
 	Opening.cpp OpeningView.cpp MenuItem.cpp MenuItemView.cpp \
 	main.cpp z.cpp parts.cpp xerror.cpp Launcher.cpp LobbyClient.cpp \
