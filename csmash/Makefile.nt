@@ -62,10 +62,10 @@ TARGET = csmash$(EXE)
 all: $(TARGET)
 clean:
 	rm -f $(TARGET) *.$(O) *.pch
-	cd win32; $(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" clean
+	cd win32 && $(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" clean
 distclean:
-	rm -f $(TARGET) *.$(O) *~ *.bak depend.nt
-	cd win32; $(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" distclean
+	rm -f $(TARGET) *.$(O) *.pch *~ *.bak depend.nt
+	cd win32 && $(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" distclean
 
 depend:
 	touch depend.nt
