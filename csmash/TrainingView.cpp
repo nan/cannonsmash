@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ TrainingView::Init( Training *training ) {
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
-  glTexImage2D(GL_TEXTURE_2D, 0, 3,
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
 	       Image.GetWidth(), Image.GetHeight(), 
 	       0, GL_RGBA, GL_UNSIGNED_BYTE, Image.GetImage() );
 
