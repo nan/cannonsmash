@@ -123,7 +123,9 @@ public:
   virtual bool Warp( char *buf );
   virtual bool ExternalSwing( char *buf );
 
+  virtual char * SendSwing_forNODELAY( char *buf );
   virtual bool SendSwing( int sd );
+  virtual char * SendLocation_forNODELAY( char *buf );
   virtual bool SendLocation( int sd );
   virtual bool SendAll( int sd );
 

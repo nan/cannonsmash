@@ -619,6 +619,30 @@ MultiPlay::LookAt( double &srcX, double &srcY, double &srcZ,
 
 
 void
+MultiPlay::SendTime_forNODELAY( char *buf ) {
+  char v;
+  long sec, count;
+
+  sec = Event::m_lastTime.time;
+  count = Event::m_lastTime.millitm/10;
+
+  count += timeAdj;
+
+  while ( count >= 100 ) {
+    count -= 100;
+    sec++;
+  }
+  while ( count < 0 ) {
+    count += 100;
+    sec--;
+  }
+
+  strncat( buf, (char *)&sec, 4 );
+  v = (char)(count);
+  strncat( buf, (char *)&v, 1 );
+}
+
+void
 MultiPlay::SendTime() {
   char v;
   long sec, count;

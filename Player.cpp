@@ -1234,6 +1234,25 @@ Player::ExternalSwing( char *buf ) {
   return true;
 }
 
+char *
+Player::SendSwing_forNODELAY( char *buf ) {
+  long l;
+  double d;
+
+  l = SwapLong(m_pow);
+  strncat( buf, (char *)&l, 4 );
+  d = SwapDbl(m_spin);
+  strncat( buf, (char *)&d, 8 );
+  l = SwapLong(m_swingType);
+  strncat( buf, (char *)&l, 4 );
+  l = SwapLong((long)m_swingSide);
+  strncat( buf, (char *)&l, 4 );
+  l = SwapLong(m_swing);
+  strncat( buf, (char *)&l, 4 );
+
+  return buf;
+}
+
 bool
 Player::SendSwing( int sd ) {
   SendLong( sd, m_pow );
@@ -1256,6 +1275,26 @@ Player::SendLocation( int sd ) {
   SendDouble( sd, m_vz );
 
   return true;
+}
+
+char *
+Player::SendLocation_forNODELAY( char *buf ) {
+  double d;
+
+  d = SwapDbl(m_x);
+  strncat( buf, (char *)&d, 8 );
+  d = SwapDbl(m_y);
+  strncat( buf, (char *)&d, 8 );
+  d = SwapDbl(m_z);
+  strncat( buf, (char *)&d, 8 );
+  d = SwapDbl(m_vx);
+  strncat( buf, (char *)&d, 8 );
+  d = SwapDbl(m_vy);
+  strncat( buf, (char *)&d, 8 );
+  d = SwapDbl(m_vz);
+  strncat( buf, (char *)&d, 8 );
+
+  return buf;
 }
 
 bool

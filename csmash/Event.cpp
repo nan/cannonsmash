@@ -376,6 +376,7 @@ Event::GetExternalData( ExternalData *&ext, long side ) {
   return true;
 }
 
+#if 0
 bool
 Event::SendSwing( Player *player ) {
   if ( m_backtrack || mode != MODE_MULTIPLAY )
@@ -389,7 +390,25 @@ Event::SendSwing( Player *player ) {
 
   return true;
 }
+#else
+bool
+Event::SendSwing( Player *player ) {
+  char buf[256];
 
+  if ( m_backtrack || mode != MODE_MULTIPLAY )
+    return false;
+
+  strncpy( buf, "PS", 2 );
+  ((MultiPlay *)theControl)->SendTime_forNODELAY( buf );
+
+  player->SendSwing_forNODELAY( buf );
+
+  send( theSocket, buf, strlen(buf), 0 );
+  return true;
+}
+#endif
+
+#if 0
 bool
 Event::SendPlayer( Player *player ) {
   if ( m_backtrack || mode != MODE_MULTIPLAY )
@@ -403,6 +422,24 @@ Event::SendPlayer( Player *player ) {
 
   return true;
 }
+#else
+bool
+Event::SendPlayer( Player *player ) {
+  char buf[256];
+
+  if ( m_backtrack || mode != MODE_MULTIPLAY )
+    return false;
+
+  strncpy( buf, "PV", 2 );
+  ((MultiPlay *)theControl)->SendTime_forNODELAY( buf );
+
+  player->SendLocation_forNODELAY( buf );
+
+  send( theSocket, buf, strlen(buf), 0 );
+
+  return true;
+}
+#endif
 
 bool
 Event::SendBall() {

@@ -21,6 +21,9 @@
 
 void EndianCheck();
 
+double SwapDbl( double d );
+long SwapLong( long l );
+
 bool SendDouble( int sd, double d );
 bool SendLong( int sd, long l );
 char *ReadDouble( char *buf, double& d );
@@ -117,6 +120,7 @@ public:
 		       double &destX, double &destY, double &destZ );
 
 
+  void SendTime_forNODELAY( char *buf );
   void SendTime();
 
 protected:
