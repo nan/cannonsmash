@@ -25,6 +25,7 @@
 #include "MultiPlay.h"
 #include "Event.h"
 #include "Control.h"
+#include "Launcher.h"
 
 int LoadData( void *dum );
 
@@ -97,21 +98,6 @@ int main(int argc, char **argv) {
 int main(int argc, char** argv) {
 #endif
 
-#ifdef HAVE_LIBSDL_MIXER
-  sndMode = SOUND_SDL;
-
-  if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) < 0 ) {
-    perror( "SDL initialize failed\n" );
-    return false;
-  }
-#else
-  if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
-    perror( "SDL initialize failed\n" );
-    return false;
-  }
-  sndMode = SOUND_NONE;
-#endif
-
     int c;
     while(EOF != (c = getopt(argc, argv, "schfSOp:"))) {
         switch (c) {
@@ -154,6 +140,27 @@ int main(int argc, char** argv) {
       mode = MODE_SELECT;
       strncpy(serverName, argv[optind], sizeof(serverName));
     }
+
+  Launcher *launcher = new Launcher();
+  launcher->Init();
+
+  if ( isSimple )
+    isTexture = false;
+
+#ifdef HAVE_LIBSDL_MIXER
+  sndMode = SOUND_SDL;
+
+  if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) < 0 ) {
+    perror( "SDL initialize failed\n" );
+    return false;
+  }
+#else
+  if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
+    perror( "SDL initialize failed\n" );
+    return false;
+  }
+  sndMode = SOUND_NONE;
+#endif
 
 #define PROBE_FILE "Parts/Fnormal/Fnormal-head01.dat"
   char *dataDir = NULL;

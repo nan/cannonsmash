@@ -24,6 +24,8 @@ AC_CHECK_LIB(z, gzdopen)
 AC_CHECK_LIB(SDL, SDL_Init, ,AC_MSG_ERROR(SDL library not found.))
 AC_CHECK_LIB(SDL_mixer, Mix_OpenAudio)
 
+AM_PATH_GTK( 1.2.0, [LIBS="$LIBS $GTK_LIBS" CFLAGS="$CFLAGS $GTK_CFLAGS" CPPFLAGS="$CPPFLAGS $GTK_CFLAGS"], )
+
 if test x$ac_cv_lib_z_gzdopen = xyes; then
   PKGDATA=.gz
 else
@@ -46,7 +48,7 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 
-AM_INIT_AUTOMAKE(csmash, 0.5.2, no-define)
+AM_INIT_AUTOMAKE(csmash, 0.6.0, no-define)
 
 AC_DEFINE_UNQUOTED(CANNONSMASH_DATADIR, "@prefix@/share/$PACKAGE/")
 
@@ -62,4 +64,4 @@ AC_OUTPUT(makefile \
 	Parts/Fsmash/makefile \
 	images/makefile \
 	wav/makefile \
-	win32/makefile)
+	win32/makefile )
