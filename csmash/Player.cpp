@@ -846,30 +846,30 @@ Player::KeyCheck( SDL_keysym *KeyHistory, long *MouseXHistory,
     if ( theBall.GetStatus() == 8 &&
 	 ((PlayGame *)Control::TheControl())->GetService() == GetSide() ) {
       theBall.Toss( this, 3 );
-      StartSwing( 3 );
+      StartServe(3);
     } else {
       AddStatus( (m_swing-10)*10 );
-      Swing( 3 );
+      Swing(3);
     }
   }
   else if ( (mouse & BUTTON_MIDDLE) && !(lastmouse & BUTTON_MIDDLE) ){
     if ( theBall.GetStatus() == 8 &&
 	 ((PlayGame *)Control::TheControl())->GetService() == GetSide() ) {
       theBall.Toss( this, 2 );
-      StartSwing( 2 );
+      StartServe(2);
     } else {
       AddStatus( (m_swing-10)*10 );
-      Swing( 2 );
+      Swing(2);
     }
   }
   else if ( (mouse & BUTTON_LEFT) && !(lastmouse & BUTTON_LEFT) ){
     if ( theBall.GetStatus() == 8 &&
 	 ((PlayGame *)Control::TheControl())->GetService() == GetSide() ) {
       theBall.Toss( this, 1 );
-      StartSwing( 1 );
+      StartServe(1);
     } else {
       AddStatus( (m_swing-10)*10 );
-      Swing( 1 );
+      Swing(1);
     }
   }
 
@@ -1184,14 +1184,88 @@ Player::Swing( long spin ) {
 
 /**
  * Start swing (backswing). 
- * This method must be overridden. 
+ * This method is called when the player starts backswing automatically. 
+ * This method checks whether this player can start backswing, and decide
+ * swing type. 
  * 
  * @param spin spin level. Currently this parameter is used on serve only. 
  * @return returns true if succeeds. 
  */
 bool
 Player::StartSwing( long spin ) {
-  return false;
+  Ball *tmpBall;
+
+  if ( m_swing > 10 )
+    return false;
+
+  if ( m_swing == 0 ) {
+    m_swing = 1;
+    m_pow = 0;
+
+    // Decide SwingType by the hit point and spin, etc. 
+    // Calc the ball location of 0.2 second later
+    tmpBall = new Ball(&theBall);
+
+    for ( int i = 0 ; i < 20 ; i++ )
+      tmpBall->Move();
+
+    if ( (m_x[0]-tmpBall->GetX()[0])*m_side > 0 )
+      m_swingSide = false;
+    else
+      m_swingSide = true;
+
+    SwingType( tmpBall, spin );
+
+    delete tmpBall;
+  }
+
+  return true;
+}
+
+/**
+ * Start serve (backswing). 
+ * 
+ * @param spin spin level. 
+ * @return returns true if succeeds. 
+ */
+bool
+Player::StartServe( long spin ) {
+  if ( m_swing > 10 )
+    return false;
+
+  if ( m_swing == 0 ){
+    m_swing = 1;
+    m_pow = 0;
+
+    switch ( spin-1 ) {
+    case 0:
+      m_spin[0] = 0.0;
+      m_spin[1] = 0.2;	// straight
+      m_swingType = SWING_NORMAL;
+      break;
+    case 1:
+      m_spin[0] = 0.0;
+      m_spin[1] = -0.1;	// knuckle
+      m_swingType = SWING_POKE;
+      break;
+    case 2:
+#if 0	// sidespin
+#else
+	m_spin[0] = 1.0;
+#endif
+      m_spin[1] = -0.6;
+      m_swingType = SWING_POKE;
+      break;
+    }
+
+    m_swingSide = true;
+
+    if ( Control::TheControl()->GetThePlayer() == this &&
+	 mode == MODE_MULTIPLAY )
+      ::SendSwing( this );
+  }
+
+  return true;
 }
 
 /**
@@ -1283,7 +1357,7 @@ Player::StatusBorder() {
  * @return returns true if the dominant hand is right. Otherwise returns false. 
  */
 bool
-GetDominantHand() {
+Player::GetDominantHand() {
   switch (m_playerType) {
   case PLAYER_PROTO:
   case PLAYER_PENATTACK:
@@ -1293,3 +1367,15 @@ GetDominantHand() {
   }
 }
 
+/**
+ * Decide swing type. 
+ * Swing type is defined by the ball location and player type. 
+ * 
+ * @param ball the ball to be hit
+ * @param spin spin of which the player intend to set. 
+ * @return returns true if succeeds
+ */
+bool
+Player::SwingType( Ball *ball, long spin ) {
+  return false;
+}

@@ -181,19 +181,13 @@ ShakeCut::Swing( long spin ) {
 }
 
 /**
- * Start swing (backswing). 
- * This method is called when the player starts backswing automatically, or
- * the game player clicks the mouse button to serve. 
- * This method checks whether this player can start backswing, and decide
- * swing type. On serve, this method checks the serve type to start serve. 
+ * Start serve (backswing). 
  * 
- * @param spin spin level. Currently this parameter is used on serve only. 
+ * @param spin spin level. 
  * @return returns true if succeeds. 
  */
 bool
-ShakeCut::StartSwing( long spin ) {
-  Ball *tmpBall;
-
+ShakeCut::StartServe( long spin ) {
   if ( m_swing > 10 )
     return false;
 
@@ -201,48 +195,29 @@ ShakeCut::StartSwing( long spin ) {
     m_swing = 1;
     m_pow = 0;
 
-    // Decide SwingType by the hit point and spin, etc. 
-    // Calc the ball location of 0.2 second later
-    tmpBall = new Ball(&theBall);
-
-    for ( int i = 0 ; i < 20 ; i++ )
-      tmpBall->Move();
-
-    if ( (theBall.GetStatus() == 6 && m_side == 1) ||
-	(theBall.GetStatus() == 7 && m_side == -1) ){	// Serve
-      switch ( spin-1 ) {
-      case 0:
-	m_spin[0] = 0.0;
-	m_spin[1] = 0.2;	// straight
-	m_swingType = SWING_NORMAL;
-	break;
-      case 1:
-	m_spin[0] = 0.0;
-	m_spin[1] = -0.1;	// knuckle
-	m_swingType = SWING_POKE;
-	break;
-      case 2:
-	m_spin[0] = 0.0;
-	m_spin[1] = -1.0;
-	m_swingType = SWING_POKE;
-	break;
-      }
-
-      m_swingSide = true;
-
-      if ( Control::TheControl()->GetThePlayer() == this &&
-	   mode == MODE_MULTIPLAY )
-	::SendSwing( this );
-    } else {
-      if ( (m_x[0]-tmpBall->GetX()[0])*m_side > 0 )
-	m_swingSide = false;
-      else
-	m_swingSide = true;
-
-      SwingType( tmpBall, spin );
+    switch ( spin-1 ) {
+    case 0:
+      m_spin[0] = 0.0;
+      m_spin[1] = 0.2;	// straight
+      m_swingType = SWING_NORMAL;
+      break;
+    case 1:
+      m_spin[0] = 0.0;
+      m_spin[1] = -0.1;	// knuckle
+      m_swingType = SWING_POKE;
+      break;
+    case 2:
+      m_spin[0] = 0.0;
+      m_spin[1] = -1.0;
+      m_swingType = SWING_POKE;
+      break;
     }
 
-    delete tmpBall;
+    m_swingSide = true;
+
+    if ( Control::TheControl()->GetThePlayer() == this &&
+	 mode == MODE_MULTIPLAY )
+      ::SendSwing( this );
   }
 
   return true;

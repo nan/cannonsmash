@@ -221,7 +221,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   } else if ( phrase == 68 && mod == 0 ) {	// トス
     m_thePlayer->m_swing = 0;
     theBall.Toss( m_thePlayer, 3 );
-    m_thePlayer->StartSwing( 3 );
+    m_thePlayer->StartServe(3);
   } else if ( phrase < 72 ) {	// サーブ
     if ( mod == 0 ) {
       for ( int i = 0 ; i < 15 ; i++ ) {
@@ -1259,7 +1259,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 
     if ( phrase == 292 && mod == 10 ) { // 到達時刻が phrase=296 になるよう調整
       theBall.Toss( m_thePlayer, 3 );
-      m_thePlayer->StartSwing(0);
+      m_thePlayer->StartServe(0);
     }
 
     if ( phrase == 295 && mod == (int)(PHRASELENGTH-20) ) {

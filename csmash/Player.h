@@ -46,6 +46,11 @@ typedef Vector<2, double> vector2d;
 #define SWING_CUT	4	// 
 #define SWING_BLOCK	5	// 
 
+#define SERVE_NORMAL	(65536+0)
+#define SERVE_POKE	(65536+1)
+#define SERVE_SIDESPIN1	(65536+2)
+#define SERVE_SIDESPIN2	(65536+3)
+
 
 class PlayerView;
 class HitMark;
@@ -181,6 +186,7 @@ protected:
 			 int Histptr );
   virtual bool Swing( long power );
   virtual bool StartSwing( long power );
+  virtual bool StartServe( long spin );
 
   virtual bool HitBall();
 
@@ -189,6 +195,9 @@ protected:
   void UpdateLastSend();
 
   void AddError( vector3d &v );
+
+private:
+  virtual bool SwingType( Ball *ball, long spin );
 };
 
 #endif // _Player_

@@ -167,7 +167,7 @@ Howto::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     m_mouseY = 25;
     if ( m_count%350 == 50 ) {
       theBall.Toss( m_thePlayer, 1 );
-      m_thePlayer->StartSwing( m_count/350+1 );
+      m_thePlayer->StartServe( m_count/350+1 );
     }
     if ( (m_count%350) >= 50 && (m_count%350) < 100 )
       m_mouseB = m_count/350+1;
@@ -217,7 +217,7 @@ Howto::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_mouseY = 2;
     } else if ( m_count == 1150 ) {
       theBall.Toss( m_thePlayer, 1 );
-      m_thePlayer->StartSwing( 1 );
+      m_thePlayer->StartServe(1);
     } else if ( m_count == 1450 ) {
       m_thePlayer->m_target[0] = -TABLEWIDTH/2*0.9;
       m_thePlayer->m_target[1] = TABLELENGTH/12*5;
@@ -225,7 +225,7 @@ Howto::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_mouseY = 0;
     } else if ( m_count == 1550 ) {
       theBall.Toss( m_thePlayer, 1 );
-      m_thePlayer->StartSwing( 1 );
+      m_thePlayer->StartServe(1);
     }
 
     break;
@@ -242,7 +242,7 @@ Howto::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_mouseB = 0;
     } else if ( m_count == 50 ) {
       theBall.Toss( m_thePlayer, 1 );
-      m_thePlayer->StartSwing( 3 );
+      m_thePlayer->StartServe(3);
       m_mouseB = 1;
     } else if ( m_count > 50 && m_count < 100 ) {
       m_mouseB = 1;

@@ -170,7 +170,7 @@ ComTrainingPenAttack::Think() {
        fabs(m_x[0]+m_side*0.3-_hitX[0]) < 0.1 && fabs(m_x[1]-_hitX[1]) < 0.1 &&
        m_swing == 0 ) {
     theBall.Toss( this, 2 );
-    StartSwing( 3 );
+    StartServe(3);
     m_target[1] = TABLELENGTH/8*m_side;
 
     return true;
