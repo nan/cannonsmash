@@ -71,28 +71,10 @@ PlayerView::LoadData(void *dum) {
   motion_Fpeck = new partsmotion("Parts/Fpeck/Fpeck");
   motion_Bpeck = new partsmotion("Parts/Bpeck/Bpeck");
   motion_Fsmash = new partsmotion("Parts/Fsmash/Fsmash");
-
 #else /* CHIYO */
-# define GETBODY(name) \
-    motion_##name = reinterpret_cast<body_parts*>(parts::getobject(#name)); \
-    if (!motion_##name || parts::sym_body != motion_##name->type()) {\
-        printf("Could not load " #name "\n"); exit(1); \
-    }
-
   chdir("Parts");
   parts::loadobjects("body.txt");
-
-  GETBODY(Fnormal);
-  GETBODY(Bnormal);
-  GETBODY(Fdrive);
-  GETBODY(Fcut);
-  GETBODY(Bcut);
-  GETBODY(Fpeck);
-  GETBODY(Bpeck);
-  GETBODY(Fsmash);
   chdir("..");
-
-# undef GETBODY
 #endif /* !CHIYO */
 
   return NULL;
@@ -104,6 +86,7 @@ PlayerView::Init( Player *player ) {
 
   SDL_mutexP( loadMutex );
 
+#if !defined(CHIYO)
   m_Fnormal = motion_Fnormal;
   m_Bnormal = motion_Bnormal;
   m_Fdrive = motion_Fdrive;
@@ -112,9 +95,51 @@ PlayerView::Init( Player *player ) {
   m_Fpeck = motion_Fpeck;
   m_Bpeck = motion_Bpeck;
   m_Fsmash = motion_Fsmash;
+#else /* CHIYO */
+# define GETBODY(name, ptype) \
+    m_##name = reinterpret_cast<body_parts*>(parts::getobject(#name#ptype)); \
+	if (!m_##name || parts::sym_body != m_##name->type()) {\
+        printf("Could not load " #name #ptype "\n"); exit(1); \
+    }
+
+  switch ( m_player->GetPlayerType() ) {
+  case PLAYER_PENATTACK:
+  case PLAYER_PENDRIVE:
+    GETBODY(Fnormal, Pen);
+    GETBODY(Bnormal, Pen);
+    GETBODY(Fdrive, Pen);
+    GETBODY(Fcut, Pen);
+    GETBODY(Bcut, Pen);
+    GETBODY(Fpeck, Pen);
+    GETBODY(Bpeck, Pen);
+    GETBODY(Fsmash, Pen);
+    break;
+  case PLAYER_SHAKECUT:
+    GETBODY(Fnormal, Shake);
+    GETBODY(Bnormal, Shake);
+    GETBODY(Fdrive, Shake);
+    GETBODY(Fcut, Shake);
+    GETBODY(Bcut, Shake);
+    GETBODY(Fpeck, Shake);
+    GETBODY(Bpeck, Shake);
+    GETBODY(Fsmash, Shake);
+    break;
+  default:
+    GETBODY(Fnormal, Pen);
+    GETBODY(Bnormal, Pen);
+    GETBODY(Fdrive, Pen);
+    GETBODY(Fcut, Pen);
+    GETBODY(Bcut, Pen);
+    GETBODY(Fpeck, Pen);
+    GETBODY(Bpeck, Pen);
+    GETBODY(Fsmash, Pen);
+    break;
+  }
+
+# undef GETBODY
+#endif /* !CHIYO */
 
   SDL_mutexV( loadMutex );
-
   return true;
 }
 
