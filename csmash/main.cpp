@@ -28,7 +28,6 @@
 #include "Launcher.h"
 #include "HitMark.h"
 #include "HowtoView.h"
-#include <getopt.h>
 
 int LoadData( void *dum );
 
@@ -76,6 +75,7 @@ void EventLoop();
 bool PollEvent();
 
 #ifdef __CYGWIN__
+#include <getopt.h>
 int main(int argc, char** argv) {
 #elif defined(WIN32)
 #include "win32/getopt.h"
