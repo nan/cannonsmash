@@ -227,4 +227,3 @@ Logging::LogRecvPSMessage( ExternalPSData *ps ) {
 
   return true;
 }
-

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  _“ì ‹gG(Kanna Yoshihiro)
+// Copyright (C) 2001  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -125,8 +125,9 @@ BaseView2D::RedrawAll() {
     theControl->GetView()->RedrawAlpha();
   }
 
-  // Ä•`‰æ—Ìˆæ‚Ì‚İ•`‰æ‚·‚é
+  // $B:FIA2hNN0h$N$_IA2h$9$k(B
   SDL_UpdateRects(m_baseSurface, 1, &rect);
+  m_updateX2 =m_updateY2 = 0;
 
   return true;
 }
@@ -146,7 +147,7 @@ BaseView2D::SetLookAt() {
       
 void
 BaseView2D::EndGame() {
-  // Œã‚ÅÀ‘•
+  // $B8e$G<BAu(B
 #if 0
   static char file[][30] = {"images/win.ppm", "images/lose.ppm"};
   GLubyte bmp[400*70/8];

@@ -31,6 +31,7 @@ public:
 
   virtual bool Redraw();
   virtual bool RedrawAlpha();
+  virtual bool GetDamageRect();
 
   //bool AddView( View *view );
   //bool RemoveView( View *view );
