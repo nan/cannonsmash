@@ -1,30 +1,30 @@
 pkgdatadir = $(datadir)/games/@PACKAGE@/Parts/Bcut
 
-pkgdata_src = Bcut-Lankle.affine Bcut-Lankle01.dat \
-		Bcut-Larm.affine Bcut-Larm01.dat \
-		Bcut-Lelbow.affine Bcut-Lelbow01.dat \
-		Bcut-Lfoot.affine Bcut-Lfoot01.dat \
-		Bcut-Lforearm.affine Bcut-Lforearm01.dat \
-		Bcut-Lhand.affine Bcut-Lhand01.dat \
-		Bcut-Lknee.affine Bcut-Lknee01.dat \
-		Bcut-Lshin.affine Bcut-Lshin01.dat \
-		Bcut-Lshoulder.affine Bcut-Lshoulder01.dat \
-		Bcut-Lthigh.affine Bcut-Lthigh01.dat \
-		Bcut-Rankle.affine Bcut-Rankle01.dat \
-		Bcut-Rarm.affine Bcut-Rarm01.dat \
-		Bcut-Relbow.affine Bcut-Relbow01.dat \
-		Bcut-Rfoot.affine Bcut-Rfoot01.dat \
-		Bcut-Rforearm.affine Bcut-Rforearm01.dat \
-		Bcut-Rhand.affine Bcut-Rhand01.dat \
-		Bcut-Rknee.affine Bcut-Rknee01.dat \
-		Bcut-Rshin.affine Bcut-Rshin01.dat \
-		Bcut-Rshoulder.affine Bcut-Rshoulder01.dat \
-		Bcut-Rthigh.affine Bcut-Rthigh01.dat \
-		Bcut-chest.affine Bcut-chest01.dat \
-		Bcut-head.affine Bcut-head01.dat \
-		Bcut-hip.affine Bcut-hip01.dat \
-		Bcut-racket.affine Bcut-racket01.dat \
-		Bcut-center.affine Bcut-center01.dat \
+pkgdata_src = Bcut-Lankle.affine \
+		Bcut-Larm.affine \
+		Bcut-Lelbow.affine \
+		Bcut-Lfoot.affine \
+		Bcut-Lforearm.affine \
+		Bcut-Lhand.affine \
+		Bcut-Lknee.affine \
+		Bcut-Lshin.affine \
+		Bcut-Lshoulder.affine \
+		Bcut-Lthigh.affine \
+		Bcut-Rankle.affine \
+		Bcut-Rarm.affine \
+		Bcut-Relbow.affine \
+		Bcut-Rfoot.affine \
+		Bcut-Rforearm.affine \
+		Bcut-Rhand.affine \
+		Bcut-Rknee.affine \
+		Bcut-Rshin.affine \
+		Bcut-Rshoulder.affine \
+		Bcut-Rthigh.affine \
+		Bcut-chest.affine \
+		Bcut-head.affine \
+		Bcut-hip.affine \
+		Bcut-racket.affine \
+		Bcut-center.affine \
 		Bcut-chest.quaternion Bcut-head.quaternion \
 		Bcut-Lshoulder.quaternion Bcut-Lelbow.quaternion \
 		Bcut-Rshoulder.quaternion Bcut-Relbow.quaternion \
@@ -32,4 +32,4 @@ pkgdata_src = Bcut-Lankle.affine Bcut-Lankle01.dat \
 
 pkgdata_DATA = $(pkgdata_src)
 
-EXTRA_DIST = $(wildcard *.affine) $(wildcard *.dat) $(wildcard *.quaternion)
+EXTRA_DIST = $(wildcard *.affine) $(wildcard *.quaternion)
