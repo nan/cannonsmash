@@ -22,6 +22,10 @@
 #include "BaseView.h"
 #include "Player.h"
 #include "PlayerView.h"
+#if defined(CHIYO)
+#include "parts.h"
+#include "loadparts.h"
+#endif
 #include "Network.h"
 #include "Event.h"
 #include "Control.h"
@@ -286,6 +290,16 @@ bool PollEvent() {
 
       wins = 0;
       mode = MODE_TITLE;
+
+#if defined(CHIYO)
+      do {
+	  texture_parts *tex =
+	      reinterpret_cast<texture_parts*>(parts::getobject("face.tex"));
+	  if (tex) {
+	      tex->unrealize();
+	  }	      
+      } while (0);
+#endif
 
       SDL_Quit();
       return false;

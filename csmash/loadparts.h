@@ -123,9 +123,7 @@ public:
 
     inline texture_parts(const char *name) : parts(name), object(0) {}
     virtual ~texture_parts() {
-	if (object) {
-	    glDeleteTextures(1, &object);
-	}
+	unrealize();
     }
     virtual symbol_t type() const { return sym_texture; }
     virtual bool load(const char *str);
@@ -134,6 +132,7 @@ public:
     // Textures must be realized before glBindTextures().
     // realize() will fail if GL library is not initialized yet.
     bool realize();
+    void unrealize();
 };
 
 /***********************************************************************

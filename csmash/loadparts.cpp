@@ -431,6 +431,14 @@ bool texture_parts::load(const char *str)
     return true;
 }
 
+void texture_parts::unrealize()
+{
+    if (object) {
+	glDeleteTextures(1, &object);
+	object = 0;
+    }
+}
+
 bool texture_parts::realize()
 {
     if (object) return true;
