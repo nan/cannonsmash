@@ -389,21 +389,29 @@ PlayerView::DrawTargetCircle( double diff ) {
   }
 
   // 自Playerの手元に仮想的なBallを生成する
-  if ( theBall.GetStatus() == 2 || theBall.GetStatus() == 3 || 
-       theBall.GetStatus() == 5 ) {
+  if ( (m_player->GetSide() == 1 &&
+	(theBall.GetStatus() == 2 || theBall.GetStatus() == 3 || 
+       theBall.GetStatus() == 5)) ||
+       (m_player->GetSide() == -1 &&
+	(theBall.GetStatus() == 0 || theBall.GetStatus() == 1 || 
+       theBall.GetStatus() == 4)) ) {
     ballHeight = theBall.GetZ();
     tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
 			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
 			theBall.GetSpin(), theBall.GetStatus() );
 
-    while ( tmpBall->GetStatus() >= 0 && tmpBall->GetY() > m_player->GetY() )
+    while ( tmpBall->GetStatus() >= 0 &&
+	    tmpBall->GetY()*m_player->GetSide() >
+	    m_player->GetY()*m_player->GetSide() )
       tmpBall->Move();
 
     if ( tmpBall->GetStatus() < 0 )
-      tmpBall->Warp( m_player->GetX()+0.3, m_player->GetY(), ballHeight, 
+      tmpBall->Warp( m_player->GetX()+0.3*m_player->GetSide(),
+		     m_player->GetY(), ballHeight, 
 		     0.0, 0.0, 0.0, 0.0, 3 );
   } else {
-    tmpBall = new Ball( m_player->GetX()+0.3, m_player->GetY(), ballHeight, 
+    tmpBall = new Ball( m_player->GetX()+0.3*m_player->GetSide(),
+			m_player->GetY(), ballHeight, 
 			0.0, 0.0, 0.0, 0.0, 3 );
   }
 
@@ -435,16 +443,25 @@ PlayerView::DrawTargetCircle( double diff ) {
     v1y = vy+n1y*cos(rad)+n2y*sin(rad);
     v1z = vz+n1z*cos(rad)+n2z*sin(rad);
 
-    tmpBall->Warp( bx, by, bz, 
-		   v1x, v1y, v1z, m_player->GetSpin(), 0 );
+    if ( m_player->GetSide() > 0 ) {
+      tmpBall->Warp( bx, by, bz, 
+		     v1x, v1y, v1z, m_player->GetSpin(), 0 );
+      while ( tmpBall->GetZ() > TABLEHEIGHT &&
+	      tmpBall->GetZ()+tmpBall->GetVZ()*TICK > TABLEHEIGHT &&
+	      tmpBall->GetVY() > 0.0 &&	// ネットに当たったとき
+	      tmpBall->GetStatus() == 0 )
+	tmpBall->Move();
+    } else {
+      tmpBall->Warp( bx, by, bz, 
+		     v1x, v1y, v1z, m_player->GetSpin(), 2 );
+      while ( tmpBall->GetZ() > TABLEHEIGHT &&
+	      tmpBall->GetZ()+tmpBall->GetVZ()*TICK > TABLEHEIGHT &&
+	      tmpBall->GetVY() < 0.0 &&	// ネットに当たったとき
+	      tmpBall->GetStatus() == 2 )
+	tmpBall->Move();
+    }
 
-    while ( tmpBall->GetZ() > TABLEHEIGHT &&
-	    tmpBall->GetZ()+tmpBall->GetVZ()*TICK > TABLEHEIGHT &&
-	    tmpBall->GetVY() > 0.0 &&	// ネットに当たったとき
-	    tmpBall->GetStatus() == 0 )
-      tmpBall->Move();
-
-    if ( tmpBall->GetY() > 0.0 ) {
+    if ( tmpBall->GetY()*m_player->GetSide() > 0.0 ) {
       polygon1[polyNum1][0] = tmpBall->GetX();
       polygon1[polyNum1][1] = tmpBall->GetY();
       polygon1[polyNum1][2] = TABLEHEIGHT+0.01;

@@ -118,9 +118,8 @@ public:
   virtual bool Warp( char *buf );
   virtual bool ExternalSwing( char *buf );
 
-  virtual char * SendSwing_forNODELAY( char *buf );
-  virtual char * SendLocation_forNODELAY( char *buf );
-  virtual bool SendLocation( int sd );
+  virtual char * SendSwing( char *buf );
+  virtual char * SendLocation( char *buf );
   virtual bool SendAll( int sd );
 
   virtual bool GetModifiedTarget( double &targetX, double &targetY );	// 本来なら pure virtual
@@ -175,6 +174,15 @@ protected:
 
   HitMark *m_hitMark;
 
+  // 一定間隔でPlayer位置情報を送信
+  double m_lastSendX;
+  double m_lastSendY;
+  double m_lastSendZ;
+  double m_lastSendVX;
+  double m_lastSendVY;
+  double m_lastSendVZ;
+  long m_lastSendCount;
+
 // Moveから呼び出される
   virtual bool KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
 			 long *MouseYHistory, unsigned long *MouseBHistory,
@@ -185,6 +193,8 @@ protected:
   virtual bool HitBall();		// 本来なら pure virtual
 
   virtual bool SwingError();
+
+  void UpdateLastSend();
 };
 
 #endif // _Player_

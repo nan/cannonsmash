@@ -411,9 +411,15 @@ Event::SendSwing( Player *player ) {
   strncpy( buf, "PS", 2 );
   ((MultiPlay *)theControl)->SendTime( &(buf[2]) );
 
-  player->SendSwing_forNODELAY( &(buf[7]) );
+  player->SendSwing( &(buf[7]) );
 
-  send( theSocket, buf, 31, 0 );
+  // Player 位置情報も送信する
+  strncpy( &(buf[31]), "PV", 2 );
+  ((MultiPlay *)theControl)->SendTime( &(buf[33]) );
+
+  player->SendLocation( &(buf[38]) );
+
+  send( theSocket, buf, 31+55, 0 );
   return true;
 }
 
@@ -427,7 +433,7 @@ Event::SendPlayer( Player *player ) {
   strncpy( buf, "PV", 2 );
   ((MultiPlay *)theControl)->SendTime( &(buf[2]) );
 
-  player->SendLocation_forNODELAY( &(buf[7]) );
+  player->SendLocation( &(buf[7]) );
 
   send( theSocket, buf, 55, 0 );
 
@@ -444,9 +450,31 @@ Event::SendBall() {
   strncpy( buf, "BV", 2 );
   ((MultiPlay *)theControl)->SendTime( &(buf[2]) );
 
-  theBall.Send_forNODELAY( &(buf[7]) );
+  theBall.Send( &(buf[7]) );
 
   send( theSocket, buf, 67, 0 );
+
+  return true;
+}
+
+bool
+Event::SendPlayerAndBall( Player *player ) {
+  char buf[256];
+
+  if ( m_backtrack || mode != MODE_MULTIPLAY )
+    return false;
+
+  strncpy( buf, "PV", 2 );
+  ((MultiPlay *)theControl)->SendTime( &(buf[2]) );
+
+  player->SendLocation( &(buf[7]) );
+
+  strncpy( &(buf[55]), "BV", 2 );
+  ((MultiPlay *)theControl)->SendTime( &(buf[57]) );
+
+  theBall.Send( &(buf[62]) );
+
+  send( theSocket, buf, 122, 0 );
 
   return true;
 }

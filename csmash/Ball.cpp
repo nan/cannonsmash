@@ -382,7 +382,6 @@ Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
   m_vz = vz;
 
   if ( player == thePlayer && mode == MODE_MULTIPLAY ) {
-    //theEvent.SendPlayer( player );
     theEvent.SendBall();
   }
 
@@ -399,8 +398,7 @@ Ball::Toss( Player *player , long power ) {
     m_status = 7;
 
   if ( player == thePlayer && mode == MODE_MULTIPLAY ) {
-    theEvent.SendPlayer( player );
-    theEvent.SendBall();
+    theEvent.SendPlayerAndBall( player );
   }
 
   return true;
@@ -615,7 +613,7 @@ Ball::BallDead() {
 }
 
 char *
-Ball::Send_forNODELAY( char *buf ) {
+Ball::Send( char *buf ) {
   long l;
   double d;
 
@@ -637,18 +635,4 @@ Ball::Send_forNODELAY( char *buf ) {
   memcpy( &(buf[56]), (char *)&l, 4 );
 
   return buf;
-}
-
-bool
-Ball::Send( int sd ) {
-  SendDouble( sd, m_x );
-  SendDouble( sd, m_y );
-  SendDouble( sd, m_z );
-  SendDouble( sd, m_vx );
-  SendDouble( sd, m_vy );
-  SendDouble( sd, m_vz );
-
-  SendDouble( sd, m_spin );
-  SendLong( sd, m_status );
-  return true;
 }

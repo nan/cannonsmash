@@ -61,8 +61,7 @@ public:
   bool TargetToVS( double targetX, double targetY, double height, double spin, 
 		   double &vx, double &vy, double &vz );
 
-  bool Send( int sd );
-  char * Send_forNODELAY( char *buf );
+  char * Send( char *buf );
 
 protected:
   double m_x;		// ballの位置

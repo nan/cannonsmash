@@ -465,6 +465,8 @@ StartServer() {
 
 void
 StartClient() {
+  char buf[128];
+
   struct sockaddr_in saddr;
   memset(&saddr, 0, sizeof(saddr));
 
@@ -567,7 +569,8 @@ StartClient() {
 
   // Ball Dataの送信
   send( theSocket, "BI", 2, 0 );
-  theBall.Send( theSocket );
+  theBall.Send( buf );
+  send( theSocket, buf, 60, 0 );
 
 //      printf( "read\n" );
   if ( !(comPlayer = ReadPlayerData()) ) {

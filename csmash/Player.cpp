@@ -80,6 +80,10 @@ Player::Player() {
   m_lookAtZ = TABLEHEIGHT;
 
   m_View = NULL;
+
+  m_lastSendX = m_lastSendY = m_lastSendZ = 0.0;
+  m_lastSendVX = m_lastSendVY = m_lastSendVZ = 0.0;
+  m_lastSendCount = 0;
 }
 
 Player::Player( long side ) {
@@ -119,6 +123,13 @@ Player::Player( long side ) {
   m_lookAtX = 0.0;
   m_lookAtY = TABLELENGTH/2*m_side;
   m_lookAtZ = TABLEHEIGHT;
+
+  m_lastSendX = m_lastSendY = m_lastSendZ = 0.0;
+  m_lastSendVX = m_lastSendVY = m_lastSendVZ = 0.0;
+  m_lastSendCount = 0;
+  m_lastSendX = m_lastSendY = m_lastSendZ = 0.0;
+  m_lastSendVX = m_lastSendVY = m_lastSendVZ = 0.0;
+  m_lastSendCount = 0;
 }
 
 Player::Player( long playerType, long side, double x, double y, double z, 
@@ -162,6 +173,10 @@ Player::Player( long playerType, long side, double x, double y, double z,
   m_lookAtZ = TABLEHEIGHT;
 
   m_View = NULL;
+
+  m_lastSendX = m_lastSendY = m_lastSendZ = 0.0;
+  m_lastSendVX = m_lastSendVY = m_lastSendVZ = 0.0;
+  m_lastSendCount = 0;
 }
 
 Player::~Player() {
@@ -280,9 +295,9 @@ bool
 Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	      long *MouseYHistory, unsigned long *MouseBHistory,
 	      int Histptr ) {
-  static double  lastSendX = 0,  lastSendY = 0,  lastSendZ = 0;
-  static double lastSendVX = 0, lastSendVY = 0, lastSendVZ = 0;
-  static long lastSendCount = 0;
+  //static double  lastSendX = 0,  lastSendY = 0,  lastSendZ = 0;
+  //static double lastSendVX = 0, lastSendVY = 0, lastSendVZ = 0;
+  //static long lastSendCount = 0;
 
 // swing
   if ( m_swing > 0 ){
@@ -544,31 +559,16 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   KeyCheck( KeyHistory, MouseXHistory, MouseYHistory, MouseBHistory,Histptr );
 
   if ( thePlayer == this && mode == MODE_MULTIPLAY ) {
-    lastSendCount++;
+    m_lastSendCount++;
 
-    lastSendX += lastSendVX*TICK;
-    lastSendY += lastSendVY*TICK;
-    lastSendZ += lastSendVZ*TICK;
+    m_lastSendX += m_lastSendVX*TICK;
+    m_lastSendY += m_lastSendVY*TICK;
+    m_lastSendZ += m_lastSendVZ*TICK;
 
-    if ( lastSendCount >= 100 ||
-#if 0	// この戦略はまずいのではないか
-	 fabs(lastSendX-m_x) >= 0.1   || fabs(lastSendY-m_y) >= 0.1 ||
-	 fabs(lastSendZ-m_z) >= 0.1   || fabs(lastSendVX-m_vx) >= 1.0 ||
-	 fabs(lastSendVY-m_vy) >= 1.0 || fabs(lastSendVZ-m_vz) >= 1.0 ) {
-#else
-	 fabs(lastSendVX-m_vx) >= 0.25 ||
-	 fabs(lastSendVY-m_vy) >= 0.25 || fabs(lastSendVZ-m_vz) >= 0.25 ) {
-#endif
-      if ( theEvent.SendPlayer( this ) ) {
-	lastSendCount = 0;
-
-	lastSendX = m_x;
-	lastSendY = m_y;
-	lastSendZ = m_z;
-	lastSendVX = m_vx;
-	lastSendVY = m_vy;
-	lastSendVZ = m_vz;
-      }
+    if ( m_lastSendCount >= 100 ||
+	 fabs(m_lastSendVX-m_vx) >= 0.25 ||
+	 fabs(m_lastSendVY-m_vy) >= 0.25 || fabs(m_lastSendVZ-m_vz) >= 0.25 ) {
+      theEvent.SendPlayer( this );
     }
   }
 
@@ -1285,7 +1285,7 @@ Player::ExternalSwing( char *buf ) {
 }
 
 char *
-Player::SendSwing_forNODELAY( char *buf ) {
+Player::SendSwing( char *buf ) {
   long l;
   double d;
 
@@ -1304,20 +1304,8 @@ Player::SendSwing_forNODELAY( char *buf ) {
 }
 
 // 位置情報を送信
-bool
-Player::SendLocation( int sd ) {
-  SendDouble( sd, m_x );
-  SendDouble( sd, m_y );
-  SendDouble( sd, m_z );
-  SendDouble( sd, m_vx );
-  SendDouble( sd, m_vy );
-  SendDouble( sd, m_vz );
-
-  return true;
-}
-
 char *
-Player::SendLocation_forNODELAY( char *buf ) {
+Player::SendLocation( char *buf ) {
   double d;
 
   d = SwapDbl(m_x);
@@ -1333,6 +1321,8 @@ Player::SendLocation_forNODELAY( char *buf ) {
   d = SwapDbl(m_vz);
   memcpy( &(buf[40]), (char *)&d, 8 );
 
+  UpdateLastSend();
+
   return buf;
 }
 
@@ -1341,7 +1331,12 @@ Player::SendAll( int sd ) {
   SendLong( sd, m_playerType );
   SendLong( sd, m_side );
 
-  SendLocation( sd );
+  SendDouble( sd, m_x );
+  SendDouble( sd, m_y );
+  SendDouble( sd, m_z );
+  SendDouble( sd, m_vx );
+  SendDouble( sd, m_vy );
+  SendDouble( sd, m_vz );
 
   SendLong( sd, m_status );
   SendLong( sd, m_swing );
@@ -1389,4 +1384,16 @@ Player::StartSwing( long power ) {
 bool
 Player::HitBall() {
   return false;
+}
+
+void
+Player::UpdateLastSend() {
+  m_lastSendCount = 0;
+
+  m_lastSendX = m_x;
+  m_lastSendY = m_y;
+  m_lastSendZ = m_z;
+  m_lastSendVX = m_vx;
+  m_lastSendVY = m_vy;
+  m_lastSendVZ = m_vz;
 }

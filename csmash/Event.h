@@ -48,12 +48,10 @@ public:
   static void MotionFunc( int x, int y );
   static void ButtonFunc( int button, int state, int x, int y );
 
-  //bool SendSwing( int sd, Player *player );
   bool SendSwing( Player *player );
-  //bool SendPlayer( int sd, Player *player );
   bool SendPlayer( Player *player );
-  //bool SendBall( int sd );
   bool SendBall();
+  bool SendPlayerAndBall( Player *player );
 
   static void ClearObject();
 
