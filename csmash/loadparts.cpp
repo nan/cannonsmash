@@ -34,6 +34,7 @@
  *
  ***********************************************************************/
 #include "ttinc.h"
+#include "glARB.h"
 
 #include <iostream>
 #include <string>
@@ -61,6 +62,9 @@ extern RCFile *theRC;
 
 #define BEGIN_ANONYMOUS namespace {
 #define END_ANONYMOUS }
+
+
+#define ANIMELIGHT 1
 
 /***********************************************************************
  *	Local data and functions
@@ -135,29 +139,47 @@ END_ANONYMOUS
 /***********************************************************************
  *
  ***********************************************************************/
-GLuint tex_animelight = 0;
+static bool GL_ARB_multitexture_supported = false;
+static int GL_ARB_multitexture_units = 0;
+
+#if ANIMELIGHT
+/*static*/ GLuint tex_animelight = 0;
+#endif
 
 bool initanimelight()
 {
-    ImageData img;
-    img.LoadJPG("images/animelight.jpg");
-    glGetError();
+    const char* exts = (const char*)glGetString(GL_EXTENSIONS);
+    if (exts && strstr(exts, "GL_ARB_multitexture")) {
+	GL_ARB_multitexture_supported = true;
+	glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &GL_ARB_multitexture_units);
+    }
 
-    glGenTextures(1, &tex_animelight);
-    glBindTexture(GL_TEXTURE_1D, tex_animelight);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, img.GetWidth(), 0,
-		 GL_RGBA, GL_UNSIGNED_BYTE, img.GetImage());
+#if ANIMELIGHT
+    if (GL_ARB_multitexture_supported) {
+	ImageData img;
+	img.LoadJPG("images/animelight.jpg");
+	glGenTextures(1, &tex_animelight);
+	glBindTexture(GL_TEXTURE_1D, tex_animelight);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, img.GetWidth(), 0,
+		     GL_RGBA, GL_UNSIGNED_BYTE, img.GetImage());
+    }
+#endif
+
+    glGetError();
     return true;
 }
 
 void uninitanimelight()
 {
-    glDeleteTextures(1, &tex_animelight);
-    tex_animelight = 0;
+#if ANIMELIGHT
+    if (tex_animelight) {
+	glDeleteTextures(1, &tex_animelight);
+	tex_animelight = 0;
+    }
+#endif
 }
 
 /***********************************************************************
@@ -283,7 +305,7 @@ bool parts::loadfile(const char *str)
 
 	while ('\\' == line[l-1]) {
             // concat next line(s)
-	    int bufsize = clamp(0U, sizeof(line)-l, sizeof(line)-1);
+	    int bufsize = clamp(size_t(0), sizeof(line)-l, sizeof(line)-1);
 	    fgets(&line[l-2], bufsize, fp);
 	    if (feof((FILE*)fp)) break;
 	    l = strlen(line);
@@ -613,29 +635,32 @@ void polyhedron_parts::render() const
     float ManOfVirtue[4] = { 1, 1, 1, 1 };
 
     vector3F light;
+    vector3F origin;
     if ( theRC->gmode == GMODE_TOON ) {
-	affine4F t;
-	glGetFloatv(GL_PROJECTION_MATRIX, (float*)&t);
-	affine4F it = ~t;
-	float _light[] = {1,1,-1};
-//	vector3F _light;
-//	_light = 1.0f, 1.0f, -1.0f;
-	light = (vector3F(_light) ^ it).norm();
+	glColor4fv(ManOfVirtue);
+#if ANIMELIGHT
+	if (tex_animelight) {
+	    affine4F t;
+	    glGetFloatv(GL_PROJECTION_MATRIX, (float*)&t);
+	    float _light[] = {1,1,-4};
+	    light = (vector3F(_light) ^ ~t).norm();
 
-	glActiveTextureARB(GL_TEXTURE1_ARB);
-	glEnable(GL_TEXTURE_1D);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glBindTexture(GL_TEXTURE_1D, tex_animelight);
+	    glDisable(GL_LIGHTING);
+	    glActiveTextureARB(GL_TEXTURE1_ARB);
+	    glEnable(GL_TEXTURE_1D);
+	    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	    glBindTexture(GL_TEXTURE_1D, tex_animelight);
+	}
 	glActiveTextureARB(GL_TEXTURE0_ARB);
-
-	glDisable(GL_LIGHTING);
+#endif
     }
+
+    glDisable(GL_TEXTURE_2D);
 
     polyhedron &poly = *object;
     if (tex && poly.texcoord && tex->object) {
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex->object);
-//	glColor4fv(ManOfVirtue);
 	for (int i = 0; poly.numPolygons > i; ++i) {
 	    const polygon &face = poly.getPolygon(i);
 	    glBegin(face.glBeginSize());
@@ -645,23 +670,36 @@ void polyhedron_parts::render() const
 		}
 		glNormal3fv((float*)&face.rn(j));
 		glTexCoord2fv((float*)&face.rst(j));
+
 		if ( theRC->gmode == GMODE_TOON ) {
-		    glMultiTexCoord1fARB(GL_TEXTURE1_ARB, clamp(0.0f, light*face.rn(j), 1.0f));
+#if ANIMELIGHT
+		    if (tex_animelight) {
+			float s = clamp(0.0f, (light*face.rn(j)+1)/2.0f, 1.0f);
+			glMultiTexCoord1fARB(GL_TEXTURE1_ARB, s);
+		    }
+#endif
 		}
+
 		glVertex3fv((float*)&face.rv(j));
 	    }
 	    glEnd();
 	}
-    } else {
 	glDisable(GL_TEXTURE_2D);
+    } else {
 	for (int i = 0; poly.numPolygons > i; ++i) {
 	    const polygon &face = poly.getPolygon(i);
 	    glBegin(face.glBeginSize());
 	    for (int j = 0; face.size > j; ++j) {
 		poly.cmap[face.c()].glBind();
 		glNormal3fv((float*)&face.rn(j));
+
 		if ( theRC->gmode == GMODE_TOON ) {
-		    glMultiTexCoord1fARB(GL_TEXTURE1_ARB, clamp(0.0f, light*face.rn(j), 1.0f));
+#if ANIMELIGHT
+		    if (tex_animelight) {
+			float s = clamp(0.0f, (light*face.rn(j)+1)/2.0f, 1.0f);
+			glMultiTexCoord1fARB(GL_TEXTURE1_ARB, s);
+		    }
+#endif
 		}
 		glVertex3fv((float*)&face.rv(j));
 	    }
@@ -670,11 +708,12 @@ void polyhedron_parts::render() const
     }
 
     if ( theRC->gmode == GMODE_TOON ) {
-	glEnable(GL_LIGHTING);
-
+#if ANIMELIGHT
 	glActiveTextureARB(GL_TEXTURE1_ARB);
 	glDisable(GL_TEXTURE_1D);
+	glEnable(GL_LIGHTING);
 	glActiveTextureARB(GL_TEXTURE0_ARB);
+#endif
     }
 }
 

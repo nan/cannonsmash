@@ -25,6 +25,7 @@
 #include "LoadImage.h"
 #include "PlayGame.h"
 #include "RCFile.h"
+#include "glARB.h"
 
 extern RCFile *theRC;
 
@@ -78,6 +79,9 @@ BaseView::Init() {
 				      SDL_OPENGL );
 
   SDL_WM_SetCaption( _("CannonSmash"), NULL );
+
+  // load GL_ARB_multitexture extensions
+  initglARBmultitexture();
 
   //if (fullScreen)
   //SDL_WM_ToggleFullScreen( m_baseSurface );
@@ -371,7 +375,6 @@ BaseView::RemoveView( View *view ) {
 void
 BaseView::EndGame() {
   static char file[][30] = {"images/win", "images/lose"};
-  int i, j;
   char filename[256];
   ImageData image;
 

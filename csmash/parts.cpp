@@ -36,6 +36,7 @@
 
 #include "ttinc.h"
 #include "LoadImage.h"
+#include "glARB.h"
 
 #include <iostream>
 #include <vector>
@@ -920,6 +921,7 @@ bool partsmotion::loadmodel(const char *basename)
     if ( theRC->gmode == GMODE_TOON ) {
         initanimelight();
     }
+    return true;
 }
 
 bool partsmotion::render(int frame, float xdiff, float ydiff, float zdiff)

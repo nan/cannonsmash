@@ -30,14 +30,17 @@
 #include "RCFile.h"
 #include "Control.h"
 
+//////////////////////////////////////////////////////////////////////////
+#define RENDER_ANIMEEDGE 1
+
+//////////////////////////////////////////////////////////////////////////
+
 extern RCFile *theRC;
-
 extern SDL_mutex *loadMutex;
-
 extern Ball   theBall;
-
 extern long mode;
 
+#if !defined(CHIYO)
 partsmotion_t *PlayerView::motion_Fnormal = NULL;
 partsmotion_t *PlayerView::motion_Bnormal = NULL;
 partsmotion_t *PlayerView::motion_Fdrive = NULL;
@@ -46,6 +49,11 @@ partsmotion_t *PlayerView::motion_Bcut = NULL;
 partsmotion_t *PlayerView::motion_Fpeck = NULL;
 partsmotion_t *PlayerView::motion_Bpeck = NULL;
 partsmotion_t *PlayerView::motion_Fsmash = NULL;
+#endif
+
+/***********************************************************************
+ *	Class PlayerView
+ ***********************************************************************/
 
 PlayerView::PlayerView() {
   m_player = NULL;
@@ -460,7 +468,17 @@ PlayerView::DrawPlayer() {
 	motion->render(swing, m_xdiff, m_ydiff, m_zdiff);
 #else
 	motion->render(swing);
-#endif
+#if RENDER_ANIMEEDGE
+	glColor3f(0,0,0);
+	glPolygonOffset(1.0f, 1.0f);
+	glEnable(GL_POLYGON_OFFSET_LINE);
+	glLineWidth(2.0f);
+	motion->renderWire(swing);
+	glPolygonOffset(0, 0);
+	glDisable(GL_POLYGON_OFFSET_LINE);
+	glLineWidth(1.0f);
+#endif /* RENDER_ANIMEEDGE */
+#endif /* CHIYO */
       }
       if (Control::TheControl()->GetThePlayer() == m_player) {
 #ifndef CHIYO
