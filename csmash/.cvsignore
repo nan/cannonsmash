@@ -22,5 +22,5 @@ objs.*
 *.o
 *.a
 *.so
-
+Makefile
 
