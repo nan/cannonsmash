@@ -17,6 +17,17 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
+#include "Event.h"
+#include "Control.h"
+#include "BaseView.h"
+#include "SoloPlay.h"
+#include "MultiPlay.h"
+#include "PlayerSelect.h"
+#include "Title.h"
+#include "Opening.h"
+#include "Howto.h"
+#include "TrainingSelect.h"
+#include "Training.h"
 
 extern Ball theBall;
 extern Player* thePlayer;

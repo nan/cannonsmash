@@ -18,6 +18,7 @@
 
 #ifndef _SoloPlay_
 #define _SoloPlay_
+#include "PlayGame.h"
 
 class SoloPlay : public PlayGame {
 public:

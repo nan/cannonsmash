@@ -17,8 +17,10 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
-
-extern BaseView theView;
+#include "SoloPlay.h"
+#include "Player.h"
+#include "Ball.h"
+#include "Event.h"
 
 extern Player* thePlayer;
 extern Player* comPlayer;
@@ -90,6 +92,7 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
       if ( Histptr < 0 )
 	Histptr = MAX_HISTORY-1;
       theEvent.BackTrack(Histptr);
+
       return true;
     }
 
@@ -105,6 +108,9 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
       }
     } else {
       theEvent.BackTrack(Histptr);
+      theBall.Move();
+      thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
+      comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
     }
 
     return true;

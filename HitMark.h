@@ -18,6 +18,7 @@
 
 #ifndef _HitMark_
 #define _HitMark_
+#include "View.h"
 
 class HitMark : public View {
 public:

@@ -18,6 +18,7 @@
 
 #ifndef _ComTrainingPenAttack_
 #define _ComTrainingPenAttack_
+#include "comPenAttack.h"
 
 class ComTrainingPenAttack : public ComPenAttack {
 public:

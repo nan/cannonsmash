@@ -18,6 +18,7 @@
 
 #ifndef _TrainingPenAttack_
 #define _TrainingPenAttack_
+#include "PenAttack.h"
 
 class TrainingPenAttack : public PenAttack {
 public:

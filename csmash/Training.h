@@ -18,6 +18,7 @@
 
 #ifndef _Training_
 #define _Training_
+#include "PlayGame.h"
 
 class TrainingView;
 

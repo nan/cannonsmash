@@ -17,10 +17,14 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
-
-#ifdef HAVE_LIBZ
-#include "z.h"
-#endif
+#include "BaseView.h"
+#include "Player.h"
+#include "Control.h"
+#include "Event.h"
+#include "BaseView.h"
+#include "Ball.h"
+#include "LoadImage.h"
+#include "PlayGame.h"
 
 extern Player* thePlayer;
 extern Player* comPlayer;

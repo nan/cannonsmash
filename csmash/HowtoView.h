@@ -18,6 +18,10 @@
 
 #ifndef _HowtoView_
 #define _HowtoView_
+#include "View.h"
+#include "LoadImage.h"
+
+class Howto;
 
 class HowtoView : public View {
 public:

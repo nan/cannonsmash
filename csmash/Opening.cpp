@@ -17,6 +17,15 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
+#include "Opening.h"
+#include "OpeningView.h"
+#include "BaseView.h"
+#include "Sound.h"
+#include "Player.h"
+#include "Ball.h"
+#include "Event.h"
+#include "HitMark.h"
+
 #include <signal.h>
 
 extern BaseView theView;

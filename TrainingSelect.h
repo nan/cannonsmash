@@ -18,8 +18,7 @@
 
 #ifndef _TrainingSelect_
 #define _TrainingSelect_
-
-#define TRAININGPLAYERS 2
+#include "PlayerSelect.h"
 
 class TrainingSelectView;
 

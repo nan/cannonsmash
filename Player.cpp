@@ -17,6 +17,24 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
+#include "Player.h"
+#include "Ball.h"
+#include "BaseView.h"
+#include "Control.h"
+#include "Event.h"
+#include "PenAttack.h"
+#include "PenDrive.h"
+#include "ShakeCut.h"
+#include "comPenAttack.h"
+#include "comPenDrive.h"
+#include "comShakeCut.h"
+#include "TrainingPenAttack.h"
+#include "TrainingPenDrive.h"
+#include "ComTrainingPenAttack.h"
+#include "ComTrainingPenDrive.h"
+#include "HitMark.h"
+#include "PlayGame.h"
+#include "MultiPlay.h"
 
 extern Ball   theBall;
 extern BaseView theView;

@@ -17,13 +17,13 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
-
-extern BaseView theView;
+#include "PlayGame.h"
+#include "Player.h"
+#include "Ball.h"
 
 extern Player* thePlayer;
 extern Player* comPlayer;
 extern Ball theBall;
-extern Event theEvent;
 
 extern long mode;
 extern long gameMode;

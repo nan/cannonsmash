@@ -18,6 +18,8 @@
 
 #ifndef _comPenAttack_
 #define _comPenAttack_
+#include "PenAttack.h"
+#include "comPlayer.h"
 
 class ComPenAttack : public PenAttack, public ComPlayer {
 public:

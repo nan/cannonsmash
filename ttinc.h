@@ -111,6 +111,16 @@
 // その他
 #define RAND(N) ((int)((double)(N)*rand()/RAND_MAX))
 
+// Player::m_swingError
+#define SWING_PERFECT	0
+#define SWING_GREAT	1
+#define SWING_GOOD	2
+#define SWING_BOO	3
+#define SWING_MISS	4
+
+#define PLAYERS 3
+#define TRAININGPLAYERS 2
+
 // 強さ
 enum level {LEVEL_EASY, LEVEL_NORMAL, LEVEL_HARD, LEVEL_TSUBORISH};
 enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
@@ -165,6 +175,8 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 #include <SDL/SDL_mixer.h>
 #endif
 
+#if 0
+
 #include "LoadImage.h"
 #include "Ball.h"
 #include "Player.h"
@@ -204,6 +216,8 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 #include "Training.h"
 #include "TrainingView.h"
 #include "Sound.h"
+
+#endif
 
 void xerror(const char *str, ...);
 

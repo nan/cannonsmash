@@ -20,6 +20,8 @@
 #define _Event_
 
 // Event Handle Classの定義
+#include "Ball.h"
+#include "Player.h"
 
 struct Backtrack {
   long sec;		// 秒

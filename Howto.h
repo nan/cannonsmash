@@ -18,6 +18,7 @@
 
 #ifndef _Howto_
 #define _Howto_
+#include "Control.h"
 
 class HowtoView;
 

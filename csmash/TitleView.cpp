@@ -17,6 +17,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
+#include "TitleView.h"
+#include "Title.h"
+#include "LoadImage.h"
+#include "Sound.h"
+#include "BaseView.h"
 
 extern long gameLevel;
 extern long gameMode;

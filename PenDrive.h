@@ -18,6 +18,7 @@
 
 #ifndef _PenDrive_
 #define _PenDrive_
+#include "Player.h"
 
 // PenDrive (Pen, right)の定義
 

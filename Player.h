@@ -18,6 +18,7 @@
 
 #ifndef _Player_
 #define _Player_
+#include "PlayerView.h"
 
 // m_playerType
 #define PLAYER_PROTO		0	// プロトタイプPlayer
@@ -34,17 +35,11 @@
 #define SWING_CUT	4	// カット
 #define SWING_BLOCK	5	// ブロック, ストップ
 
-// m_swingError
-#define SWING_PERFECT	0
-#define SWING_GREAT	1
-#define SWING_GOOD	2
-#define SWING_BOO	3
-#define SWING_MISS	4
-
 // Player Classの定義
 
 class PlayerView;
 class HitMark;
+class Ball;
 
 class Player {
   friend class Howto;

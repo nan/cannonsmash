@@ -17,6 +17,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
+#include "comPenDrive.h"
+#include "Control.h"
+#include "Ball.h"
+#include "Player.h"
+#include "PlayGame.h"
 
 extern Control *theControl;
 

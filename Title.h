@@ -18,6 +18,7 @@
 
 #ifndef _Title_
 #define _Title_
+#include "Control.h"
 
 // major menu
 #define MENU_MAIN	0

@@ -18,6 +18,8 @@
 
 #ifndef _comShakeCut_
 #define _comShakeCut_
+#include "ShakeCut.h"
+#include "comPlayer.h"
 
 class ComShakeCut : public ShakeCut, public ComPlayer {
 public:

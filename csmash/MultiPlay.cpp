@@ -17,6 +17,14 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
+#include "MultiPlay.h"
+#include "Ball.h"
+#include "Player.h"
+#include "PenAttack.h"
+#include "PenDrive.h"
+#include "ShakeCut.h"
+#include "Event.h"
+
 #if !defined(_WIN32)
 #include <netinet/tcp.h>
 #endif

@@ -18,6 +18,7 @@
 
 #ifndef _TrainingPenDrive_
 #define _TrainingPenDrive_
+#include "PenDrive.h"
 
 class TrainingPenDrive : public PenDrive {
 public:

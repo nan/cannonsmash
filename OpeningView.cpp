@@ -17,8 +17,9 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
-
-extern Sound theSound;
+#include "OpeningView.h"
+#include "Player.h"
+#include "Opening.h"
 
 extern Player* thePlayer;
 extern Player* comPlayer;

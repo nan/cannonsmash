@@ -18,6 +18,9 @@
 
 #ifndef _TitleView_
 #define _TitleView_
+#include "View.h"
+
+class Title;
 
 class TitleView : public View {
 public:

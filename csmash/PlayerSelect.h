@@ -19,7 +19,7 @@
 #ifndef _PlayerSelect_
 #define _PlayerSelect_
 
-#define PLAYERS 3
+#include "Control.h"
 
 class PlayerSelectView;
 

@@ -17,6 +17,14 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
+#include "Ball.h"
+#include "Sound.h"
+#include "BaseView.h"
+#include "Player.h"
+#include "PlayerView.h"
+#include "MultiPlay.h"
+#include "Event.h"
+#include "Control.h"
 
 void *LoadData( void *dum );
 

@@ -19,6 +19,8 @@
 #ifndef _BallView_
 #define _BallView_
 
+#include "View.h"
+
 class BallView : public View {
 public:
   BallView();

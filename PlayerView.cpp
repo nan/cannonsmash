@@ -18,6 +18,10 @@
 
 
 #include "ttinc.h"
+#include "PlayerView.h"
+#include "Player.h"
+#include "parts.h"
+#include "Ball.h"
 
 extern bool isPolygon;
 extern bool isLighting;
@@ -40,8 +44,6 @@ partsmotion *PlayerView::motion_Fsmash = NULL;
 extern Player *thePlayer;
 extern Player *comPlayer;
 extern Ball   theBall;
-
-extern Event theEvent;
 
 extern long mode;
 

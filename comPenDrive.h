@@ -18,6 +18,8 @@
 
 #ifndef _comPenDrive_
 #define _comPenDrive_
+#include "PenDrive.h"
+#include "comPlayer.h"
 
 class ComPenDrive : public PenDrive, public ComPlayer {
 public:

@@ -18,6 +18,9 @@
 
 #ifndef _TrainingView_
 #define _TrainingView_
+#include "View.h"
+
+class Training;
 
 class TrainingView : public View {
 public:

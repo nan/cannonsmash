@@ -17,6 +17,10 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
+#include "PlayerSelectView.h"
+#include "PlayerSelect.h"
+#include "LoadImage.h"
+#include "BaseView.h"
 
 extern long wins;
 

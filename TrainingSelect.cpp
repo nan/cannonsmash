@@ -17,6 +17,12 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
+#include "TrainingSelect.h"
+#include "BaseView.h"
+#include "Player.h"
+#include "Sound.h"
+#include "TrainingSelectView.h"
+#include "Event.h"
 
 extern BaseView theView;
 extern long mode;

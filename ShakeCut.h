@@ -18,6 +18,7 @@
 
 #ifndef _ShakeCut_
 #define _ShakeCut_
+#include "Player.h"
 
 // 右シェーク, カットの定義
 

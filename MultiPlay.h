@@ -19,6 +19,8 @@
 #ifndef _MultiPlyaer_
 #define _MultiPlayer_
 
+#include "PlayGame.h"
+
 void EndianCheck();
 
 double SwapDbl( double d );

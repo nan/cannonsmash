@@ -17,6 +17,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
+#include "Sound.h"
 
 #ifdef HAVE_LIBESD
 #include <esd.h>
@@ -175,6 +176,10 @@ Sound::Init( long sndMode ) {
   }
   m_soundSize[SOUND_CLICK] = read( fd, m_sound[SOUND_CLICK], 65536 );
   close( fd );
+#elif defined(HAVE_LIBSDL_MIXER)
+  m_sound[SOUND_RACKET] = Mix_LoadWAV( "wav/racket.wav" );
+  m_sound[SOUND_TABLE] = Mix_LoadWAV( "wav/table.wav" );
+  m_sound[SOUND_CLICK] = Mix_LoadWAV( "wav/click.wav" );
 #elif defined(HAVE_LIBESD)
   fd = open( "wav/racket.wav", O_RDONLY );
   if ( m_sound[SOUND_RACKET] == 0 ) {
@@ -199,10 +204,6 @@ Sound::Init( long sndMode ) {
   m_soundSize[SOUND_CLICK] = read( fd, m_sound[SOUND_CLICK], 624 );
   m_soundSize[SOUND_CLICK] = read( fd, m_sound[SOUND_CLICK], 65536 );
   close( fd );
-#elif defined(HAVE_LIBSDL_MIXER)
-  m_sound[SOUND_RACKET] = Mix_LoadWAV( "wav/racket.wav" );
-  m_sound[SOUND_TABLE] = Mix_LoadWAV( "wav/table.wav" );
-  m_sound[SOUND_CLICK] = Mix_LoadWAV( "wav/click.wav" );
 #endif
 
   return true;
@@ -240,6 +241,8 @@ Sound::Play( long soundID ) {
       PlaySound( data, NULL, SND_MEMORY|SND_ASYNC ); 
       GlobalUnlock( m_sound[soundID] );
     }
+#elif defined(HAVE_LIBSDL_MIXER)
+    Mix_PlayChannel( -1, m_sound[soundID], 0 );
 #elif defined(HAVE_LIBESD)
     switch ( m_soundMode ) {
     case SOUND_ESD:
@@ -252,8 +255,6 @@ Sound::Play( long soundID ) {
       write( m_ossfd, m_sound[soundID], m_soundSize[soundID] );
       break;
     }
-#elif defined(HAVE_LIBSDL_MIXER)
-    Mix_PlayChannel( -1, m_sound[soundID], 0 );
 #endif
   }
 

@@ -18,6 +18,7 @@
 
 #ifndef _ComTrainingPenDrive_
 #define _ComTrainingPenDrive_
+#include "comPenDrive.h"
 
 class ComTrainingPenDrive : public ComPenDrive {
 public:

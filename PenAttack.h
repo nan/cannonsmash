@@ -18,6 +18,7 @@
 
 #ifndef _PenAttack_
 #define _PenAttack_
+#include "Player.h"
 
 // PenAttack (Pen, right)の定義
 

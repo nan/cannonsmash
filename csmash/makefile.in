@@ -98,9 +98,9 @@ CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
-DIST_COMMON =  README AUTHORS COPYING ChangeLog INSTALL NEWS aclocal.m4 \
-configure configure.in install-sh makefile.am makefile.in missing \
-mkinstalldirs
+DIST_COMMON =  README AUTHORS COPYING ChangeLog INSTALL NEWS TODO \
+aclocal.m4 configure configure.in install-sh makefile.am makefile.in \
+missing mkinstalldirs
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)

@@ -18,6 +18,7 @@
 
 #ifndef _Opening_
 #define _Opening_
+#include "Control.h"
 
 class OpeningView;
 

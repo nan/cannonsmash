@@ -19,6 +19,9 @@
 #ifndef _PlayGame_
 #define _PlayGame_
 
+#include "Control.h"
+class Player;
+
 // SoloPlay, MultiPlay, Trainingの親. 
 class PlayGame : public Control {
 public:

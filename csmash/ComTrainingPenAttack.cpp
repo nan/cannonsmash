@@ -17,6 +17,12 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
+#include "ComTrainingPenAttack.h"
+#include "Ball.h"
+#include "Player.h"
+#include "Control.h"
+#include "PlayGame.h"
+#include "Training.h"
 
 extern Ball   theBall;
 extern Player *thePlayer;

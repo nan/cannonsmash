@@ -18,8 +18,10 @@
 
 #ifndef _PlayerView_
 #define _PlayerView_
+#include "View.h"
 
 class partsmotion;
+class Player;
 
 class PlayerView : public View {
 public:

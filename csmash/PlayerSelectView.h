@@ -18,6 +18,9 @@
 
 #ifndef _PlayerSelectView_
 #define _PlayerSelectView_
+#include "View.h"
+
+class PlayerSelect;
 
 class PlayerSelectView : public View {
 public:

@@ -19,6 +19,9 @@
 #ifndef _FieldView_
 #define _FieldView_
 
+#include "View.h"
+#include <GL/gl.h>
+
 class FieldView : public View {
 public:
   FieldView();

@@ -20,8 +20,8 @@
 #define _Ball_
 
 // Ball Classの定義
-class Player;
-class BallView;
+#include "BallView.h"
+#include "Player.h"
 
 class Ball {
   friend class Opening;

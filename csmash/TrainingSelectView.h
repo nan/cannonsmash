@@ -18,6 +18,7 @@
 
 #ifndef _TrainingSelectView_
 #define _TrainingSelectView_
+#include "PlayerSelectView.h"
 
 class TrainingSelectView : public PlayerSelectView {
 public:

@@ -17,10 +17,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
-
-#ifdef HAVE_LIBZ
-#include "z.h"
-#endif
+#include "FieldView.h"
+#include "LoadImage.h"
 
 extern bool isLighting;
 extern bool isTexture;
