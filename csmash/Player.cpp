@@ -398,7 +398,7 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   }
 
 // backswing and inpact
-  if ( m_swing == 20 ){
+  if ( m_swing == 20 ) {
     HitBall();
 
     if ( Control::TheControl()->GetThePlayer() == this &&
@@ -414,8 +414,7 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       BaseView::TheView()->AddView( hit );
     }
     m_spin[0] = m_spin[1] = 0.0;
-  }
-  else if ( m_swing == 50 ){
+  } else if ( m_swing == 50 ) {
     m_swing = 0;
     m_swingType = SWING_NORMAL;
   }
@@ -523,6 +522,8 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     else if ( m_side < 0 && m_x[1] < TABLELENGTH/2 )
       m_x[1] = TABLELENGTH/2;
 #endif
+    if (m_swingType < SERVE_MIN)
+      m_swingType = SERVE_MIN;
   }
 
   // Auto backswing
@@ -598,212 +599,18 @@ Player::KeyCheck( SDL_keysym *KeyHistory, long *MouseXHistory,
 		  int Histptr ) {
   long mouse, lastmouse;
 
-  const char keytable[][5] = {
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'1', '1', '1', '[', '\0'},
-  {'2', '2', '2', '7', '\0'},
-  {'3', '3', '3', '5', '\0'},
-  {'4', '4', '4', '3', '\0'},
-  {'5', '5', '5', '1', '\0'},
-  {'6', '6', '6', '9', '\0'},
-  {'7', '7', '7', '0', '\0'},
-  {'8', '8', '8', '2', '\0'},
-  {'9', '9', '9', '6', '\0'},
-  {'0', '0', '0', '8', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'q', 'q', 'a', '/', '\0'},
-  {'w', 'w', 'z', ',', '\0'},
-  {'e', 'e', 'e', '.', '\0'},
-  {'r', 'r', 'r', 'p', '\0'},
-  {'t', 't', 't', 'y', '\0'},
-  {'y', 'z', 'y', 'f', '\0'},
-  {'u', 'u', 'u', 'g', '\0'},
-  {'i', 'i', 'i', 'c', '\0'},
-  {'o', 'o', 'o', 'r', '\0'},
-  {'p', 'p', 'p', 'l', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'a', 'a', 'q', 'a', '\0'},
-  {'s', 's', 's', 'o', '\0'},
-  {'d', 'd', 'd', 'e', '\0'},
-  {'f', 'f', 'f', 'u', '\0'},
-  {'g', 'g', 'g', 'i', '\0'},
-  {'h', 'h', 'h', 'd', '\0'},
-  {'j', 'j', 'j', 'h', '\0'},
-  {'k', 'k', 'k', 't', '\0'},
-  {'l', 'l', 'l', 'n', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},	// {          'm', 's', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'z', 'y', 'w', ';', '\0'},
-  {'x', 'x', 'x', 'q', '\0'},
-  {'c', 'c', 'c', 'j', '\0'},
-  {'v', 'v', 'v', 'k', '\0'},
-  {'b', 'b', 'b', 'x', '\0'},
-  {'n', 'n', 'n', 'b', '\0'},
-  {'m', 'm'     , 'm', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},	// {               'w', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},	// {               'v', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'}	// {               'z', '\0'}
-  };
-
 // COM
   if ( !KeyHistory || !MouseXHistory || !MouseYHistory || !MouseBHistory )
     return true;
 
-// key input
-  // Check keyboard type and modify keycode. 
-  int code = -1;
+  long code = GetKeyCode(KeyHistory[Histptr]);
+  MoveTarget(code);
+  MoveCamera(code);
 
-  if ( KeyHistory[Histptr].scancode < 54 ) {
-    int i = 0;
-    while (keytable[KeyHistory[Histptr].scancode][i]) {
-      if ( keytable[KeyHistory[Histptr].scancode][i]
-	   == KeyHistory[Histptr].unicode ) {
-	code = keytable[KeyHistory[Histptr].scancode][0];
-	break;
-      }
-      i++;
-    }
-  }
-
-  if ( KeyHistory[Histptr].scancode >= 8 && 
-       KeyHistory[Histptr].scancode < 62 && 
-       code < 0 ) {	// for X11
-    int i = 0;
-    while (keytable[KeyHistory[Histptr].scancode-8][i]) {
-      if ( keytable[KeyHistory[Histptr].scancode-8][i]
-	   == KeyHistory[Histptr].unicode ) {
-	code = keytable[KeyHistory[Histptr].scancode-8][0];
-	break;
-      }
-      i++;
-    }
-  }
-
-  if ( code < 0 )
-    code = KeyHistory[Histptr].unicode;
-
-
-  switch ( code ) {
-  case '1':  case 'q':  case 'a':  case 'z':
-  case '2':  case 'w':  case 's':  case 'x':
-  case '3':
-    m_target[0] = -TABLEWIDTH/2*0.9*GetSide();
-    break;
-  case 'e':
-    m_target[0] = -TABLEWIDTH/2*0.75*GetSide();
-    break;
-  case 'd':
-    m_target[0] = -TABLEWIDTH/2*0.6*GetSide();
-    break;
-  case '4':  case 'c':
-    m_target[0] = -TABLEWIDTH/2*0.45*GetSide();
-    break;
-  case 'r':
-    m_target[0] = -TABLEWIDTH/2*0.3*GetSide();
-    break;
-  case 'f':
-    m_target[0] = -TABLEWIDTH/2*0.15*GetSide();
-    break;
-  case '5':  case 'v':
-    m_target[0] = 0;
-    break;
-  case 't':
-    m_target[0] = TABLEWIDTH/2*0.15*GetSide();
-    break;
-  case 'g':
-    m_target[0] = TABLEWIDTH/2*0.3*GetSide();
-    break;
-  case '6':  case 'b':
-    m_target[0] = TABLEWIDTH/2*0.45*GetSide();
-    break;
-  case 'y':
-    m_target[0] = TABLEWIDTH/2*0.6*GetSide();
-    break;
-  case 'h':
-    m_target[0] = TABLEWIDTH/2*0.75*GetSide();
-    break;
-  case '7':  case 'n':  case 'u':  case 'j':
-  case '8':  case 'm':  case 'i':  case 'k':
-  case '9':  case ',':  case 'o':  case 'l':
-  case '0':  case '.':  case 'p':  case ';':
-    m_target[0] = TABLEWIDTH/2*0.9*GetSide();
-    break;
-  }
-
-  switch ( code ){
-  case '1':  case '2':  case '3':  case '4':  case '5':  case '6':
-  case '7':  case '8':  case '9':  case '0':  case '-':  case '^':
-    m_target[1] = TABLELENGTH/12*5*GetSide();
-    break;
-  case 'q':  case 'w':  case 'e':  case 'r':  case 't':  case 'y':
-  case 'u':  case 'i':  case 'o':  case 'p':  case '@':  case '[':
-    m_target[1] = TABLELENGTH/12*4*GetSide();
-    break;
-  case 'a':  case 's':  case 'd':  case 'f':  case 'g':  case 'h':
-  case 'j':  case 'k':  case 'l':  case ';':  case ':':  case ']':
-    m_target[1] = TABLELENGTH/12*3*GetSide();
-    break;
-  case 'z':  case 'x': case 'c':  case 'v':  case 'b':  case 'n':
-  case 'm':  case ',':  case '.':  case '/':  case '\\':
-    m_target[1] = TABLELENGTH/12*2*GetSide();
-    break;
-  }
-
-
-  if ( (Histptr == 0 &&
-	KeyHistory[Histptr].unicode != KeyHistory[MAX_HISTORY-1].unicode) ||
-       (Histptr != 0 &&
-	KeyHistory[Histptr].unicode != KeyHistory[Histptr-1].unicode) ) {
-    switch ( KeyHistory[Histptr].unicode ) {
-    case 'H':
-      m_eye[0] -= 0.05;
-      break;
-    case 'J':
-      m_eye[2] -= 0.05;
-      break;
-    case 'K':
-      m_eye[2] += 0.05;
-      break;
-    case 'L':
-      m_eye[0] += 0.05;
-      break;
-    case '<':
-      m_eye[1] -= 0.05;
-      break;
-    case '>':
-      m_eye[1] += 0.05;
-      break;
-
-    case 'A':
-      m_lookAt[0] -= 0.05;
-      break;
-    case 'S':
-      m_lookAt[2] -= 0.05;
-      break;
-    case 'D':
-      m_lookAt[2] += 0.05;
-      break;
-    case 'F':
-      m_lookAt[0] += 0.05;
-      break;
-    case 'C':
-      m_lookAt[1] -= 0.05;
-      break;
-    case 'V':
-      m_lookAt[1] += 0.05;
-      break;
-
-    }
+  if (code == ' ') {
+    long prev = GetKeyCode(Histptr==0 ? KeyHistory[MAX_HISTORY-1] : KeyHistory[Histptr-1]);
+    if ( prev != ' ' )
+      ChangeServeType();
   }
 
   // Sorry in Japanese...
@@ -1230,6 +1037,12 @@ Player::StartSwing( long spin ) {
  */
 bool
 Player::StartServe( long spin ) {
+  double stype[][7] = { {SERVE_NORMAL,     0.0, 0.0,  0.0,  0.1,  0.0,  0.2}, 
+			{SERVE_POKE,       0.0, 0.0,  0.0, -0.3,  0.0, -0.6}, 
+			{SERVE_SIDESPIN1, -0.6, 0.2, -0.8,  0.0, -0.6, -0.2}, 
+			{SERVE_SIDESPIN2,  0.6, 0.2,  0.8,  0.0,  0.6, -0.2},
+			{-1,               0.0, 0.0,  0.0,  0.0,  0.0,  0.0}};
+
   if ( m_swing > 10 )
     return false;
 
@@ -1237,25 +1050,14 @@ Player::StartServe( long spin ) {
     m_swing = 1;
     m_pow = 0;
 
-    switch ( spin-1 ) {
-    case 0:
-      m_spin[0] = 0.0;
-      m_spin[1] = 0.2;	// straight
-      m_swingType = SWING_NORMAL;
-      break;
-    case 1:
-      m_spin[0] = 0.0;
-      m_spin[1] = -0.1;	// knuckle
-      m_swingType = SWING_POKE;
-      break;
-    case 2:
-#if 0	// sidespin
-#else
-	m_spin[0] = 1.0;
-#endif
-      m_spin[1] = -0.6;
-      m_swingType = SWING_POKE;
-      break;
+    int i = 0;
+    while ( stype[i][0] > 0 ) {
+      if ( (long)stype[i][0] == m_swingType ) {
+	m_spin[0] = stype[i][(spin-1)*2];
+	m_spin[1] = stype[i][(spin-1)*2+1];
+	break;
+      }
+      i++;
     }
 
     m_swingSide = true;
@@ -1365,6 +1167,7 @@ Player::GetDominantHand() {
   case PLAYER_PENDRIVE:
     return true;
   }
+  return false;
 }
 
 /**
@@ -1378,4 +1181,241 @@ Player::GetDominantHand() {
 bool
 Player::SwingType( Ball *ball, long spin ) {
   return false;
+}
+
+/**
+ * Convert SDL_keysym into key code in unicode. 
+ * This method supports qwerty, qwertz, azerty and dvorak keyboard. 
+ * 
+ * @param key SDL_keysym value converted to unicode. 
+ * @return returns unicode. 
+ */
+long
+Player::GetKeyCode( SDL_keysym &key ) {
+  const char keytable[][5] = {
+  {'\0', '\0', '\0', '\0', '\0'},
+  {'\0', '\0', '\0', '\0', '\0'},
+  {'1', '1', '1', '[', '\0'},
+  {'2', '2', '2', '7', '\0'},
+  {'3', '3', '3', '5', '\0'},
+  {'4', '4', '4', '3', '\0'},
+  {'5', '5', '5', '1', '\0'},
+  {'6', '6', '6', '9', '\0'},
+  {'7', '7', '7', '0', '\0'},
+  {'8', '8', '8', '2', '\0'},
+  {'9', '9', '9', '6', '\0'},
+  {'0', '0', '0', '8', '\0'},
+  {'\0', '\0', '\0', '\0', '\0'},
+  {'\0', '\0', '\0', '\0', '\0'},
+  {'\0', '\0', '\0', '\0', '\0'},
+  {'\0', '\0', '\0', '\0', '\0'},
+  {'q', 'q', 'a', '/', '\0'},
+  {'w', 'w', 'z', ',', '\0'},
+  {'e', 'e', 'e', '.', '\0'},
+  {'r', 'r', 'r', 'p', '\0'},
+  {'t', 't', 't', 'y', '\0'},
+  {'y', 'z', 'y', 'f', '\0'},
+  {'u', 'u', 'u', 'g', '\0'},
+  {'i', 'i', 'i', 'c', '\0'},
+  {'o', 'o', 'o', 'r', '\0'},
+  {'p', 'p', 'p', 'l', '\0'},
+  {'\0', '\0', '\0', '\0', '\0'},
+  {'\0', '\0', '\0', '\0', '\0'},
+  {'\0', '\0', '\0', '\0', '\0'},
+  {'\0', '\0', '\0', '\0', '\0'},
+  {'a', 'a', 'q', 'a', '\0'},
+  {'s', 's', 's', 'o', '\0'},
+  {'d', 'd', 'd', 'e', '\0'},
+  {'f', 'f', 'f', 'u', '\0'},
+  {'g', 'g', 'g', 'i', '\0'},
+  {'h', 'h', 'h', 'd', '\0'},
+  {'j', 'j', 'j', 'h', '\0'},
+  {'k', 'k', 'k', 't', '\0'},
+  {'l', 'l', 'l', 'n', '\0'},
+  {'\0', '\0', '\0', '\0', '\0'},	// {          'm', 's', '\0'},
+  {'\0', '\0', '\0', '\0', '\0'},
+  {'\0', '\0', '\0', '\0', '\0'},
+  {'\0', '\0', '\0', '\0', '\0'},
+  {'\0', '\0', '\0', '\0', '\0'},
+  {'z', 'y', 'w', ';', '\0'},
+  {'x', 'x', 'x', 'q', '\0'},
+  {'c', 'c', 'c', 'j', '\0'},
+  {'v', 'v', 'v', 'k', '\0'},
+  {'b', 'b', 'b', 'x', '\0'},
+  {'n', 'n', 'n', 'b', '\0'},
+  {'m', 'm'     , 'm', '\0', '\0'},
+  {'\0', '\0', '\0', '\0', '\0'},	// {               'w', '\0'},
+  {'\0', '\0', '\0', '\0', '\0'},	// {               'v', '\0'},
+  {'\0', '\0', '\0', '\0', '\0'}	// {               'z', '\0'}
+  };
+
+  // Check keyboard type and modify keycode. 
+  long code = -1;
+
+  if ( key.scancode < 54 ) {
+    int i = 0;
+    while (keytable[key.scancode][i]) {
+      if ( keytable[key.scancode][i] == key.unicode ) {
+	code = keytable[key.scancode][0];
+	break;
+      }
+      i++;
+    }
+  }
+
+  if ( key.scancode >= 8 && key.scancode < 62 && code < 0 ) {	// for X11
+    int i = 0;
+    while (keytable[key.scancode-8][i]) {
+      if ( keytable[key.scancode-8][i] == key.unicode ) {
+	code = keytable[key.scancode-8][0];
+	break;
+      }
+      i++;
+    }
+  }
+
+  if ( code < 0 )
+    code = key.unicode;
+
+  return code;
+}
+
+/**
+ * Move the target. 
+ * 
+ * @param code keycode. 
+ */
+void
+Player::MoveTarget( long code ) {
+  switch ( code ) {
+  case '1':  case 'q':  case 'a':  case 'z':
+  case '2':  case 'w':  case 's':  case 'x':
+  case '3':
+    m_target[0] = -TABLEWIDTH/2*0.9*GetSide();
+    break;
+  case 'e':
+    m_target[0] = -TABLEWIDTH/2*0.75*GetSide();
+    break;
+  case 'd':
+    m_target[0] = -TABLEWIDTH/2*0.6*GetSide();
+    break;
+  case '4':  case 'c':
+    m_target[0] = -TABLEWIDTH/2*0.45*GetSide();
+    break;
+  case 'r':
+    m_target[0] = -TABLEWIDTH/2*0.3*GetSide();
+    break;
+  case 'f':
+    m_target[0] = -TABLEWIDTH/2*0.15*GetSide();
+    break;
+  case '5':  case 'v':
+    m_target[0] = 0;
+    break;
+  case 't':
+    m_target[0] = TABLEWIDTH/2*0.15*GetSide();
+    break;
+  case 'g':
+    m_target[0] = TABLEWIDTH/2*0.3*GetSide();
+    break;
+  case '6':  case 'b':
+    m_target[0] = TABLEWIDTH/2*0.45*GetSide();
+    break;
+  case 'y':
+    m_target[0] = TABLEWIDTH/2*0.6*GetSide();
+    break;
+  case 'h':
+    m_target[0] = TABLEWIDTH/2*0.75*GetSide();
+    break;
+  case '7':  case 'n':  case 'u':  case 'j':
+  case '8':  case 'm':  case 'i':  case 'k':
+  case '9':  case ',':  case 'o':  case 'l':
+  case '0':  case '.':  case 'p':  case ';':
+    m_target[0] = TABLEWIDTH/2*0.9*GetSide();
+    break;
+  }
+
+  switch ( code ){
+  case '1':  case '2':  case '3':  case '4':  case '5':  case '6':
+  case '7':  case '8':  case '9':  case '0':  case '-':  case '^':
+    m_target[1] = TABLELENGTH/12*5*GetSide();
+    break;
+  case 'q':  case 'w':  case 'e':  case 'r':  case 't':  case 'y':
+  case 'u':  case 'i':  case 'o':  case 'p':  case '@':  case '[':
+    m_target[1] = TABLELENGTH/12*4*GetSide();
+    break;
+  case 'a':  case 's':  case 'd':  case 'f':  case 'g':  case 'h':
+  case 'j':  case 'k':  case 'l':  case ';':  case ':':  case ']':
+    m_target[1] = TABLELENGTH/12*3*GetSide();
+    break;
+  case 'z':  case 'x': case 'c':  case 'v':  case 'b':  case 'n':
+  case 'm':  case ',':  case '.':  case '/':  case '\\':
+    m_target[1] = TABLELENGTH/12*2*GetSide();
+    break;
+  }
+}
+
+/**
+ * Move camera location. 
+ * 
+ * @param code keycode. 
+ */
+void
+Player::MoveCamera( long code ) {
+  switch ( code ) {
+  case 'H':
+    m_eye[0] -= 0.05;
+    break;
+  case 'J':
+    m_eye[2] -= 0.05;
+    break;
+  case 'K':
+    m_eye[2] += 0.05;
+    break;
+  case 'L':
+    m_eye[0] += 0.05;
+    break;
+  case '<':
+    m_eye[1] -= 0.05;
+    break;
+  case '>':
+    m_eye[1] += 0.05;
+    break;
+
+  case 'A':
+    m_lookAt[0] -= 0.05;
+    break;
+  case 'S':
+    m_lookAt[2] -= 0.05;
+    break;
+  case 'D':
+    m_lookAt[2] += 0.05;
+    break;
+  case 'F':
+    m_lookAt[0] += 0.05;
+    break;
+  case 'C':
+    m_lookAt[1] -= 0.05;
+    break;
+  case 'V':
+    m_lookAt[1] += 0.05;
+    break;
+  }
+}
+
+/**
+ * Toggle Serve type. 
+ * As the game player push space bar, serve type is changed into the next one. 
+ */
+void
+Player::ChangeServeType() {
+  if ( theBall.GetStatus() == 8 &&
+       ((PlayGame *)Control::TheControl())->GetService() == GetSide() ) {
+    if ( m_swingType < SERVE_MIN )
+      m_swingType = SERVE_MIN;
+    else
+      m_swingType++;
+
+    if (m_swingType > SERVE_MAX)
+      m_swingType = SERVE_MIN;
+  }
 }

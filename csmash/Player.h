@@ -46,10 +46,13 @@ typedef Vector<2, double> vector2d;
 #define SWING_CUT	4	// 
 #define SWING_BLOCK	5	// 
 
-#define SERVE_NORMAL	(65536+0)
-#define SERVE_POKE	(65536+1)
-#define SERVE_SIDESPIN1	(65536+2)
-#define SERVE_SIDESPIN2	(65536+3)
+#define SERVE_MIN	(65536)
+#define SERVE_MAX	(SERVE_MIN+3)
+
+#define SERVE_NORMAL	(SERVE_MIN+0)
+#define SERVE_POKE	(SERVE_MIN+1)
+#define SERVE_SIDESPIN1	(SERVE_MIN+2)
+#define SERVE_SIDESPIN2	(SERVE_MIN+3)
 
 
 class PlayerView;
@@ -198,6 +201,11 @@ protected:
 
 private:
   virtual bool SwingType( Ball *ball, long spin );
+
+  long GetKeyCode( SDL_keysym &key );
+  void MoveTarget( long code );
+  void MoveCamera( long code );
+  void ChangeServeType();
 };
 
 #endif // _Player_
