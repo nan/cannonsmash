@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -73,6 +73,7 @@ protected:
   bool IsModeChanged( long preMode );
   void Record();
   void ReadData();
+  void ReadSelectData();
 
   void PlayInit( long player, long com );
   void DemoInit();

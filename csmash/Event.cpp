@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #include "MultiPlay.h"
 #include "Network.h"
 #include "PlayerSelect.h"
+#include "MultiPlayerSelect.h"
 #include "Title.h"
 #include "Opening.h"
 #include "Howto.h"
@@ -58,6 +59,7 @@ extern long score1;
 extern long score2;
 
 extern SDL_mutex *networkMutex;
+extern long timeAdj;
 
 long _perfCount;
 long perfs;
@@ -102,6 +104,9 @@ Event::Init() {
     break;
   case MODE_SELECT:
     PlayerSelect::Create();
+    break;
+  case MODE_MULTIPLAYSELECT:
+    MultiPlayerSelect::Create();
     break;
   case MODE_TITLE:
     Title::Create();
@@ -187,6 +192,8 @@ Event::IdleFunc() {
     long preMode = mode;
     Event::TheEvent()->ReadData();
     Event::TheEvent()->IsModeChanged( preMode );
+  } else if ( mode == MODE_MULTIPLAYSELECT ) {
+    Event::TheEvent()->ReadSelectData();
   }
 
   if ( mode != MODE_OPENING && mode != MODE_TITLE &&
@@ -228,10 +235,14 @@ Event::IsModeChanged( long preMode ) {
       break;
     case MODE_MULTIPLAY:
       p = ((PlayerSelect *)Control::TheControl())->GetPlayerNum();
-      MultiPlay::Create( p, 0 );
+      q = ((PlayerSelect *)Control::TheControl())->GetOpponentNum();
+      MultiPlay::Create( p, q );
       break;
     case MODE_SELECT:
       PlayerSelect::Create();
+      break;
+    case MODE_MULTIPLAYSELECT:
+      MultiPlayerSelect::Create();
       break;
     case MODE_TITLE:
       Title::Create();
@@ -288,8 +299,11 @@ Event::Record() {
   long cnt = m_BacktrackBuffer[m_Histptr].count;
   char buf[1024];
 
-  if ( mode == MODE_MULTIPLAY )
-    cnt += ((MultiPlay *)Control::TheControl())->GetTimeAdj();
+  if ( mode == MODE_MULTIPLAY ) {
+    //cnt += ((MultiPlay *)Control::TheControl())->GetTimeAdj();
+    cnt += timeAdj;
+  }
+
   while ( cnt < 0 ) {
     sec--;
     cnt += 100;
@@ -745,6 +759,26 @@ Event::ReadData() {
 }
 
 void
+Event::ReadSelectData() {
+  fd_set rdfds;
+  struct timeval to;
+  bool dum;
+  ExternalData *externalOld;
+
+  SDL_mutexP( networkMutex );
+
+  while ( !(m_External->isNull()) ) {
+    m_External->Apply( NULL, dum, dum, dum );
+
+    externalOld = m_External;
+    m_External = m_External->next;
+    delete externalOld;
+  }
+
+  SDL_mutexV( networkMutex );
+}
+
+void
 Event::ClearBacktrack() {
   for ( int i = 0 ; i < MAX_HISTORY ; i++ ) {
     Event::TheEvent()->m_MouseXHistory[i] = 0;
@@ -790,7 +824,7 @@ Event::SetNextMousePointer( long &x, long &y ) {
   if ( mode == MODE_TITLE ) {
     return;
   } else if ( mode == MODE_SELECT || mode == MODE_TRAININGSELECT ||
-	      mode == MODE_PRACTICESELECT ) {
+	      mode == MODE_PRACTICESELECT || mode == MODE_MULTIPLAYSELECT ) {
     x = BaseView::GetWinWidth()/2 + (x-BaseView::GetWinWidth()/2)*15/16;
   } else {
     x = BaseView::GetWinWidth()/2 + (x-BaseView::GetWinWidth()/2)*15/16;
@@ -802,7 +836,8 @@ Event::SetNextMousePointer( long &x, long &y ) {
 void
 Event::GetAdjustedTime( long &sec, long &cnt ) {
   if ( isComm )
-    cnt += ((MultiPlay *)Control::TheControl())->GetTimeAdj();
+    //cnt += ((MultiPlay *)Control::TheControl())->GetTimeAdj();
+    cnt += timeAdj;
   while ( cnt < 0 ) {
     sec--;
     cnt += 100;
@@ -826,7 +861,8 @@ Event::RemainingLog() {
     char buf[1024];
 
     if ( isComm )
-      cnt += ((MultiPlay *)Control::TheControl())->GetTimeAdj();
+      //cnt += ((MultiPlay *)Control::TheControl())->GetTimeAdj();
+      cnt += timeAdj;
     while ( cnt < 0 ) {
       sec--;
       cnt += 100;
