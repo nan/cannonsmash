@@ -38,9 +38,7 @@ ComPlayer::GetBallTop( double &maxX, double &maxY, Player *p ) {
   Ball *tmpBall;
   double max = -1.0;             /* highest point of the ball */
 
-  tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
-		      theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
-		      theBall.GetSpin(), theBall.GetStatus() );
+  tmpBall = new Ball(&theBall);
 
   while ( tmpBall->GetStatus() != -1 ) {
     if ( (tmpBall->GetStatus() == 3 && p->GetSide() == 1) ||
