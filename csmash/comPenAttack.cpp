@@ -152,7 +152,7 @@ ComPenAttack::Think() {
        m_swing == 0 ){
     theBall.Toss( this, 2 );
     StartSwing( 3 );
-    m_targetY = TABLELENGTH/8*m_side;
+    m_targetY = TABLELENGTH/6*m_side;
 
     return true;
   }
@@ -204,9 +204,9 @@ ComPenAttack::Think() {
       SetTargetX( opponent );
 
       if ( (tmpBallZ-TABLEHEIGHT)/fabs(tmpBallY-m_targetY) < 0.0 )
-	m_targetY = TABLELENGTH/6*m_side;
-      else if ( (tmpBallZ-TABLEHEIGHT)/fabs(tmpBallY-m_targetY) < 0.1 )
 	m_targetY = TABLELENGTH/4*m_side;
+      else if ( (tmpBallZ-TABLEHEIGHT)/fabs(tmpBallY-m_targetY) < 0.1 )
+	m_targetY = TABLELENGTH/3*m_side;
       else
 	m_targetY = TABLELENGTH/16*6*m_side;
 
@@ -317,7 +317,7 @@ ComPenAttack::SetTargetX( Player *opponent ) {
       m_targetX = -width*7/16;
       break;
     case 1:
-      m_targetX = width*5/16;
+      m_targetX = -width*5/16;
       break;
     case 2:
       m_targetX = -width*3/16;
@@ -340,6 +340,20 @@ ComPenAttack::SetTargetX( Player *opponent ) {
     }
   }
 
+  if ( gameLevel == LEVEL_TSUBORISH ) {
+    if ( opponent->GetX()+opponent->GetVX()*0.5 < 0.0 ) {
+      m_targetX = width*7/16;
+    } else {
+      m_targetX = -width*7/16;
+    }
+
+    if ( RAND(4) == 0 ) {
+      m_targetX = -m_targetX;
+    }
+  }
+
+  printf( "%f ", m_targetX );
+
   if ( m_vx > 1.5 ) {
     m_targetX += TABLEWIDTH/2;
   } else if ( m_vx > 0.5 ) {
@@ -354,6 +368,8 @@ ComPenAttack::SetTargetX( Player *opponent ) {
     m_targetX = TABLEWIDTH*7/16;
   if ( m_targetX < -TABLEWIDTH/2 )
     m_targetX = -TABLEWIDTH*7/16;
+
+  printf( "%f\n", m_targetX );
 
   return true;
 }

@@ -152,7 +152,7 @@ ComShakeCut::Think() {
        m_swing == 0 ){
     theBall.Toss( this, 2 );
     StartSwing( 3 );
-    m_targetY = TABLELENGTH/8*m_side;
+    m_targetY = TABLELENGTH/6*m_side;
 
     return true;
   }
@@ -203,9 +203,9 @@ ComShakeCut::Think() {
       SetTargetX( opponent );
 
       if ( (tmpBallZ-TABLEHEIGHT)/fabs(m_y - m_targetY) < 0.0 )
-	m_targetY = TABLELENGTH/6*m_side;
-      else if ( (tmpBallZ-TABLEHEIGHT)/fabs(m_y-m_targetY) < 0.1 )
 	m_targetY = TABLELENGTH/4*m_side;
+      else if ( (tmpBallZ-TABLEHEIGHT)/fabs(m_y-m_targetY) < 0.1 )
+	m_targetY = TABLELENGTH/3*m_side;
       else
 	m_targetY = TABLELENGTH/16*6*m_side;
 
@@ -342,6 +342,18 @@ ComShakeCut::SetTargetX( Player *opponent ) {
     case 7:
       m_targetX = width*7/16;
       break;
+    }
+  }
+
+  if ( gameLevel == LEVEL_TSUBORISH ) {
+    if ( opponent->GetX()+opponent->GetVX()*0.5 < 0.0 ) {
+      m_targetX = width*7/16;
+    } else {
+      m_targetX = -width*7/16;
+    }
+
+    if ( RAND(4) == 0 ) {
+      m_targetX = -m_targetX;
     }
   }
 
