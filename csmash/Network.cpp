@@ -52,6 +52,9 @@ extern Ball theBall;
 extern RCFile *theRC;
 extern long mode;
 
+extern int listenSocket[];
+extern int one;
+
 // convert endian
 double
 SwapDbl( double d ) {
@@ -445,4 +448,95 @@ ClearSocket() {
     closesocket( theSocket );
     theSocket = -1;
   }
+}
+
+bool
+GetSocket() {
+#ifdef ENABLE_IPV6
+  int error;
+  struct addrinfo saddr, *res, *res0;
+  int s;
+  char port[10];
+
+  sprintf( port, "%d", theRC->csmash_port );
+
+  memset( &saddr, 0, sizeof(saddr) );
+  if ( theRC->protocol == IPv6 )
+    saddr.ai_family = PF_UNSPEC;
+  else
+    saddr.ai_family = PF_INET;
+  saddr.ai_socktype = SOCK_STREAM;
+  saddr.ai_flags = AI_PASSIVE;
+  error = getaddrinfo( NULL, port, &saddr, &res0 );
+  if (error) {
+    xerror("%s(%d) getaddrinfo", __FILE__, __LINE__);
+    return false;
+  }
+
+  int i = 0;
+
+  for ( res = res0 ; res ; res = res->ai_next ) {
+    if ( (s = socket( res->ai_family, res->ai_socktype,
+		      res->ai_protocol )) < 0 ) {
+      continue;
+    }
+
+#ifdef IPV6_V6ONLY
+    if ( res->ai_family == AF_INET6 &&
+	 setsockopt( s, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on) ) < 0 ) {
+      close(s);
+      continue;
+    }
+#endif
+
+    setsockopt( s, IPPROTO_TCP, TCP_NODELAY,
+		(char*)&one, sizeof(int) );
+
+    if ( bind( s, res->ai_addr, res->ai_addrlen ) < 0 ) {
+      close(s);
+      continue;
+    }
+
+    if ( listen( s, 1 ) < 0 ) {
+      close(s);
+      continue;
+    }
+
+    listenSocket[i] = s;
+    i++;
+  }
+
+  if ( i == 0 ) {
+    xerror("%s(%d) socket", __FILE__, __LINE__);
+    return false;
+  }
+
+  freeaddrinfo( res0 );
+  return true;
+#else
+  struct sockaddr_in saddr;
+
+  if ( (listenSocket[0] = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
+    xerror("%s(%d) socket", __FILE__, __LINE__);
+    return false;
+  }
+
+  setsockopt( listenSocket[0], IPPROTO_TCP, TCP_NODELAY,
+	      (char*)&one, sizeof(int) );
+
+  saddr.sin_addr.s_addr = htonl(INADDR_ANY);
+  saddr.sin_family = AF_INET;
+  saddr.sin_port = htons(theRC->csmash_port);
+  if (bind(listenSocket[0], (struct sockaddr *)&saddr, sizeof(saddr) ) < 0) {
+    xerror("%s(%d) bind", __FILE__, __LINE__);
+    return false;
+  }
+
+  if ( listen( listenSocket[0], 1 ) < 0 ) {
+    xerror("%s(%d) socket", __FILE__, __LINE__);
+    return false;
+  }
+
+  return true;
+#endif
 }

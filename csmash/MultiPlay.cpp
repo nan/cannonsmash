@@ -47,7 +47,8 @@ extern long mode;
 extern Ball theBall;
 extern RCFile *theRC;
 extern int theSocket;
-int listenSocket = 0;
+int listenSocket[16] = {-1, -1, -1, -1, -1, -1, -1, -1,
+			-1, -1, -1, -1, -1, -1, -1, -1 };
 
 extern void QuitGame();
 
@@ -342,75 +343,9 @@ MultiPlay::WaitForClient() {
   sprintf( port, "%d", theRC->csmash_port );
 #endif
 
-  if ( listenSocket == 0 ) {
-#ifdef ENABLE_IPV6
-    int error;
-    struct addrinfo saddr, *res;
-
-    memset( &saddr, 0, sizeof(saddr) );
-    if ( theRC->protocol == IPv6 )
-      saddr.ai_family = AF_INET6;
-    else
-      saddr.ai_family = AF_INET;
-    saddr.ai_socktype = SOCK_STREAM;
-    saddr.ai_flags = AI_PASSIVE;
-    error = getaddrinfo( NULL, port, &saddr, &res );
-    if (error || res->ai_next) {
-      xerror("%s(%d) getaddrinfo", __FILE__, __LINE__);
-      return false;
-    }
-
-    if ( (listenSocket = socket( res->ai_family, res->ai_socktype,
-				 res->ai_protocol )) < 0 ) {
-      xerror("%s(%d) socket", __FILE__, __LINE__);
-      return false;
-    }
-
-#ifdef IPV6_V6ONLY
-    if ( res->ai_family == AF_INET6 &&
-	 setsockopt( s, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on) ) < 0 ) {
-      close(listenSocket);
-      xerror("%s(%d) setsockopt", __FILE__, __LINE__);
-      return false;
-    }
-#endif
-
-    setsockopt( listenSocket, IPPROTO_TCP, TCP_NODELAY,
-		(char*)&one, sizeof(int) );
-
-    if ( bind( listenSocket, res->ai_addr, res->ai_addrlen ) < 0 ) {
-      xerror("%s(%d) bind", __FILE__, __LINE__);
-      return false;
-    }
-
-    if ( listen( listenSocket, 1 ) < 0 ) {
-      xerror("%s(%d) socket", __FILE__, __LINE__);
+  if ( listenSocket[0] < 0 ) {
+    if ( !GetSocket() )
       exit(1);
-    }
-#else
-    struct sockaddr_in saddr;
-
-    if ( (listenSocket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
-      xerror("%s(%d) socket", __FILE__, __LINE__);
-      exit(1);
-    }
-
-    setsockopt( listenSocket, IPPROTO_TCP, TCP_NODELAY,
-		(char*)&one, sizeof(int) );
-
-    saddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    saddr.sin_family = AF_INET;
-    saddr.sin_port = htons(theRC->csmash_port);
-    if ( bind(listenSocket, (struct sockaddr *)&saddr, sizeof(saddr) ) < 0) {
-      xerror("%s(%d) bind", __FILE__, __LINE__);
-      exit(1);
-    }
-
-    if ( listen( listenSocket, 1 ) < 0 ) {
-      xerror("%s(%d) socket", __FILE__, __LINE__);
-      exit(1);
-    }
-#endif
   }
 
   unsigned int sb;
@@ -469,15 +404,23 @@ MultiPlay::WaitForClient() {
 
   // wait for connection / broadcast packet
   printf("server selecting\n");
-  do {
-    int max;
 
-    fd_set fd;
+  fd_set fd;
+
+  do {
+    int max = 0;
+    int i = 0;
+
     FD_ZERO(&fd);
-    FD_SET(listenSocket, &fd);
+    while ( listenSocket[i] >= 0 ) {
+      FD_SET(listenSocket[i], &fd);
+      if ( listenSocket[i] > max )
+	max = listenSocket[i];
+      i++;
+    }
     FD_SET(sb, &fd);
 
-    max = listenSocket > sb ? listenSocket : sb;
+    max = max > sb ? max : sb;
     if (0 <= select(max+1, &fd, NULL, NULL, NULL)) {
       if (FD_ISSET(sb, &fd)) {
 	// datagram to udp port
@@ -522,15 +465,31 @@ MultiPlay::WaitForClient() {
   if ( theRC->protocol == IPv6 ) {
 #ifdef ENABLE_IPV6
     struct addrinfo faddr;
+    int i = 0;
 
     fromlen = sizeof(faddr);
-    theSocket = accept( listenSocket, (struct sockaddr *)&faddr, &fromlen );
+    while ( listenSocket[i] >= 0 ) {
+      if (FD_ISSET(listenSocket[i], &fd)) {
+	theSocket = accept( listenSocket[i],
+			    (struct sockaddr *)&faddr, &fromlen );
+	break;
+      }
+      i++;
+    }
 #endif
   } else {
     struct sockaddr_in faddr;
+    int i = 0;
 
     fromlen = sizeof(faddr);
-    theSocket = accept( listenSocket, (struct sockaddr *)&faddr, &fromlen );
+    while ( listenSocket[i] >= 0 ) {
+      if (FD_ISSET(listenSocket[i], &fd)) {
+	theSocket = accept( listenSocket[i],
+			    (struct sockaddr *)&faddr, &fromlen );
+	break;
+      }
+      i++;
+    }
   }
   setsockopt( theSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(int) );
 

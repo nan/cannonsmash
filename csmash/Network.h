@@ -51,5 +51,6 @@ void findhostname( struct sockaddr_in *saddr );
 #endif
 
 void ClearSocket();
+bool GetSocket();
 
 #endif	// _Network_

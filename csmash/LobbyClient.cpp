@@ -34,7 +34,7 @@ extern long mode;
 
 extern void StartGame();
 
-extern int listenSocket;
+extern int listenSocket[];
 extern int one;
 
 // dirty... used by "QP"
@@ -71,78 +71,9 @@ LobbyClient::Init( char *nick, char *message ) {
 #endif
 
   // open listening port
-  if ( listenSocket == 0 ) {
-#ifdef ENABLE_IPV6
-    struct addrinfo saddr, *res, *res0;
-    int error;
-
-    memset( &saddr, 0, sizeof(saddr) );
-    if ( theRC->protocol == IPv6 )
-      saddr.ai_family = AF_INET6;
-    else
-      saddr.ai_family = AF_INET;
-
-    saddr.ai_socktype = SOCK_STREAM;
-    saddr.ai_flags = AI_PASSIVE;
-    error = getaddrinfo( NULL, port, &saddr, &res );
-    if (error || res->ai_next) {
-      xerror("%s: %s(%d) getaddrinfo",
-	     gai_strerror(error), __FILE__, __LINE__);
+  if ( listenSocket[0] < 0 ) {
+    if ( !GetSocket() )
       return false;
-    }
-
-    if ( (listenSocket = socket( res->ai_family, res->ai_socktype,
-				 res->ai_protocol )) < 0 ) {
-      xerror("%s(%d) socket", __FILE__, __LINE__);
-      return false;
-    }
-
-#ifdef IPV6_V6ONLY
-    if ( res->ai_family == AF_INET6 &&
-	 setsockopt( s, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on) ) < 0 ) {
-      close(listenSocket);
-      xerror("%s(%d) setsockopt", __FILE__, __LINE__);
-      return false;
-    }
-#endif
-
-    setsockopt( listenSocket, IPPROTO_TCP, TCP_NODELAY,
-		(char*)&one, sizeof(int) );
-
-    if ( bind( listenSocket, res->ai_addr, res->ai_addrlen ) < 0 ) {
-      xerror("%s(%d) bind", __FILE__, __LINE__);
-      return false;
-    }
-
-    if ( listen( listenSocket, 1 ) < 0 ) {
-      xerror("%s(%d) socket", __FILE__, __LINE__);
-      return false;
-    }
-    freeaddrinfo( res );
-#else
-    struct sockaddr_in saddr;
-
-    if ( (listenSocket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
-      xerror("%s(%d) socket", __FILE__, __LINE__);
-      return false;
-    }
-
-    setsockopt( listenSocket, IPPROTO_TCP, TCP_NODELAY,
-		(char*)&one, sizeof(int) );
-
-    saddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    saddr.sin_family = AF_INET;
-    saddr.sin_port = htons(theRC->csmash_port);
-    if ( bind(listenSocket, (struct sockaddr *)&saddr, sizeof(saddr)) < 0 ) {
-      xerror("%s(%d) bind", __FILE__, __LINE__);
-      return false;
-    }
-
-    if ( listen( listenSocket, 1 ) < 0 ) {
-      xerror("%s(%d) socket", __FILE__, __LINE__);
-      return false;
-    }
-#endif
   }
 
   // connect to lobby server
@@ -248,61 +179,75 @@ LobbyClient::PollServerMessage( gpointer data ) {
   struct timeval to;
 
   while (1) {
-    int max;
+    int max = 0;
     FD_ZERO( &rdfds );
     FD_SET( (SOCKET)lobby->m_socket, &rdfds );
-    if ( listenSocket )
-      FD_SET( listenSocket, &rdfds );
+    int i = 0;
+    while ( listenSocket[i] >= 0 ) {
+      FD_SET( listenSocket[i], &rdfds );
+      if ( listenSocket[i] > max )
+	max = listenSocket[i];
+      i++;
+    }
 
-    if ( (SOCKET)lobby->m_socket > listenSocket )
+    if ( (SOCKET)lobby->m_socket > max )
       max = lobby->m_socket;
-    else
-      max = listenSocket;
 
     to.tv_sec = to.tv_usec = 0;
 
     if ( select( max+1, &rdfds, NULL, NULL, &to ) <= 0 ) {
       return 1;
-    } else if ( FD_ISSET( listenSocket, &rdfds ) ) {
-      int acSocket;
-      acSocket = accept( listenSocket, NULL, NULL );
-
-      closesocket( acSocket );
-      lobby->m_canBeServer = true;
     } else {
-      char buf[1024];
+      int i = 0;
+      bool listenIsSet = false;
+      while ( listenSocket[i] >= 0 ) {
+	if ( FD_ISSET( listenSocket[i], &rdfds ) ) {
+	  int acSocket;
+	  acSocket = accept( listenSocket[i], NULL, NULL );
 
-      lobby->ReadHeader( buf );
-
-      if ( !strncmp( buf, "UI", 2 ) ) {
-	lobby->ReadUI();
-	lobby->m_view->UpdateTable();
-      } else if ( !strncmp( buf, "PI", 2 ) ) {
-	lobby->ReadPI();
-      } else if ( !strncmp( buf, "OI", 2 ) ) {
-	lobby->ReadOI();
-      } else if ( !strncmp( buf, "AP", 2 ) ) {
-	isComm = true;
-	mode = MODE_SELECT;
-
-	if ( lobby->m_canBeServer == true ) {	// I can be server
-	  theRC->serverName[0] = '\0';
+	  closesocket( acSocket );
+	  lobby->m_canBeServer = true;
+	  listenIsSet = true;
+	  break;
 	}
+	i++;
+      }
 
-	lobby->m_view->SetSensitive( true );
+      if ( !listenIsSet ) {
+	char buf[1024];
 
-	lobby->SendSP();
+	lobby->ReadHeader( buf );
 
-	::StartGame();
+	if ( !strncmp( buf, "UI", 2 ) ) {
+	  lobby->ReadUI();
+	  lobby->m_view->UpdateTable();
+	} else if ( !strncmp( buf, "PI", 2 ) ) {
+	  lobby->ReadPI();
+	} else if ( !strncmp( buf, "OI", 2 ) ) {
+	  lobby->ReadOI();
+	} else if ( !strncmp( buf, "AP", 2 ) ) {
+	  isComm = true;
+	  mode = MODE_SELECT;
 
-	lobby->SendQP();
-      } else if ( !strncmp( buf, "DP", 2 ) ) {
-	lobby->m_view->SetSensitive( true );
-      } else if ( !strncmp( buf, "OV", 2 ) ) {
-	lobby->ReadOV();
-      } else {
-	xerror("%s(%d) read header", __FILE__, __LINE__);
-	exit(1);
+	  if ( lobby->m_canBeServer == true ) {	// I can be server
+	    theRC->serverName[0] = '\0';
+	  }
+
+	  lobby->m_view->SetSensitive( true );
+
+	  lobby->SendSP();
+
+	  ::StartGame();
+
+	  lobby->SendQP();
+	} else if ( !strncmp( buf, "DP", 2 ) ) {
+	  lobby->m_view->SetSensitive( true );
+	} else if ( !strncmp( buf, "OV", 2 ) ) {
+	  lobby->ReadOV();
+	} else {
+	  xerror("%s(%d) read header", __FILE__, __LINE__);
+	  exit(1);
+	}
       }
     }
   }
