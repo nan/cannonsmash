@@ -28,6 +28,7 @@ extern long mode;
 extern Sound theSound;
 
 extern int theSocket;
+extern bool isComm;
 
 extern long gameMode;
 extern long wins;
@@ -38,6 +39,8 @@ Ball::Ball() {
   m_Score1 = m_Score2 = 0;
 
   m_View = NULL;
+
+  m_smash = false;
 }
 
 Ball::Ball( double x, double y, double z, double vx, double vy, double vz,
@@ -55,6 +58,8 @@ Ball::Ball( double x, double y, double z, double vx, double vy, double vz,
   m_View = NULL;
 
   m_count = 0;
+
+  m_smash = false;
 }
 
 Ball::~Ball() {
@@ -181,6 +186,7 @@ Ball::Move() {
     m_vz = 0.0;
 
     m_status = 8;
+    m_smash = false;
 
     if ( IsGameEnd() == true ){
       theView.EndGame();
@@ -244,20 +250,20 @@ Ball::Move() {
 	  m_status = -1;
 	}
       }
-    } else{			// COM側のテーブル
-      switch( m_status ){
+    } else {			// COM側のテーブル
+      switch( m_status ) {
       case 0:
 	m_status = 1;
+	if ( &theBall == this && sqrt(m_vy*m_vy+m_vz*m_vz) > 8.0 ) {
+	  m_smash = true;
+	} else
+	  m_smash = false;
 	break;
       case 5:
 	m_status = 2;
 	break;
       default:
-	if ( m_status >= 0 ) {
-	  if ( &theBall == this )
-	    ChangeScore();
-	  m_status = -1;
-	}
+	BallDead();
       }
     }
 
@@ -290,11 +296,7 @@ Ball::Move() {
     if ( this == &theBall ) {
       theSound.Play( SOUND_TABLE );
     }
-    if ( m_status >= 0 ) {
-      if ( &theBall == this )
-	ChangeScore();
-      m_status = -1;
-    }
+    BallDead();
   }
   else if ( m_x > AREAXSIZE/2 ){
     m_x = AREAXSIZE/2;
@@ -302,11 +304,7 @@ Ball::Move() {
     if ( this == &theBall ) {
       theSound.Play( SOUND_TABLE );
     }
-    if ( m_status >= 0 ) {
-      if ( &theBall == this )
-	ChangeScore();
-      m_status = -1;
-    }
+    BallDead();
   }
 
   if ( m_y < -AREAYSIZE/2 ){
@@ -315,11 +313,7 @@ Ball::Move() {
     if ( this == &theBall ) {
       theSound.Play( SOUND_TABLE );
     }
-    if ( m_status >= 0 ) {
-      if ( &theBall == this )
-	ChangeScore();
-      m_status = -1;
-    }
+    BallDead();
   }
   else if ( m_y > AREAYSIZE/2 ){
     m_y = AREAYSIZE/2;
@@ -327,11 +321,7 @@ Ball::Move() {
     if ( this == &theBall ) {
       theSound.Play( SOUND_TABLE );
     }
-    if ( m_status >= 0 ) {
-      if ( &theBall == this )
-	ChangeScore();
-      m_status = -1;
-    }
+    BallDead();
   }
 
   if ( m_z < 0 ){
@@ -345,11 +335,7 @@ Ball::Move() {
     if ( this == &theBall ) {
       theSound.Play( SOUND_TABLE );
     }
-    if ( m_status >= 0 ) {
-      if ( &theBall == this )
-	ChangeScore();
-      m_status = -1;
-    }
+    BallDead();
   }
   else if ( m_z > AREAZSIZE ){
     m_z = AREAZSIZE;
@@ -357,11 +343,7 @@ Ball::Move() {
     if ( this == &theBall ) {
       theSound.Play( SOUND_TABLE );
     }
-    if ( m_status >= 0 ) {
-      if ( &theBall == this )
-	ChangeScore();
-      m_status = -1;
-    }
+    BallDead();
   }
 
 // 重力
@@ -372,6 +354,11 @@ Ball::Move() {
   m_vx += -PHY*m_vx*TICK;
   m_vy += -PHY*m_vy*TICK;
   m_vz += -PHY*m_vz*TICK;
+
+  if ( mode == MODE_PLAY && m_smash && GetStatus() < 0 && !isComm ) {
+    mode = MODE_SMASH;
+    m_smash = false;
+  }
 
   return true;
 }
@@ -397,8 +384,10 @@ Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
     m_status = 5;
   else if ( m_status == 3 )
     m_status = 0;
-  else if ( m_status == 1 )
+  else if ( m_status == 1 ) {
     m_status = 2;
+    m_smash = false;
+  }
 
   m_vx = vx;
   m_vy = vy;
@@ -652,6 +641,15 @@ Ball::IsGameEnd() {
   }
 
   return false;
+}
+
+void
+Ball::BallDead() {
+  if ( m_status >= 0 ) {
+    if ( &theBall == this )
+      ChangeScore();
+    m_status = -1;
+  }
 }
 
 bool

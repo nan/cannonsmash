@@ -53,18 +53,8 @@ struct Backtrack {
   PlayerData comPlayer;
 };
 
-struct ExternalData {
-  long side;
-  long dataType;
-  long sec;
-  char count;
-  char data[256];
-  struct ExternalData *next;
-};
-
 class Event {
 public:
-
   Event();
   ~Event();
 
@@ -80,9 +70,9 @@ public:
   bool SendPlayer( int sd, Player *player );
   bool SendBall( int sd );
 
-#ifdef PTHREAD
-  void MoveCursor();
-#endif
+  void SmashEffect( bool start );
+
+  long m_smashCount;
 protected:
   bool Move();
   void Record();
@@ -102,6 +92,8 @@ protected:
   long m_MouseYHistory[MAX_HISTORY];			// マウス履歴
   unsigned long m_MouseBHistory[MAX_HISTORY];		// マウスボタン履歴
   int  m_Histptr;
+
+  long m_smashPtr;
 
   struct ExternalData *m_External;
   struct Backtrack m_BacktrackBuffer[MAX_HISTORY];

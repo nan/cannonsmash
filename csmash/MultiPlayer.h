@@ -33,4 +33,13 @@ bool AcceptClient();
 void StartServer();
 void StartClient();
 
+struct ExternalData {
+  long side;
+  long dataType;
+  long sec;
+  char count;
+  char data[256];
+  struct ExternalData *next;
+};
+
 #endif	// _MultiPlayer_

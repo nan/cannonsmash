@@ -83,6 +83,7 @@
 #define MODE_HOWTO  (5)		// How to Play
 #define MODE_TRAININGSELECT (6)	// Training Select
 #define MODE_TRAINING (7)	// Training
+#define MODE_SMASH  (8)		// Smash Effect
 
 // サウンド
 #define SOUND_RACKET (0)

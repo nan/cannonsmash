@@ -86,16 +86,16 @@ Event::Init() {
   }
   theBall.Init();
 
-  glutKeyboardFunc( theEvent.KeyboardFunc );
+  glutKeyboardFunc( Event::KeyboardFunc );
 
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
   glutKeyboardUpFunc( theEvent.KeyUpFunc );
 #endif
 
-  glutIdleFunc( theEvent.IdleFunc );
-  glutMotionFunc( theEvent.MotionFunc );
-  glutPassiveMotionFunc( theEvent.MotionFunc );
-  glutMouseFunc( theEvent.ButtonFunc );
+  glutIdleFunc( Event::IdleFunc );
+  glutMotionFunc( Event::MotionFunc );
+  glutPassiveMotionFunc( Event::MotionFunc );
+  glutMouseFunc( Event::ButtonFunc );
 }
 
 void
@@ -364,6 +364,25 @@ Event::Move() {
 			       m_MouseYHistory, m_MouseBHistory, m_Histptr );
     reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
     break;
+  case MODE_SMASH:
+    if ( m_Histptr == m_smashPtr ) {
+      SmashEffect(false);
+      m_smashCount++;
+      if ( m_smashCount > 2 ) {
+	mode = preMode = MODE_PLAY;
+	m_smashCount = 0;
+      } else {
+	SmashEffect(true);
+      }
+    } else {
+      theBall.Move();
+      reDraw |= thePlayer->Move( m_KeyHistory, m_MouseXHistory,
+				 m_MouseYHistory, m_MouseBHistory, m_Histptr );
+      theBall = m_BacktrackBuffer[m_Histptr].theBall;
+      thePlayer->Reset( &m_BacktrackBuffer[m_Histptr].thePlayer );
+      comPlayer->Reset( &m_BacktrackBuffer[m_Histptr].comPlayer );
+    }
+    break;
   }
 
   if ( mode != preMode ){	// モード変更あり
@@ -401,6 +420,9 @@ Event::Move() {
 
       TrainingInit( p, p );
       break;
+    case MODE_SMASH:
+      SmashEffect(true);
+      break;
     }
 
     preMode = mode;
@@ -425,6 +447,9 @@ Event::Record() {
   if ( m_Histptr == MAX_HISTORY )
     m_Histptr = 0;
 
+  if ( mode == MODE_SMASH )
+    return;
+
   m_KeyHistory[m_Histptr] = 0;
   if ( mode == MODE_TITLE ) {
     m_MouseXHistory[m_Histptr] = x;
@@ -438,7 +463,7 @@ Event::Record() {
   }
   m_MouseBHistory[m_Histptr] = btn;
 
-  if ( theSocket >= 0 ) {
+  //if ( theSocket >= 0 ) {
     m_BacktrackBuffer[m_Histptr].sec = m_lastTime.time;
     m_BacktrackBuffer[m_Histptr].count = m_lastTime.millitm;
     while ( m_BacktrackBuffer[m_Histptr].count > 100 ) {
@@ -448,7 +473,7 @@ Event::Record() {
     m_BacktrackBuffer[m_Histptr].theBall = theBall;
     CopyPlayerData( m_BacktrackBuffer[m_Histptr].thePlayer, thePlayer );
     CopyPlayerData( m_BacktrackBuffer[m_Histptr].comPlayer, comPlayer );
-  }
+  //}
 
   return;
 }
@@ -844,4 +869,100 @@ Event::TrainingInit( long player, long com ) {
   trainingCount = 0;
 
   glutSetCursor( GLUT_CURSOR_NONE );
+}
+
+#if 0
+void
+Event::GetHittingPlayerData( Player *player, long count, bool isThePlayer ) {
+  static struct PlayerData p;
+  static Ball b;
+
+  if ( count > 0 ) {
+    CopyPlayerData( p, player );
+    b = theBall;
+
+    long ptr = m_Histptr;
+    for ( int i = 0 ; i < MAX_HISTORY ; i++ ) {
+      if ( m_BacktrackBuffer[ptr].theBall.GetStatus() == 0 )
+	break;
+
+      ptr--;
+      if ( ptr < 0 )
+	ptr = MAX_HISTORY;
+    }
+
+    ptr += count;
+    if ( ptr >= MAX_HISTORY )
+      ptr -= MAX_HISTORY;
+
+    if ( isThePlayer )
+      player->Reset( &m_BacktrackBuffer[ptr].thePlayer );
+    else
+      player->Reset( &m_BacktrackBuffer[ptr].comPlayer );
+    theBall = m_BacktrackBuffer[ptr].theBall;
+  } else {
+    player->Reset( &p );
+    theBall = b;
+  }
+}
+
+void
+Event::GetHittingBallData( Ball &ball, long count ) {
+  static Ball b;
+
+  if ( count > 0 ) {
+    b = ball;
+
+    long ptr = m_Histptr;
+    for ( int i = 0 ; i < MAX_HISTORY ; i++ ) {
+      if ( m_BacktrackBuffer[ptr].theBall.GetStatus() == 0 )
+	break;
+
+      ptr--;
+      if ( ptr < 0 )
+	ptr = MAX_HISTORY;
+    }
+
+    ptr += count;
+    if ( ptr >= MAX_HISTORY )
+      ptr -= MAX_HISTORY;
+
+    ball = m_BacktrackBuffer[ptr].theBall;
+  } else {
+    ball = b;
+  }
+}
+#endif
+
+void
+Event::SmashEffect( bool start ) {
+  static struct PlayerData p1, p2;
+  static Ball b;
+
+  if (start) {
+    CopyPlayerData( p1, thePlayer );
+    CopyPlayerData( p2, comPlayer );
+    b = theBall;
+
+    m_smashPtr = m_Histptr-1;
+    if ( m_smashPtr < 0 )
+      m_smashPtr = MAX_HISTORY;
+
+    for ( int i = 0 ; i < MAX_HISTORY ; i++ ) {
+      if ( m_BacktrackBuffer[m_Histptr].theBall.GetStatus() == 2 )
+	break;
+
+      m_Histptr--;
+      if ( m_Histptr < 0 )
+	m_Histptr = MAX_HISTORY;
+    }
+
+    thePlayer->Reset( &m_BacktrackBuffer[m_Histptr].thePlayer );
+    comPlayer->Reset( &m_BacktrackBuffer[m_Histptr].comPlayer );
+    theBall = m_BacktrackBuffer[m_Histptr].theBall;
+  } else {
+    thePlayer->Reset( &p1 );
+    comPlayer->Reset( &p2 );
+    theBall = b;
+  }
 }

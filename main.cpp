@@ -59,8 +59,6 @@ long mode = MODE_TITLE;
 
 long trainingCount = 0;
 
-char *dataDir = NULL;
-
 #if HAVE_LIBPTHREAD
 pthread_mutex_t loadMutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
@@ -122,6 +120,7 @@ int main(int argc, char** argv) {
     }
 
 #define PROBE_FILE "Parts/Fnormal/Fnormal-head01.dat"
+  char *dataDir = NULL;
 
   if ( (access( PROBE_FILE, F_OK ) == 0) ) {
     dataDir = ".";

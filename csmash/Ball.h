@@ -69,6 +69,8 @@ public:
   bool Send( int sd );
 
   long m_count;		// Training用カウンタ
+
+  bool m_smash;		// スマッシュしたか
 protected:
   double m_x;		// ballの位置
   double m_y;
@@ -97,6 +99,8 @@ protected:
 
   long m_Score1;	// 手前プレイヤーの得点
   long m_Score2;	// 奥プレイヤーの得点
+private:
+  void BallDead();
 };
 
 #endif // _Ball_

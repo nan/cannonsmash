@@ -27,6 +27,7 @@ extern Player* comPlayer;
 extern long mode;
 extern Title*  theTitle;
 extern Howto*  theHowto;
+extern Event theEvent;
 
 extern void SelectInit();
 
@@ -211,6 +212,13 @@ BaseView::RedrawAll() {
   glColor4f(0.4, 0.2, 0.0, 0.0);
 //  glEnable(GL_CULL_FACE);
 
+  // ここに置くべきではないよなぁ...
+  //bool flag = false;
+  //if ( mode == MODE_PLAY && theBall.m_smash && theBall.GetStatus() < 0 ) {
+  //  theEvent.SmashEffect(-theBall.GetStatus());
+  //  flag = true;
+  //}
+
   glDisable(GL_BLEND);
   Redraw();
 
@@ -246,6 +254,9 @@ BaseView::RedrawAll() {
     view->RedrawAlpha();
     view = view->m_next;
   }
+
+  //if (flag)
+  //  theEvent.SmashEffect(-1);
 
   // タイトル
   glPushMatrix();
@@ -633,13 +644,21 @@ BaseView::SetLookAt() {
 
   switch ( mode ){
   case MODE_PLAY:
+    if (thePlayer) {
+      x = thePlayer->GetX() + thePlayer->GetEyeX();
+      y = thePlayer->GetY() + thePlayer->GetEyeY();
+      z = thePlayer->GetZ() + thePlayer->GetEyeZ();
+      tx = thePlayer->GetLookAtX();
+      ty = thePlayer->GetLookAtY();
+      tz = thePlayer->GetLookAtZ();
+    }
+    break;
   case MODE_DEMO:
   case MODE_TRAINING:
-    x = thePlayer->GetX() + thePlayer->GetEyeX();
-    y = thePlayer->GetY() + thePlayer->GetEyeY();
-    z = thePlayer->GetZ() + thePlayer->GetEyeZ();
-
     if (thePlayer) {
+      x = thePlayer->GetX() + thePlayer->GetEyeX();
+      y = thePlayer->GetY() + thePlayer->GetEyeY();
+      z = thePlayer->GetZ() + thePlayer->GetEyeZ();
       tx = thePlayer->GetLookAtX();
       ty = thePlayer->GetLookAtY();
       tz = thePlayer->GetLookAtZ();
@@ -658,6 +677,40 @@ BaseView::SetLookAt() {
     break;
   case MODE_HOWTO:
     theHowto->LookAt( x, y, z );
+    break;
+  case MODE_SMASH:
+    if (thePlayer) {
+      switch (theEvent.m_smashCount) {
+      case 0:
+	x = 0;
+	y = TABLELENGTH*thePlayer->GetSide();
+	z = 1.6;
+
+	tx = 0;
+	ty = -TABLELENGTH/2*thePlayer->GetSide();
+	tz = TABLEHEIGHT;
+	break;
+      case 1:
+	x = -TABLEWIDTH;
+	y = 0;
+	z = 1.6;
+
+	tx = theBall.GetX();
+	ty = theBall.GetY();
+	tz = theBall.GetZ();
+	break;
+      case 2:
+	x = thePlayer->GetX() + thePlayer->GetEyeX();
+	y = thePlayer->GetY() + thePlayer->GetEyeY();
+	z = thePlayer->GetZ() + thePlayer->GetEyeZ();
+	tx = thePlayer->GetLookAtX();
+	ty = thePlayer->GetLookAtY();
+	tz = thePlayer->GetLookAtZ();
+	break;
+      default:
+	printf( "%d\n", theBall.m_count );
+      }
+    }
   }
 
   if ( thePlayer ) {

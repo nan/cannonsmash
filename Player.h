@@ -71,31 +71,31 @@ public:
 
   virtual bool AddStatus( long diff );
 
-  virtual long   GetSide();
-  virtual long   GetPlayerType();
+  virtual long   GetSide() { return m_side; }
+  virtual long   GetPlayerType() { return m_playerType; }
 
-  virtual double GetX();
-  virtual double GetY();
-  virtual double GetZ();
-  virtual double GetVX();
-  virtual double GetVY();
-  virtual double GetVZ();
-  virtual long   GetPower();
-  virtual double GetSpin();
-  virtual double GetTargetX();
-  virtual double GetTargetY();
-  virtual double GetEyeX();
-  virtual double GetEyeY();
-  virtual double GetEyeZ();
-  virtual double GetLookAtX();
-  virtual double GetLookAtY();
-  virtual double GetLookAtZ();
-  virtual double GetStamina();
-  virtual long   GetStatus();
-  virtual long   GetSwing();
-  virtual long   GetSwingType();
-  virtual long   GetSwingError();
-  virtual long   GetAfterSwing();
+  virtual double GetX() { return m_x; }
+  virtual double GetY() { return m_y; }
+  virtual double GetZ() { return m_z; }
+  virtual double GetVX() { return m_vx; }
+  virtual double GetVY() { return m_vy; }
+  virtual double GetVZ() { return m_vz; }
+  virtual long   GetPower() { return m_pow; }
+  virtual double GetSpin() { return m_spin; }
+  virtual double GetTargetX() { return m_targetX; }
+  virtual double GetTargetY() { return m_targetY; }
+  virtual double GetEyeX() { return m_eyeX; }
+  virtual double GetEyeY() { return m_eyeY; }
+  virtual double GetEyeZ() { return m_eyeZ; }
+  virtual double GetLookAtX() { return m_lookAtX; }
+  virtual double GetLookAtY() { return m_lookAtY; }
+  virtual double GetLookAtZ() { return m_lookAtZ; }
+  virtual double GetStamina() { return m_stamina; }
+  virtual long   GetStatus() { return m_status; }
+  virtual long   GetSwing() { return m_swing; }
+  virtual long   GetSwingType() { return m_swingType; }
+  virtual long   GetSwingError() { return m_swingError; }
+  virtual long   GetAfterSwing() { return m_afterSwing; }
 
   virtual bool   GetShoulder( double &x, double &y, double &deg );
   virtual bool   GetElbow( double &degx, double& degy );

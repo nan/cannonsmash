@@ -511,131 +511,56 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
 
 // 入力の反映
   switch ( KeyHistory[Histptr] ){
-  case '1':
-  case 'q':
-  case 'a':
-  case 'z':
+  case '1':  case 'q':  case 'a':  case 'z':
     m_targetX = -TABLEWIDTH/2*0.9*GetSide();
     break;
-  case '2':
-  case 'w':
-  case 's':
-  case 'x':
+  case '2':  case 'w':  case 's':  case 'x':
     m_targetX = -TABLEWIDTH/2*0.7*GetSide();
     break;
-  case '3':
-  case 'e':
-  case 'd':
-  case 'c':
+  case '3':  case 'e':  case 'd':  case 'c':
     m_targetX = -TABLEWIDTH/2*0.5*GetSide();
     break;
-  case '4':
-  case 'r':
-  case 'f':
-  case 'v':
+  case '4':  case 'r':  case 'f':  case 'v':
     m_targetX = -TABLEWIDTH/2*0.3*GetSide();
     break;
-  case '5':
-  case 't':
-  case 'g':
-  case 'b':
+  case '5':  case 't':  case 'g':  case 'b':
     m_targetX = -TABLEWIDTH/2*0.1*GetSide();
     break;
-  case '6':
-  case 'y':
-  case 'h':
-  case 'n':
+  case '6':  case 'y':  case 'h':  case 'n':
     m_targetX = 0;
     break;
-  case '7':
-  case 'u':
-  case 'j':
-  case 'm':
+  case '7':  case 'u':  case 'j':  case 'm':
     m_targetX = TABLEWIDTH/2*0.1*GetSide();
     break;
-  case '8':
-  case 'i':
-  case 'k':
-  case ',':
+  case '8':  case 'i':  case 'k':  case ',':
     m_targetX = TABLEWIDTH/2*0.3*GetSide();
     break;
-  case '9':
-  case 'o':
-  case 'l':
-  case '.':
+  case '9':  case 'o':  case 'l':  case '.':
     m_targetX = TABLEWIDTH/2*0.5*GetSide();
     break;
-  case '0':
-  case 'p':
-  case ';':
-  case '/':
+  case '0':  case 'p':  case ';':  case '/':
     m_targetX = TABLEWIDTH/2*0.7*GetSide();
     break;
-  case '-':
-  case '@':
-  case ':':
-  case '\\':
-  case '^':
-  case '[':
-  case ']':
+  case '-':  case '@':  case ':':  case '\\':  case '^':  case '[':  case ']':
     m_targetX = TABLEWIDTH/2*0.9*GetSide();
     break;
   }
 
   switch ( KeyHistory[Histptr] ){
-  case '1':
-  case '2':
-  case '3':
-  case '4':
-  case '5':
-  case '6':
-  case '7':
-  case '8':
-  case '9':
-  case '0':
-  case '-':
-  case '^':
+  case '1':  case '2':  case '3':  case '4':  case '5':  case '6':
+  case '7':  case '8':  case '9':  case '0':  case '-':  case '^':
     m_targetY = TABLELENGTH/16*7*GetSide();
     break;
-  case 'q':
-  case 'w':
-  case 'e':
-  case 'r':
-  case 't':
-  case 'y':
-  case 'u':
-  case 'i':
-  case 'o':
-  case 'p':
-  case '@':
-  case '[':
+  case 'q':  case 'w':  case 'e':  case 'r':  case 't':  case 'y':
+  case 'u':  case 'i':  case 'o':  case 'p':  case '@':  case '[':
     m_targetY = TABLELENGTH/16*5*GetSide();
     break;
-  case 'a':
-  case 's':
-  case 'd':
-  case 'f':
-  case 'g':
-  case 'h':
-  case 'j':
-  case 'k':
-  case 'l':
-  case ';':
-  case ':':
-  case ']':
+  case 'a':  case 's':  case 'd':  case 'f':  case 'g':  case 'h':
+  case 'j':  case 'k':  case 'l':  case ';':  case ':':  case ']':
     m_targetY = TABLELENGTH/16*3*GetSide();
     break;
-  case 'z':
-  case 'x':
-  case 'c':
-  case 'v':
-  case 'b':
-  case 'n':
-  case 'm':
-  case ',':
-  case '.':
-  case '/':
-  case '\\':
+  case 'z':  case 'x': case 'c':  case 'v':  case 'b':  case 'n':
+  case 'm':  case ',':  case '.':  case '/':  case '\\':
     m_targetY = TABLELENGTH/16*1*GetSide();
     break;
   }
@@ -725,126 +650,6 @@ Player::AddStatus( long diff ) {
   }
 
   return true;
-}
-
-long
-Player::GetSide() {
-  return m_side;
-}
-
-long
-Player::GetPlayerType() {
-  return m_playerType;
-}
-
-double
-Player::GetX() {
-  return m_x;
-}
-
-double
-Player::GetY() {
-  return m_y;
-}
-
-double
-Player::GetZ() {
-  return m_z;
-}
-
-double
-Player::GetVX() {
-  return m_vx;
-}
-
-double
-Player::GetVY() {
-  return m_vy;
-}
-
-double
-Player::GetVZ() {
-  return m_vz;
-}
-
-long
-Player::GetPower() {
-  return m_pow;
-}
-
-double
-Player::GetSpin() {
-  return m_spin;
-}
-
-double
-Player::GetTargetX() {
-  return m_targetX;
-}
-
-double
-Player::GetTargetY() {
-  return m_targetY;
-}
-
-double
-Player::GetEyeX() {
-  return m_eyeX;
-}
-
-double
-Player::GetEyeY() {
-  return m_eyeY;
-}
-
-double
-Player::GetEyeZ() {
-  return m_eyeZ;
-}
-
-double
-Player::GetLookAtX() {
-  return m_lookAtX;
-}
-
-double
-Player::GetLookAtY() {
-  return m_lookAtY;
-}
-
-double
-Player::GetLookAtZ() {
-  return m_lookAtZ;
-}
-
-double
-Player::GetStamina() {
-  return m_stamina;
-}
-
-long
-Player::GetStatus() {
-  return m_status;
-}
-
-long
-Player::GetSwing() {
-  return m_swing;
-}
-
-long
-Player::GetSwingType() {
-  return m_swingType;
-}
-
-long
-Player::GetSwingError() {
-  return m_swingError;
-}
-
-long
-Player::GetAfterSwing() {
-  return m_afterSwing;
 }
 
 // 利き腕の肩の位置を計算する. 

@@ -37,6 +37,11 @@ partsmotion *PlayerView::motion_Fsmash = NULL;
 
 extern Player *thePlayer;
 extern Player *comPlayer;
+extern Ball   theBall;
+
+extern Event theEvent;
+
+extern long mode;
 
 bool RotateMatrix( double Mat[][3], double degx, double degy, double degz );
 
