@@ -33,10 +33,10 @@ public:
   virtual bool Redraw();
   virtual bool RedrawAlpha();
 
+  static GLuint m_textures[4];
 protected:
   Howto       *m_howto;
   GLuint       m_offset;
-  static GLuint m_textures[4];
   ImageData    m_mouse[4];
   GLubyte      m_howtoText[8][400*100/8];
   GLubyte      m_arrow[4][50*(50/8+1)];

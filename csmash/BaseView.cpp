@@ -407,6 +407,7 @@ BaseView::QuitGame() {
   //if (fullScreen)
   //SDL_WM_ToggleFullScreen( m_baseSurface );
   SDL_FreeSurface( m_baseSurface );
+  delete m_fieldView;
 }
 
 void

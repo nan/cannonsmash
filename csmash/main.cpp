@@ -26,6 +26,8 @@
 #include "Event.h"
 #include "Control.h"
 #include "Launcher.h"
+#include "HitMark.h"
+#include "HowtoView.h"
 
 int LoadData( void *dum );
 
@@ -51,8 +53,6 @@ bool isPolygon	= true;
 bool isSimple	= false;
 bool isWireFrame = true;
 bool fullScreen = false;
-
-bool isQuit = false;
 
 long wins	= 0;		// 勝ち抜き数
 long gameLevel  = LEVEL_EASY;	// 強さ
@@ -144,6 +144,52 @@ int main(int argc, char** argv) {
       strncpy(serverName, argv[optind], sizeof(serverName));
     }
 
+#define PROBE_FILE "Parts/Fnormal/Fnormal-head01.dat"
+  char *dataDir = NULL;
+
+  if ( (access( PROBE_FILE, F_OK ) == 0) ) {
+    dataDir = ".";
+  } else {
+#ifdef CANNONSMASH_DATADIR
+    dataDir = CANNONSMASH_DATADIR;
+#else
+    fprintf( stderr, "No datafile directory.\n" );
+    exit(1);
+#endif
+  }
+
+  if ( chdir( dataDir ) == -1 ) {
+    fprintf( stderr, "No datafile directory.\n" );
+    exit(1);
+  }
+
+  printf( dataDir );
+
+  struct timeb tb;
+#ifndef WIN32
+  struct timeval tv;
+  struct timezone tz;
+#endif
+
+#ifdef WIN32
+  ftime( &tb );
+#else
+  gettimeofday( &tv, &tz );
+  tb.time = tv.tv_sec;
+  tb.millitm = tv.tv_usec/1000;
+#endif
+
+  srand(tb.millitm);
+
+  EndianCheck();
+// 一時停止
+#if 0
+  loadMutex = SDL_CreateMutex();
+  SDL_CreateThread( LoadData, NULL );
+#else
+  LoadData( NULL );
+#endif
+
   Launcher *launcher = new Launcher();
   launcher->Init();
 }
@@ -168,56 +214,11 @@ StartGame() {
   sndMode = SOUND_NONE;
 #endif
 
-#define PROBE_FILE "Parts/Fnormal/Fnormal-head01.dat"
-  char *dataDir = NULL;
-
-  if ( (access( PROBE_FILE, F_OK ) == 0) ) {
-    dataDir = ".";
-  } else {
-#ifdef CANNONSMASH_DATADIR
-    dataDir = CANNONSMASH_DATADIR;
-#else
-    fprintf( stderr, "No datafile directory.\n" );
-    exit(1);
-#endif
-  }
-
-  if ( chdir( dataDir ) == -1 ) {
-    fprintf( stderr, "No datafile directory.\n" );
-    exit(1);
-  }
-
-  printf( dataDir );
-
   if ( mode == MODE_OPENING && (access( SOUND_OPENING, F_OK ) != 0) ) {
     mode = MODE_TITLE;
   }
 
   theSound.Init( sndMode );
-
-  loadMutex = SDL_CreateMutex();
-
-  //SDL_CreateThread( LoadData, NULL );
-  LoadData( NULL );
-
-  EndianCheck();
-
-  struct timeb tb;
-#ifndef WIN32
-  struct timeval tv;
-  struct timezone tz;
-#endif
-
-#ifdef WIN32
-  ftime( &tb );
-#else
-  gettimeofday( &tv, &tz );
-  tb.time = tv.tv_sec;
-  tb.millitm = tv.tv_usec/1000;
-#endif
-
-  srand(tb.millitm);
-
   theView.Init();
   theEvent.Init();
 
@@ -247,6 +248,16 @@ StartGame() {
 	Event::ClearObject();
 	theView.QuitGame();
 	theSound.Clear();
+	HitMark::m_textures[0] = 0;
+	HowtoView::m_textures[0] = 0;
+
+	theSocket = -1;
+	isComm = false;
+
+	wins = 0;
+	gameLevel = LEVEL_EASY;
+	gameMode = GAME_21PTS;
+	mode = MODE_OPENING;
 
 	SDL_Quit();
 	return;
@@ -254,9 +265,6 @@ StartGame() {
 	break;
       }
     }
-
-    if ( isQuit )
-      return;
 
     Event::IdleFunc();
   }

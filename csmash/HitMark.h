@@ -30,6 +30,8 @@ public:
 
   virtual bool Redraw();
   virtual bool RedrawAlpha();
+
+  static GLuint       m_textures[2];
 private:
   double m_x;
   double m_y;
@@ -41,8 +43,6 @@ private:
 
   struct timeb startTime;
   long m_time;
-
-  static GLuint       m_textures[2];
 };
 
 #endif	// _HitMark

@@ -51,25 +51,22 @@ BallView::Init() {
 			   "images/six.ppm", "images/seven.ppm",
 			   "images/eight.ppm", "images/nine.ppm"};
 
-  if ( m_number[0] == 0 ) {
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glGenTextures( 10, m_number );
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glGenTextures( 10, m_number );
 
-    for ( int i = 0 ; i < 10 ; i++ ) {
-      Image.LoadPPM( &num[i][0] );
-      glBindTexture( GL_TEXTURE_2D, m_number[i] );
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+  for ( int i = 0 ; i < 10 ; i++ ) {
+    Image.LoadPPM( &num[i][0] );
+    glBindTexture( GL_TEXTURE_2D, m_number[i] );
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
-      glTexImage2D(GL_TEXTURE_2D, 0, 3,
-		   Image.GetWidth(), Image.GetHeight(), 
-		   0, GL_RGBA, GL_UNSIGNED_BYTE,
-		   Image.GetImage() );
-    }
-
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+		 Image.GetWidth(), Image.GetHeight(), 
+		 0, GL_RGBA, GL_UNSIGNED_BYTE,
+		 Image.GetImage() );
   }
 
   m_quad = gluNewQuadric();

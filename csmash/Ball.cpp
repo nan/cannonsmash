@@ -82,9 +82,7 @@ Ball::~Ball() {
 bool
 Ball::Init() {
   m_View = new BallView();
-
   m_View->Init();
-
   theView.AddView( m_View );
 
   return true;
