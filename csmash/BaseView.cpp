@@ -162,7 +162,8 @@ BaseView::Init() {
   glTexImage2D(GL_TEXTURE_2D, 0, 4, image.GetWidth(), image.GetHeight(),
 	       0, GL_RGBA, GL_UNSIGNED_BYTE, image.GetImage() );
 
-  m_fieldView = new FieldView();
+  m_fieldView = (FieldView *)View::CreateView( VIEW_FIELD );
+
   m_fieldView->Init();
 
   return true;

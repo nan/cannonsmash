@@ -275,7 +275,7 @@ Player::Create( long player, long side, long type ) {
 
 bool
 Player::Init() {
-  m_View = (BallView *)View::CreateView( VIEW_PLAYER );
+  m_View = (PlayerView *)View::CreateView( VIEW_PLAYER );
 
   m_View->Init( this );
 
