@@ -178,15 +178,13 @@ MultiPlayerSelect::ReadPT( char *data ) {
 
 void
 MultiPlayerSelect::SendPT( char fixed ) {
-  // Send Player Type
+  long type;
 
   if ( theSocket < 0 )
     return;
 
   send( theSocket, "PT", 2, 0 );
-  long len = 5;
-  SendLong( theSocket, len );
   send( theSocket, &fixed, 1, 0 );
-  len = GetPlayerNum();
-  SendLong( theSocket, len );
+  type = GetPlayerNum();
+  SendLong( theSocket, type );
 }

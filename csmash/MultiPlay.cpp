@@ -560,7 +560,7 @@ MultiPlay::WaitForData( void *dum ) {
       bool ret;
 
       SDL_mutexP( networkMutex );
-      ret = Event::TheEvent()->GetExternalData( m_comPlayer->GetSide() );
+      ret = Event::TheEvent()->GetExternalData( -1 );
       SDL_mutexV( networkMutex );
 
       if ( !ret ) {
@@ -822,7 +822,7 @@ ExternalPTData::Read( long sock ) {
 #ifdef LOGGING
   char buf[256];
   Logging::GetLogging()->LogTime( LOG_COMMISC );
-  sprintf( buf, "Recv BV: %d.%3d\n", (int)sec, (int)count );
+  sprintf( buf, "Recv PT: %d.%3d\n", (int)sec, (int)count );
   Logging::GetLogging()->Log( LOG_COMMISC, buf );
 #endif
 
