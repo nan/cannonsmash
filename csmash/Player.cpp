@@ -875,20 +875,20 @@ Player::AddStatus( long diff ) {
       if ( Control::TheControl()->GetThePlayer() == this ) {
 	switch (theRC->gameLevel) {
 	case LEVEL_EASY:
-	  m_statusMax = (m_statusMax*3+m_status)/4;
+	  m_statusMax += diff/4;
 	  break;
 	case LEVEL_NORMAL:
-	  m_statusMax = (m_statusMax*2+m_status)/3;
+	  m_statusMax += diff/3;
 	  break;
 	case LEVEL_HARD:
-	  m_statusMax = (m_statusMax+m_status)/2;
+	  m_statusMax += diff/2;
 	  break;
 	case LEVEL_TSUBORISH:
-	  m_statusMax = (m_statusMax+m_status)/2;
+	  m_statusMax += diff/2;
 	  break;
 	}
       } else {
-	m_statusMax = (m_statusMax*3+m_status)/4;	/* 打球位置でのペナルティを相殺 */
+	m_statusMax += diff/4;	/* 打球位置でのペナルティを相殺 */
       }
     }
   }
