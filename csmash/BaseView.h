@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of BaseView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
@@ -28,6 +33,14 @@ typedef Vector<2, double> vector2d;
 #include "FieldView.h"
 
 
+/**
+ * View manager class. 
+ * This class holds the list of all view classes, and call Redraw() and
+ * RedrawAlpha() method of these view classes when the screen should be 
+ * refreshed. 
+ * Additionally, this class manages entire screen. In other words, this 
+ * class holds screen size, initializes and cleans up the entire screen. 
+ */
 class BaseView {
 public:
   virtual ~BaseView();
@@ -47,31 +60,40 @@ public:
   virtual void EndGame();
   virtual void QuitGame();
 
+  /**
+   * Returns the width of the screen. 
+   */
   static long GetWinWidth() { return m_winWidth; };
+  /**
+   * Returns the height of the screen. 
+   */
   static long GetWinHeight() { return m_winHeight; };
 
+  /**
+   * Returns the SDL_Surface object. 
+   */
   virtual SDL_Surface *GetSurface() { return m_baseSurface; };
 protected:
   BaseView();
 
-  vector3d       m_centerX;
-  View           *m_View;
-  FieldView      *m_fieldView;
+  vector3d       m_centerX;	///< View destination. 
+  View           *m_View;	///< List of views. 
+  FieldView      *m_fieldView;	///< FieldView object. 
 
-  static long    m_winWidth;
-  static long    m_winHeight;
+  static long    m_winWidth;	///< screen width
+  static long    m_winHeight;	///< screen height
 
   //GLuint       m_offset;
   //GLuint       m_floor;
-  GLuint       m_title;
+  GLuint         m_title;	///< Title texture handler. 
   //GLuint       m_wall[4];
 
-  SDL_Surface	*m_baseSurface;
+  SDL_Surface	*m_baseSurface;	///< SDL_Surface object for the screen. 
 
   virtual void SetLookAt();
 
 private:
-  static BaseView* m_theView;
+  static BaseView* m_theView;	///< Singleton BaseView object. 
 };
 
 #endif // _BaseView

@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of BallView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2002, 2003  神南 吉宏(Kanna Yoshihiro)
 //
@@ -21,6 +26,9 @@
 
 #include "View.h"
 
+/**
+ * View class of the ball. 
+ */
 class BallView : public View {
 public:
   BallView();
@@ -30,10 +38,10 @@ public:
   virtual bool Redraw();
   virtual bool RedrawAlpha();
 
-  static GLuint m_number[10];
+  static GLuint m_number[10];	///< Score texture. 
 private:
   void BallView::DrawTargetCircle();
-  GLUquadricObj *m_quad;
+  GLUquadricObj *m_quad;	///< glu object. 
 
   void DrawBall();
   void DrawShadow();

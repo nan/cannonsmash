@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of BallView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -32,12 +37,25 @@ extern long mode;
 
 GLuint BallView::m_number[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
+/**
+ * Default constructor. 
+ */
 BallView::BallView() {
 }
 
+/**
+ * Destructor. 
+ * Do nothing. 
+ */
 BallView::~BallView() {
 }
 
+/**
+ * Initialize BallView. 
+ * Load texture and initialize glu. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 BallView::Init() {
   ImageData Image;
@@ -81,6 +99,11 @@ BallView::Init() {
   return true;
 }
  
+/**
+ * Redraw ball and related objects. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 BallView::Redraw() {
   DrawBall();
@@ -89,6 +112,12 @@ BallView::Redraw() {
   return true;
 }
 
+/**
+ * Redraw transparent objects. 
+ * Redraw ball location indicator, hit point, score. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 BallView::RedrawAlpha() {
   Ball* tmpBall;
@@ -315,7 +344,9 @@ BallView::RedrawAlpha() {
   return true;
 }
 
-// Draw the Ball itself
+/** 
+ * Draw the ball itself. 
+ */
 void
 BallView::DrawBall() {
   const static GLfloat mat_yel[] = { 1.0F, 0.8F, 0.0F, 0.0F };
@@ -332,7 +363,9 @@ BallView::DrawBall() {
   glPopMatrix();
 }
 
-// Draw the Ball shadow
+/** 
+ * Draw the ball shadow. 
+ */
 void
 BallView::DrawShadow() {
   double rad;
@@ -353,6 +386,9 @@ BallView::DrawShadow() {
   glEnd();
 }
 
+/**
+ * Draw target circle in front of the player. 
+ */
 void
 BallView::DrawTargetCircle() {
   static double angle = 0.0;

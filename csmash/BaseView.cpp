@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of BaseView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -44,6 +49,11 @@ BaseView* BaseView::m_theView = NULL;
 // z --- z axis is the vertical line which includes the center point of
 //       the table. The plane z=0 is the floor. 
 
+/**
+ * Getter method of BaseView singleton object. 
+ * 
+ * @return returns singleton BaseView object. 
+ */
 BaseView *
 BaseView::TheView() {
   if ( BaseView::m_theView )
@@ -57,14 +67,29 @@ BaseView::TheView() {
   return BaseView::m_theView;
 }
 
+/**
+ * Default constructor. 
+ */
 BaseView::BaseView() {
   m_View = (View*)0;
   m_centerX = vector3d((const double[]){0.0, TABLELENGTH/2, TABLEHEIGHT});
 }
 
+/**
+ * Destructor. 
+ * Do nothing. 
+ */
 BaseView::~BaseView() {
 }
 
+/**
+ * Initializer method. 
+ * This method should be called only once just after BaseView is created. 
+ * This method initialize SDL and OpenGL settings, then create FieldView
+ * object and initialize it. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 BaseView::Init() {
 #ifdef HAVE_LIBSDL_MIXER
@@ -187,11 +212,24 @@ BaseView::Init() {
   return true;
 }
 
+/**
+ * Redraw entire screen. 
+ */
 void
 BaseView::DisplayFunc() {
   BaseView::TheView()->RedrawAll();
 }
 
+/**
+ * Redraw entire screen. 
+ * This method is called just after all models are updated
+ * to refresh screen. (cf. Event::IdleFunc). 
+ * This method refresh OpenGL settings, then call Redraw() method
+ * of each view one after another. 
+ * After that, this method call RedrawAll() of each view, and redraw title. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 BaseView::RedrawAll() {
   View *view;
@@ -332,6 +370,11 @@ BaseView::RedrawAll() {
   return true;
 }
 
+/**
+ * Initialize the location and direction of the camera. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 BaseView::SetViewPosition() {
   glLoadIdentity();
@@ -341,7 +384,9 @@ BaseView::SetViewPosition() {
   return true;
 }
 
-// Move the viewpoint as the player moves
+/**
+ * Move the location and direction of the camera as the player moves. 
+ */
 void
 BaseView::SetLookAt() {
   vector3d srcX;
@@ -360,6 +405,12 @@ BaseView::SetLookAt() {
      上向きベクトル(画面上の上に向かうベクトル)x, y, z */
 }
 
+/**
+ * Add newly attached view class to the list of view classes. 
+ * 
+ * @param view a view class which should be added to the list of view classes. 
+ * @return returns true if succeeds. 
+ */
 bool
 BaseView::AddView( View *view ) {
   view->m_next = m_View;
@@ -368,6 +419,13 @@ BaseView::AddView( View *view ) {
   return true;
 }
 
+/**
+ * Remove a view class from the list of view classes. 
+ * 
+ * @param view a view class which should be removeed from the list of view classes. 
+ * @retval returns true if succeeds. 
+ * @retval returns false if the view class is not found in the list of view classes. 
+ */
 bool
 BaseView::RemoveView( View *view ) {
   View* _view = m_View;
@@ -388,6 +446,10 @@ BaseView::RemoveView( View *view ) {
   return false;
 }
       
+/**
+ * Show game over message. 
+ * This method shows game over message and sleep 3 seconds, then returns. 
+ */
 void
 BaseView::EndGame() {
   static char file[][30] = {"images/win", "images/lose"};
@@ -434,6 +496,10 @@ BaseView::EndGame() {
 #endif
 }
 
+/**
+ * Cleanup method for quitting the game. 
+ * This method frees SDL objects and cleans them up. 
+ */
 void
 BaseView::QuitGame() {
   //if (fullScreen)
