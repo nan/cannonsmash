@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -72,7 +72,7 @@ ComPenDrive::Think() {
   double mx;
 
   // If the ball status changes, change _hitX, _hitY
-  if ( _prevBallstatus != theBall.GetStatus() && m_swing == 0 ){
+  if ( _prevBallstatus != theBall.GetStatus() && theBall.GetStatus() >= 0 ){
     Hitarea( _hitX, _hitY );
 
     _prevBallstatus = theBall.GetStatus();
@@ -88,21 +88,18 @@ ComPenDrive::Think() {
   else
     hitTY = -1.0;
 
-//  if ( fabs( _hitX-(m_x+m_side*0.3) ) < fabs( _hitX-(m_x-m_side*0.3) ) ||
-//       theBall.GetStatus() == 8 || _hitX*m_side > 0 )
   mx = m_x+m_side*0.3;
 
   if ( m_swing > 10 && m_swing <= 20 ) {
   } else {
     if ( hitTX > 0.0 ) {
-      if ( m_vx > 0 && mx + m_vx*hitTX < _hitX )
+      double vx = (_hitX-mx)/hitTX;
+      if ( vx > m_vx+0.1 )
 	m_vx += 0.1;
-      else if ( m_vx < 0 && mx + m_vx*hitTX > _hitX )
+      else if ( vx < m_vx-0.1 )
 	m_vx -= 0.1;
-      else if ( m_vx*fabs(m_vx*0.1)/2 < _hitX - mx )
-	m_vx += 0.1;
       else
-	m_vx -= 0.1;
+	m_vx = vx;
     } else {
       if ( m_vx*fabs(m_vx*0.1)/2 < _hitX - mx )
 	m_vx += 0.1;
@@ -114,14 +111,13 @@ ComPenDrive::Think() {
   if ( m_swing > 10 && m_swing <= 20 ) {
   } else {
     if ( hitTY > 0.0 ) {
-      if ( m_vy > 0 && m_y + m_vy*hitTY < _hitY )
+      double vy = (_hitY-m_y)/hitTY;
+      if ( vy > m_vy+0.1 )
 	m_vy += 0.1;
-      else if ( m_vy < 0 && m_y + m_vy*hitTY > _hitY )
+      else if ( vy < m_vy-0.1 )
 	m_vy -= 0.1;
-      else if ( m_vy*fabs(m_vy*0.1)/2 < _hitY - m_y )
-	m_vy += 0.1;
       else
-	m_vy -= 0.1;
+	m_vy = vy;
     } else {
       if ( m_vy*fabs(m_vy*0.1)/2 < _hitY - m_y )
 	m_vy += 0.1;
@@ -130,14 +126,36 @@ ComPenDrive::Think() {
     }
   }
 
-  if ( m_vx > 5.0 )
-    m_vx = 5.0;
-  else if ( m_vx < -5.0 )
-    m_vx = -5.0;
-  if ( m_vy > 5.0 )
-    m_vy = 5.0;
-  else if ( m_vy < -5.0 )
-    m_vy = -5.0;
+  if ( m_swing == 19 ) {
+    Player *opponent;
+    if ( m_side == -1 )
+      opponent = thePlayer;
+    else
+      opponent = comPlayer;
+
+    SetTargetX( opponent );
+  }
+
+  if ( (theBall.GetStatus() == 0 && m_side == -1) ||
+       (theBall.GetStatus() == 1 && m_side == -1) ||
+       (theBall.GetStatus() == 2 && m_side == 1) ||
+       (theBall.GetStatus() == 3 && m_side == 1) ||
+       (theBall.GetStatus() == 4 && m_side == -1) ||
+       (theBall.GetStatus() == 5 && m_side == 1) ) {
+    if ( m_vx > 5.0 )
+      m_vx = 5.0;
+    else if ( m_vx < -5.0 )
+      m_vx = -5.0;
+    if ( m_vy > 5.0 )
+      m_vy = 5.0;
+    else if ( m_vy < -5.0 )
+      m_vy = -5.0;
+  } else {
+    if ( hypot( m_vx, m_vy ) >= 1.5 ) {
+      m_vx /= hypot( m_vx, m_vy )*1.5;
+      m_vy /= hypot( m_vx, m_vy )*1.5;
+    }
+  }
 
   // Toss
   if ( theBall.GetStatus() == 8 &&
@@ -192,14 +210,6 @@ ComPenDrive::Think() {
       _hitX = tmpBallX;
       _hitY = tmpBallY;
 
-      Player *opponent;
-      if ( m_side == -1 )
-	opponent = thePlayer;
-      else
-	opponent = comPlayer;
-
-      SetTargetX( opponent );
-
       if ( (tmpBallZ-TABLEHEIGHT)/fabs(tmpBallY - m_targetY) < 0.0 )
 	m_targetY = TABLELENGTH/4*m_side;
       else if ( (tmpBallZ-TABLEHEIGHT)/fabs(tmpBallY-m_targetY) < 0.1 )
@@ -251,6 +261,9 @@ ComPenDrive::Hitarea( double &hitX, double &hitY ) {
     } else
       hitX = 0.0;
     hitY = -(TABLELENGTH/2+0.2)*m_side;
+  } else if ( theBall.GetStatus() < 6 ) {
+    hitX = 0.0;
+    hitY = -(TABLELENGTH/2+1.0)*m_side;
   }
 
   return true;
