@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-#AC_INIT(ShakeCut.h)
+dnl AC_INIT(ShakeCut.h)
 AC_INIT(csmash, 0.6.4, nan@utmc.or.jp)
 AC_CONFIG_SRCDIR(main.cpp)
 AC_CANONICAL_TARGET
@@ -75,8 +75,8 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 
-# moved to makefile.am
-#AC_DEFINE_UNQUOTED(CANNONSMASH_DATADIR, "@prefix@/share/$PACKAGE/")
+dnl moved to makefile.am
+dnl AC_DEFINE_UNQUOTED(CANNONSMASH_DATADIR, "@prefix@/share/$PACKAGE/")
 
 AC_OUTPUT([makefile \
 	Parts/makefile \
