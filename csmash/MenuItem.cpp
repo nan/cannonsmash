@@ -33,7 +33,8 @@ MenuItem::MenuItem() {
 
 MenuItem::~MenuItem() {
   if ( m_View ){
-    ((TitleView *)m_parent->GetView())->RemoveView( m_View );
+    if ( m_parent )
+      ((TitleView *)m_parent->GetView())->RemoveView( m_View );
     delete m_View;
   }
 }
@@ -51,7 +52,8 @@ MenuItem::Init( long x, long y, long width, long height, char *fileName,
   m_View = new MenuItemView();
   m_View->Init( this, fileName );
 
-  ((TitleView *)m_parent->GetView())->AddView( m_View );
+  if ( m_parent )
+    ((TitleView *)m_parent->GetView())->AddView( m_View );
 
   return true;
 }

@@ -20,6 +20,7 @@
 #define _Opening_
 #include "Control.h"
 #include "OpeningView.h"
+#include "MenuItem.h"
 
 class Opening : public Control {
 public:
@@ -43,6 +44,8 @@ public:
   virtual bool IsPlaying() { return false; };
 
   virtual View *GetView() { return m_View; };
+
+  MenuItem *m_telop[10];
 protected:
   OpeningView *m_View;
   long m_count;

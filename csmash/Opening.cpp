@@ -43,6 +43,7 @@ extern Player* thePlayer;
 extern Player* comPlayer;
 extern Ball theBall;
 extern bool isWireFrame;
+extern bool isSimple;
 
 #define PHRASELENGTH (35.80)
 
@@ -84,8 +85,15 @@ Opening::Init() {
 
   HitMark::Init();
 
+  static char telop[][30] = {"images/ArctanX.ppm" };
+
+  m_telop[0] = new MenuItem();
+  m_telop[0]->Init( 0, 0, 800, 600, &telop[0][0], NULL );
+
+  if ( !isSimple )
+    isWireFrame = false;
+
   theSound.InitBGM( OPENINGFILENAME );
-  isWireFrame = false;
 
   return true;
 }
@@ -514,7 +522,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->StartSwing( 0 );
     }
 
-    if ( phrase == 106 && mod == (int)(PHRASELENGTH-10) ) {	// 打球0.1秒前
+    if ( phrase == 106 && mod == (int)(PHRASELENGTH-9) ) {	// 打球0.1秒前
       comPlayer->Swing( 3 );
       comPlayer->m_pow = 10;
     }
@@ -546,7 +554,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->StartSwing( 0 );
     }
 
-    if ( phrase == 108 && mod == (int)(PHRASELENGTH-10) ) {	// 打球0.1秒前
+    if ( phrase == 108 && mod == (int)(PHRASELENGTH-9) ) {	// 打球0.1秒前
       comPlayer->Swing( 3 );
       comPlayer->m_pow = 10;
     }
@@ -573,7 +581,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->StartSwing( 0 );
     }
 
-    if ( phrase == 110 && mod == (int)(PHRASELENGTH-10) ) {	// 打球0.1秒前
+    if ( phrase == 110 && mod == (int)(PHRASELENGTH-9) ) {	// 打球0.1秒前
       comPlayer->Swing( 3 );
       comPlayer->m_pow = 10;
     }
@@ -605,7 +613,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->StartSwing( 0 );
     }
 
-    if ( phrase == 112 && mod == (int)(PHRASELENGTH-10) ) {	// 打球0.1秒前
+    if ( phrase == 112 && mod == (int)(PHRASELENGTH-9) ) {	// 打球0.1秒前
       comPlayer->Swing( 3 );
       comPlayer->m_pow = 10;
     }
@@ -632,7 +640,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->StartSwing( 0 );
     }
 
-    if ( phrase == 114 && mod == (int)(PHRASELENGTH-10) ) {	// 打球0.1秒前
+    if ( phrase == 114 && mod == (int)(PHRASELENGTH-9) ) {	// 打球0.1秒前
       comPlayer->Swing( 3 );
       comPlayer->m_pow = 10;
     }
@@ -664,7 +672,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->StartSwing( 0 );
     }
 
-    if ( phrase == 116 && mod == (int)(PHRASELENGTH-10) ) {	// 打球0.1秒前
+    if ( phrase == 116 && mod == (int)(PHRASELENGTH-9) ) {	// 打球0.1秒前
       comPlayer->Swing( 3 );
       comPlayer->m_pow = 10;
     }
@@ -691,7 +699,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->StartSwing( 0 );
     }
 
-    if ( phrase == 118 && mod == (int)(PHRASELENGTH-10) ) {	// 打球0.1秒前
+    if ( phrase == 118 && mod == (int)(PHRASELENGTH-9) ) {	// 打球0.1秒前
       comPlayer->Swing( 3 );
       comPlayer->m_pow = 10;
     }
@@ -723,7 +731,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->StartSwing( 0 );
     }
 
-    if ( phrase == 120 && mod == (int)(PHRASELENGTH-10) ) {	// 打球0.1秒前
+    if ( phrase == 120 && mod == (int)(PHRASELENGTH-9) ) {	// 打球0.1秒前
       comPlayer->Swing( 3 );
       comPlayer->m_pow = 10;
     }
@@ -750,7 +758,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->StartSwing( 0 );
     }
 
-    if ( phrase == 122 && mod == (int)(PHRASELENGTH-10) ) {	// 打球0.1秒前
+    if ( phrase == 122 && mod == (int)(PHRASELENGTH-9) ) {	// 打球0.1秒前
       comPlayer->Swing( 3 );
       comPlayer->m_pow = 10;
     }
@@ -782,7 +790,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->StartSwing( 0 );
     }
 
-    if ( phrase == 124 && mod == (int)(PHRASELENGTH-10) ) {	// 打球0.1秒前
+    if ( phrase == 124 && mod == (int)(PHRASELENGTH-9) ) {	// 打球0.1秒前
       comPlayer->Swing( 3 );
       comPlayer->m_pow = 10;
     }
@@ -809,7 +817,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->StartSwing( 0 );
     }
 
-    if ( phrase == 126 && mod == (int)(PHRASELENGTH-10) ) {	// 打球0.1秒前
+    if ( phrase == 126 && mod == (int)(PHRASELENGTH-9) ) {	// 打球0.1秒前
       comPlayer->Swing( 3 );
       comPlayer->m_pow = 10;
     }
@@ -841,7 +849,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->StartSwing( 0 );
     }
 
-    if ( phrase == 128 && mod == (int)(PHRASELENGTH-10) ) {	// 打球0.1秒前
+    if ( phrase == 128 && mod == (int)(PHRASELENGTH-9) ) {	// 打球0.1秒前
       comPlayer->Swing( 3 );
       comPlayer->m_pow = 10;
     }
@@ -868,7 +876,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->StartSwing( 0 );
     }
 
-    if ( phrase == 130 && mod == (int)(PHRASELENGTH-10) ) {	// 打球0.1秒前
+    if ( phrase == 130 && mod == (int)(PHRASELENGTH-9) ) {	// 打球0.1秒前
       comPlayer->Swing( 3 );
       comPlayer->m_pow = 10;
     }
@@ -900,7 +908,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->StartSwing( 0 );
     }
 
-    if ( phrase == 132 && mod == (int)(PHRASELENGTH-10) ) {	// 打球0.1秒前
+    if ( phrase == 132 && mod == (int)(PHRASELENGTH-9) ) {	// 打球0.1秒前
       comPlayer->Swing( 3 );
       comPlayer->m_pow = 10;
     }
@@ -927,7 +935,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->StartSwing( 0 );
     }
 
-    if ( phrase == 134 && mod == (int)(PHRASELENGTH-10) ) {	// 打球0.1秒前
+    if ( phrase == 134 && mod == (int)(PHRASELENGTH-9) ) {	// 打球0.1秒前
       comPlayer->Swing( 3 );
       comPlayer->m_pow = 10;
     }
@@ -1066,7 +1074,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
       comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
     }
-  } else if ( phrase < 292 ) {	// デモ
+  } else if ( phrase < 350 ) {	// デモ
     if ( phrase == 232 && mod == 0 ) {
       delete thePlayer;
       delete comPlayer;
@@ -1090,6 +1098,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     thePlayer->m_targetY = TABLELENGTH/12*5;
     comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
     comPlayer->m_targetY = -TABLELENGTH/12*5;
+#if 0
   } else if ( phrase < 304 ) {	// 高速ラリー
     if ( phrase == 292 && mod == 0 ) {
       delete thePlayer;
@@ -1106,74 +1115,102 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
       theBall.m_status = 8;
       thePlayer->m_targetX = -0.3;
-      thePlayer->m_targetY = TABLELENGTH/16*7;
+      thePlayer->m_targetY = TABLELENGTH/2-0.7;
       comPlayer->m_targetX = 0.3;
-      comPlayer->m_targetY = -TABLELENGTH/16*7;
+      comPlayer->m_targetY = -TABLELENGTH/2+0.7;
     }
+    thePlayer->m_y = -TABLELENGTH/2-0.5;
+    comPlayer->m_y = TABLELENGTH/2+0.5;
 
     if ( phrase == 292 && mod == 10 ) { // 到達時刻が phrase=296 になるよう調整
       theBall.Toss( thePlayer, 3 );
       thePlayer->StartSwing(0);
     }
 
-    if ( phrase == 295 && mod == PHRASELENGTH-10 ) {
+    if ( phrase == 295 && mod == (int)(PHRASELENGTH-20) ) {
+      comPlayer->StartSwing(0);
+    }
+    if ( phrase == 295 && mod == (int)(PHRASELENGTH-10) ) {
       comPlayer->Swing(3);
     }
-    if ( phrase == 296 && mod == PHRASELENGTH/2-10 ) {
+
+    if ( phrase >= 296 && phrase <= 303 && mod == 0 && (phrase%2) == 0 ) {
+      printf( "%f %f %f %f %f %f %d\n", theBall.GetX(), theBall.GetY(), theBall.GetZ(), theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(), theBall.GetStatus() );
+      double vx, vy, vz;
+      theBall.m_y = comPlayer->m_y;
+      theBall.TargetToV( comPlayer->m_targetX, comPlayer->m_targetY,
+			 1.0, 0.0, vx, vy, vz, 0.1, 10.0 );
+      theBall.Warp( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
+		    vx, vy, vz, theBall.GetSpin(), theBall.GetStatus() );
+    }
+    if ( phrase >= 296 && phrase <= 303 && mod == 0 && (phrase%2) == 1 ) {
+      printf( "%f %f %f %f %f %f %d\n", theBall.GetX(), theBall.GetY(), theBall.GetZ(), theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(), theBall.GetStatus() );
+      double vx, vy, vz;
+      theBall.m_y = thePlayer->m_y;
+      theBall.TargetToV( comPlayer->m_targetX, comPlayer->m_targetY,
+			 1.0, 0.0, vx, vy, vz, 0.1, 10.0 );
+      theBall.Warp( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
+		    vx, vy, vz, theBall.GetSpin(), theBall.GetStatus() );
+    }
+
+    if ( phrase == 296 && mod == (int)(PHRASELENGTH-20) ) {
+      thePlayer->StartSwing(0);
+    }
+    if ( phrase == 296 && mod == (int)(PHRASELENGTH-10) ) {
       thePlayer->Swing(3);
     }
-    if ( phrase == 296 && mod == PHRASELENGTH-10 ) {
-      comPlayer->Swing(3);
+
+    if ( phrase == 297 && mod == (int)(PHRASELENGTH-20) ) {
+      comPlayer->StartSwing(0);
     }
-    if ( phrase == 297 && mod == PHRASELENGTH/2-10 ) {
-      thePlayer->m_targetX = 0.3;
-      thePlayer->Swing(3);
-    }
-    if ( phrase == 297 && mod == PHRASELENGTH-10 ) {
+    if ( phrase == 297 && mod == (int)(PHRASELENGTH-10) ) {
       comPlayer->m_targetX = -0.3;
-      comPlayer->Swing(0);
-    }
-    if ( phrase == 298 && mod == PHRASELENGTH/2-10 ) {
-      thePlayer->m_targetX = -0.3;
-      thePlayer->Swing(0);
-    }
-    if ( phrase == 298 && mod == PHRASELENGTH-10 ) {
       comPlayer->Swing(3);
     }
-    if ( phrase == 299 && mod == PHRASELENGTH/2-10 ) {
+
+    if ( phrase == 298 && mod == (int)(PHRASELENGTH-20) ) {
+      thePlayer->StartSwing(0);
+    }
+    if ( phrase == 298 && mod == (int)(PHRASELENGTH-10) ) {
       thePlayer->Swing(0);
     }
-    if ( phrase == 299 && mod == PHRASELENGTH-10 ) {
+
+    if ( phrase == 299 && mod == (int)(PHRASELENGTH-20) ) {
+      comPlayer->StartSwing(0);
+    }
+    if ( phrase == 299 && mod == (int)(PHRASELENGTH-10) ) {
       comPlayer->m_targetX = 0.3;
       comPlayer->Swing(3);
     }
-    if ( phrase == 300 && mod == PHRASELENGTH/2-10 ) {
+
+    if ( phrase == 300 && mod == (int)(PHRASELENGTH-20) ) {
+      thePlayer->StartSwing(0);
+    }
+    if ( phrase == 300 && mod == (int)(PHRASELENGTH-10) ) {
       thePlayer->m_targetX = 0.3;
       thePlayer->Swing(3);
     }
-    if ( phrase == 300 && mod == PHRASELENGTH-10 ) {
-      comPlayer->m_targetX = -0.3;
+
+    if ( phrase == 301 && mod == (int)(PHRASELENGTH-20) ) {
+      comPlayer->StartSwing(0);
+    }
+    if ( phrase == 301 && mod == (int)(PHRASELENGTH-10) ) {
       comPlayer->Swing(0);
     }
-    if ( phrase == 301 && mod == PHRASELENGTH/2-10 ) {
-      thePlayer->Swing(0);
+
+    if ( phrase == 302 && mod == (int)(PHRASELENGTH-20) ) {
+      thePlayer->StartSwing(0);
     }
-    if ( phrase == 301 && mod == PHRASELENGTH-10 ) {
-      comPlayer->Swing(0);
-    }
-    if ( phrase == 302 && mod == PHRASELENGTH/2-10 ) {
-      thePlayer->Swing(0);
-    }
-    if ( phrase == 302 && mod == PHRASELENGTH-10 ) {
-      comPlayer->m_targetX = 0.3;
-      comPlayer->Swing(0);
-    }
-    if ( phrase == 303 && mod == PHRASELENGTH/2-10 ) {
-      thePlayer->m_targetX = -0.3;
+    if ( phrase == 302 && mod == (int)(PHRASELENGTH-10) ) {
+      thePlayer->m_targetX = 0.3;
       thePlayer->Swing(3);
     }
-    if ( phrase == 303 && mod == PHRASELENGTH-10 ) {
-      comPlayer->Swing(3);
+
+    if ( phrase == 303 && mod == (int)(PHRASELENGTH-20) ) {
+      comPlayer->StartSwing(0);
+    }
+    if ( phrase == 303 && mod == (int)(PHRASELENGTH-10) ) {
+      comPlayer->Swing(0);
     }
 
     theBall.Move();
@@ -1191,15 +1228,20 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
     }
   }
+#else
+  }
+#endif
 
   if ( m_count == 0 )
     theSound.PlayBGM();
 
   m_count++;
 
-  if ( KeyHistory[Histptr] == SDLK_ESCAPE || MouseBHistory[Histptr] ) {
+  if ( KeyHistory[Histptr] == SDLK_ESCAPE || MouseBHistory[Histptr] 
+       || phrase > 350 ) {
     mode = MODE_TITLE;
-    isWireFrame = true;
+    if ( !isSimple )
+      isWireFrame = true;
     theSound.StopBGM();
   }
 

@@ -19,6 +19,7 @@
 #ifndef _OpeningView_
 #define _OpeningView_
 #include "View.h"
+#include "MenuItemView.h"
 
 class Opening;
 

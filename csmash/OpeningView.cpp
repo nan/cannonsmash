@@ -81,6 +81,9 @@ OpeningView::Redraw() {
   thePlayer->m_View->Redraw();
   comPlayer->m_View->Redraw();
 
+  if ( phrase >= 200 && phrase < 232 )
+    m_opening->m_telop[0]->GetView()->Redraw();
+
   return true;
 }
 
@@ -88,6 +91,13 @@ bool
 OpeningView::RedrawAlpha() {
   thePlayer->m_View->RedrawAlpha();
   comPlayer->m_View->RedrawAlpha();
+
+  long phrase, mod;
+
+  m_opening->GetPhrase( phrase, mod );
+
+  if ( phrase >= 200 && phrase < 232 )
+    m_opening->m_telop[0]->GetView()->RedrawAlpha();
 
   return true;
 }

@@ -36,6 +36,7 @@ public:
   long GetWidth() { return m_width; }
   long GetHeight() { return m_height; }
   bool SetSelected( bool select );
+  MenuItemView *GetView() { return m_View; }
 
 protected:
   MenuItemView *m_View;
