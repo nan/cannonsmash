@@ -11,7 +11,7 @@ AM_GNU_GETTEXT([external])
 AC_CHECK_FUNCS(bind_textdomain_codeset)
 
 dnl this must be defined before AM_GNU_GETTEXT
-ALL_LINGUAS="de ja"
+ALL_LINGUAS="de fr ja"
 
 dnl Checks for programs.
 AC_PROG_CXX

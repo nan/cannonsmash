@@ -1,0 +1,248 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR KANNA Yoshihiro
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Cannon Smash 0.6.5\n"
+"POT-Creation-Date: 2003-01-29 02:41+0900\n"
+"PO-Revision-Date: 2003-01-30 02:00+0900\n"
+"Last-Translator: Lucien SAVIOT <carlu@free.fr>\n"
+"Language-Team: <>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-15\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: BaseView.cpp:81
+msgid "CannonSmash"
+msgstr "CannonSmash"
+
+#: BaseView.cpp:389
+#, c-format
+msgid "EndGame %d : %d\n"
+msgstr "Fin du jeu: %d : %d\n"
+
+#: BaseView.cpp:396 BaseView.cpp:398 MenuItemView.cpp:41
+#: PlayerSelectView.cpp:72
+#, c-format
+msgid "%s.pbm"
+msgstr "%s.fr.pbm"
+
+#: Event.cpp:434
+#, c-format
+msgid "Toggled fullscreen mode - now %s\n"
+msgstr "Activer le mode plein écran - maintenant: %s\n"
+
+#: Event.cpp:435
+msgid "fullscreen"
+msgstr "plein écran"
+
+#: Event.cpp:435
+msgid "windowed"
+msgstr "fenêtré"
+
+#: Event.cpp:437
+msgid "Unable to toggle fullscreen mode\n"
+msgstr "Impossible de passer en plein écran\n"
+
+#: Event.cpp:806
+#, c-format
+msgid "Avg = %f\n"
+msgstr "Moyenne = %f\n"
+
+#: Event.cpp:807
+#, c-format
+msgid "BackTrack = %f\n"
+msgstr "BackTrack = %f\n"
+
+#: FieldView.cpp:82
+#, c-format
+msgid "%s.ppm"
+msgstr "%s.fr.ppm"
+
+#: LauncherView.cpp:68
+msgid "FullScreen"
+msgstr "Plein écran"
+
+#: LauncherView.cpp:73 LauncherView.cpp:169
+msgid "On"
+msgstr "Oui"
+
+#: LauncherView.cpp:84 LauncherView.cpp:180
+msgid "Off"
+msgstr "Non"
+
+#: LauncherView.cpp:108
+msgid "Graphics"
+msgstr "Graphiques"
+
+#: LauncherView.cpp:122 LauncherView.cpp:124
+msgid "Simple"
+msgstr "Simples"
+
+#: LauncherView.cpp:134
+msgid "Normal"
+msgstr "Normaux"
+
+#: LauncherView.cpp:164
+msgid "Sound"
+msgstr "Son"
+
+#: LauncherView.cpp:313
+msgid "Solo"
+msgstr "Solitaire"
+
+#: LauncherView.cpp:318
+msgid "LAN"
+msgstr "Réseau local"
+
+#: LauncherView.cpp:323
+msgid "Internet(Experimental)"
+msgstr "Internet (expérimental)"
+
+#: LauncherView.cpp:338 LauncherView.cpp:403
+msgid "Game Start!"
+msgstr "Démarrage du jeu!"
+
+#: LauncherView.cpp:364
+msgid "Server"
+msgstr "Serveur"
+
+#: LauncherView.cpp:368
+msgid "Client"
+msgstr "Client"
+
+#: LauncherView.cpp:382
+msgid "Server name:"
+msgstr "Nom du serveur:"
+
+#: LauncherView.cpp:425
+msgid "Nickname:"
+msgstr "Surnom:"
+
+#: LauncherView.cpp:435
+msgid "Message:"
+msgstr "Message:"
+
+#: LauncherView.cpp:448
+msgid "Connect to Lobby Server"
+msgstr "Connection au serveur Lobby"
+
+#: LauncherView.cpp:534 LobbyClientView.cpp:77 LobbyClientView.cpp:390
+msgid "Cannon Smash"
+msgstr "Cannon Smash"
+
+#: LauncherView.cpp:551
+msgid "Quit"
+msgstr "Quitter"
+
+#: LauncherView.cpp:597
+msgid "Connection failed"
+msgstr "Echec de la connection"
+
+#: LobbyClientView.cpp:67
+msgid "English"
+msgstr "Anglais"
+
+#: LobbyClientView.cpp:67
+msgid "Japanese"
+msgstr "Japonais"
+
+#: LobbyClientView.cpp:68
+msgid "Germany"
+msgstr "Allemand"
+
+#: LobbyClientView.cpp:68
+msgid "Korean"
+msgstr "Coréen"
+
+#: LobbyClientView.cpp:93
+msgid "Nickname"
+msgstr "Surnom"
+
+#: LobbyClientView.cpp:93
+msgid "Message"
+msgstr "Message"
+
+#: LobbyClientView.cpp:167
+msgid "connect"
+msgstr "connection"
+
+#: LobbyClientView.cpp:175
+msgid "warm up"
+msgstr "échauffement"
+
+#: LobbyClientView.cpp:182
+msgid "close"
+msgstr "fermeture"
+
+#: LobbyClientView.cpp:324
+#, c-format
+msgid ""
+"Latest Version %s is already released. \n"
+"Please download the latest version from \n"
+"%s\n"
+msgstr "La version %s est disponible. \n"
+"SVP, téléchargez-la depuis \n"
+"%s\n"
+
+#: LobbyClientView.cpp:399
+#, c-format
+msgid "\"%s\" (message: %s)want to play with you. OK?\n"
+msgstr "\"%s\" (message: %s) veut jouer avec vous. D'accord?\n"
+
+#: LobbyClientView.cpp:414
+msgid "OK!"
+msgstr "D'accord!"
+
+#: LobbyClientView.cpp:425
+msgid "No!"
+msgstr "Non!"
+
+#: main.cpp:104 main.cpp:119
+msgid "No datafile directory.\n"
+msgstr "Répertoire de données absent.\n"
+
+#: main.cpp:276 main.cpp:281 main.cpp:287
+msgid "SDL initialize failed\n"
+msgstr "Echec de l'initialisation de SDL.\n"
+
+#: parts.cpp:173
+#, c-format
+msgid "%s:%d vertex buffer overflow\n"
+msgstr "%s:%d débordement du tampon de vertex\n"
+
+#: parts.cpp:195
+#, c-format
+msgid "%s:%d loop buffer overflow\n"
+msgstr "%s:%d débordement du tampon de boucles\n"
+
+#: parts.cpp:470
+#, c-format
+msgid "%s:%d matrix buffer overflow\n"
+msgstr "%s:%d débordement du tampon de matrices\n"
+
+#: Player.cpp:269
+#, c-format
+msgid "no player %ld\n"
+msgstr "Pas de joueur %ld\n"
+
+#: PlayGame.cpp:150
+#, c-format
+msgid "You : %d -  %d : Opponent\n"
+msgstr "Vous : %d -  %d : Adversaire\n"
+
+#: RCFile.cpp:159
+msgid "No home directory.\n"
+msgstr "Répertoire personnel absent.\n"
+
+#: RCFile.cpp:179
+#, c-format
+msgid "Cannot open rc file %s.\n"
+msgstr "Impossible d'ouvrir %s.\n"
+
+#: Sound.cpp:85
+msgid "SDL Mix_OpenAudio failed\n"
+msgstr "Echec de SDL Mix_OpenAudio\n"

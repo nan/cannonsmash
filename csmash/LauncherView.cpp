@@ -161,12 +161,12 @@ LauncherHeader::SoundFrame() {
   GtkWidget *button;
   GSList *list;
 
-  frame = gtk_frame_new( "Sound" );
+  frame = gtk_frame_new( _("Sound") );
 
   box = gtk_hbox_new( FALSE, 10 );
   gtk_container_border_width (GTK_CONTAINER (box), 5);
 
-  button = gtk_radio_button_new_with_label ((GSList *)NULL, "On");
+  button = gtk_radio_button_new_with_label ((GSList *)NULL, _("On"));
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(button) );
   gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
   if (theRC->sndMode == SOUND_SDL)
@@ -177,7 +177,7 @@ LauncherHeader::SoundFrame() {
 		      GTK_SIGNAL_FUNC (LauncherHeader::ToggleSound),
 		      &theRC->sndMode);
 
-  button = gtk_radio_button_new_with_label (list, "Off");
+  button = gtk_radio_button_new_with_label (list, _("Off"));
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(button) );
   gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
   if (theRC->sndMode == SOUND_NONE)

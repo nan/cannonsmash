@@ -239,7 +239,9 @@ int main(int argc, char** argv) {
   EndianCheck();
 
   loadMutex = SDL_CreateMutex();
-  SDL_CreateThread( LoadData, NULL );
+  /* Threading will be disabled until locale becomes thread-safe. */
+  //SDL_CreateThread( LoadData, NULL );
+  LoadData(NULL);
 
   if ( mode == MODE_OPENING ) {
     theRC->ReadRCFile();
