@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of LobbyClientView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2001-2003  神南 吉宏(Kanna Yoshihiro)
 //
@@ -24,6 +29,9 @@
 
 class LobbyClient;
 
+/**
+ * LobbyClientView class is a view class for lobby client dialog. 
+ */
 class LobbyClientView {
 public:
   LobbyClientView();
@@ -44,7 +52,6 @@ protected:
 				  gboolean path_currently_selected,
 				  gpointer data);
 
-  static void Connect( GtkWidget *widget, gpointer data );
   static void WarmUp( GtkWidget *widget, gpointer data );
   static gboolean KeyPress( GtkWidget *widget, GdkEventKey *event, gpointer data );
   static void SwitchChatPage( GtkNotebook *notebook, GtkNotebookPage *page,
@@ -56,24 +63,27 @@ protected:
 					  WPARAM wparam, LPARAM lparam);
 #endif
 
-  guint m_timeout;
-  guint m_idle;
+  guint m_timeout;		///< wait timer handler for lobby server message
+  guint m_idle;			///< idle callback handler
 
-  gint  m_chatChannel;
-  int   m_langID[2];
+  gint  m_chatChannel;		///< current chat channel ID
+  int   m_langID[2];		///< language ID of each chat channel
 
-  LobbyClient *m_parent;
+  LobbyClient *m_parent;	///< reference to LobbyClient object
 
-  GtkWidget *m_window;
-  GtkWidget *m_table;
-  GtkWidget *m_chat[2];
-  GtkWidget *m_chatinput;
-  GtkWidget *m_connectButton;
-  GtkWidget *m_warmUpButton;
+  GtkWidget *m_window;		///< lobby client dialog
+  GtkWidget *m_table;		///< table view of members connecting to the lobby server
+  GtkWidget *m_chat[2];		///< text view of each chat message
+  GtkWidget *m_chatinput;	///< edit control to input chat message
+  GtkWidget *m_connectButton;	///< "connect" button
+  GtkWidget *m_warmUpButton;	///< "warm up" button
 
-  long m_selected;		// Selected row of the table
+  long m_selected;		///< Selected row of the table
 };
 
+/**
+ * PIDialog is opened when a opponent wants to play with this player. 
+ */
 class PIDialog {
 public:
   PIDialog();
@@ -82,10 +92,10 @@ public:
 
   void PopupDialog( long uniqID );
 
-  GtkWidget *m_window;
-  LobbyClient *m_parent;
+  GtkWidget *m_window;		///< PIDialog window. 
+  LobbyClient *m_parent;	///< LobbyClient object. 
 
-  long m_uniqID;
+  long m_uniqID;		///< player ID of the player who wants to play with this player
 
   static void PIOK( GtkWidget *widget, gpointer data );
   static void PINo( GtkWidget *widget, gpointer data );

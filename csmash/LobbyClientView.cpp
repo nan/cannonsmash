@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of LobbyClientView and related class. 
+ * @author KANNA Yoshihiro
+ * $Id$
+ */
 
 // Copyright (C) 2001-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
@@ -44,7 +49,14 @@ LONG pParentWndProc;
 HWND pChildHWnd;
 LobbyClientView *theLobbyClientView;
 
-// Copyed from gdkim-win32.c of GTK+-2.2. 
+/**
+ * Convert ucs2 to utf8. 
+ * This method is copied from gdkim-win32.c of GTK+-2.2. Take care. 
+ * 
+ * @param src  string to be converted
+ * @param src_len length of the src string
+ * @return returns the converted string. 
+ */
 gchar *
 _gdk_ucs2_to_utf8 (const wchar_t *src,
 		   gint           src_len)
@@ -108,6 +120,17 @@ _gdk_ucs2_to_utf8 (const wchar_t *src,
 }
 
 
+/**
+ * Callback function for edit control. 
+ * This callback handles WM_CHAR message of "Enter" key. At that time, this
+ * callback sets the contents of the control to m_chatinput. 
+ * Other messages are handled by default callback. 
+ * 
+ * @param hwnd window handler. 
+ * @param msg message ID
+ * @param wparam wparam of the message
+ * @param lparam lparam of the message
+ */
 LRESULT CALLBACK
 LobbyClientView::EditWindowProc( HWND hwnd, UINT msg,
 				 WPARAM wparam, LPARAM lparam) {
@@ -141,6 +164,15 @@ LobbyClientView::EditWindowProc( HWND hwnd, UINT msg,
   return CallWindowProc((WNDPROC)pEditWndProc,hwnd,msg,wparam,lparam);
 }
 
+/**
+ * Callback function for parent window of edit control. 
+ * This callback handles WM_SIZE message. 
+ * 
+ * @param hwnd window handler. 
+ * @param msg message ID
+ * @param wparam wparam of the message
+ * @param lparam lparam of the message
+ */
 LRESULT CALLBACK
 ParentWindowProc(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam) {
   if ( msg == WM_SIZE ) {
@@ -152,6 +184,12 @@ ParentWindowProc(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam) {
 }
 #endif
 
+/**
+ * Get current time as string. 
+ * This method returns the current local time in "HH:MM:SS" format. 
+ * 
+ * @param buf buffer of which current time is stored. The length of the buffer must be greater than 32. 
+ */
 void
 getcurrenttimestr( char *buf ) {
   struct tm *ltime;
@@ -163,12 +201,20 @@ getcurrenttimestr( char *buf ) {
   strftime( buf, 32, "%H:%M:%S ", ltime );
 }  
 
+
+/**
+ * Default constructor. 
+ * Initialize member variables as 0. 
+ */
 LobbyClientView::LobbyClientView() {
   m_timeout = 0;
   m_idle = 0;
   m_chatChannel = 0;
 }
 
+/**
+ * Destructor. 
+ */
 LobbyClientView::~LobbyClientView() {
   if ( m_timeout > 0 )
     gtk_timeout_remove( m_timeout );
@@ -176,6 +222,12 @@ LobbyClientView::~LobbyClientView() {
     gtk_idle_remove( m_idle );
 }
 
+/**
+ * Initializer method. 
+ * This method creates dialog and set up widgets. 
+ * 
+ * @param lobby LobbyClient object. 
+ */
 void
 LobbyClientView::Init( LobbyClient *lobby ) {
   int i;
@@ -342,6 +394,11 @@ LobbyClientView::Init( LobbyClient *lobby ) {
   gtk_widget_show_all(m_window);                     
 }
 
+/**
+ * Update the list of connected members. 
+ * This method is called when a player enters or leaves lobby server. 
+ * This method updates the list of members in lobby server. 
+ */
 void
 LobbyClientView::UpdateTable() {
   GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(m_table));
@@ -387,6 +444,18 @@ LobbyClientView::UpdateTable() {
     m_parent->m_selected = -1;    
 }
 
+/**
+ * This is a callback method of list control. 
+ * This method is called when a row of player list is selected. 
+ * This method checks whether the selected row can be selected or not. 
+ * 
+ * @param selection not used. 
+ * @param model not used. 
+ * @param path path (row number) of the selected item. 
+ * @param path_currently_selected not used. 
+ * @param data pointer to LobbyClientView. 
+ * @return returns true if the selected row can be selected. 
+ */
 gboolean
 LobbyClientView::checkSelection( GtkTreeSelection *selection,
 				 GtkTreeModel *model,
@@ -411,6 +480,15 @@ LobbyClientView::checkSelection( GtkTreeSelection *selection,
   }
 }
 
+/**
+ * Callback method for "Warm up" button. 
+ * This method is called when "Warm up" button is clicked. 
+ * This method starts solo play. If an opponent send a message to this player, 
+ * the solo play quits. 
+ * 
+ * @param widget not used. 
+ * @param data pointer to LobbyClientView. 
+ */
 void
 LobbyClientView::WarmUp( GtkWidget *widget, gpointer data ) {
   LobbyClientView *lobby = (LobbyClientView *)data;
@@ -421,6 +499,16 @@ LobbyClientView::WarmUp( GtkWidget *widget, gpointer data ) {
   lobby->m_idle = gtk_idle_add( LobbyClientView::IdleFunc, data );
 }
 
+/**
+ * Callback method for key press event in edit control for chat. 
+ * This method is called when the game player  press a key in edit control
+ * for chat. If "Enter" key is pressed, this method sends the chat message
+ * to the lobby server. 
+ * 
+ * @param widget not used. 
+ * @param event key press event object. 
+ * @param data pointer to LobbyClientView object. 
+ */
 gboolean
 LobbyClientView::KeyPress( GtkWidget *widget,
 			   GdkEventKey *event,
@@ -463,6 +551,16 @@ LobbyClientView::KeyPress( GtkWidget *widget,
   return FALSE;
 }
 
+/**
+ * Callback method for chat channel tab. 
+ * This method is called when the player push tab of chat channel. 
+ * This method changes the current chat channel. 
+ * 
+ * @param notebook not used. 
+ * @param page not used. 
+ * @param page_num page number of selected tab. 
+ * @param data pointer to LobbyClientView object. 
+ */
 void
 LobbyClientView::SwitchChatPage( GtkNotebook *notebook,
 				 GtkNotebookPage *page,
@@ -473,7 +571,14 @@ LobbyClientView::SwitchChatPage( GtkNotebook *notebook,
   lobby->m_chatChannel = page_num;
 }
 
-
+/**
+ * Idle callback. 
+ * This method is called when GTK is idle. 
+ * This method is for warm-up mode. 
+ * 
+ * @param data not used. 
+ * @return returns 0 if warm up is finished. Otherwise returns 1. 
+ */
 gint
 LobbyClientView::IdleFunc( gpointer data ) {
   if ( !PollEvent() ) {
@@ -484,6 +589,14 @@ LobbyClientView::IdleFunc( gpointer data ) {
   return 1;
 }
 
+/**
+ * Callback method for "close" button. 
+ * This method closes lobby client dialog and send quit message to 
+ * lobby server. 
+ * 
+ * @param widget not used. 
+ * @param data pointer to LobbyClientView object. 
+ */
 void
 LobbyClientView::Quit( GtkWidget *widget, gpointer data ) {
   LobbyClientView *lobby = (LobbyClientView *)data;
@@ -496,6 +609,11 @@ LobbyClientView::Quit( GtkWidget *widget, gpointer data ) {
   delete lobby->m_parent;
 }
 
+/**
+ * Make buttons enable or disable. 
+ * 
+ * @param sensitive if this parameter is true, buttons are enabled. Otherwide they are disabled. 
+ */
 void
 LobbyClientView::SetSensitive( bool sensitive ) {
   gtk_widget_set_sensitive (m_connectButton, sensitive);
@@ -503,6 +621,14 @@ LobbyClientView::SetSensitive( bool sensitive ) {
   gtk_widget_set_sensitive (m_table, sensitive);
 }
 
+/**
+ * Show update recommendation dialog. 
+ * This method is called when the current client is not the latest version. 
+ * This method shows a dialog saying that the player should update the client. 
+ * 
+ * @param version latest version number
+ * @param URL download URL of the latest version. 
+ */
 void
 LobbyClientView::ShowUpdateDialog( char *version, char *URL ) {
   GtkWidget *dialog = gtk_dialog_new();
@@ -531,6 +657,13 @@ LobbyClientView::ShowUpdateDialog( char *version, char *URL ) {
   gtk_widget_show_all(dialog);
 }
 
+/**
+ * Add incoming chat message to chat window. 
+ * This method adds incoming message to chat window of specified channel. 
+ * 
+ * @param channelID channel ID of the chat message. 
+ * @param message chat message string. 
+ */
 void
 LobbyClientView::AddChatMessage( long channelID, char *message ) {
   char buf[32];
@@ -564,16 +697,36 @@ LobbyClientView::AddChatMessage( long channelID, char *message ) {
   gtk_adjustment_set_value(adj, adj->upper-adj->page_size);
 }
 
+
+/**
+ * Default constructor. 
+ * Do nothing. 
+ */
 PIDialog::PIDialog() {
 }
 
+/**
+ * Constructor. 
+ * 
+ * @param parent parent LobbyClient object. 
+ */
 PIDialog::PIDialog( LobbyClient *parent ) {
   m_parent = parent;
 }
 
+/**
+ * Destructor. 
+ */
 PIDialog::~PIDialog() {
 }
 
+/**
+ * Show popup dialog showing that a opponent wants to play with the player. 
+ * This method is called when a opponent sends a message to play with the 
+ * player. 
+ * 
+ * @param uniqID ID of the opponent player. 
+ */
 void
 PIDialog::PopupDialog( long uniqID ) {
   GtkWidget *label, *button;
@@ -627,6 +780,15 @@ PIDialog::PopupDialog( long uniqID ) {
   gtk_widget_show_all(m_window);
 }
 
+/**
+ * Callback method of "OK" button of the popup dialog. 
+ * This method sends message of accepting to play with the opponent. 
+ * If the opponent cannot be the server, the client starts the game in server
+ * mode. Otherwise the game is started in client mode. 
+ * 
+ * @param widget not used. 
+ * @param data pointer of popup dialog object. 
+ */
 void
 PIDialog::PIOK( GtkWidget *widget, gpointer data ) {
   PIDialog *piDialog = (PIDialog *)data;
@@ -653,6 +815,13 @@ PIDialog::PIOK( GtkWidget *widget, gpointer data ) {
   piDialog->m_parent->SendQP();
 }
 
+/**
+ * Callback method of "No" button of the popup dialog. 
+ * This method sends message of denying to play with the opponent. 
+ * 
+ * @param widget not used. 
+ * @param data pointer of popup dialog object. 
+ */
 void
 PIDialog::PINo( GtkWidget *widget, gpointer data ) {
   PIDialog *piDialog = (PIDialog *)data;

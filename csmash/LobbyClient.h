@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of LobbyClient class. 
+ * @author KANNA Yoshihiro
+ * $Id$
+ */
 
 // Copyright (C) 2001-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
@@ -203,19 +208,23 @@ static struct {
   { "", "", -1 }
 };
 
+/**
+ * LobbyClient class manages the lobby client, which connects to lobby server
+ * for the internet play. 
+ */
 class LobbyClient {
 public:
   ~LobbyClient();
 
   // A sort of singleton
   static LobbyClient* Create();
-  static LobbyClient* TheLobbyClient() { return m_lobbyClient; };
+  static LobbyClient* TheLobbyClient() { return m_lobbyClient; }	///< SIngleton getter method. 
 
   bool Init( char *nickname, char *message );
 
-  int GetSocket() { return m_socket; };
-  PlayerInfo *GetPlayerInfo() { return m_player; };
-  long GetPlayerNum() { return m_playerNum; };
+  int GetSocket() { return m_socket; }			///< Getter method of socket for connecting to lobby server. 
+  PlayerInfo *GetPlayerInfo() { return m_player; }	///< Getter method of PlayerInfo object. 
+  long GetPlayerNum() { return m_playerNum; }		///< Getter method of the number of players
 
   static gint PollServerMessage( gpointer data );
   static void Connect( GtkWidget *widget, gpointer data );
@@ -228,47 +237,55 @@ public:
   void SendSC( int score1, int score2 );
   void SendMS( char *message, long channel );
 
-  long m_playerNum;
-  PlayerInfo *m_player;
+  long m_playerNum;		///< Number of players in lobby server
+  PlayerInfo *m_player;		///< List of PlayerInfo objects
 
-  long m_selected;		// Selected row of the table
+  long m_selected;		///< Selected row of the table
 
-  char m_nickname[32];
+  char m_nickname[32];		///< nickname
 
+  /**
+   * Getter method of language code
+   */
   long GetLang() { return m_lang; };
 
+  /**
+   * Check whether this client can be server or not. 
+   */
   bool GetCanBeServer() { return m_canBeServer; };
 protected:
   void ReadUI();
-  void UpdateTable();
 
   void ReadPI();
   void ReadOI();
   void ReadOV();
   void ReadMS();
 
-  LobbyClientView *m_view;
+  LobbyClientView *m_view;	///< Reference to LobbyClientView object
 
-  int m_socket;
-  bool m_canBeServer;
+  int m_socket;			///< Socket for connecting to the lobby server
+  bool m_canBeServer;		///< Whether this client can be server or not
 
-  long m_lang;
+  long m_lang;			///< Language code
 
 private:
   LobbyClient();
-  static LobbyClient *m_lobbyClient;
+  static LobbyClient *m_lobbyClient;	///< LobbyClient singleton
 };
 
+/**
+ * PlayerInfo class represents each player connecting to the lobby server. 
+ */
 class PlayerInfo {
 public:
   PlayerInfo();
   ~PlayerInfo();
 
-  bool m_canBeServer;
-  bool m_playing;
-  long m_ID;
-  char m_nickname[32];
-  char m_message[64];
+  bool m_canBeServer;		///< Whether this client can be server or not
+  bool m_playing;		///< Whether this client is now playing or not
+  long m_ID;			///< Client ID
+  char m_nickname[32];		///< nickname
+  char m_message[64];		///< join message
 };
 
 #endif // _LobbyClient_

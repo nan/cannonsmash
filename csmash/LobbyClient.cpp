@@ -1,20 +1,25 @@
-/* $Id$ */
-
-// Copyright (C) 2001-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+/**
+ * @file
+ * @brief Implementation of LobbyClient class. 
+ * @author KANNA Yoshihiro
+ * $Id$
+ * 
+ * Copyright (C) 2001-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #include "ttinc.h"
 #include "LobbyClient.h"
@@ -44,24 +49,48 @@ long score2 = 0;
 
 LobbyClient* LobbyClient::m_lobbyClient = NULL;
 
+/**
+ * Default constructor. 
+ * Initialize member variables. 
+ */
 LobbyClient::LobbyClient() {
   m_playerNum = 0;
   m_canBeServer = false;
   m_selected = -1;
 }
 
+/**
+ * Destructor. 
+ */
 LobbyClient::~LobbyClient() {
   if ( m_view )
     delete m_view;
   m_lobbyClient = NULL;
 }
 
+/**
+ * Create method of LobbyClient. 
+ * Since the constructor is private method, this method is the only method
+ * to create LobbyClient. This method creates new LobbyClient and set it to
+ * m_lobbyClient, the singleton holder. 
+ * 
+ * @return Created LobbyClient object. 
+ */
 LobbyClient*
 LobbyClient::Create() {
   m_lobbyClient = new LobbyClient();
   return m_lobbyClient;
 }
 
+/**
+ * Initializer method. 
+ * This method opens socket for listening, get language code, and connects
+ * to lobby server. 
+ * 
+ * @param nick nickname in lobby server
+ * @param message join message
+ * @return returns true if succeeds. 
+ */
 bool
 LobbyClient::Init( char *nick, char *message ) {
   char buf[1024];
@@ -193,6 +222,13 @@ LobbyClient::Init( char *nick, char *message ) {
   return true;
 }
 
+/**
+ * Check messages from lobby server. 
+ * This method is periodically called by GTK. 
+ * 
+ * @param data pointer to LobbyClient object. 
+ * @return returns 1 if succeeds. 
+ */
 gint
 LobbyClient::PollServerMessage( gpointer data ) {
   LobbyClient *lobby = (LobbyClient *)data;
@@ -286,6 +322,13 @@ LobbyClient::PollServerMessage( gpointer data ) {
   }
 }
 
+/**
+ * Connect to server player. 
+ * This method sends message to lobby server to get oppnent server information.
+ * 
+ * @param widget "connect" button widget. 
+ * @param data pointer to LobbyClient object. 
+ */
 void
 LobbyClient::Connect( GtkWidget *widget, gpointer data ) {
   LobbyClient *lobby = (LobbyClient *)data;
@@ -306,6 +349,11 @@ LobbyClient::Connect( GtkWidget *widget, gpointer data ) {
   //printf( "%d\n", lobby->m_selected );
 }
 
+/**
+ * Get user information from the lobby server. 
+ * This method reads message from the lobby server. Thw message shows the
+ * number of players connecting to the lobby server, and their status. 
+ */
 void
 LobbyClient::ReadUI() {
   // get length
@@ -348,6 +396,12 @@ LobbyClient::ReadUI() {
   delete buffer;
 }
 
+/**
+ * Get opponent information from the lobby server. 
+ * This method reads message from the lobby server. Thw message shows the
+ * opponent who asked this player to play. And this method shows the dialog
+ * to ask whether this player wants to play or not. 
+ */
 void
 LobbyClient::ReadPI() {
   long len = 0;
@@ -372,6 +426,11 @@ LobbyClient::ReadPI() {
   delete buffer;
 }
 
+/**
+ * Get opponent machine information from the lobby server. 
+ * This method reads message from the lobby server. Thw message shows the
+ * opponent machine IP address and port number. 
+ */
 void
 LobbyClient::ReadOI() {
   char *buffer;
@@ -393,6 +452,12 @@ LobbyClient::ReadOI() {
   delete buffer;
 }
 
+/**
+ * Get version information from the lobby server. 
+ * This method reads message from the lobby server. Thw message shows the
+ * version information. This method shows a dialog which ask the player to 
+ * update to the latest version. 
+ */
 void
 LobbyClient::ReadOV() {
   char *buffer;
@@ -408,6 +473,11 @@ LobbyClient::ReadOV() {
   delete buffer;
 }
 
+/**
+ * Get chat message from the lobby server. 
+ * This method reads message from the lobby server. The message shows the
+ * chat message. This method add the message to chat window. 
+ */
 void
 LobbyClient::ReadMS() {
   char *buffer;
@@ -422,6 +492,11 @@ LobbyClient::ReadMS() {
   delete buffer;
 }
 
+/**
+ * Send accept play message to the lobby server. 
+ * This method sends message to the lobby server. The message shows that
+ * this player accepts to play with the opponent. 
+ */
 void
 LobbyClient::SendAP( long uniqID ) {
   send( m_socket, "AP", 2, 0 );
@@ -430,6 +505,11 @@ LobbyClient::SendAP( long uniqID ) {
   SendLong( m_socket, uniqID );
 }
 
+/**
+ * Send start play message to the lobby server. 
+ * This method sends message to the lobby server. The message shows that
+ * this player starts to play. 
+ */
 void
 LobbyClient::SendSP() {
   send( m_socket, "SP", 2, 0 );
@@ -437,6 +517,11 @@ LobbyClient::SendSP() {
   SendLong( m_socket, len );
 }
 
+/**
+ * Send quit play message to the lobby server. 
+ * This method sends message to the lobby server. The message shows that
+ * this player quits to play. 
+ */
 void
 LobbyClient::SendQP() {
   send( m_socket, "QP", 2, 0 );
@@ -447,6 +532,11 @@ LobbyClient::SendQP() {
   SendLong( m_socket, score2 );
 }
 
+/**
+ * Send deny to play message to the lobby server. 
+ * This method sends message to the lobby server. The message shows that
+ * this player denies to play with the opponent. 
+ */
 void
 LobbyClient::SendDP( long uniqID ) {
   send( m_socket, "DP", 2, 0 );
@@ -455,6 +545,11 @@ LobbyClient::SendDP( long uniqID ) {
   SendLong( m_socket, uniqID );
 }
 
+/**
+ * Send quit game message to the lobby server. 
+ * This method sends message to the lobby server. The message shows that
+ * this player quits the game. 
+ */
 void
 LobbyClient::SendQT() {
   send( m_socket, "QT", 2, 0 );
@@ -463,6 +558,11 @@ LobbyClient::SendQT() {
   shutdown( m_socket, 2 );
 }
 
+/**
+ * Send score to the lobby server. 
+ * This method sends message to the lobby server. The message shows the
+ * score of the game. 
+ */
 void
 LobbyClient::SendSC( int score1, int score2 ) {
   send( m_socket, "SC", 2, 0 );
@@ -473,6 +573,10 @@ LobbyClient::SendSC( int score1, int score2 ) {
   SendLong( m_socket, score2 );
 }
 
+/**
+ * Send chat message to the lobby server. 
+ * This method sends chat message to the lobby server. 
+ */
 void
 LobbyClient::SendMS( char *message, long channel ) {
   send( m_socket, "MS", 2, 0 );
@@ -484,8 +588,15 @@ LobbyClient::SendMS( char *message, long channel ) {
 }
 
 
+/**
+ * Default constructor. 
+ */
 PlayerInfo::PlayerInfo() {
 }
 
+/**
+ * Destructor. 
+ * Do nothing. 
+ */
 PlayerInfo::~PlayerInfo() {
 }
