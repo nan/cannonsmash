@@ -75,8 +75,7 @@ $(TARGET): $(OBJS) win32/all
 	$(CC) $(CFLAGS) $(AOUT)$@ $(OBJS) $(LIBS)
 
 win32/all:
-	cd win32
-	$(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" all
+	cd win32 && $(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" all
 
 #-include depend.nt
 ############################################################################
