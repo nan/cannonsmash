@@ -1,14 +1,14 @@
 # Japanese message for Cannon Smash
-# Copyright (C) 2002  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+# Copyright (C) 2002  ç¥å— å‰å®(Kanna Yoshihiro)
 msgid ""
 msgstr ""
 "Project-Id-Version: Cannon Smash 0.6.4\n"
 "POT-Creation-Date: 2002-01-20 22:07+0100\n"
-"PO-Revision-Date: 2002-01-22 00:46+0900\n"
+"PO-Revision-Date: 2002-01-30 02:08+0900\n"
 "Last-Translator: KANNA Yoshihiro <nan@utmc.or.jp>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=EUC-JP\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: BaseView.cpp:89
@@ -49,19 +49,19 @@ msgstr ""
 
 #: Launcher.cpp:64
 msgid "FullScreen"
-msgstr "¥Õ¥ë¥¹¥¯¥ê¡¼¥ó"
+msgstr "ãƒ•ãƒ«ã‚¹ã‚¯ãƒªãƒ¼ãƒ³"
 
 #: Launcher.cpp:69
 msgid "On"
-msgstr "¥ª¥ó"
+msgstr "ã‚ªãƒ³"
 
 #: Launcher.cpp:80
 msgid "Off"
-msgstr "¥ª¥Õ"
+msgstr "ã‚ªãƒ•"
 
 #: Launcher.cpp:104
 msgid "Graphics"
-msgstr "²èÌÌ"
+msgstr "ç”»é¢"
 
 #.
 #. twoDButton = gtk_radio_button_new_with_label ( (GSList *)NULL, "2D");
@@ -75,52 +75,52 @@ msgstr "²èÌÌ"
 #. simpleButton = gtk_radio_button_new_with_label ( list, "Simple");
 #: Launcher.cpp:120
 msgid "Simple"
-msgstr "´Ê°×¥â¡¼¥É"
+msgstr "ç°¡æ˜“ãƒ¢ãƒ¼ãƒ‰"
 
 #: Launcher.cpp:128
 msgid "Normal"
-msgstr "ÄÌ¾ï¥â¡¼¥É"
+msgstr "é€šå¸¸ãƒ¢ãƒ¼ãƒ‰"
 
 #: Launcher.cpp:195
 msgid "Solo"
-msgstr "°ì¿Í"
+msgstr "ä¸€äºº"
 
 #: Launcher.cpp:200
 msgid "LAN"
-msgstr "¥Í¥Ã¥È¥ï¡¼¥¯ÂĞÀï"
+msgstr "ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯å¯¾æˆ¦"
 
 #: Launcher.cpp:205
 msgid "Internet(Experimental)"
-msgstr "¥¤¥ó¥¿¡¼¥Í¥Ã¥ÈÂĞÀï"
+msgstr "ã‚¤ãƒ³ã‚¿ãƒ¼ãƒãƒƒãƒˆå¯¾æˆ¦"
 
 #. lowest area(start button)
 #: Launcher.cpp:220 Launcher.cpp:285
 msgid "Game Start!"
-msgstr "¥²¡¼¥à³«»Ï!"
+msgstr "ã‚²ãƒ¼ãƒ é–‹å§‹!"
 
 #: Launcher.cpp:246
 msgid "Server"
-msgstr "¥µ¡¼¥Ğ"
+msgstr "ã‚µãƒ¼ãƒ"
 
 #: Launcher.cpp:250
 msgid "Client"
-msgstr "¥¯¥é¥¤¥¢¥ó¥È"
+msgstr "ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆ"
 
 #: Launcher.cpp:264
 msgid "Server name:"
-msgstr "¥µ¡¼¥ĞÌ¾:"
+msgstr "ã‚µãƒ¼ãƒå:"
 
 #: Launcher.cpp:307
 msgid "Nickname:"
-msgstr "Ì¾Á°:"
+msgstr "åå‰:"
 
 #: Launcher.cpp:317
 msgid "Message:"
-msgstr "¥á¥Ã¥»¡¼¥¸:"
+msgstr "ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸:"
 
 #: Launcher.cpp:330
 msgid "Connect to Lobby Server"
-msgstr "¥í¥Ó¡¼¥µ¡¼¥Ğ¤ØÀÜÂ³"
+msgstr "ãƒ­ãƒ“ãƒ¼ã‚µãƒ¼ãƒã¸æ¥ç¶š"
 
 #: Launcher.cpp:401 LobbyClient.cpp:165 LobbyClient.cpp:527
 msgid "Cannon Smash"
@@ -128,40 +128,44 @@ msgstr ""
 
 #: Launcher.cpp:418
 msgid "Quit"
-msgstr "½ªÎ»"
+msgstr "çµ‚äº†"
 
 #: LobbyClient.cpp:181
 msgid "Nickname"
-msgstr "Ì¾Á°"
+msgstr "åå‰"
 
 #: LobbyClient.cpp:181
 msgid "Message"
-msgstr "¥á¥Ã¥»¡¼¥¸"
+msgstr "ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸"
 
 #: LobbyClient.cpp:195
 msgid "connect"
-msgstr "ÀÜÂ³"
+msgstr "æ¥ç¶š"
 
 #: LobbyClient.cpp:203
 msgid "warm up"
-msgstr "ÂÔµ¡"
+msgstr "å¾…æ©Ÿ"
 
 #: LobbyClient.cpp:210
 msgid "close"
-msgstr "Ãæ»ß"
+msgstr "ä¸­æ­¢"
 
 #: LobbyClient.cpp:536
 #, c-format
 msgid "\"%s\" (message: %s)want to play with you. OK?\n"
-msgstr "\"%s\" (¥á¥Ã¥»¡¼¥¸: %s)¤«¤éÂĞÀï¤Î¿½¤·¹ş¤ß¤¬¤¢¤ê¤Ş¤·¤¿¡£ÂĞÀï¤·¤Ş¤¹¤«?\n"
+msgstr "\"%s\" (ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸: %s)ã‹ã‚‰å¯¾æˆ¦ã®ç”³ã—è¾¼ã¿ãŒã‚ã‚Šã¾ã—ãŸã€‚å¯¾æˆ¦ã—ã¾ã™ã‹?\n"
 
 #: LobbyClient.cpp:551
 msgid "OK!"
-msgstr "ÂĞÀï¤¹¤ë"
+msgstr "å¯¾æˆ¦ã™ã‚‹"
 
 #: LobbyClient.cpp:562
 msgid "No!"
-msgstr "µñÈİ¤¹¤ë"
+msgstr "æ‹’å¦ã™ã‚‹"
+
+#: main.cpp:110
+msgid "UTF-8"
+msgstr "EUC-JP"
 
 #: main.cpp:179 main.cpp:194
 msgid "No datafile directory.\n"

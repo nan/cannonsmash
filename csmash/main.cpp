@@ -103,11 +103,6 @@ int main(int argc, char** argv) {
     GetLocaleInfo( LOCALE_SYSTEM_DEFAULT, LOCALE_SENGLANGUAGE, buf, 256 );
     if ( strcmp( buf, "Japanese" ) == 0 ) {
       putenv("LANGUAGE=ja"); // Japanese
-      ic = iconv_open("UTF-8", "EUC-JP");
-      if ( ic == (iconv_t)-1 ) {
-	perror( _("iconv_open failed\n") );
-	exit(1);
-      }
     }
 #endif
 
@@ -123,6 +118,14 @@ int main(int argc, char** argv) {
 #else
     bindtextdomain (PACKAGE, LOCALEDIR);
     textdomain (PACKAGE);
+#endif
+
+#if (GTK_MAJOR_VERSION == 1) && (GTK_MINOR_VERSION >= 3)
+    ic = iconv_open("UTF-8", _("UTF-8"));
+    if ( ic == (iconv_t)-1 ) {
+      perror( _("iconv_open failed\n") );
+      exit(1);
+    }
 #endif
 
     int c;
@@ -359,7 +362,6 @@ LoadData( void *dum ) {
   return 0;
 }
 
-// Currently this function is only for EUC_JP -> UTF-8
 char *
 gettext_iconv( char *buf ) {
   static char* tobuf = 0;
@@ -377,11 +379,8 @@ gettext_iconv( char *buf ) {
     free(tobuf);
   tobuf = (char *)malloc(fromsize*4);
   memset( tobuf, 0, fromsize*4 );
-  tobuf[0] = 0xef;
-  tobuf[1] = 0xbb;
-  tobuf[2] = 0xbf;
-  toaddr = &tobuf[3];
-  tosize = fromsize*4-3;
+  toaddr = tobuf;
+  tosize = fromsize*4;
   iconv( ic, &fromaddr, &fromsize, &toaddr, &tosize );
   return tobuf;
 }
