@@ -689,6 +689,11 @@ MultiPlay::SendTime() {
   send( theSocket, (char *)&v, 1, 0 );
 }
 
+void
+MultiPlay::EndGame() {
+  QuitGame();
+}
+
 
 ExternalData::ExternalData() {
   side = 1;

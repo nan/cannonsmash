@@ -40,7 +40,7 @@ public:
   long GetScore( long side );	// スコア取得. 
 
   bool IsGameEnd();	// ゲーム終了チェック
-  void EndGame();
+  virtual void EndGame();
   void ChangeScore();
   void ChangeScore( long score1, long score2 );
 protected:

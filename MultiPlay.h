@@ -123,6 +123,7 @@ public:
   void SendTime_forNODELAY( char *buf );
   void SendTime();
 
+  virtual void EndGame();
 protected:
   //bool m_smash;
   //long m_smashCount;
