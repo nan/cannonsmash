@@ -201,13 +201,6 @@ PenAttack::HitBall() {
 
     GetModifiedTarget( targetX, targetY );
 
-#if 0
-    if ( ((m_side == 1 && theBall.GetStatus() == 3) ||
-	  (m_side ==-1 && theBall.GetStatus() == 1)) &&
-	 fabs(m_x-theBall.GetX()) < 0.6 && 
-	 (m_y-theBall.GetY())*m_side < 0.3 &&
-	 (m_y-theBall.GetY())*m_side > -0.6 ) {
-#else
     if ( ((m_side == 1 && theBall.GetStatus() == 3) ||
 	  (m_side ==-1 && theBall.GetStatus() == 1)) &&
 	 fabs(m_x-theBall.GetX()) < 0.6 && 
@@ -215,7 +208,6 @@ PenAttack::HitBall() {
 	  (!GetSwingSide() && (m_x-theBall.GetX())*m_side > 0 )) &&
 	 (m_y-theBall.GetY())*m_side < 0.3 &&
 	 (m_y-theBall.GetY())*m_side > -0.6 ) {
-#endif
 
       //AddStatus( -fabs(fabs(m_x-theBall.GetX())-0.3)*100 );
 
@@ -242,7 +234,11 @@ PenAttack::HitBall() {
       n2y = vy*vz/(v*hypot(vx, vy)) * v*tan(radDiff);
       n2z = (vx*vx+vy*vy)/(v*hypot(vx, vy)) * v*tan(radDiff);
 
-      radRand = RAND(360)*3.141592/180.0;
+      // 速く打ちすぎたらネット, 遅く打ちすぎたらオーバー(暫定)
+      if ( (m_y-theBall.GetY())*m_side < 0 )
+	radRand = (RAND(180)+180)*3.141592/180.0;
+      else
+	radRand = RAND(180)*3.141592/180.0;
 
       vx += n1x*cos(radRand)+n2x*sin(radRand);
       vy += n1y*cos(radRand)+n2y*sin(radRand);

@@ -228,13 +228,11 @@ int main(int argc, char** argv) {
     while ( SDL_PollEvent(&event) ) {
       // このあたり, GLUT 風になっているので SDL 風に直す
       switch ( event.type ) {
-#if 1
 	if ( (event.key.keysym.sym == SDLK_RETURN) &&
 	     (event.key.keysym.mod & KMOD_ALT) ) {
 		HotKey_ToggleFullScreen();
 		break;
 	}
-#endif
       case SDL_KEYDOWN:
 	Event::KeyboardFunc( event, 0, 0 );
 	break;
