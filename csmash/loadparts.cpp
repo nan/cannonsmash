@@ -93,7 +93,7 @@ bool loadAffine4F(const char *str, affine4F *pm)
 	    m[x][y] = f;
 	    if (12 == ++i) break;
 	}
-	while (token = strtok(NULL, delim));
+	while ((token = strtok(NULL, delim)));
     }
     fclose(fp);
     if (12 != i) return false;
@@ -215,7 +215,7 @@ bool parts::loadfile(const char *str)
 	    if (argcmax == argc) {
                 throw verror(lineno, "This line has %d or more arguments\n", argcmax);
 	    }	
-	} while (token = strtok(NULL, delim));
+	} while ((token = strtok(NULL, delim)));
 	argv[argc] = NULL;
 	int optind = 0;
 
@@ -310,7 +310,7 @@ bool parts::load_polyhedron(int lineno, polyhedron_parts *object,
 {
     int &optind = *poptind;
     const char *option;
-    while (option = argv[optind++]) {
+    while ((option = argv[optind++])) {
 	if ('-' != *option) {
             throw verror(lineno, "unknown option %s\n", option);
 	}
@@ -373,7 +373,7 @@ bool parts::load_create(int lineno, int argc, const char *argv[], int *poptind)
             throw verror(lineno, "%s is already loaded\n", objectname);
 	}
 	int i = 0;
-	while (token = argv[optind++]) {
+	while ((token = argv[optind++])) {
 	    parts* p = getobject(token);
 	    if (!p) {
                 throw verror(lineno, "%s is not loaded\n", token);
@@ -411,7 +411,7 @@ bool texture_parts::realize()
 
     ImageData img;
     if (!img.LoadFile(filename.c_str())) {
-        throw verror("could not load texture %s\n", filename.c_str);
+        throw verror("could not load texture %s\n", filename.c_str());
     }
     int width = img.GetWidth();
     int height = img.GetHeight();
