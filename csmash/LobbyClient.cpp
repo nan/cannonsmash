@@ -131,7 +131,7 @@ LobbyClient::Init( char *nick, char *message ) {
   send( m_socket, &ver, 1, 0 );
   ver = 6;
   send( m_socket, &ver, 1, 0 );
-  ver = 0;
+  ver = 1;
   send( m_socket, &ver, 1, 0 );
 
   // Send port number(Must be changed, too)
