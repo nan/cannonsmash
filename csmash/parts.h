@@ -31,6 +31,7 @@ public:
     vector3F (*normals)[4];
     vector3F *planeNormal;
     edge *edges;
+    char *filename;
 
     polyhedron(const char *filename);
     ~polyhedron();
