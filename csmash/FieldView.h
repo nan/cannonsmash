@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ public:
   GLuint       m_floor;
   //GLuint       m_title;
   GLuint       m_wall[4];
+  GLuint       m_tutorial[4];
 };
 
 #endif	// _FieldView

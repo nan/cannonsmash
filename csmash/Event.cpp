@@ -158,9 +158,10 @@ Event::IdleFunc() {
   _perfCount++;
 
   for ( int i = 0 ; i < diffcount ; i++ ) {
-    // While pause, never move objects. 
+    // While pause, never move objects. (Solo Play)
     if ( Control::TheControl()->IsPlaying() &&
-	 ((PlayGame *)Control::TheControl())->IsPause() ) {
+	 ((PlayGame *)Control::TheControl())->IsPause() &&
+	 isComm == false ) {
       reDraw = true;
     } else {
       reDraw |= Event::TheEvent()->Move();

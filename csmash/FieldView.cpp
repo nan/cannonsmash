@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
 #include "FieldView.h"
 #include "LoadImage.h"
 #include "RCFile.h"
+#include "Control.h"
+#include "Event.h"
 
 extern RCFile *theRC;
 
@@ -51,6 +53,10 @@ FieldView::Init() {
 
   static char pname[][30] = {"images/Left.jpg", "images/Front.jpg", 
 			     "images/Right.jpg", "images/Back.jpg" };
+  static char tutorialname[][30] = {"images/EasyTutorial.ppm",
+				    "images/EasyTutorial.ppm", 
+				    "images/EasyTutorial.ppm", 
+				    "images/EasyTutorial.ppm" };
 
   glGenTextures( 4, m_wall );
   for ( i = 0 ; i < 4 ; i++ ) {
@@ -66,6 +72,33 @@ FieldView::Init() {
 
     glTexImage2D(GL_TEXTURE_2D, 0, 3, image.GetWidth(), image.GetHeight(),
 		 0, GL_RGBA, GL_UNSIGNED_BYTE, image.GetImage() );
+  }
+
+
+  glGenTextures( 4, m_tutorial );
+
+  for ( i = 0 ; i < 4 ; i++ ) {
+    image.LoadPPM( &(tutorialname[i][0]) );
+    for ( int j = 0 ; j < image.GetWidth() ; j++ ) {
+      for ( int k = 0 ; k < image.GetHeight() ; k++ ) {
+	if ( image.GetPixel( j, k, 0 ) >= 5 )
+	  image.SetPixel( j, k, 3 , 255 );
+	else
+	  image.SetPixel( j, k, 3 , 0 );
+      }
+    }
+
+    glBindTexture( GL_TEXTURE_2D, m_tutorial[i] );
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+		 image.GetWidth(), image.GetHeight(), 
+		 0, GL_RGBA, GL_UNSIGNED_BYTE,
+		 image.GetImage() );
   }
 
   m_offset = glGenLists(1);
@@ -226,19 +259,61 @@ FieldView::Redraw() {
       glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, 0.0F );
       glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
       glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
-
+      /*
       glNormal3f( 0.0F, -1.0F, 0.0F );
       glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, 0.0F );
       glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, 0.0F );
       glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
       glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
-
+      */
       glNormal3f( 0.0F, 1.0F, 0.0F );
       glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, 0.0F );
       glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, 0.0F );
       glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
       glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
     glEnd();
+
+    // Show tutorial on ball stopper
+    if ( Control::TheControl()->IsPlaying() ) {
+      int rotation;
+
+      if ( Event::m_lastTime.time % 5 == 0 ) {
+	rotation = (Event::m_lastTime.time%40)/5*32
+	  + Event::m_lastTime.millitm/30;
+      } else{
+	rotation = (Event::m_lastTime.time%40)/5*32;
+      }
+
+      if ( theRC->isTexture )
+	glEnable(GL_TEXTURE_2D);
+      glBindTexture( GL_TEXTURE_2D, m_tutorial[theRC->gameLevel] );
+      glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+      glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+      glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+      glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+      glBegin(GL_QUADS);
+        glNormal3f( 0.0F, -1.0F, 0.0F );
+        glTexCoord2f(0.0F, (rotation+32)/256.0F);
+	glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, 0.0F );
+	glTexCoord2f(1.0F, (rotation+32)/256.0F);
+	glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, 0.0F );
+	glTexCoord2f(1.0F, rotation/256.0F);
+	glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
+	glTexCoord2f(0.0F, rotation/256.0F);
+	glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
+      glEnd();
+
+      if ( theRC->isTexture )
+	glDisable(GL_TEXTURE_2D);
+    } else {
+      glBegin(GL_QUADS);
+        glNormal3f( 0.0F, -1.0F, 0.0F );
+	glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, 0.0F );
+	glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, 0.0F );
+	glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
+	glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
+      glEnd();
+    }
   }
 
   glColor4f(0.4F, 0.4F, 0.4F, 0.0F);
