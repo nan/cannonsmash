@@ -43,7 +43,7 @@ pkgdata_ppm = Bad.ppm Keyboard.ppm Nice.ppm Title.ppm \
 pkgdata_jpg = Floor.jpg Mouse1.jpg Mouse2.jpg Mouse3.jpg Mouse4.jpg \
 		PenDrive.jpg PenAttack.jpg ShakeCut.jpg \
 		Front.jpg Back.jpg Left.jpg Right.jpg \
-		FastRally.jpg Footwork.jpg
+		FastRally.jpg Footwork.jpg animelight.jpg
 
 pkgdata_bmp = BG.bmp BGAlpha.bmp Title.bmp PenAttack.bmp PenDrive.bmp \
 		ShakeCut.bmp Triangle.bmp \
