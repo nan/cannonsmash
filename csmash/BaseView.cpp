@@ -72,7 +72,7 @@ BaseView::Init() {
   glLoadIdentity();
   //glOrtho(-2.0, 2.0, -2.0, 2.0, 2.0, -2.0);
   /* 有効領域設定. 左, 右, 下, 上, 奥, 手前 */
-  gluPerspective(60.0, 1.0, 0.1, 20.0);
+  gluPerspective(60.0, 1.0, 0.1, 30.0);
   /* 遠近法設定. 視野角, x/y比, 有効距離(手前), 有効距離(奥) */
   glMatrixMode(GL_MODELVIEW);
 
