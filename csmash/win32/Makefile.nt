@@ -37,7 +37,7 @@ AOUT = -Fe
 ############################################################################
 INCDIRS	= -I.
 
-OBJS = GetArgs.obj wsaerror.obj getopt.obj wsainit.obj
+OBJS = GetArgs.obj wsaerror.obj getopt.obj wsainit.obj new_exception.obj
 
 TARGET = $(OBJS) csmash.res
 
