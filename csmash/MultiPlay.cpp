@@ -583,7 +583,7 @@ ExternalBVData::Read( long sock ) {
 
   long len = 0;
   while (1) {
-    if ( (len+=recv( sock, data+len, 60-len, 0 )) == 60 )
+    if ( (len+=recv( sock, data+len, 68-len, 0 )) == 68 )
       break;
   }
 
