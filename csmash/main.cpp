@@ -215,9 +215,16 @@ StartGame() {
 #ifdef HAVE_LIBSDL_MIXER
 //  theRC->sndMode = SOUND_SDL;
 
-  if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_NOPARACHUTE) < 0 ) {
-    perror( "SDL initialize failed\n" );
-    exit(1);
+  if ( theRC->sndMode != SOUND_NONE ) {
+    if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_NOPARACHUTE) < 0 ) {
+      perror( "SDL initialize failed\n" );
+      exit(1);
+    }
+  } else {
+    if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) < 0 ) {
+      perror( "SDL initialize failed\n" );
+      exit(1);
+    }
   }
 #else
   if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) < 0 ) {

@@ -626,8 +626,16 @@ Event::ReadData() {
       if ( m_Histptr == MAX_HISTORY )
 	m_Histptr = 0;
 
-      if ( fTheBall )
+      if ( fTheBall ) {
 	m_BacktrackBuffer[m_Histptr].theBall = theBall;
+	if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
+	     mode == MODE_PRACTICE ) {
+	  m_BacktrackBuffer[m_Histptr].score1 =
+	    ((PlayGame *)Control::TheControl())->GetScore(1);
+	  m_BacktrackBuffer[m_Histptr].score2 =
+	    ((PlayGame *)Control::TheControl())->GetScore(-1);
+	}
+      }
       if ( fThePlayer )
 	CopyPlayerData( m_BacktrackBuffer[m_Histptr].thePlayer, thePlayer );
       if ( fComPlayer )

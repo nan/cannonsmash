@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -249,9 +249,9 @@ PenDrive::HitBall() {
 
       // Reduce status
       if ( !isComm ) {	// Changed in 0.6.4
-	m_afterSwing = 10 + (long)
+	m_afterSwing = (long)
 	  ((hypot(theBall.GetVX()*0.8-vx,theBall.GetVY()*0.8+vy)+hypot(vx,vy))
-	   *(3.0+diff*30.0) + fabs(m_spin)*8.0 + fabs(theBall.GetSpin())*4.0);
+	   *(4.0+diff*40.0) + fabs(m_spin)*8.0 + fabs(theBall.GetSpin())*4.0);
 
 	if ( ForeOrBack() || m_swingType == SWING_POKE )
 	  AddStatus( -m_afterSwing/2 );
