@@ -13,6 +13,7 @@
 #include <stdarg.h>
 #include <map>
 #include <list>
+#include <string>
 /* __BEGIN__BEGIN__ */
 
 /***********************************************************************
