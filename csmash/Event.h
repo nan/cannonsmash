@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -66,6 +66,7 @@ public:
   void RemainingLog();
 #endif
 
+  static int WaitForData( void * );
 protected:
   bool Move();
   bool IsModeChanged( long preMode );
@@ -79,6 +80,7 @@ protected:
   void TrainingSelectInit();
 
   bool GetExternalData( ExternalData *&ext, long side );
+  bool GetExternalData( long side );
 
   static void ClearBacktrack();
 

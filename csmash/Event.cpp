@@ -58,6 +58,8 @@ extern bool isComm;
 extern long score1;
 extern long score2;
 
+extern SDL_mutex *networkMutex;
+
 long _perfCount;
 long perfs;
 
@@ -296,7 +298,7 @@ Event::Record() {
 
   sprintf( buf, "%d.%2d %d - %d  x = %4.2f y = %4.2f z = %4.2f st = %d\n", 
 	   sec, cnt,
-	   m_BacktrackBuffer[m_Histptr].score1,
+	   m_BacktrackBuffer[m_Histptr].score1, 
 	   m_BacktrackBuffer[m_Histptr].score2, 
 	   m_BacktrackBuffer[m_Histptr].theBall.GetX(), 
 	   m_BacktrackBuffer[m_Histptr].theBall.GetY(),
@@ -662,6 +664,8 @@ Event::ReadData() {
   fd_set rdfds;
   struct timeval to;
 
+  // Caution!! exchanged with WaitForData()
+#if 0
   while (1) {
     FD_ZERO( &rdfds );
     FD_SET( (unsigned int)theSocket, &rdfds );
@@ -674,6 +678,9 @@ Event::ReadData() {
     } else
       break;
   }
+#endif
+
+  SDL_mutexP( networkMutex );
 
   // externalDataの先頭までbacktrackする
   long btCount = 0;
@@ -785,6 +792,8 @@ Event::ReadData() {
     if (!fComPlayer)
       comPlayer->Reset( &m_BacktrackBuffer[m_Histptr].comPlayer );
   }
+
+  SDL_mutexV( networkMutex );
 }
 
 void
@@ -889,3 +898,33 @@ Event::RemainingLog() {
 }
 
 #endif
+
+int
+Event::WaitForData( void *dum ) {
+  fd_set rdfds;
+  struct timeval to;
+
+  while (1) {
+    FD_ZERO( &rdfds );
+    FD_SET( (unsigned int)theSocket, &rdfds );
+
+    if ( select( theSocket+1, &rdfds, NULL, NULL, NULL ) > 0 ) {
+      bool ret;
+
+      SDL_mutexP( networkMutex );
+      ret = Event::TheEvent()->GetExternalData( comPlayer->GetSide() );
+      SDL_mutexV( networkMutex );
+
+      if ( !ret )
+	break;
+    } else
+      break;
+  }
+
+  return 0;
+}
+
+bool
+Event::GetExternalData( long side ) {
+  return GetExternalData( m_External, side );
+}
