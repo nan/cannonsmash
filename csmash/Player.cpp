@@ -46,6 +46,10 @@ extern Ball   theBall;
 
 extern long mode;
 
+/***********************************************************************
+ *	Class  Player
+ ***********************************************************************/
+
 Player::Player() {
   m_side = 1;
   m_playerType = PLAYER_PROTO;
@@ -466,6 +470,7 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     m_x = AREAXSIZE/2;
     m_vx = 0.0;
   }
+#ifndef DEBUG_NOLIMITMOVE
   else if ( m_x <= -TABLEWIDTH/2 && m_x+m_vx*TICK >= -TABLEWIDTH/2 &&
 	    m_y > -TABLELENGTH/2+0.5 && m_y < TABLELENGTH/2-0.5 ){
     m_x = -TABLEWIDTH/2;
@@ -476,6 +481,7 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     m_x = TABLEWIDTH/2;
     m_vx = 0.0;
   }
+#endif
   else
     m_x += m_vx*TICK;
 
@@ -485,24 +491,31 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   } else if ( m_y+m_vy*TICK > AREAYSIZE/2 ) {
     m_y = AREAYSIZE/2;
     m_vy = 0.0;
-  } else if ( m_y <= -TABLELENGTH/2+0.5 && m_y+m_vy*TICK >= -TABLELENGTH/2+0.5
+  }
+#ifndef DEBUG_NOLIMITMOVE
+  else if ( m_y <= -TABLELENGTH/2+0.5 && m_y+m_vy*TICK >= -TABLELENGTH/2+0.5
 	      && m_x > -TABLEWIDTH/2 && m_x < TABLEWIDTH/2 ) {
     m_y = -TABLELENGTH/2+0.5;
     m_vy = 0.0;
-  } else if ( m_y >= TABLELENGTH/2-0.5 && m_y+m_vy*TICK <= TABLELENGTH/2-0.5
+  }
+  else if ( m_y >= TABLELENGTH/2-0.5 && m_y+m_vy*TICK <= TABLELENGTH/2-0.5
 	      && m_x > -TABLEWIDTH/2 && m_x < TABLEWIDTH/2 ) {
     m_y = TABLELENGTH/2-0.5;
     m_vy = 0.0;
-  } else
+  }
+#endif
+  else
     m_y += m_vy*TICK;
 
 // Go back to the endline before serve
   if ( Control::TheControl()->IsPlaying() && theBall.GetStatus() == 8 &&
        ((PlayGame *)Control::TheControl())->GetService() == GetSide() ) {
+#ifndef DEBUG_NOLIMITMOVE
     if ( m_side > 0 && m_y > -TABLELENGTH/2 )
       m_y = -TABLELENGTH/2;
     else if ( m_side < 0 && m_y < TABLELENGTH/2 )
       m_y = TABLELENGTH/2;
+#endif
   }
 
   // Auto backswing
