@@ -267,7 +267,7 @@ ComPenAttack::Hitarea( double &hitX, double &hitY ) {
     hitY = -(TABLELENGTH/2+0.2)*m_side;
   } else if ( theBall.GetStatus() < 6 ) {
     hitX = 0.0;
-    hitY = -(TABLELENGTH/2+1.0)*m_side;
+    hitY = -(TABLELENGTH/2+0.5)*m_side;
   }
 
   return true;
