@@ -21,6 +21,7 @@
 extern Ball theBall;
 extern Player* thePlayer;
 extern Player* comPlayer;
+extern Event theEvent;
 extern BaseView theView;
 extern PlayerSelect* theSelect;
 extern Title* theTitle;
@@ -97,14 +98,14 @@ Event::IdleFunc() {
     perfs = 0;
 
     for ( int i = 0 ; i < MAX_HISTORY ; i++ ) {
-      m_MouseXHistory[i] = 0;
-      m_MouseYHistory[i] = 0;
-      m_MouseBHistory[i] = 0;
-      m_BacktrackBuffer[i].sec = m_lastTime.time;
-      m_BacktrackBuffer[i].count = m_lastTime.millitm;
-      m_BacktrackBuffer[i].theBall = theBall;
-      CopyPlayerData( m_BacktrackBuffer[i].thePlayer, thePlayer );
-      CopyPlayerData( m_BacktrackBuffer[i].comPlayer, comPlayer );
+      theEvent.m_MouseXHistory[i] = 0;
+      theEvent.m_MouseYHistory[i] = 0;
+      theEvent.m_MouseBHistory[i] = 0;
+      theEvent.m_BacktrackBuffer[i].sec = m_lastTime.time;
+      theEvent.m_BacktrackBuffer[i].count = m_lastTime.millitm;
+      theEvent.m_BacktrackBuffer[i].theBall = theBall;
+      CopyPlayerData( theEvent.m_BacktrackBuffer[i].thePlayer, thePlayer );
+      CopyPlayerData( theEvent.m_BacktrackBuffer[i].comPlayer, comPlayer );
     }
 
     return;
@@ -123,11 +124,11 @@ Event::IdleFunc() {
   _perfCount++;
 
   for ( int i = 0 ; i < diffcount ; i++ ) {
-    reDraw |= Move();
+    reDraw |= theEvent.Move();
 //    printf( "sec=%d count=%d status=%d\nx=%f y=%f z=%f spin = %f\n",
 //	    m_lastTime.time, m_lastTime.millitm/10, theBall.GetStatus(),
 //	    theBall.GetX(), theBall.GetY(), theBall.GetZ(), theBall.GetSpin() );
-    Record();
+    theEvent.Record();
 
     m_lastTime.millitm += 10;
     if ( m_lastTime.millitm > 1000 ) {
@@ -148,7 +149,7 @@ Event::IdleFunc() {
       to.tv_sec = to.tv_usec = 0;
 
       if ( select( theSocket+1, &rdfds, NULL, NULL, &to ) > 0 ) {
-	GetExternalData( &m_External, theSocket, comPlayer->GetSide());
+	GetExternalData( &theEvent.m_External, theSocket, comPlayer->GetSide());
       } else
 	break;
     }
@@ -157,12 +158,12 @@ Event::IdleFunc() {
     long btCount;
     struct ExternalData *externalOld;
     long btHistptr;
-    while ( m_External ) {	// 捨てる?
-      btCount = (m_lastTime.time-m_External->sec)*100 + 
-	(m_lastTime.millitm/10-m_External->count);
+    while ( theEvent.m_External ) {	// 捨てる?
+      btCount = (m_lastTime.time-theEvent.m_External->sec)*100 + 
+	(m_lastTime.millitm/10-theEvent.m_External->count);
       if ( btCount > MAX_HISTORY ) {
-	externalOld = m_External;
-	m_External = m_External->next;
+	externalOld = theEvent.m_External;
+	theEvent.m_External = theEvent.m_External->next;
 	delete externalOld;
 	continue;
       }
@@ -170,9 +171,9 @@ Event::IdleFunc() {
 	break;
     }
 
-    if ( m_External ) {
+    if ( theEvent.m_External ) {
       if ( btCount >= 0 ) {
-	btHistptr = m_Histptr - btCount;
+	btHistptr = theEvent.m_Histptr - btCount;
 	if ( btHistptr < 0 )
 	  btHistptr += MAX_HISTORY;
 
@@ -195,25 +196,25 @@ Event::IdleFunc() {
 	  if ( fTheBall )
 	    theBall.Move();
 	  if ( fThePlayer ) {
-	    thePlayer->Move( m_KeyHistory, m_MouseXHistory,
-			     m_MouseYHistory, m_MouseBHistory, btHistptr );
+	    thePlayer->Move( theEvent.m_KeyHistory, theEvent.m_MouseXHistory,
+			     theEvent.m_MouseYHistory, theEvent.m_MouseBHistory, btHistptr );
 	  }
 	  if ( fComPlayer )
 	    comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
 
-	  while ( m_External && m_External->sec == m_lastTime.time &&
-		  m_External->count == m_lastTime.millitm/10 ) {
+	  while ( theEvent.m_External && theEvent.m_External->sec == m_lastTime.time &&
+		 theEvent. m_External->count == m_lastTime.millitm/10 ) {
 	    Player *targetPlayer;
-	    if ( m_External->side == thePlayer->GetSide() )
+	    if ( theEvent.m_External->side == thePlayer->GetSide() )
 	      targetPlayer = thePlayer;
-	    else if ( m_External->side == comPlayer->GetSide() )
+	    else if ( theEvent.m_External->side == comPlayer->GetSide() )
 	      targetPlayer = comPlayer;
 	    else
 	      exit(1);
 
-	    switch ( m_External->dataType ) {
+	    switch ( theEvent.m_External->dataType ) {
 	    case DATA_PV:
-	      targetPlayer->Warp( m_External->data );
+	      targetPlayer->Warp( theEvent.m_External->data );
 	      if ( targetPlayer == thePlayer )
 		fThePlayer = true;
 	      else if ( targetPlayer == comPlayer )
@@ -226,7 +227,7 @@ Event::IdleFunc() {
 //	      fflush(0);
 	      break;
 	    case DATA_PS:
-	      targetPlayer->ExternalSwing( m_External->data );
+	      targetPlayer->ExternalSwing( theEvent.m_External->data );
 	      if ( targetPlayer == thePlayer )
 		fThePlayer = true;
 	      else if ( targetPlayer == comPlayer )
@@ -237,7 +238,7 @@ Event::IdleFunc() {
 //	      fflush(0);
 	      break;
 	    case DATA_BV:
-	      theBall.Warp( m_External->data );
+	      theBall.Warp( theEvent.m_External->data );
 	      fTheBall = true;
 
 //	      printf( "BV: sec = %d count = %d\n",
@@ -247,8 +248,8 @@ Event::IdleFunc() {
 //	      fflush(0);
 	      break;
 	    }
-	    externalOld = m_External;
-	    m_External = m_External->next;
+	    externalOld = theEvent.m_External;
+	    theEvent.m_External = theEvent.m_External->next;
 	    delete externalOld;
 	  }
 
@@ -275,7 +276,8 @@ Event::IdleFunc() {
   }
 
   if ( mode != MODE_TITLE )
-    glutWarpPointer( m_MouseXHistory[m_Histptr], m_MouseYHistory[m_Histptr] );
+    glutWarpPointer( theEvent.m_MouseXHistory[theEvent.m_Histptr],
+		     theEvent.m_MouseYHistory[theEvent.m_Histptr] );
 
   if ( reDraw )
     glutPostRedisplay();
@@ -397,8 +399,6 @@ Event::Record() {
     m_Histptr = 0;
 
   m_KeyHistory[m_Histptr] = 0;
-//    m_MouseXHistory[m_Histptr] = winWidth/2 + (x-winWidth/2)*7/8;
-//    m_MouseYHistory[m_Histptr] = winHeight/2 + (y-winHeight/2)*7/8;
   if ( mode == MODE_TITLE ) {
     m_MouseXHistory[m_Histptr] = x;
     m_MouseYHistory[m_Histptr] = y;
@@ -426,8 +426,6 @@ Event::Record() {
   return;
 }
 
-
-
 void
 Event::KeyboardFunc( unsigned char key, int x, int y ) {
 #if (GLUT_API_VERSION < 4 && GLUT_XLIB_IMPLEMENTATION < 13)
@@ -436,7 +434,7 @@ Event::KeyboardFunc( unsigned char key, int x, int y ) {
     exit(0);
   }
 #endif
-  m_KeyHistory[m_Histptr] = key;
+  theEvent.m_KeyHistory[theEvent.m_Histptr] = key;
 }
 
 void
@@ -448,42 +446,42 @@ Event::KeyUpFunc( unsigned char key, int x, int y ) {
 }
 
 void
-Event::MotionFunc( long x, long y ) {
-  m_MouseXHistory[m_Histptr] = x;
-  m_MouseYHistory[m_Histptr] = y;
+Event::MotionFunc( int x, int y ) {
+  theEvent.m_MouseXHistory[theEvent.m_Histptr] = x;
+  theEvent.m_MouseYHistory[theEvent.m_Histptr] = y;
 }
 
 void
-Event::ButtonFunc( long button, long state, long x, long y ) {
+Event::ButtonFunc( int button, int state, int x, int y ) {
   if ( state == GLUT_DOWN ){
     switch ( button ){
     case GLUT_LEFT_BUTTON:
-      m_MouseBHistory[m_Histptr] |= BUTTON_LEFT;
+      theEvent.m_MouseBHistory[theEvent.m_Histptr] |= BUTTON_LEFT;
       break;
     case GLUT_MIDDLE_BUTTON:
-      m_MouseBHistory[m_Histptr] |= BUTTON_MIDDLE;
+      theEvent.m_MouseBHistory[theEvent.m_Histptr] |= BUTTON_MIDDLE;
       break;
     case GLUT_RIGHT_BUTTON:
-      m_MouseBHistory[m_Histptr] |= BUTTON_RIGHT;
+      theEvent.m_MouseBHistory[theEvent.m_Histptr] |= BUTTON_RIGHT;
       break;
     }
   }
   else{
     switch ( button ){
     case GLUT_LEFT_BUTTON:
-      m_MouseBHistory[m_Histptr] &= ~BUTTON_LEFT;
+      theEvent.m_MouseBHistory[theEvent.m_Histptr] &= ~BUTTON_LEFT;
       break;
     case GLUT_MIDDLE_BUTTON:
-      m_MouseBHistory[m_Histptr] &= ~BUTTON_MIDDLE;
+      theEvent.m_MouseBHistory[theEvent.m_Histptr] &= ~BUTTON_MIDDLE;
       break;
     case GLUT_RIGHT_BUTTON:
-      m_MouseBHistory[m_Histptr] &= ~BUTTON_RIGHT;
+      theEvent.m_MouseBHistory[theEvent.m_Histptr] &= ~BUTTON_RIGHT;
       break;
     }
   }
 
-  m_MouseXHistory[m_Histptr] = x;
-  m_MouseYHistory[m_Histptr] = y;
+  theEvent.m_MouseXHistory[theEvent.m_Histptr] = x;
+  theEvent.m_MouseYHistory[theEvent.m_Histptr] = y;
 }
 
 void

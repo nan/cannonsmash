@@ -1,19 +1,23 @@
 pkgdatadir = $(datadir)/@PACKAGE@/images
-pkgdata_src = Bad.ppm Easy.ppm Floor.ppm Hard.ppm Howto.ppm Howto1.ppm \
+pkgdata_ppm = Bad.ppm Easy.ppm Hard.ppm Howto.ppm Howto1.ppm \
 		Howto2.ppm Howto3.ppm Howto4.ppm Howto5.ppm Keyboard.ppm \
-		Mouse1.ppm Mouse2.ppm Mouse3.ppm Mouse4.ppm Nice.ppm \
-		Normal.ppm PenDrive.ppm PenSmash.ppm Config.ppm Quit.ppm \
-		SelectPlayer.ppm ShakeCut.ppm StartGame.ppm Training.ppm \
+		Nice.ppm Normal.ppm Config.ppm Quit.ppm \
+		SelectPlayer.ppm StartGame.ppm Training.ppm \
 		Title.ppm Tsuborish.ppm LevelSelect.ppm ModeSelect.ppm \
-		downArrow.ppm eight.ppm five.ppm four.ppm leftArrow.ppm \
-		lose.ppm nine.ppm one.ppm rightArrow.ppm seven.ppm six.ppm \
-		three.ppm two.ppm upArrow.ppm win.ppm zero.ppm \
-		ModeSelect.ppm 5point.ppm 11point.ppm 21point.ppm \
-		SoundSelect.ppm ESD.ppm OSS.ppm \
-		Front.ppm Back.ppm Left.ppm Right.ppm
+		downArrow.ppm leftArrow.ppm lose.ppm rightArrow.ppm \
+		eight.ppm five.ppm four.ppm nine.ppm one.ppm seven.ppm \
+		six.ppm three.ppm two.ppm zero.ppm Max.ppm \
+		upArrow.ppm win.ppm ModeSelect.ppm \
+		5point.ppm 11point.ppm 21point.ppm \
+		SoundSelect.ppm ESD.ppm OSS.ppm
 
-pkgdata_DATA = $(pkgdata_src:=@PKGDATA@)
-EXTRA_DIST = $(wildcard *.ppm)
+pkgdata_jpg = Floor.jpg Mouse1.jpg Mouse2.jpg Mouse3.jpg Mouse4.jpg \
+		PenDrive.jpg PenAttack.jpg ShakeCut.jpg \
+		Front.jpg Back.jpg Left.jpg Right.jpg \
+		FastRally.jpg Footwork.jpg
+
+pkgdata_DATA = $(pkgdata_ppm:=@PKGDATA@) $(pkgdata_jpg)
+EXTRA_DIST = $(wildcard *.ppm) $(wildcard *.jpg)
 
 %.ppm.gz: %.ppm
 	@GZIP@ -c $< > $<.gz

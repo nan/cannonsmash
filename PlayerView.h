@@ -26,6 +26,8 @@ public:
   PlayerView();
   virtual ~PlayerView();
 
+  static void LoadData();
+
   bool Init( Player *player );
 
   virtual bool Redraw();
@@ -44,6 +46,15 @@ private:
   partsmotion *m_Bpeck;
   partsmotion *m_Fsmash;
   partsmotion *m_Bsmash;
+
+  static partsmotion *motion_Fnormal;
+  static partsmotion *motion_Bnormal;
+  static partsmotion *motion_Fdrive;
+  static partsmotion *motion_Fcut;
+  static partsmotion *motion_Bcut;
+  static partsmotion *motion_Fpeck;
+  static partsmotion *motion_Bpeck;
+  static partsmotion *motion_Fsmash;
 
   bool SubRedraw();
 };

@@ -72,14 +72,14 @@ PenAttack::Move( unsigned long *KeyHistory, long *MouseXHistory,
 }
 
 bool
-PenAttack::Swing( long power, double spin ) {
+PenAttack::Swing( long spin ) {
   Ball *tmpBall;
 
   if ( m_swing > 10 )
     return false;
 
   m_swing = 11;
-  m_pow = power-1;
+  m_pow = 0;
 
   // $BM=A[BG5eE@$H%\!<%k$N@-<A$+$iBG$AJ}$r7h$a$k(B
   // 0.1$BIC8e$N%\!<%k$N0LCV$r?dDj$9$k(B
@@ -90,7 +90,7 @@ PenAttack::Swing( long power, double spin ) {
   for ( int i = 0 ; i < 10 ; i++ )
     tmpBall->Move();
 
-  SwingType( tmpBall );
+  SwingType( tmpBall, spin );
 
   delete tmpBall;
 
@@ -101,7 +101,7 @@ PenAttack::Swing( long power, double spin ) {
 }
 
 bool
-PenAttack::StartSwing( long power, double spin ) { // $B0z?t$O%5!<%V;~$N$_M-8z(B
+PenAttack::StartSwing( long spin ) { // $B0z?t$O%5!<%V;~$N$_M-8z(B
   Ball *tmpBall;
 
   if ( m_swing > 10 )
@@ -109,7 +109,7 @@ PenAttack::StartSwing( long power, double spin ) { // $B0z?t$O%5!<%V;~$N$_M-8z
 
   if ( m_swing == 0 ){
     m_swing = 1;
-    m_pow = power-1;
+    m_pow = 0;
 
     // $BM=A[BG5eE@$H%\!<%k$N@-<A$+$iBG$AJ}$r7h$a$k(B
     // 0.2$BIC8e$N%\!<%k$N0LCV$r?dDj$9$k(B
@@ -123,11 +123,11 @@ PenAttack::StartSwing( long power, double spin ) { // $B0z?t$O%5!<%V;~$N$_M-8z
     if ( (theBall.GetStatus() == 6 && m_side == 1) ||
 	(theBall.GetStatus() == 7 && m_side == -1) ){	// $B%5!<%V(B
       m_swingType = SWING_POKE;
-      m_spin = -m_pow*0.25;
+      m_spin = -spin*0.25;
       if ( thePlayer == this && theSocket >= 0 )
 	theEvent.SendSwing( theSocket, this );
     } else
-      SwingType( tmpBall );
+      SwingType( tmpBall, spin );
 
     delete tmpBall;
   }
@@ -182,36 +182,7 @@ PenAttack::HitBall() {
 
       level -= (1-level)*m_spin/2;
 
-      if ( diff*1000 > m_status ) {
-#if 0
-	switch ( RAND(3) ) {
-	case 0:		// $B%*!<%P!<%_%9(B
-	  theBall.TargetToV( m_targetX, m_targetY+TABLELENGTH*m_side, level,
-			     m_spin, vx, vy, vz, 0.1, 
-			     hypot(theBall.GetVX(), theBall.GetVY())*0.6 +
-			     10.0 - fabs(m_spin)*3.0 );
-	  break;
-	case 1:		// $B%M%C%H%_%9(B
-	  theBall.TargetToV( m_targetX, m_targetY, level, m_spin,
-			     vx, vy, vz, 0.1, 
-			     hypot(theBall.GetVX(), theBall.GetVY())*0.6 +
-			     10.0 - fabs(m_spin)*3.0 );
-	  vz -= fabs(vz)*0.3;	// $BIT==J,(B?
-	  break;
-	case 2:		// $B%3!<%9%_%9(B
-	  theBall.TargetToV( m_targetX+TABLEWIDTH*2.0, m_targetY+1.0, level,
-			     m_spin, vx, vy, vz, 0.1, 
-			     hypot(theBall.GetVX(), theBall.GetVY())*0.6 +
-			     10.0 - fabs(m_spin)*3.0 );
-	  break;
-	}
-
-	theBall.Hit( vx, vy, vz, m_spin, this );
-	return true;
-#else
-	level *= 0.5;
-#endif
-      }
+      level *= (double)m_pow/20.0 + 0.5;
 
       double maxVy;
 
@@ -253,15 +224,18 @@ PenAttack::HitBall() {
 
       double rad, Xdiff, Ydiff;
       if ( theBall.GetX()-m_x > 0 )
-	Xdiff = (theBall.GetX()-m_x-0.3)/0.6*TABLEWIDTH*(220-m_status)/220;
+	Xdiff = (theBall.GetX()-m_x-0.3)/0.3*TABLEWIDTH/4*(220-m_status)/220;
       else
-	Xdiff = (theBall.GetX()-m_x+0.3)/0.6*TABLEWIDTH*(220-m_status)/220;
+	Xdiff = (theBall.GetX()-m_x+0.3)/0.3*TABLEWIDTH/4*(220-m_status)/220;
 
       if ( (m_y-theBall.GetY())*m_side < 0.3 &&
 	   (m_y-theBall.GetY())*m_side > 0 )
-	Ydiff = (theBall.GetY()-m_y)/0.6*TABLELENGTH/2*(220-m_status)/220;
+	Ydiff = (theBall.GetY()-m_y)/0.3*TABLELENGTH/8*(220-m_status)/220;
       else
-	Ydiff = (theBall.GetY()-m_y)/1.2*TABLELENGTH/2*(220-m_status)/220;
+	Ydiff = (theBall.GetY()-m_y)/0.6*TABLELENGTH/8*(220-m_status)/220;
+
+      Xdiff *= (double)m_pow/10.0;
+      Ydiff *= (double)m_pow/10.0;
 
       rad = RAND(360)*3.141592/180.0;
 
@@ -290,7 +264,7 @@ PenAttack::HitBall() {
 }
 
 bool
-PenAttack::SwingType( Ball *ball ) {
+PenAttack::SwingType( Ball *ball, long spin ) {
   if ( (ball->GetStatus() == 3 && m_side == 1) ||
        (ball->GetStatus() == 1 && m_side == -1) ){
     if ( fabs(ball->GetX()) < TABLEWIDTH/2 &&
@@ -299,22 +273,22 @@ PenAttack::SwingType( Ball *ball ) {
 	 NETHEIGHT/(TABLELENGTH/2)*0.5 ){	// $BBf>e$NDc$$5e(B
       if ( ball->GetSpin() < 0 ){
 	m_swingType = SWING_POKE;
-	m_spin = -m_pow*0.2-0.4;
+	m_spin = -spin*0.2-0.4;
       } else{
 	m_swingType = SWING_NORMAL;
-	m_spin = m_pow*0.2;
+	m_spin = spin*0.2;
       }
     } else if ( ball->GetZ() < TABLEHEIGHT+NETHEIGHT ) {	// $B%M%C%H$N2<(B
       if ( ForeOrBack() ) {
 	m_swingType = SWING_DRIVE;
-	m_spin = m_pow*0.2+0.4;
+	m_spin = spin*0.2+0.4;
       } else {
 	if ( ball->GetSpin() < 0 ) {
 	  m_swingType = SWING_POKE;
-	  m_spin = -m_pow*0.2-0.4;
+	  m_spin = -spin*0.2-0.4;
 	} else {
 	  m_swingType = SWING_NORMAL;
-	  m_spin = m_pow*0.2;
+	  m_spin = spin*0.2;
 	}
       }	    
     } else if ( fabs(ball->GetY()) < TABLELENGTH/2+1.0 &&
@@ -323,11 +297,11 @@ PenAttack::SwingType( Ball *ball ) {
       m_spin = 0.2;
     } else {
       m_swingType = SWING_NORMAL;
-      m_spin = m_pow*0.2;
+      m_spin = spin*0.2;
     }
   } else{
     m_swingType = SWING_NORMAL;
-    m_spin = m_pow*0.2;
+    m_spin = spin*0.2;
   }
 
   return true;

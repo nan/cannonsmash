@@ -25,7 +25,10 @@ extern long mode;
 
 extern bool isLighting;
 
+extern long trainingCount;
+
 GLuint BallView::m_number[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+GLuint BallView::m_max = 0;
 
 BallView::BallView() {
 }
@@ -35,19 +38,20 @@ BallView::~BallView() {
 
 bool
 BallView::Init() {
-  ImageData numImage;
+  ImageData Image;
   static char num[][20] = {"images/zero.ppm", "images/one.ppm",
 			   "images/two.ppm", "images/three.ppm",
 			   "images/four.ppm", "images/five.ppm",
 			   "images/six.ppm", "images/seven.ppm",
 			   "images/eight.ppm", "images/nine.ppm"};
+  static char max[20] = "images/Max.ppm";
 
   if ( m_number[0] == 0 ) {
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glGenTextures( 10, m_number );
 
     for ( int i = 0 ; i < 10 ; i++ ) {
-      numImage.LoadPPM( &num[i][0] );
+      Image.LoadPPM( &num[i][0] );
       glBindTexture( GL_TEXTURE_2D, m_number[i] );
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
@@ -56,10 +60,24 @@ BallView::Init() {
       glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
       glTexImage2D(GL_TEXTURE_2D, 0, 3,
-		   numImage.GetWidth(), numImage.GetHeight(), 
+		   Image.GetWidth(), Image.GetHeight(), 
 		   0, GL_RGBA, GL_UNSIGNED_BYTE,
-		   numImage.GetImage() );
+		   Image.GetImage() );
     }
+
+    glGenTextures( 1, &m_max );
+    Image.LoadPPM( max );
+    glBindTexture( GL_TEXTURE_2D, m_max );
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+		 Image.GetWidth(), Image.GetHeight(), 
+		 0, GL_RGBA, GL_UNSIGNED_BYTE, Image.GetImage() );
+
   }
 
   return true;
@@ -259,6 +277,39 @@ BallView::RedrawAlpha() {
       glTexCoord2f(0.0, 0.0); glVertex3f( 0.3, 0.0, 0.2 );
       glTexCoord2f(1.0, 0.0); glVertex3f( 0.4, 0.0, 0.2 );
       glTexCoord2f(1.0, 1.0); glVertex3f( 0.4, 0.0, 0.0 );
+      glEnd();
+    }
+
+    glBindTexture(GL_TEXTURE_2D, m_max );
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0, 80.0/256.0); glVertex3f(-0.2, 0.0, 0.2 );
+    glTexCoord2f(0.0,        0.0); glVertex3f(-0.2, 0.0, 0.4 );
+    glTexCoord2f(1.0,        0.0); glVertex3f( 0.2, 0.0, 0.4 );
+    glTexCoord2f(1.0, 80.0/256.0); glVertex3f( 0.2, 0.0, 0.2 );
+    glEnd();
+
+    if ( trainingCount < 10 ) {
+      glBindTexture(GL_TEXTURE_2D, m_number[trainingCount] );
+      glBegin(GL_QUADS);
+      glTexCoord2f(0.0, 1.0); glVertex3f( 0.2, 0.0, 0.2 );
+      glTexCoord2f(0.0, 0.0); glVertex3f( 0.2, 0.0, 0.4 );
+      glTexCoord2f(1.0, 0.0); glVertex3f( 0.4, 0.0, 0.4 );
+      glTexCoord2f(1.0, 1.0); glVertex3f( 0.4, 0.0, 0.2 );
+      glEnd();
+    } else {	/* Y2K :-) */
+      glBindTexture(GL_TEXTURE_2D, m_number[(trainingCount/10)%10] );
+      glBegin(GL_QUADS);
+      glTexCoord2f(0.0, 1.0); glVertex3f( 0.2, 0.0, 0.2 );
+      glTexCoord2f(0.0, 0.0); glVertex3f( 0.2, 0.0, 0.4 );
+      glTexCoord2f(1.0, 0.0); glVertex3f( 0.3, 0.0, 0.4 );
+      glTexCoord2f(1.0, 1.0); glVertex3f( 0.3, 0.0, 0.2 );
+      glEnd();
+      glBindTexture(GL_TEXTURE_2D, m_number[trainingCount%10] );
+      glBegin(GL_QUADS);
+      glTexCoord2f(0.0, 1.0); glVertex3f( 0.3, 0.0, 0.2 );
+      glTexCoord2f(0.0, 0.0); glVertex3f( 0.3, 0.0, 0.4 );
+      glTexCoord2f(1.0, 0.0); glVertex3f( 0.4, 0.0, 0.4 );
+      glTexCoord2f(1.0, 1.0); glVertex3f( 0.4, 0.0, 0.2 );
       glEnd();
     }
     glDisable(GL_TEXTURE_2D);

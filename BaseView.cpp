@@ -109,7 +109,7 @@ BaseView::Init() {
 // テクスチャの設定. 
   ImageData image;
 
-  image.LoadPPM( "images/Floor.ppm" );
+  image.LoadFile( "images/Floor.jpg" );
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glGenTextures( 1, &m_floor );
@@ -129,9 +129,9 @@ BaseView::Init() {
 
   for ( i = 0 ; i < image.GetWidth() ; i++ ) {
     for ( j = 0 ; j < image.GetHeight() ; j++ ) {
-      if ( image.GetPixel( i, j, 0 ) != 0 ||
-	   image.GetPixel( i, j, 1 ) != 0 ||
-	   image.GetPixel( i, j, 2 ) != 0 )
+      if ( image.GetPixel( i, j, 0 ) >= 5 ||
+	   image.GetPixel( i, j, 1 ) >= 5 ||
+	   image.GetPixel( i, j, 2 ) >= 5 )
 	image.SetPixel( i, j, 3 , 0 );
     }
   }
@@ -146,12 +146,12 @@ BaseView::Init() {
   glTexImage2D(GL_TEXTURE_2D, 0, 4, image.GetWidth(), image.GetHeight(),
 	       0, GL_RGBA, GL_UNSIGNED_BYTE, image.GetImage() );
 
-  static char pname[][30] = {"images/Left.ppm", "images/Front.ppm", 
-			     "images/Right.ppm", "images/Back.ppm" };
+  static char pname[][30] = {"images/Left.jpg", "images/Front.jpg", 
+			     "images/Right.jpg", "images/Back.jpg" };
 
   glGenTextures( 4, m_wall );
   for ( i = 0 ; i < 4 ; i++ ) {
-    image.LoadPPM( &(pname[i][0]) );
+    image.LoadFile( &(pname[i][0]) );
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glBindTexture( GL_TEXTURE_2D, m_wall[i] );

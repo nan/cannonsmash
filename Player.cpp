@@ -181,6 +181,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	      int Histptr ) {
   static double  lastSendX = 0,  lastSendY = 0,  lastSendZ = 0;
   static double lastSendVX = 0, lastSendVY = 0, lastSendVZ = 0;
+  static bool toggle = false;
 
 // swing
   if ( m_swing > 0 ){
@@ -219,6 +220,52 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   else if ( m_swing == 50 ){
     m_swing = 0;
     m_swingType = SWING_NORMAL;
+  }
+
+  // ボールに向かってホーミングするサービス. 
+  // 人間にのみ適用. 
+  if ( mode == MODE_PLAY && KeyHistory ) {
+    if ( m_swing > 10 && m_swing < 20 ) {
+      Ball *tmpBall;
+
+      tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
+			  theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
+			  theBall.GetSpin(), theBall.GetStatus() );
+
+      for ( int i = 0 ; i < 20-m_swing ; i++ )
+	tmpBall->Move();
+
+      if ( ((tmpBall->GetStatus() == 3 && m_side == 1) ||
+	    (tmpBall->GetStatus() == 1 && m_side == -1)) ) {
+	double xdiff = tmpBall->GetX() - (m_x+m_vx*(20-m_swing)*TICK);
+	double ydiff = tmpBall->GetY() - (m_y+m_vy*(20-m_swing)*TICK);
+
+	double vxdiff, vydiff;
+	if ( fabs(xdiff) > 0.6 ) {
+	  if ( xdiff > 0.0 )
+	    vxdiff = (xdiff-0.3)/TICK/(20-m_swing);
+	  else
+	    vxdiff = (xdiff+0.3)/TICK/(20-m_swing);
+
+	  if ( vxdiff > 5.0 )
+	    vxdiff = 5.0;
+	  else if ( vxdiff < -5.0 )
+	    vxdiff = -5.0;
+
+	  m_vx += vxdiff;
+	}
+
+	if ( fabs(ydiff) > 0.3 ) {
+	  vydiff = ydiff/TICK/(20-m_swing);
+	  if ( vydiff > 5.0 )
+	    vydiff = 5.0;
+	  else if ( vydiff < -5.0 )
+	    vydiff = -5.0;
+	  m_vy += vydiff;
+	}
+      }
+      delete tmpBall;
+    }
   }
 
 // playerの移動
@@ -272,14 +319,14 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
 			theBall.GetSpin(), theBall.GetStatus() );
 
-    for ( int i = 0 ; i < 20 ; i++ ) {
+    for ( int i = 0 ; i < 30 ; i++ ) {	/* 若干早めに */
       tmpBall->Move();
 
       if ( ((tmpBall->GetStatus() == 3 && m_side == 1) ||
 	    (tmpBall->GetStatus() == 1 && m_side == -1)) &&
 	   (m_y-tmpBall->GetY())*m_side < 0.3 &&
 	   (m_y-tmpBall->GetY())*m_side > -0.05 ){
-	StartSwing( 3, m_spin );
+	StartSwing( 3 );
 	break;
       }
     }
@@ -287,7 +334,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   }
 
 // status 計算
-  else if ( hypot( m_vx, m_vy ) > 2.0 )
+  if ( hypot( m_vx, m_vy ) > 2.0 )
     AddStatus( -1 );
 
   if ( m_swing > 0 )
@@ -503,30 +550,37 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
 
   if ( (mouse & BUTTON_RIGHT) && !(lastmouse & BUTTON_RIGHT) ){
     if ( theBall.GetStatus() == 8 && theBall.GetService() == GetSide() ) {
-      theBall.Toss( this, m_pow );
-      StartSwing( 3, m_spin );
+      theBall.Toss( this, 3 );
+      StartSwing( 3 );
     } else {
       AddStatus( (m_swing-10)*10 );
-      Swing( 3, m_spin );
+      Swing( 3 );
     }
   }
   else if ( (mouse & BUTTON_MIDDLE) && !(lastmouse & BUTTON_MIDDLE) ){
     if ( theBall.GetStatus() == 8 && theBall.GetService() == GetSide() ) {
-      theBall.Toss( this, m_pow );
-      StartSwing( 2, m_spin );
+      theBall.Toss( this, 2 );
+      StartSwing( 2 );
     } else {
       AddStatus( (m_swing-10)*10 );
-      Swing( 2, m_spin );
+      Swing( 2 );
     }
   }
   else if ( (mouse & BUTTON_LEFT) && !(lastmouse & BUTTON_LEFT) ){
     if ( theBall.GetStatus() == 8 && theBall.GetService() == GetSide() ) {
-      theBall.Toss( this, m_pow );
-      StartSwing( 1, m_spin );
+      theBall.Toss( this, 1 );
+      StartSwing( 1 );
     } else {
       AddStatus( (m_swing-10)*10 );
-      Swing( 1, m_spin );
+      Swing( 1 );
     }
+  }
+
+  if ( mouse & (BUTTON_RIGHT|BUTTON_MIDDLE|BUTTON_LEFT) &&
+       m_swing > 10 && m_swing <= 20 ) {
+    m_pow++;
+    if ( m_pow > 10 )
+      m_pow = 10;
   }
 
   return true;

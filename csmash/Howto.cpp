@@ -107,7 +107,7 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     m_mouseY = 25;
     if ( m_count%350 == 50 ) {
       theBall.Toss( thePlayer, 1 );
-      thePlayer->StartSwing( m_count/350+1, 0.5 );
+      thePlayer->StartSwing( m_count/350+1 );
     }
     if ( (m_count%350) >= 50 && (m_count%350) < 100 )
       m_mouseB = m_count/350+1;
@@ -157,7 +157,7 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
       m_mouseY = 2;
     } else if ( m_count == 1150 ) {
       theBall.Toss( thePlayer, 1 );
-      thePlayer->StartSwing( 1, 0.5 );
+      thePlayer->StartSwing( 1 );
     } else if ( m_count == 1450 ) {
       thePlayer->m_targetX = -TABLEWIDTH/2*0.9;
       thePlayer->m_targetY = TABLELENGTH/16*7;
@@ -165,7 +165,7 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
       m_mouseY = 0;
     } else if ( m_count == 1550 ) {
       theBall.Toss( thePlayer, 1 );
-      thePlayer->StartSwing( 1, 0.5 );
+      thePlayer->StartSwing( 1 );
     }
 
     break;
@@ -173,28 +173,31 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( m_count == 0 ) {
       thePlayer->m_targetX = 0.0;
       thePlayer->m_targetY = TABLELENGTH/16*5;
+      comPlayer->m_y = TABLELENGTH/2+0.7;
       m_mouseX = 0;
       m_mouseY = 0;
       m_mouseB = 0;
     } else if ( m_count == 50 ) {
       theBall.Toss( thePlayer, 1 );
-      thePlayer->StartSwing( 1, 0.5 );
+      thePlayer->StartSwing( 1 );
       m_mouseB = 1;
     } else if ( m_count > 50 && m_count < 100 ) {
       m_mouseB = 1;
-    } else if ( m_count == 160 ) {
+    } else if ( m_count == 180 ) {
       comPlayer->m_targetX = -TABLEWIDTH/2*0.3;
-      comPlayer->Swing( 1, 0.5 );
+      comPlayer->Swing( 1 );
+      comPlayer->m_pow = 8;
       m_mouseB = 0;
     } else {
       m_mouseB = 0;
     }
     break;
   case 4:	// 打球2
-    if ( m_count == 395 ) {
-      thePlayer->Swing( 1, 0.5 );
+    if ( m_count == 570 ) {
+      thePlayer->Swing( 1 );
+      thePlayer->m_pow = 10;
       m_mouseB = 1;
-    } else if ( m_count > 395 && m_count < 600 ) {
+    } else if ( m_count > 570 && m_count < 700 ) {
       m_mouseB = 1;
     } else {
       m_mouseB = 0;
@@ -223,13 +226,13 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     }
     break;
   case 3:
-    if ( m_count > 400 ) {
+    if ( m_count > 440 ) {
       m_mode = 4;
       m_count = 0;
     }
     break;
   case 4:
-    if ( m_count > 1000 ) {
+    if ( m_count > 1200 ) {
       mode = MODE_TITLE;
       return true;
     }
@@ -274,17 +277,17 @@ Howto::IsMove() {
   case 2:
     return true;
   case 3:
-    if ( m_count > 175 )
+    if ( m_count > 215 )
       return false;
     else
       return true;
   case 4:
-    if ( m_count < 395 ) {
+    if ( m_count < 570 ) {
       if ( m_count%10 == 0 )
 	return true;
       else
 	return false;
-    } else if ( m_count < 600 ) {
+    } else if ( m_count < 670 ) {
       return false;
     } else 
       return true;

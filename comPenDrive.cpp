@@ -132,7 +132,7 @@ ComPenDrive::Think() {
        fabs(m_x+m_side*0.3-_hitX) < 0.1 && fabs(m_y-_hitY) < 0.1 &&
        m_swing == 0 ){
     theBall.Toss( this, 2 );
-    StartSwing( 3, m_spin );
+    StartSwing( 3 );
     m_targetY = TABLELENGTH/8*m_side;
 
     return true;
@@ -169,14 +169,15 @@ ComPenDrive::Think() {
 
       if ( (tmpBall->GetZ()-TABLEHEIGHT)/fabs(m_y - m_targetY) < 0.0 ) {
 	m_targetY = TABLELENGTH/6*m_side;
-	Swing( 1, 0.0 );
+	Swing( 1 );
       } else if ( (tmpBall->GetZ()-TABLEHEIGHT)/fabs(m_y-m_targetY) < 0.1 ) {
 	m_targetY = TABLELENGTH/4*m_side;
-	Swing( 2, 0.0 );
+	Swing( 2 );
       } else {
 	m_targetY = TABLELENGTH/16*6*m_side;
-	Swing( 3, 0.0 );
+	Swing( 3 );
       }
+      m_pow = 8;
     }
     delete tmpBall;
   }

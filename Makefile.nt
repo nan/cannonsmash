@@ -20,6 +20,7 @@ CXXpost = -c -Tp
 
 #CFLAGS = -MD -Ox -G6 -vms $(INCDIRS)
 CFLAGS = -MD -Ox -G6 -vms -DHAVE_LIBZ $(INCDIRS)
+#CFLAGS = -MD -Od -Zi -G6 -vms -DHAVE_LIBZ $(INCDIRS)
 
 CXXFLAGS=$(CFLAGS) -GX
 
@@ -34,7 +35,7 @@ AOUT = -Fe
 INCDIRS = -I.
 LIBS =	win32/GetArgs.obj win32/getopt.obj win32/wsaerror.obj \
 	win32/wsainit.obj \
-	glut32.lib zlib.lib ws2_32.lib
+	glut32.lib zlib.lib libjpeg.lib ws2_32.lib
 
 HDRS = \
 	Ball.h BallView.h BaseView.h Event.h HitMark.h Howto.h HowtoView.h \
@@ -50,7 +51,8 @@ SRCS = \
 	ShakeCut.cpp Sound.cpp Title.cpp TitleView.cpp PlayerView.cpp \
 	View.cpp comPenAttack.cpp comPenDrive.cpp comPlayer.cpp \
 	comShakeCut.cpp ComTrainingPenAttack.cpp TrainingPenAttack.cpp \
-	MultiPlayer.cpp \
+	MultiPlayer.cpp TrainingPenDrive.cpp ComTrainingPenDrive.cpp \
+	TrainingSelect.cpp TrainingSelectView.cpp \
 	main.cpp z.cpp parts.cpp xerror.cpp
 
 #	PlayerView.cpp Normal.cpp
@@ -69,7 +71,7 @@ distclean:
 
 depend:
 	touch depend.nt
-	makedepend -fdepend.nt $(INCDIRS) -D_WIN32 -DHAVE_LIBZ *.cpp
+	makedepend -fdepend.nt $(INCDIRS) -D_WIN32 -DHAVE_LIBZ $(SRCS)
 	cat depend.nt | sed -e "s/.:\/.*\/VC98[^ ]*include\/[^ ]*//g" \
 	| grep -v ".*:[ ]*$$" > depend.new
 	mv depend.new depend.nt

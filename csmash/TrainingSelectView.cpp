@@ -36,7 +36,7 @@ TrainingSelectView::Init( PlayerSelect *playerSelect ) {
   ImageData image;
   int i, j;
 
-  static char pname[][30] = {"images/FastRally.ppm", "images/Footwork.ppm" };
+  static char pname[][30] = {"images/FastRally.jpg", "images/Footwork.jpg" };
 
   m_playerSelect = playerSelect;
 
@@ -44,7 +44,7 @@ TrainingSelectView::Init( PlayerSelect *playerSelect ) {
     glGenTextures( TRAININGPLAYERS+2, m_textures );
 
     for ( i = 0 ; i < TRAININGPLAYERS ; i++ ){
-      image.LoadPPM( &(pname[i][0]) );
+      image.LoadFile( &(pname[i][0]) );
       glBindTexture(GL_TEXTURE_2D, m_textures[i] );
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);

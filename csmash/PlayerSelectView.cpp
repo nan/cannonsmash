@@ -37,8 +37,8 @@ PlayerSelectView::Init( PlayerSelect *playerSelect ) {
   ImageData image;
   int i, j;
 
-  static char pname[][30] = {"images/PenSmash.ppm", "images/ShakeCut.ppm",
-			     "images/PenDrive.ppm"};
+  static char pname[][30] = {"images/PenAttack.jpg", "images/ShakeCut.jpg",
+			     "images/PenDrive.jpg"};
 
   m_playerSelect = playerSelect;
 
@@ -46,7 +46,8 @@ PlayerSelectView::Init( PlayerSelect *playerSelect ) {
     glGenTextures( PLAYERS+2, m_textures );
 
     for ( i = 0 ; i < PLAYERS ; i++ ){
-      image.LoadPPM( &(pname[i][0]) );
+//      image.LoadPPM( &(pname[i][0]) );
+      image.LoadFile( &(pname[i][0]) );
       glBindTexture(GL_TEXTURE_2D, m_textures[i] );
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);

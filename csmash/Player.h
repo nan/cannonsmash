@@ -156,8 +156,8 @@ protected:
   virtual bool KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
 			 long *MouseYHistory, unsigned long *MouseBHistory,
 			 int Histptr );		// キー入力処理
-  virtual bool Swing( long power, double spin ) = 0;
-  virtual bool StartSwing( long power, double spin ) = 0;
+  virtual bool Swing( long power ) = 0;
+  virtual bool StartSwing( long power ) = 0;
 
   virtual bool HitBall() = 0;
 

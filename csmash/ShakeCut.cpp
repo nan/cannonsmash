@@ -66,14 +66,14 @@ ShakeCut::Move( unsigned long *KeyHistory, long *MouseXHistory,
 }
 
 bool
-ShakeCut::Swing( long power, double spin ) {
+ShakeCut::Swing( long spin ) {
   Ball *tmpBall;
 
   if ( m_swing > 10 )
     return false;
 
   m_swing = 11;
-  m_pow = power-1;
+  m_pow = 0;
 
   // 予想打球点とボールの性質から打ち方を決める
   // 0.1秒後のボールの位置を推定する
@@ -84,7 +84,7 @@ ShakeCut::Swing( long power, double spin ) {
   for ( int i = 0 ; i < 10 ; i++ )
     tmpBall->Move();
 
-  SwingType( tmpBall );
+  SwingType( tmpBall, spin );
 
   delete tmpBall;
 
@@ -95,7 +95,7 @@ ShakeCut::Swing( long power, double spin ) {
 }
 
 bool
-ShakeCut::StartSwing( long power, double spin ) {
+ShakeCut::StartSwing( long spin ) {
   Ball *tmpBall;
 
   if ( m_swing > 10 )
@@ -103,6 +103,7 @@ ShakeCut::StartSwing( long power, double spin ) {
 
   if ( m_swing == 0 ){
     m_swing = 1;
+    m_pow = 0;
 
     // 予想打球点とボールの性質から打ち方を決める
     // 0.2秒後のボールの位置を推定する
@@ -116,7 +117,7 @@ ShakeCut::StartSwing( long power, double spin ) {
     if ( (theBall.GetStatus() == 6 && m_side == 1) ||
 	(theBall.GetStatus() == 7 && m_side == -1) ){	// サーブ
       m_swingType = SWING_POKE;
-      switch ( m_pow ) {
+      switch ( spin ) {
       case 0:
 	m_spin = 0.2;	// straight
 	break;
@@ -130,7 +131,7 @@ ShakeCut::StartSwing( long power, double spin ) {
       if ( thePlayer == this && theSocket >= 0 )
 	theEvent.SendSwing( theSocket, this );
     } else
-      SwingType( tmpBall );
+      SwingType( tmpBall, spin );
 
     delete tmpBall;
   }
@@ -189,36 +190,7 @@ ShakeCut::HitBall() {
 
       level -= (1-level)*m_spin/2;
 
-      if ( diff*1000 > m_status ) {
-#if 0
-	switch ( RAND(3) ) {
-	case 0:		// オーバーミス
-	  theBall.TargetToV( m_targetX, m_targetY+TABLELENGTH*m_side, level,
-			     m_spin, vx, vy, vz, 0.1,
-			     hypot(theBall.GetVX(), theBall.GetVY())*0.6 +
-			     10.0 - fabs(m_spin)*3.0 );
-	  break;
-	case 1:		// ネットミス
-	  theBall.TargetToV( m_targetX, m_targetY, level, m_spin,
-			     vx, vy, vz, 0.1,
-			     hypot(theBall.GetVX(), theBall.GetVY())*0.6 +
-			     10.0-fabs(m_spin)*3.0 );
-	  vz -= fabs(vz)*0.3;
-	  break;
-	case 2:		// コースミス
-	  theBall.TargetToV( m_targetX+TABLEWIDTH*2.0, m_targetY+1.0, level,
-			     m_spin, vx, vy, vz, 0.1, 
-			     hypot(theBall.GetVX(), theBall.GetVY())*0.6 +
-			     10.0 - fabs(m_spin)*3.0 );
-	  break;
-	}
-
-	theBall.Hit( vx, vy, vz, m_spin, this );
-	return true;
-#else
-	level *= 0.5;
-#endif
-      }
+      level *= (double)m_pow/20.0 + 0.5;
 
       double maxVy;
 
@@ -276,6 +248,9 @@ ShakeCut::HitBall() {
       else
 	Ydiff = (theBall.GetY()-m_y)/1.2*TABLELENGTH/2*(220-m_status)/220;
 
+      Xdiff *= (double)m_pow/10.0;
+      Ydiff *= (double)m_pow/10.0;
+
       rad = RAND(360)*3.141592/180.0;
 
       theBall.TargetToV( m_targetX + Xdiff*cos(rad),
@@ -304,7 +279,7 @@ ShakeCut::HitBall() {
 }
 
 bool
-ShakeCut::SwingType( Ball *ball ) {
+ShakeCut::SwingType( Ball *ball, long spin ) {
   if ( (ball->GetStatus() == 3 && m_side == 1) ||
        (ball->GetStatus() == 1 && m_side == -1) ) {
     if ( fabs(ball->GetX()) < TABLEWIDTH/2 &&
@@ -313,7 +288,7 @@ ShakeCut::SwingType( Ball *ball ) {
 	 NETHEIGHT/(TABLELENGTH/2) ){	// 台上の低い球
       if ( ball->GetSpin() <= -0.2 ) {
 	m_swingType = SWING_POKE;
-	m_spin = -m_pow*0.2-0.4;
+	m_spin = -spin*0.2-0.4;
       } else {
 	m_swingType = SWING_NORMAL;
 	m_spin = 0.2;
@@ -322,10 +297,10 @@ ShakeCut::SwingType( Ball *ball ) {
 		ball->GetZ() < TABLEHEIGHT+NETHEIGHT*2 ){	// 中
       if ( ball->GetVZ() < 0 ) {
 	m_swingType = SWING_CUT;
-	m_spin = -m_pow*0.3-0.4;
+	m_spin = -spin*0.3-0.4;
       } else {
 	m_swingType = SWING_DRIVE;
-	m_spin = m_pow*0.2+0.2;
+	m_spin = spin*0.2+0.2;
       }
     } else {	// 高い球
       m_swingType = SWING_SMASH;

@@ -23,6 +23,7 @@ extern Player *thePlayer;
 extern Player *comPlayer;
 
 extern long    gameLevel;
+extern long    trainingCount;
 
 ComTrainingPenDrive::ComTrainingPenDrive() : ComPenDrive() {
 }
@@ -61,8 +62,11 @@ ComTrainingPenDrive::Think() {
 
     _prevBallstatus = theBall.GetStatus();
 
-    if ( theBall.GetStatus() == 8 )
+    if ( theBall.GetStatus() == 8 ) {
+      if ( theBall.m_count > trainingCount )
+	trainingCount = theBall.m_count;
       theBall.m_count = 0;
+    }
   }
 
   if ( theBall.GetVX() != 0.0 )
@@ -129,7 +133,7 @@ ComTrainingPenDrive::Think() {
        fabs(m_x+m_side*0.3-_hitX) < 0.1 && fabs(m_y-_hitY) < 0.1 &&
        m_swing == 0 ){
     theBall.Toss( this, 2 );
-    StartSwing( 3, m_spin );
+    StartSwing( 3 );
     m_targetY = TABLELENGTH/8*m_side;
 
     return true;
@@ -161,7 +165,7 @@ ComTrainingPenDrive::Think() {
 
     SetTargetX( opponent );
 
-    Swing( 3, 0.0 );
+    Swing( 3 );
   }
   delete tmpBall;
 

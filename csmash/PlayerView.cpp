@@ -25,14 +25,15 @@ extern bool isLighting;
 #if HAVE_LIBPTHREAD
 extern pthread_mutex_t loadMutex;
 #endif
-extern partsmotion *motion_Fnormal;
-extern partsmotion *motion_Bnormal;
-extern partsmotion *motion_Fdrive;
-extern partsmotion *motion_Fcut;
-extern partsmotion *motion_Bcut;
-extern partsmotion *motion_Fpeck;
-extern partsmotion *motion_Bpeck;
-extern partsmotion *motion_Fsmash;
+
+partsmotion *PlayerView::motion_Fnormal = NULL;
+partsmotion *PlayerView::motion_Bnormal = NULL;
+partsmotion *PlayerView::motion_Fdrive = NULL;
+partsmotion *PlayerView::motion_Fcut = NULL;
+partsmotion *PlayerView::motion_Bcut = NULL;
+partsmotion *PlayerView::motion_Fpeck = NULL;
+partsmotion *PlayerView::motion_Bpeck = NULL;
+partsmotion *PlayerView::motion_Fsmash = NULL;
 
 extern Player *thePlayer;
 extern Player *comPlayer;
@@ -50,6 +51,18 @@ PlayerView::PlayerView() {
 }
 
 PlayerView::~PlayerView() {
+}
+
+void
+PlayerView::LoadData() {
+  motion_Fnormal = new partsmotion("Parts/Fnormal/Fnormal");
+  motion_Bnormal = new partsmotion("Parts/Bnormal/Bnormal");
+  motion_Fdrive = new partsmotion("Parts/Fdrive/Fdrive");
+  motion_Fcut = new partsmotion("Parts/Fcut/Fcut");
+  motion_Bcut = new partsmotion("Parts/Bcut/Bcut");
+  motion_Fpeck = new partsmotion("Parts/Fpeck/Fpeck");
+  motion_Bpeck = new partsmotion("Parts/Bpeck/Bpeck");
+  motion_Fsmash = new partsmotion("Parts/Fsmash/Fsmash");
 }
 
 bool
@@ -131,8 +144,12 @@ PlayerView::SubRedraw() {
   else
     glTranslatef( m_player->GetX(), m_player->GetY(), m_player->GetZ() );
 
-  if ( m_player->GetSide() < 0 )
-    glRotatef( 180.0, 0.0, 0.0, 1.0 );
+  glRotatef( -atan2( m_player->GetTargetX()-m_player->GetX(),
+		     m_player->GetTargetY()-m_player->GetY() )*180.0/3.141592, 
+	     0.0, 0.0, 1.0 );
+
+  //if ( m_player->GetSide() < 0 )
+  //glRotatef( 180.0, 0.0, 0.0, 1.0 );
 
   if ( isPolygon ) {
     int swing;
@@ -281,8 +298,8 @@ PlayerView::SubRedraw() {
   if ( m_player == thePlayer ) {
     double rad, Xdiff, Ydiff;
 
-    Xdiff = TABLEWIDTH/2*(220-m_player->GetStatus())/220;
-    Ydiff = TABLELENGTH/4*(220-m_player->GetStatus())/220;
+    Xdiff = TABLEWIDTH/4*(220-m_player->GetStatus())/220;
+    Ydiff = TABLELENGTH/8*(220-m_player->GetStatus())/220;
     glBegin(GL_POLYGON);
       for ( rad = 0.0 ; rad < 3.141592*2 ; rad += 3.141592/8.0 )
 	glVertex3f( m_player->GetTargetX()+Xdiff*cos(rad),

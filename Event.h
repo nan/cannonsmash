@@ -68,11 +68,11 @@ public:
   Event();
   ~Event();
 
-  void IdleFunc();
-  void KeyboardFunc( unsigned char key, int x, int y );
-  void KeyUpFunc( unsigned char key, int x, int y );
-  void MotionFunc( long x, long y );
-  void ButtonFunc( long button, long state, long x, long y );
+  static void IdleFunc();
+  static void KeyboardFunc( unsigned char key, int x, int y );
+  static void KeyUpFunc( unsigned char key, int x, int y );
+  static void MotionFunc( int x, int y );
+  static void ButtonFunc( int button, int state, int x, int y );
 
   bool SendSwing( int sd, Player *player );
   bool SendPlayer( int sd, Player *player );

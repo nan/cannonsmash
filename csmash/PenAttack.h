@@ -38,13 +38,13 @@ public:
 		     long *MouseYHistory, unsigned long *MouseBHistory,
 		     int Histptr );
 protected:
-  virtual bool Swing( long power, double spin );
-  virtual bool StartSwing( long power, double spin );
+  virtual bool Swing( long spin );
+  virtual bool StartSwing( long spin );
 
   virtual bool HitBall();
 
 private:
-  bool SwingType( Ball *ball );
+  bool SwingType( Ball *ball, long spin );
 };
 
 #endif // _PenAttack__

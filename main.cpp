@@ -27,11 +27,6 @@
 #endif
 
 void Draw(void);
-void Keyboard( unsigned char key, int x, int y );
-void KeyUp( unsigned char key, int x, int y );
-void MouseMove( int x, int y );
-void MouseButton( int button, int state, int x, int y );
-void Timer();
 void Reshape( int width, int height );
 
 void PlayInit( long player, long com );
@@ -77,30 +72,12 @@ Howto*        theHowto  = NULL;
 
 long mode = MODE_TITLE;
 
+long trainingCount = 0;
+
 char *dataDir = NULL;
 
 #if HAVE_LIBPTHREAD
 pthread_mutex_t loadMutex = PTHREAD_MUTEX_INITIALIZER;
-#endif
-
-#if 0
-MotionData *motion_Fnormal;
-MotionData *motion_Bnormal;
-MotionData *motion_Fdrive;
-MotionData *motion_Fcut;
-MotionData *motion_Bcut;
-MotionData *motion_Fpeck;
-MotionData *motion_Bpeck;
-MotionData *motion_Fsmash;
-#else
-partsmotion *motion_Fnormal = NULL;
-partsmotion *motion_Bnormal = NULL;
-partsmotion *motion_Fdrive = NULL;
-partsmotion *motion_Fcut = NULL;
-partsmotion *motion_Bcut = NULL;
-partsmotion *motion_Fpeck = NULL;
-partsmotion *motion_Bpeck = NULL;
-partsmotion *motion_Fsmash = NULL;
 #endif
 
 #ifdef WIN32
@@ -159,11 +136,7 @@ int main(int argc, char** argv) {
       strncpy(serverName, argv[optind], sizeof(serverName));
     }
 
-#if 0
-#define PROBE_FILE "Motion/Fnormal1.bin"
-#else
 #define PROBE_FILE "Parts/Fnormal/Fnormal-head01.dat"
-#endif
 
   if ( (access( PROBE_FILE, F_OK ) == 0) ) {
     dataDir = ".";
@@ -228,16 +201,18 @@ int main(int argc, char** argv) {
   theBall.Init();
 
   glutDisplayFunc(Draw);
-  glutKeyboardFunc( Keyboard );
+//  glutKeyboardFunc( Keyboard );
+  glutKeyboardFunc( theEvent.KeyboardFunc );
 
 #if (GLUT_API_VERSION >= 4 || GLUT_XLIB_IMPLEMENTATION >= 13)
-  glutKeyboardUpFunc( KeyUp );
+//  glutKeyboardUpFunc( KeyUp );
+  glutKeyboardUpFunc( theEvent.KeyUpFunc );
 #endif
 
-  glutIdleFunc( Timer );
-  glutMotionFunc( MouseMove );
-  glutPassiveMotionFunc( MouseMove );
-  glutMouseFunc( MouseButton );
+  glutIdleFunc( theEvent.IdleFunc );
+  glutMotionFunc( theEvent.MotionFunc );
+  glutPassiveMotionFunc( theEvent.MotionFunc );
+  glutMouseFunc( theEvent.ButtonFunc );
   glutReshapeFunc(Reshape);
 
   if (fullScreen) {
@@ -254,31 +229,6 @@ int main(int argc, char** argv) {
 void
 Draw() {
   theView.RedrawAll();
-}
-
-void
-Keyboard( unsigned char key, int x, int y ) {
-  theEvent.KeyboardFunc( key, x, y );
-}
-
-void
-KeyUp( unsigned char key, int x, int y ) {
-  theEvent.KeyUpFunc( key, x, y );
-}
-
-void
-MouseMove( int x, int y ) {
-  theEvent.MotionFunc( x, y );
-}
-
-void
-MouseButton( int button, int state, int x, int y ) {
-  theEvent.ButtonFunc( button, state, x, y );
-}
-
-void
-Timer() {
-  theEvent.IdleFunc();
 }
 
 void
@@ -533,6 +483,8 @@ TrainingInit( long player, long com ) {
   thePlayer->Init();
   comPlayer->Init();
 
+  trainingCount = 0;
+
   glutSetCursor( GLUT_CURSOR_NONE );
 }
 
@@ -542,33 +494,7 @@ LoadData( void *dum ) {
   pthread_mutex_lock( &loadMutex );
 #endif
 
-#if 0
-  motion_Fnormal = new MotionData();
-  motion_Bnormal = new MotionData();
-  motion_Fdrive = new MotionData();
-  motion_Fcut = new MotionData();
-  motion_Bcut = new MotionData();
-  motion_Fpeck = new MotionData();
-  motion_Bpeck = new MotionData();
-  motion_Fsmash = new MotionData();
-  motion_Fnormal->LoadData( "Motion/Fnormal%d.bin", 706 );
-  motion_Bnormal->LoadData( "Motion/Bnormal%d.bin", 706 );
-  motion_Fdrive->LoadData( "Motion/Fdrive%d.bin", 706 );
-  motion_Fcut->LoadData( "Motion/Fcut%d.bin", 706 );
-  motion_Bcut->LoadData( "Motion/Bcut%d.bin", 706 );
-  motion_Fpeck->LoadData( "Motion/Fpeck%d.bin", 706 );
-  motion_Bpeck->LoadData( "Motion/Bpeck%d.bin", 664 );
-  motion_Fsmash->LoadData( "Motion/Fsmash%d.bin", 664 );
-#else
-  motion_Fnormal = new partsmotion("Parts/Fnormal/Fnormal");
-  motion_Bnormal = new partsmotion("Parts/Bnormal/Bnormal");
-  motion_Fdrive = new partsmotion("Parts/Fdrive/Fdrive");
-  motion_Fcut = new partsmotion("Parts/Fcut/Fcut");
-  motion_Bcut = new partsmotion("Parts/Bcut/Bcut");
-  motion_Fpeck = new partsmotion("Parts/Fpeck/Fpeck");
-  motion_Bpeck = new partsmotion("Parts/Bpeck/Bpeck");
-  motion_Fsmash = new partsmotion("Parts/Fsmash/Fsmash");
-#endif
+  PlayerView::LoadData();
   theSound.Init();
 
 #if HAVE_LIBPTHREAD

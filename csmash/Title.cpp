@@ -126,8 +126,8 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	m_selectMode = MENU_CONFIG;
 	break;
       case 4:	// Quit
-	Keyboard( 'Q', 0, 0 );
-	KeyUp( 'Q', 0, 0 );
+	Event::KeyboardFunc( 'Q', 0, 0 );
+	Event::KeyUpFunc( 'Q', 0, 0 );
 	break;
       }
       break;

@@ -39,8 +39,8 @@ HowtoView::Init( Howto *howto ) {
   gzFile fp;
 #endif
 
-  static char fname[][30] = {"images/Mouse1.ppm", "images/Mouse2.ppm",
-			     "images/Mouse3.ppm", "images/Mouse4.ppm"};
+  static char fname[][30] = {"images/Mouse1.jpg", "images/Mouse2.jpg",
+			     "images/Mouse3.jpg", "images/Mouse4.jpg"};
   static char arrowname[][30] = {"images/rightArrow.ppm",
 				 "images/downArrow.ppm",
 				 "images/leftArrow.ppm",
@@ -55,12 +55,12 @@ HowtoView::Init( Howto *howto ) {
     glGenTextures( 4, m_textures );
 
     for ( i = 0 ; i < 4 ; i++ ){
-      image.LoadPPM( &(fname[i][0]) );
+      image.LoadFile( &(fname[i][0]) );
       for ( j = 0 ; j < image.GetWidth() ; j++ ) {
 	for ( k = 0 ; k < image.GetHeight() ; k++ ) {
-	  if ( image.GetPixel( j, k, 0 ) != 0 ||
-	       image.GetPixel( j, k, 1 ) != 0 ||
-	       image.GetPixel( j, k, 2 ) != 0 )
+	  if ( image.GetPixel( j, k, 0 ) >= 5 ||
+	       image.GetPixel( j, k, 1 ) >= 5 ||
+	       image.GetPixel( j, k, 2 ) >= 5 )
 	    image.SetPixel( j, k, 3 , 0 );
 	}
       }
@@ -124,6 +124,7 @@ HowtoView::Init( Howto *howto ) {
 
   glGenTextures( 1, m_keyboard );
   image.LoadPPM( "images/Keyboard.ppm" );
+  /*
   for ( j = 0 ; j < image.GetWidth() ; j++ ) {
     for ( k = 0 ; k < image.GetHeight() ; k++ ) {
       if ( image.GetPixel( j, k, 0 ) == 255 ||
@@ -132,6 +133,7 @@ HowtoView::Init( Howto *howto ) {
 	image.SetPixel( j, k, 3 , 0 );
     }
   }
+  */
 
   glBindTexture(GL_TEXTURE_2D, m_keyboard[0]);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);

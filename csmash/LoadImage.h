@@ -32,7 +32,10 @@ public:
   long GetBytes()  {return m_bytes;}
   GLubyte GetPixel( long width, long height, long bytes );
   bool SetPixel( long width, long height, long bytes, GLubyte val );
-  bool LoadPPM( char* filename );
+
+  bool LoadFile(const char *filename);
+  bool LoadPPM(const char* filename );
+  bool LoadJPG(const char* filename);
 
 protected:
   GLubyte *m_image;
