@@ -236,11 +236,7 @@ Ball::Move() {
 	m_status = 0;
 	break;
       default:
-	if ( m_status >= 0 ) {
-	  if ( Control::TheControl()->IsPlaying() && &theBall == this )
-	    ((PlayGame *)Control::TheControl())->ChangeScore();
-	  m_status = -1;
-	}
+	BallDead();
       }
     } else {			// Table of opponent side
       switch( m_status ) {
@@ -356,6 +352,15 @@ Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
 
   m_spin = spin;
 
+  m_vx = vx;
+  m_vy = vy;
+  m_vz = vz;
+
+  // m_status should be updated by the information from the opponent
+  if ( player == comPlayer && mode == MODE_MULTIPLAY ) {
+    return true;
+  }
+
   if ( m_status == 6 )
     m_status = 4;
   else if ( m_status == 7 )
@@ -365,10 +370,6 @@ Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
   else if ( m_status == 1 ) {
     m_status = 2;
   }
-
-  m_vx = vx;
-  m_vy = vy;
-  m_vz = vz;
 
   if ( player == thePlayer && mode == MODE_MULTIPLAY ) {
     Event::TheEvent()->SendBall();
@@ -411,6 +412,7 @@ Ball::Warp( double x, double y, double z, double vx, double vy, double vz,
 void
 Ball::Warp( char *buf ) {
   char *b = buf;
+  long nextStatus;
 
   b = ReadDouble( b, m_x );
   b = ReadDouble( b, m_y );
@@ -420,7 +422,12 @@ Ball::Warp( char *buf ) {
   b = ReadDouble( b, m_vz );
 
   b = ReadDouble( b, m_spin );
-  b = ReadLong( b, m_status );
+  b = ReadLong( b, nextStatus );
+
+  if ( m_status >= 0 && nextStatus < 0 )
+    BallDead();
+  else
+    m_status = nextStatus;
 }
 
 // Get ball initial speed from current ball location, target, height
@@ -595,8 +602,18 @@ Ball::TargetToVS( double targetX, double targetY, double level, double spin,
 void
 Ball::BallDead() {
   if ( m_status >= 0 ) {
-    if ( Control::TheControl()->IsPlaying() && &theBall == this )
+    if ( Control::TheControl()->IsPlaying() && &theBall == this ) {
       ((PlayGame *)Control::TheControl())->ChangeScore();
+
+      if ( mode == MODE_MULTIPLAY ) {
+	if ( (thePlayer->GetSide() > 0 && m_status == 3) ||
+	     (thePlayer->GetSide() < 0 && m_status == 1) ) {
+	  m_status = -1;
+	  Event::TheEvent()->SendBall();
+	}
+      }
+    }
+
     m_status = -1;
   }
 }

@@ -198,35 +198,10 @@ MultiPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
 		 int Histptr ) {
   bool reDraw = false;
 
-#ifdef LOGGING
-  long prevStatus = theBall.GetStatus();
-  theBall.Move();
-
-  double prevVx = thePlayer->GetVX();
-  double prevVy = thePlayer->GetVY();
-  long   prevSwing = thePlayer->GetSwing();
-  reDraw |= thePlayer->Move( KeyHistory, MouseXHistory,
-			     MouseYHistory, MouseBHistory, Histptr );
-  if ( prevVx != thePlayer->GetVX() || prevVy != thePlayer->GetVY() ||
-       prevSwing != thePlayer->GetSwing() ) {
-    Logging::GetLogging()->LogPlayer( LOG_ACTTHEPLAYER, thePlayer );
-  }
-
-  prevVx = comPlayer->GetVX();
-  prevVy = comPlayer->GetVY();
-  prevSwing = comPlayer->GetSwing();
-  reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
-  if ( prevVx != comPlayer->GetVX() || prevVy != comPlayer->GetVY() ||
-       prevSwing != comPlayer->GetSwing() ) {
-    Logging::GetLogging()->LogPlayer( LOG_ACTCOMPLAYER, comPlayer );
-  }
-
-#else
   theBall.Move();
   reDraw |= thePlayer->Move( KeyHistory, MouseXHistory,
 			     MouseYHistory, MouseBHistory, Histptr );
   reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
-#endif
 
   return reDraw;
 }
