@@ -131,9 +131,9 @@ HowtoView::Init( Howto *howto ) {
   image.LoadPPM( "images/Keyboard.ppm" );
   for ( j = 0 ; j < image.GetWidth() ; j++ ) {
     for ( k = 0 ; k < image.GetHeight() ; k++ ) {
-      if ( image.GetPixel( j, k, 0 ) >= 5 ||
-	   image.GetPixel( j, k, 1 ) >= 5 ||
-	   image.GetPixel( j, k, 2 ) >= 5 )
+      if ( image.GetPixel( j, k, 0 ) >= 50 ||
+	   image.GetPixel( j, k, 1 ) >= 50 ||
+	   image.GetPixel( j, k, 2 ) >= 50 )
 	image.SetPixel( j, k, 3 , 255 );
       else
 	image.SetPixel( j, k, 3 , 0 );
@@ -177,7 +177,7 @@ HowtoView::RedrawAlpha() {
   case 1:
   case 3:
   case 4:
-    glColor4f( 0.0, 0.0, 0.0, 0.5 );
+    glColor4f( 0.0, 0.0, 0.0, 0.3 );
     glBegin(GL_QUADS);
     glVertex2i(             0,               0);
     glVertex2i(IMAGE_WIDTH+50,               0);
@@ -208,10 +208,6 @@ HowtoView::RedrawAlpha() {
       glEnable(GL_TEXTURE_2D);
       glBindTexture(GL_TEXTURE_2D, m_keyboard[0] );
       glBegin(GL_QUADS);
-      //glTexCoord2f(0.0, 1.0); glVertex2i( 190, -300 );
-      //glTexCoord2f(1.0, 1.0); glVertex2i( 610, -300 );
-      //glTexCoord2f(1.0, 0.0); glVertex2i( 610,  300 );
-      //glTexCoord2f(0.0, 0.0); glVertex2i( 190,  300 );
       glTexCoord2f(0.0, 1.0); glVertex2i( 120, -180 );
       glTexCoord2f(1.0, 1.0); glVertex2i( 800, -180 );
       glTexCoord2f(1.0, 0.0); glVertex2i( 800,  300 );
@@ -224,7 +220,7 @@ HowtoView::RedrawAlpha() {
 
   switch ( m_howto->GetMode() ) {
   case 0:
-    glColor4f( 1.0, 1.0, 1.0, 0.0 );
+    glColor4f( 1.0, 1.0, 1.0, 1.0 );
     switch ( (m_howto->GetCount()%400)/100 ) {
     case 0:
       glRasterPos2i( IMAGE_WIDTH, IMAGE_HEIGHT/2 );
@@ -260,7 +256,7 @@ HowtoView::RedrawAlpha() {
     }
     break;
   case 4:
-    glColor4f( 1.0, 1.0, 1.0, 0.0 );
+    glColor4f( 1.0, 1.0, 1.0, 1.0 );
     if ( m_howto->GetCount() < 1000 )
       glRasterPos2i( 470, 170 );
     else
