@@ -67,7 +67,6 @@
 #define IMAGE_WIDTH	256
 #define IMAGE_HEIGHT	256
 
-#define GRAV		((float)(9.8+m_spin*5))
 #define GRAVITY(spin)	((float)(9.8+spin*5))
 
 #define	TICK		(0.01F)		// Turn length (in second)

@@ -232,6 +232,7 @@ Sound::PlayNumber( long number ) {
 }
 
 /* Play the sound on blocking mode */
+#ifdef HAVE_LIBSDL_MIXER
 bool
 Sound::PlayBlocking( int channel, Mix_Chunk *chunk ) {
   if ( !Mix_Playing( channel ) ) {
@@ -243,6 +244,7 @@ Sound::PlayBlocking( int channel, Mix_Chunk *chunk ) {
 
   return true;
 }
+#endif
 
 void
 Sound::PlayFinishHandler( int channel ) {

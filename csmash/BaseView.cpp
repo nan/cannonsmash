@@ -21,7 +21,6 @@
 #include "BaseView2D.h"
 #include "Player.h"
 #include "Control.h"
-#include "BaseView.h"
 #include "Ball.h"
 #include "LoadImage.h"
 #include "PlayGame.h"
