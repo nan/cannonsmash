@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -52,7 +52,8 @@ public:
 	  double vx, double vy, double vz,long status, long swing, 
 	  long swingType, bool swingSide, long afterSwing, long swingError, 
 	  double targetX, double targetY, double eyeX, double eyeY,
-	  double eyeZ, long pow, double spin, double stamina, long statusMax );
+	  double eyeZ, long pow, double spinX, double spinY,
+	  double stamina, long statusMax );
 
   virtual ~Player();
 
@@ -83,7 +84,8 @@ public:
   virtual double GetVY() { return m_vy; }
   virtual double GetVZ() { return m_vz; }
   virtual long   GetPower() { return m_pow; }
-  virtual double GetSpin() { return m_spin; }
+  virtual double GetSpinX() { return m_spinX; }
+  virtual double GetSpinY() { return m_spinY; }
   virtual double GetTargetX() { return m_targetX; }
   virtual double GetTargetY() { return m_targetY; }
   virtual double GetEyeX() { return m_eyeX; }
@@ -113,7 +115,8 @@ public:
 
   virtual bool Warp( double x, double y, double z,
 		     double vx, double vy, double vz );
-  virtual bool ExternalSwing( long pow, double spin, long swingType, long swing );
+  virtual bool ExternalSwing( long pow, double spinX, double spinY,
+			      long swingType, long swing );
 
   virtual bool Warp( char *buf );
   virtual bool ExternalSwing( char *buf );
@@ -163,7 +166,8 @@ protected:
   double m_lookAtZ;
 
   long m_pow;		// power
-  double m_spin;	// topspin/backspin
+  double m_spinX;	// sidespin
+  double m_spinY;	// topspin/backspin
 
   double m_stamina;
 

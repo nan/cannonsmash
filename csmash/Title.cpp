@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -179,22 +179,22 @@ Title::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       switch ( m_selected ) {
       case 0:	// Start
 	//theBall.EndGame();
-	theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
+	theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
 	mode = MODE_SELECT;
 	break;
       case 1:	// Practice
 	//theBall.EndGame();
-	theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
+	theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
 	mode = MODE_PRACTICESELECT;
 	break;
       case 2:	// Training
 	//theBall.EndGame();
-	theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
+	theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
 	mode = MODE_TRAININGSELECT;
 	break;
       case 3:	// Howto
 	//theBall.EndGame();
-	theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
+	theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
 	mode = MODE_HOWTO;
 	break;
       case 4:	// Config...

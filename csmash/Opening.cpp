@@ -202,11 +202,11 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     if ( phrase == 73 && mod == 0 ) {
       double vx, vy, vz;
       theBall.Warp( TABLEWIDTH/4, -TABLELENGTH/4, TABLEHEIGHT+0.01,
-		    0.0, 0.0, 0.0, 0.0, 0 );
-      theBall.TargetToV( -TABLEWIDTH/2+0.1, TABLELENGTH/2-0.1, 0.7, 0.0,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0 );
+      theBall.TargetToV( -TABLEWIDTH/2+0.1, TABLELENGTH/2-0.1, 0.7, 0.0, 0.0,
 		       vx, vy, vz, 0.1, 20.0 );
       theBall.Warp( TABLEWIDTH/4, -TABLELENGTH/4, TABLEHEIGHT+0.01,
-		    vx, vy, vz, 0.0, 0 );
+		    vx, vy, vz, 0.0, 0.0, 0 );
     }
     if ( phrase >= 73 ) {
       m_comPlayer->m_vx = (-TABLEWIDTH+0.1)/0.7;
@@ -238,11 +238,11 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     if ( phrase == 77 && mod == 20 ) {
       double vx, vy, vz;
       theBall.Warp( -TABLEWIDTH/2, TABLELENGTH/2, TABLEHEIGHT+NETHEIGHT,
-		    0.0, 0.0, 0.0, 0.0, 1 );
-      theBall.TargetToV( TABLEWIDTH/2-0.1, -TABLELENGTH/2+0.3, 0.8, 1.0,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 1 );
+      theBall.TargetToV( TABLEWIDTH/2-0.1, -TABLELENGTH/2+0.3, 0.8, 0.0, 1.0,
 		       vx, vy, vz, 0.1, 20.0 );
       theBall.Warp( -TABLEWIDTH/2, TABLELENGTH/2, TABLEHEIGHT+NETHEIGHT,
-		    vx, vy, vz, 1.0, 2 );
+		    vx, vy, vz, 0.0, 1.0, 2 );
     }
     if ( phrase >= 77 && phrase <= 78 ) {
       m_thePlayer->m_vx = (TABLEWIDTH-0.1)/0.7;
@@ -273,11 +273,11 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 
       double vx, vy, vz;
       theBall.Warp( TABLEWIDTH/2+0.5, -TABLELENGTH, TABLEHEIGHT+NETHEIGHT,
-		    0.0, 0.0, 0.0, 0.0, 0 );
-      theBall.TargetToV( TABLEWIDTH/2-0.1, TABLELENGTH/2-0.1, 0.53, -1.0,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0 );
+      theBall.TargetToV( TABLEWIDTH/2-0.1, TABLELENGTH/2-0.1, 0.53, 0.0, -1.0,
 		       vx, vy, vz, 0.1, 20.0 );
       theBall.Warp( TABLEWIDTH/2+0.5, -TABLELENGTH, TABLEHEIGHT+NETHEIGHT,
-		    vx, vy, vz, -1.0, 0 );
+		    vx, vy, vz, 0.0, -1.0, 0 );
     }
     if ( phrase >= 81 ) {
       m_comPlayer->m_vx = (TABLEWIDTH+0.1)/0.7;
@@ -313,11 +313,11 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     if ( phrase == 85 && mod == 20 ) {
       double vx, vy, vz;
       theBall.Warp( TABLEWIDTH/2-0.2, TABLELENGTH/2, TABLEHEIGHT+NETHEIGHT,
-		    0.0, 0.0, 0.0, 0.0, 1 );
-      theBall.TargetToV( -TABLEWIDTH/2+0.2, -TABLELENGTH/2+0.3, 0.8, 1.0,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 1 );
+      theBall.TargetToV( -TABLEWIDTH/2+0.2, -TABLELENGTH/2+0.3, 0.8, 0.0, 1.0,
 		       vx, vy, vz, 0.1, 20.0 );
       theBall.Warp( TABLEWIDTH/2-0.2, TABLELENGTH/2, TABLEHEIGHT+NETHEIGHT,
-		    vx, vy, vz, 1.0, 2 );
+		    vx, vy, vz, 0.0, 1.0, 2 );
     }
     if ( phrase >= 85 ) {
       theBall.Move();
@@ -350,11 +350,11 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 
       double vx, vy, vz;
       theBall.Warp( -TABLEWIDTH/2-0.4, -TABLELENGTH-0.5, TABLEHEIGHT+NETHEIGHT,
-		    0.0, 0.0, 0.0, 0.0, 0 );
-      theBall.TargetToV( -TABLEWIDTH/2+0.2, TABLELENGTH/2-0.85, 0.7, -1.0,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 0 );
+      theBall.TargetToV( -TABLEWIDTH/2+0.2, TABLELENGTH/2-0.85, 0.7, 0.0, -1.0,
 			 vx, vy, vz, 0.1, 20.0 );
       theBall.Warp( -TABLEWIDTH/2-0.4, -TABLELENGTH-0.5, TABLEHEIGHT+NETHEIGHT,
-		    vx, vy, vz, -1.0, 0 );
+		    vx, vy, vz, 0.0, -1.0, 0 );
     }
 
     theBall.Move();
@@ -386,11 +386,11 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 
       double vx, vy, vz;
       theBall.Warp( -0.5, TABLELENGTH/2-0.5, TABLEHEIGHT+0.05,
-		    0.0, 0.0, 0.0, 0.0, 1 );
-      theBall.TargetToV( -TABLEWIDTH/2+0.3, -TABLELENGTH/2+0.8, 0.5, -0.5,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 1 );
+      theBall.TargetToV( -TABLEWIDTH/2+0.3, -TABLELENGTH/2+0.8, 0.5, 0.0, -0.5,
 			 vx, vy, vz, 0.1, 20.0 );
       theBall.Warp( -0.5, TABLELENGTH/2-0.5, TABLEHEIGHT+0.05,
-		    vx, vy, vz, -0.5, 2 );
+		    vx, vy, vz, 0.0, -0.5, 2 );
     }
 
     theBall.Move();
@@ -411,7 +411,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_thePlayer->m_vy = 0.0;
     }
     if ( phrase == 95 && mod == 0 ) {	// 高速化
-      theBall.TargetToV( m_thePlayer->m_targetX, m_thePlayer->m_targetY, 1.0, 0.0,
+      theBall.TargetToV( m_thePlayer->m_targetX, m_thePlayer->m_targetY, 1.0, 0.0, 0.0,
 			 theBall.m_vx, theBall.m_vy, theBall.m_vz, 0.1, 10.0 );
     }
   } else if ( phrase < 100 ) {	// リプレイ
@@ -425,11 +425,11 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 
       double vx, vy, vz;
       theBall.Warp( -0.5, TABLELENGTH/2-0.5, TABLEHEIGHT+0.05,
-		    0.0, 0.0, 0.0, 0.0, 1 );
-      theBall.TargetToV( -TABLEWIDTH/2+0.3, -TABLELENGTH/2+0.8, 0.5, -0.5,
+		    0.0, 0.0, 0.0, 0.0, 0.0, 1 );
+      theBall.TargetToV( -TABLEWIDTH/2+0.3, -TABLELENGTH/2+0.8, 0.5, 0.0, -0.5,
 			 vx, vy, vz, 0.1, 20.0 );
       theBall.Warp( -0.5, TABLELENGTH/2-0.5, TABLEHEIGHT+0.05,
-		    vx, vy, vz, -0.5, 2 );
+		    vx, vy, vz, 0.0, -0.5, 2 );
     }
 
     theBall.Move();
@@ -450,7 +450,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_thePlayer->m_vy = 0.0;
     }
     if ( phrase == 99 && mod == 0 ) {	// 高速化
-      theBall.TargetToV( m_thePlayer->m_targetX, m_thePlayer->m_targetY, 1.0, 0.0,
+      theBall.TargetToV( m_thePlayer->m_targetX, m_thePlayer->m_targetY, 1.0, 0.0, 0.0,
 			 theBall.m_vx, theBall.m_vy, theBall.m_vz, 0.1, 10.0 );
     }
   } else if ( phrase < 104 ) {	// ボール転がる
@@ -473,7 +473,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_targetY = -TABLELENGTH/2+0.1;
 
       theBall.Warp( 0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01,
-		    -1.6, 2.2, -5.0, 0.0, 0 );
+		    -1.6, 2.2, -5.0, 0.0, 0.0, 0 );
     }
 
     theBall.Move();
@@ -500,7 +500,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_targetY = -TABLELENGTH/2+0.1;
 
       theBall.Warp( 0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01,
-		    1.6, 2.2, -5.0, 0.0, 0 );
+		    1.6, 2.2, -5.0, 0.0, 0.0, 0 );
     }
 
     theBall.Move();
@@ -532,7 +532,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_targetY = -TABLELENGTH/2+0.1;
 
       theBall.Warp( 0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01,
-		    -1.6, 2.2, -5.0, 0.0, 0 );
+		    -1.6, 2.2, -5.0, 0.0, 0.0, 0 );
     }
 
     theBall.Move();
@@ -559,7 +559,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_targetY = -TABLELENGTH/2+0.1;
 
       theBall.Warp( 0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01,
-		    1.6, 2.2, -5.0, 0.0, 0 );
+		    1.6, 2.2, -5.0, 0.0, 0.0, 0 );
     }
 
     theBall.Move();
@@ -591,7 +591,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_targetY = -TABLELENGTH/2+0.1;
 
       theBall.Warp( 0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01,
-		    -1.6, 2.2, -5.0, 0.0, 0 );
+		    -1.6, 2.2, -5.0, 0.0, 0.0, 0 );
     }
 
     theBall.Move();
@@ -618,7 +618,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_targetY = -TABLELENGTH/2+0.1;
 
       theBall.Warp( 0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01,
-		    1.6, 2.2, -5.0, 0.0, 0 );
+		    1.6, 2.2, -5.0, 0.0, 0.0, 0 );
     }
 
     theBall.Move();
@@ -650,7 +650,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_targetY = -TABLELENGTH/2+0.1;
 
       theBall.Warp( 0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01,
-		    -1.6, 2.2, -5.0, 0.0, 0 );
+		    -1.6, 2.2, -5.0, 0.0, 0.0, 0 );
     }
 
     theBall.Move();
@@ -677,7 +677,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_targetY = -TABLELENGTH/2+0.1;
 
       theBall.Warp( 0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01,
-		    1.6, 2.2, -5.0, 0.0, 0 );
+		    1.6, 2.2, -5.0, 0.0, 0.0, 0 );
     }
 
     theBall.Move();
@@ -709,7 +709,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_targetY = -TABLELENGTH/2+0.1;
 
       theBall.Warp( 0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01,
-		    -1.6, 2.2, -5.0, 0.0, 0 );
+		    -1.6, 2.2, -5.0, 0.0, 0.0, 0 );
     }
 
     theBall.Move();
@@ -736,7 +736,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_targetY = -TABLELENGTH/2+0.1;
 
       theBall.Warp( 0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01,
-		    1.6, 2.2, -5.0, 0.0, 0 );
+		    1.6, 2.2, -5.0, 0.0, 0.0, 0 );
     }
 
     theBall.Move();
@@ -768,7 +768,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_targetY = -TABLELENGTH/2+0.1;
 
       theBall.Warp( 0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01,
-		    -1.6, 2.2, -5.0, 0.0, 0 );
+		    -1.6, 2.2, -5.0, 0.0, 0.0, 0 );
     }
 
     theBall.Move();
@@ -795,7 +795,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_targetY = -TABLELENGTH/2+0.1;
 
       theBall.Warp( 0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01,
-		    1.6, 2.2, -5.0, 0.0, 0 );
+		    1.6, 2.2, -5.0, 0.0, 0.0, 0 );
     }
 
     theBall.Move();
@@ -827,7 +827,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_targetY = -TABLELENGTH/2+0.1;
 
       theBall.Warp( 0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01,
-		    -1.6, 2.2, -5.0, 0.0, 0 );
+		    -1.6, 2.2, -5.0, 0.0, 0.0, 0 );
     }
 
     theBall.Move();
@@ -854,7 +854,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_targetY = -TABLELENGTH/2+0.1;
 
       theBall.Warp( 0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01,
-		    1.6, 2.2, -5.0, 0.0, 0 );
+		    1.6, 2.2, -5.0, 0.0, 0.0, 0 );
     }
 
     theBall.Move();
@@ -886,7 +886,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_targetY = -TABLELENGTH/2+0.1;
 
       theBall.Warp( 0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01,
-		    -1.6, 2.2, -5.0, 0.0, 0 );
+		    -1.6, 2.2, -5.0, 0.0, 0.0, 0 );
     }
 
     theBall.Move();
@@ -913,7 +913,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_targetY = -TABLELENGTH/2+0.1;
 
       theBall.Warp( 0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01,
-		    1.6, 2.2, -5.0, 0.0, 0 );
+		    1.6, 2.2, -5.0, 0.0, 0.0, 0 );
     }
 
     theBall.Move();
@@ -949,9 +949,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_swingSide = true;
 
       ball1.Warp( -0.3, -TABLELENGTH/2-1.2, TABLEHEIGHT+NETHEIGHT,
-		  0.0, -8.2, -1.0, 0.0, 3 );
+		  0.0, -8.2, -1.0, 0.0, 0.0, 3 );
       ball2.Warp( 0.0, TABLELENGTH/4, TABLEHEIGHT+0.01,
-		    -1.6, 3.5, -5.0, 0.0, 0 );
+		    -1.6, 3.5, -5.0, 0.0, 0.0, 0 );
     }
 
     if ( phrase%2 ) {
@@ -993,9 +993,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_swingSide = false;
 
       ball1.Warp( 0.3, -TABLELENGTH/2-1.2, TABLEHEIGHT+NETHEIGHT,
-		  0.0, -8.2, -1.0, 0.0, 3 );
+		  0.0, -8.2, -1.0, 0.0, 0.0, 3 );
       ball2.Warp( 0.0, TABLELENGTH/4, TABLEHEIGHT+0.01,
-		    1.6, 3.5, -5.0, 0.0, 0 );
+		    1.6, 3.5, -5.0, 0.0, 0.0, 0 );
     }
 
     if ( phrase%2 ) {
@@ -1034,7 +1034,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_swingSide = false;
 
       theBall.Warp( 0.2, 0.1, TABLEHEIGHT+NETHEIGHT*2,
-		    -0.1, -3.0, 1.0, 0.6, 0 );
+		    -0.1, -3.0, 1.0, 0.0, 0.6, 0 );
     }
 
     if ( (m_count%10) == 0 ) {
@@ -1057,7 +1057,7 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_swingSide = true;
 
       theBall.Warp( 0.6, -TABLELENGTH/2, TABLEHEIGHT+NETHEIGHT,
-		    -1.0, 2.0, 3.0, -0.8, 0 );
+		    -1.0, 2.0, 3.0, 0.0, -0.8, 0 );
     }
 
     if ( (m_count%10) == 0 ) {
@@ -1130,18 +1130,20 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       double vx, vy, vz;
       theBall.m_y = m_comPlayer->m_y;
       theBall.TargetToV( m_comPlayer->m_targetX, m_comPlayer->m_targetY,
-			 1.0, 0.0, vx, vy, vz, 0.1, 10.0 );
+			 1.0, 0.0, 0.0, vx, vy, vz, 0.1, 10.0 );
       theBall.Warp( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
-		    vx, vy, vz, theBall.GetSpin(), theBall.GetStatus() );
+		    vx, vy, vz, theBall.GetSpinX(), theBall.GetSpinY(),
+		    theBall.GetStatus() );
     }
     if ( phrase >= 296 && phrase <= 303 && mod == 0 && (phrase%2) == 1 ) {
       printf( "%f %f %f %f %f %f %d\n", theBall.GetX(), theBall.GetY(), theBall.GetZ(), theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(), theBall.GetStatus() );
       double vx, vy, vz;
       theBall.m_y = m_thePlayer->m_y;
       theBall.TargetToV( m_comPlayer->m_targetX, m_comPlayer->m_targetY,
-			 1.0, 0.0, vx, vy, vz, 0.1, 10.0 );
+			 1.0, 0.0, 0.0, vx, vy, vz, 0.1, 10.0 );
       theBall.Warp( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
-		    vx, vy, vz, theBall.GetSpin(), theBall.GetStatus() );
+		    vx, vy, vz, theBall.GetSpinX(), theBall.GetSpinY(),
+		    theBall.GetStatus() );
     }
 
     if ( phrase == 296 && mod == (int)(PHRASELENGTH-20) ) {

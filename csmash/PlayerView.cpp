@@ -237,11 +237,11 @@ PlayerView::DrawTargetCircle( double diff ) {
     if ( tmpBall->GetStatus() < 0 )
       tmpBall->Warp( m_player->GetX()+0.3F*m_player->GetSide(),
 		     m_player->GetY(), ballHeight, 
-		     0.0F, 0.0F, 0.0F, 0.0F, 3 );
+		     0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 3 );
   } else {
     tmpBall = new Ball( m_player->GetX()+0.3F*m_player->GetSide(),
 			m_player->GetY(), ballHeight, 
-			0.0F, 0.0F, 0.0F, 0.0F, 3 );
+			0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 3 );
   }
 
   // Calc initial speed of the ball when the player hit the ball
@@ -249,7 +249,8 @@ PlayerView::DrawTargetCircle( double diff ) {
 
   m_player->CalcLevel( tmpBall, dum, level, maxVy );
   tmpBall->TargetToV( m_player->GetTargetX(), m_player->GetTargetY(), 
-		      level, m_player->GetSpin(), vx, vy, vz, 0.1F, maxVy );
+		      level, m_player->GetSpinX(), m_player->GetSpinY(),
+		      vx, vy, vz, 0.1F, maxVy );
 
   // Add difference to the initial speed. Calc bound location
   double v, v1x, v1y, v1z;
@@ -274,7 +275,8 @@ PlayerView::DrawTargetCircle( double diff ) {
 
     if ( m_player->GetSide() > 0 ) {
       tmpBall->Warp( bx, by, bz, 
-		     v1x, v1y, v1z, m_player->GetSpin(), 0 );
+		     v1x, v1y, v1z,
+		     m_player->GetSpinX(), m_player->GetSpinY(), 0 );
       while ( tmpBall->GetZ() > TABLEHEIGHT &&
 	      tmpBall->GetZ()+tmpBall->GetVZ()*TICK > TABLEHEIGHT &&
 	      tmpBall->GetVY() > 0.0 &&	// When the ball hits the net
@@ -282,7 +284,8 @@ PlayerView::DrawTargetCircle( double diff ) {
 	tmpBall->Move();
     } else {
       tmpBall->Warp( bx, by, bz, 
-		     v1x, v1y, v1z, m_player->GetSpin(), 2 );
+		     v1x, v1y, v1z,
+		     m_player->GetSpinX(), m_player->GetSpinY(), 2 );
       while ( tmpBall->GetZ() > TABLEHEIGHT &&
 	      tmpBall->GetZ()+tmpBall->GetVZ()*TICK > TABLEHEIGHT &&
 	      tmpBall->GetVY() < 0.0 &&	// When the ball hits the net

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ inline double LOG(double f)
 #endif
 
 Ball::Ball() {
-  m_x = m_y = m_vx = m_vy = m_spinY = 0.0;
+  m_x = m_y = m_vx = m_vy = m_spinX = m_spinY = 0.0;
   m_status = -1000;
 
   m_View = NULL;
@@ -60,13 +60,14 @@ Ball::Ball() {
 }
 
 Ball::Ball( double x, double y, double z, double vx, double vy, double vz,
-	    double spinY, long status ) {
+	    double spinX, double spinY, long status ) {
   m_x = x;
   m_y = y;
   m_z = z;
   m_vx = vx;
   m_vy = vy;
   m_vz = vz;
+  m_spinX = spinX;
   m_spinY = spinY;
   m_status = status;
 
@@ -82,6 +83,7 @@ Ball::Ball( Ball *ball ) {
   m_vx = ball->m_vx;
   m_vy = ball->m_vy;
   m_vz = ball->m_vz;
+  m_spinX = ball->m_spinX;
   m_spinY = ball->m_spinY;
   m_status = ball->m_status;
 
@@ -210,6 +212,7 @@ Ball::Move() {
   if ( netT < tableT ){	// Hit net
     m_vx *= 0.5;
     m_vy = -m_vy*0.2;
+    m_spinX = -m_spinX*0.8;
     m_spinY = -m_spinY*0.8;
     m_y = m_vy*(TICK-netT);
   }
@@ -260,6 +263,7 @@ Ball::Move() {
     m_vy += -PHY*m_vy*(TICK-tableT);
     m_vx += -PHY*m_vx*TICK;
 
+    m_spinX *= 0.95;
     m_spinY *= 0.8;
 
     return true;
@@ -325,6 +329,14 @@ Ball::Move() {
 // Gravity
   m_vz -= GRAVITY(m_spinY)*TICK;
 
+// Spin
+  //TODO: apply spinX
+  /*
+  double rotVx = m_vx*cos(m_spinX)-m_vy*sin(m_spinX);
+  double rotVy = m_vx*sin(m_spinX)+m_vy*cos(m_spinX);
+
+  m_vx = rotVx; m_vy = rotVy;
+  */
 
 // Air resistance
   m_vx += -PHY*m_vx*TICK;
@@ -336,12 +348,14 @@ Ball::Move() {
 
 // Ball inpact
 bool
-Ball::Hit( double vx, double vy, double vz, double spinY, Player *player ) {
+Ball::Hit( double vx, double vy, double vz, 
+	   double spinX, double spinY, Player *player ) {
 // Normal inpact
   if ( this == &theBall ) {
       Sound::TheSound()->Play( SOUND_RACKET, m_x, m_y );
   }
 
+  m_spinX = spinX;
   m_spinY = spinY;
 
   m_vx = vx;
@@ -375,7 +389,7 @@ Ball::Hit( double vx, double vy, double vz, double spinY, Player *player ) {
 bool
 Ball::Toss( Player *player , long power ) {
   m_vz = 2.5;
-  m_spinY = 0.0;
+  m_spinX = m_spinY = 0.0;
   if ( player->GetSide() > 0 )
     m_status = 6;
   else
@@ -391,7 +405,7 @@ Ball::Toss( Player *player , long power ) {
 
 void
 Ball::Warp( double x, double y, double z, double vx, double vy, double vz, 
-	    double spinY, long status ) {
+	    double spinX, double spinY, long status ) {
   m_x = x;
   m_y = y;
   m_z = z;
@@ -399,6 +413,7 @@ Ball::Warp( double x, double y, double z, double vx, double vy, double vz,
   m_vy = vy;
   m_vz = vz;
 
+  m_spinX = spinX;
   m_spinY = spinY;
   m_status = status;
 }
@@ -415,6 +430,7 @@ Ball::Warp( char *buf ) {
   b = ReadDouble( b, m_vy );
   b = ReadDouble( b, m_vz );
 
+  b = ReadDouble( b, m_spinX );
   b = ReadDouble( b, m_spinY );
   b = ReadLong( b, nextStatus );
 
@@ -427,8 +443,10 @@ Ball::Warp( char *buf ) {
 // Get ball initial speed from current ball location, target, height
 // target --- The point where ball will bound
 // level ---  hit power(percentage)
+// TODO: apply m_spinX
 bool
-Ball::TargetToV( double targetX, double targetY, double level, double spinY, 
+Ball::TargetToV( double targetX, double targetY, double level, 
+		 double spinX, double spinY, 
 		 double &vx, double &vy, double &vz, double vMin, 
 		 double vMax ) {
   double y;
@@ -511,8 +529,10 @@ Ball::TargetToV( double targetX, double targetY, double level, double spinY,
   return true;
 }
 
+//TODO: apply m_spinX
 bool
-Ball::TargetToVS( double targetX, double targetY, double level, double spinY, 
+Ball::TargetToVS( double targetX, double targetY, double level, 
+		  double spinX, double spinY, 
 		  double &vx, double &vy, double &vz ) {
   double boundY = -TABLELENGTH/2;
   double y;
@@ -634,10 +654,12 @@ Ball::Send( char *buf ) {
   memcpy( &(buf[32]), (char *)&d, 8 );
   d = SwapDbl(m_vz);
   memcpy( &(buf[40]), (char *)&d, 8 );
-  d = SwapDbl(m_spinY);
+  d = SwapDbl(m_spinX);
   memcpy( &(buf[48]), (char *)&d, 8 );
+  d = SwapDbl(m_spinY);
+  memcpy( &(buf[56]), (char *)&d, 8 );
   l = SwapLong(m_status);
-  memcpy( &(buf[56]), (char *)&l, 4 );
+  memcpy( &(buf[64]), (char *)&l, 4 );
 
 #ifdef LOGGING
   Logging::GetLogging()->LogBall( LOG_COMBALL, this );

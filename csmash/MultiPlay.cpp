@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -40,10 +40,6 @@
 #if defined(WIN32) || defined(__FreeBSD__)
 
 typedef int socklen_t;		/* mimic Penguin's typedef */
-
-#else	/* ! WIN32 */
-
-#define closesocket(FD) close(FD)
 
 #endif
 
@@ -107,7 +103,7 @@ MultiPlay::Create( long player, long com ) {
   m_theControl = new MultiPlay();
   m_theControl->Init();
 
-  theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
+  theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
 
   if ( !(theRC->serverName[0]) )
     side = 1;	// server side
@@ -381,7 +377,7 @@ ExternalPSData::Read( long sock ) {
 
   long len = 0;
   while (1) {
-    if ( (len+=recv( sock, data+len, 24-len, 0 )) == 24 )
+    if ( (len+=recv( sock, data+len, 32-len, 0 )) == 24 )
       break;
   }
 

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001-2003  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001-2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -39,10 +39,6 @@
 #if defined(WIN32) || defined(__FreeBSD__)
 
 typedef int socklen_t;		/* mimic Penguin's typedef */
-
-#else	/* ! WIN32 */
-
-#define closesocket(FD) close(FD)
 
 #endif
 
@@ -238,7 +234,7 @@ SendSwing( Player *player ) {
 
   player->SendLocation( &(buf[38]) );
 
-  send( theSocket, buf, 31+55, 0 );
+  send( theSocket, buf, 39+55, 0 );
 }
 
 void

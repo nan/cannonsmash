@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,7 +31,8 @@ public:
 		       bool swingSide, long afterSwing, long swingError, 
 		       double targetX, double targetY,
 		       double eyeX, double eyeY, double eyeZ,
-		       long pow, double spin, double stamina, long statusMax );
+		       long pow, double spinX, double spinY, 
+		       double stamina, long statusMax );
 
   virtual ~ComTrainingPenDrive();
 

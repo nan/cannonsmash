@@ -36,11 +36,11 @@ TrainingPenAttack::TrainingPenAttack( long playerType, long side,
 				      long afterSwing, long swingError,
 				      double targetX, double targetY,
 				      double eyeX, double eyeY, double eyeZ,
-				      long pow, double spin, double stamina,
-				      long statusMax) :
+				      long pow, double spinX, double spinY, 
+				      double stamina, long statusMax) :
   PenAttack( playerType, side, x, y, z, vx, vy, vz, status, swing, swingType,
 	     swingSide, afterSwing, swingError, targetX, targetY,
-	     eyeX, eyeY, eyeZ, pow, spin, stamina, statusMax ) {
+	     eyeX, eyeY, eyeZ, pow, spinX, spinY, stamina, statusMax ) {
 }
 
 TrainingPenAttack::~TrainingPenAttack() {
@@ -79,9 +79,9 @@ TrainingPenAttack::HitBall() {
        fabs( m_x-theBall.GetX() ) < 0.6 && fabs( m_y-theBall.GetY() ) < 0.3 ){
     SwingError();
 
-    theBall.TargetToVS( m_targetX, m_targetY, 0.8, 0.5, vx, vy, vz );
+    theBall.TargetToVS( m_targetX, m_targetY, 0.8, 0.0, 0.5, vx, vy, vz );
 
-    theBall.Hit( vx, vy, vz, 0.5, this );
+    theBall.Hit( vx, vy, vz, 0.0, 0.5, this );
   } else {
     PenAttack::HitBall();
   }

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -43,11 +43,11 @@ ShakeCut::ShakeCut( long playerType, long side, double x, double y, double z,
 		    long swingType, bool swingSide, long afterSwing,
 		    long swingError,
 		    double targetX, double targetY, double eyeX, double eyeY,
-		    double eyeZ, long pow, double spin, double stamina,
-		    long statusMax ) :
+		    double eyeZ, long pow, double spinX, double spinY,
+		    double stamina, long statusMax ) :
   Player( playerType, side, x, y, z, vx, vy, vz, status, swing, swingType,
 	  swingSide, afterSwing, swingError, targetX, targetY,
-	  eyeX, eyeY, eyeZ, pow, spin, stamina, statusMax ) {
+	  eyeX, eyeY, eyeZ, pow, spinX, spinY, stamina, statusMax ) {
 }
 
 ShakeCut::~ShakeCut() {
@@ -140,15 +140,18 @@ ShakeCut::StartSwing( long spin ) {
 	(theBall.GetStatus() == 7 && m_side == -1) ){	// Serve
       switch ( spin-1 ) {
       case 0:
-	m_spin = 0.2;	// straight
+	m_spinX = 0.0;
+	m_spinY = 0.2;	// straight
 	m_swingType = SWING_NORMAL;
 	break;
       case 1:
-	m_spin = -0.1;	// knuckle
+	m_spinX = 0.0;
+	m_spinY = -0.1;	// knuckle
 	m_swingType = SWING_POKE;
 	break;
       case 2:
-	m_spin = -1.0;
+	m_spinX = 0.0;
+	m_spinY = -1.0;
 	m_swingType = SWING_POKE;
 	break;
       }
@@ -197,9 +200,10 @@ ShakeCut::HitBall() {
     else
       level = 0.90-diff*2.0;
 
-    theBall.TargetToVS( m_targetX, m_targetY, level, m_spin, vx, vy, vz );
+    theBall.TargetToVS( m_targetX, m_targetY, level, m_spinX, m_spinY,
+			vx, vy, vz );
 
-    theBall.Hit( vx, vy, vz, m_spin, this );
+    theBall.Hit( vx, vy, vz, m_spinX, m_spinY, this );
   } else if ( ((m_side == 1 && theBall.GetStatus() == 3) ||
 	       (m_side ==-1 && theBall.GetStatus() == 1)) &&
 	      fabs(m_x-theBall.GetX()) < 0.6 &&
@@ -216,8 +220,8 @@ ShakeCut::HitBall() {
     double maxVy;
     CalcLevel( &theBall, diff, level, maxVy );
 
-    theBall.TargetToV( targetX, targetY, level, m_spin, vx, vy, vz,
-		       0.1, maxVy );
+    theBall.TargetToV( targetX, targetY, level, m_spinX, m_spinY,
+		       vx, vy, vz,0.1, maxVy );
 
     if ((m_status-StatusBorder())*3/2000.0 <
 	fabs(fabs(m_x-theBall.GetX())-0.3))
@@ -226,7 +230,8 @@ ShakeCut::HitBall() {
     // Reduce status
     m_afterSwing = (long)
       (hypot( theBall.GetVX()*0.8-vx, theBall.GetVY()*0.8+vy )
-       * (1.0+diff*10.0) + fabs(m_spin)*3.0 + fabs(theBall.GetSpinY())*2.0);
+       * (1.0+diff*10.0) + hypot(m_spinX, m_spinY)*3.0 +
+       fabs(theBall.GetSpinY())*2.0);
 
     if ( m_swingType == SWING_POKE || m_swingType == SWING_CUT )
       AddStatus( -m_afterSwing );
@@ -238,7 +243,7 @@ ShakeCut::HitBall() {
     if ( m_status == 1 )
       m_afterSwing *= 3;
 
-    theBall.Hit( vx, vy, vz, m_spin, this );
+    theBall.Hit( vx, vy, vz, m_spinX, m_spinY, this );
   } else {
     m_swingError = SWING_MISS;
     if ( Control::TheControl()->GetThePlayer() == this &&
@@ -251,6 +256,7 @@ ShakeCut::HitBall() {
 
 bool
 ShakeCut::SwingType( Ball *ball, long spin ) {
+  m_spinX = 0.0;
   if ( (ball->GetStatus() == 3 && m_side == 1) ||
        (ball->GetStatus() == 1 && m_side == -1) ) {
     if ( fabs(ball->GetX()) < TABLEWIDTH/2 &&
@@ -260,30 +266,30 @@ ShakeCut::SwingType( Ball *ball, long spin ) {
       if ( ball->GetSpinY() <= -0.2 ) {
 	m_swingType = SWING_POKE;
 	//m_spin = -spin*0.2-0.4;
-	m_spin = -0.8;
+	m_spinY = -0.8;
       } else {
 	m_swingType = SWING_NORMAL;
-	m_spin = 0.2;
+	m_spinY = 0.2;
       }
     } else if ( fabs(ball->GetY()) > TABLELENGTH/2 &&
 		ball->GetZ() < TABLEHEIGHT+NETHEIGHT*2 ){ // middle height
       if ( ball->GetVZ() < 0 ) {
 	m_swingType = SWING_CUT;
 	//m_spin = -spin*0.3-0.4;
-	m_spin = -1.0;
+	m_spinY = -1.0;
       } else {
 	m_swingType = SWING_DRIVE;
 	//m_spin = spin*0.2+0.2;
-	m_spin = 0.6;
+	m_spinY = 0.6;
       }
     } else {	// high ball
       m_swingType = SWING_SMASH;
-      m_spin = 0.2;
+      m_spinY = 0.2;
     }
   }
   else{
     m_swingType = SWING_NORMAL;
-    m_spin = 0.2;
+    m_spinY = 0.2;
   }
 
   return true;
@@ -338,40 +344,40 @@ ShakeCut::CalcLevel( Ball *ball, double &diff, double &level, double &maxVy ) {
     case SWING_CUT:
     case SWING_POKE:
       maxVy = hypot(ball->GetVX(), ball->GetVY())*0.4 + 8.0 -
-	(fabs(m_spin)+fabs(ball->GetSpinY())/3)*2.0;
+	(fabs(m_spinY)+fabs(ball->GetSpinY())/3)*2.0;
       break;
     case SWING_NORMAL:
     case SWING_DRIVE:
       maxVy = hypot(ball->GetVX(), ball->GetVY())*0.4 + 10.0 -
-	(fabs(m_spin)+fabs(ball->GetSpinY()))*4.0;
+	(fabs(m_spinY)+fabs(ball->GetSpinY()))*4.0;
       break;
     case SWING_SMASH:
       maxVy = hypot(ball->GetVX(), ball->GetVY())*0.4 + 15.0 -
-	(fabs(m_spin)+fabs(ball->GetSpinY()))*4.0;
+	(fabs(m_spinY)+fabs(ball->GetSpinY()))*4.0;
       break;
     default:
       maxVy = hypot(ball->GetVX(), ball->GetVY())*0.4 + 10.0 -
-	(fabs(m_spin)+fabs(ball->GetSpinY()))*4.0;
+	(fabs(m_spinY)+fabs(ball->GetSpinY()))*4.0;
     }
   } else {
     switch ( m_swingType ) {
     case SWING_CUT:
     case SWING_POKE:
       maxVy = hypot(ball->GetVX(), ball->GetVY())*0.4 + 7.0 -
-	(fabs(m_spin)+fabs(ball->GetSpinY())/3)*3.0;
+	(fabs(m_spinY)+fabs(ball->GetSpinY())/3)*3.0;
       break;
     case SWING_NORMAL:
     case SWING_DRIVE:
       maxVy = hypot(ball->GetVX(), ball->GetVY())*0.4 + 8.0 -
-	(fabs(m_spin)+fabs(ball->GetSpinY()))*5.0;
+	(fabs(m_spinY)+fabs(ball->GetSpinY()))*5.0;
       break;
     case SWING_SMASH:
       maxVy = hypot(ball->GetVX(), ball->GetVY())*0.4 + 12.0 -
-	(fabs(m_spin)+fabs(ball->GetSpinY()))*5.0;
+	(fabs(m_spinY)+fabs(ball->GetSpinY()))*5.0;
       break;
     default:
       maxVy = hypot(ball->GetVX(), ball->GetVY())*0.4 + 8.0 -
-	(fabs(m_spin)+fabs(ball->GetSpinY()))*5.0;
+	(fabs(m_spinY)+fabs(ball->GetSpinY()))*5.0;
     }
   }
 

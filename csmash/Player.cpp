@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -72,7 +72,8 @@ Player::Player() {
   m_eyeZ = 0.2;
 
   m_pow = 0;
-  m_spin = 0.0;
+  m_spinX = 0.0;
+  m_spinY = 0.0;
 
   m_stamina = 80.0;
 
@@ -110,7 +111,8 @@ Player::Player( long side ) {
   m_eyeZ = 0.2;
 
   m_pow = 0;
-  m_spin = 0.0;
+  m_spinX = 0.0;
+  m_spinY = 0.0;
 
   m_stamina = 80.0;
 
@@ -137,8 +139,8 @@ Player::Player( long playerType, long side, double x, double y, double z,
 		long swingType, bool swingSide, long afterSwing,
 		long swingError, 
 		double targetX, double targetY, double eyeX, double eyeY,
-		double eyeZ, long pow, double spin, double stamina,
-		long statusMax ) {
+		double eyeZ, long pow, double spinX, double spinY, 
+		double stamina,long statusMax ) {
   m_side = side;
   m_playerType = playerType;
 
@@ -163,7 +165,8 @@ Player::Player( long playerType, long side, double x, double y, double z,
   m_eyeZ = eyeZ;
 
   m_pow = pow;
-  m_spin = spin;
+  m_spinX = spinX;
+  m_spinY = spinY;
 
   m_stamina = stamina;
   m_statusMax = statusMax;
@@ -216,7 +219,8 @@ Player::operator=(Player& p) {
   m_lookAtZ = p.m_lookAtZ;
 
   m_pow = p.m_pow;
-  m_spin = p.m_spin;
+  m_spinX = p.m_spinX;
+  m_spinY = p.m_spinY;
 
   m_stamina = p.m_stamina;
 
@@ -407,7 +411,8 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 
       BaseView::TheView()->AddView( hit );
     }
-    m_spin = 0.0;
+    m_spinX = 0.0;
+    m_spinY = 0.0;
   }
   else if ( m_swing == 50 ){
     m_swing = 0;
@@ -1323,10 +1328,12 @@ Player::Warp( char *buf ) {
 }
 
 bool
-Player::ExternalSwing( long pow, double spin, long swingType, long swing ) {
+Player::ExternalSwing( long pow, double spinX, double spinY,
+		       long swingType, long swing ) {
   m_swing = swing;
   m_pow = pow;
-  m_spin = spin;
+  m_spinX = spinX;
+  m_spinY = spinY;
   m_swingType =swingType;
 
   return true;
@@ -1337,7 +1344,8 @@ Player::ExternalSwing( char *buf ) {
   char *b = buf;
   long swingSide;
   b = ReadLong( b, m_pow );
-  b = ReadDouble( b, m_spin );
+  b = ReadDouble( b, m_spinX );
+  b = ReadDouble( b, m_spinY );
   b = ReadLong( b, m_swingType );
   b = ReadLong( b, swingSide );
   b = ReadLong( b, m_swing );
@@ -1354,14 +1362,16 @@ Player::SendSwing( char *buf ) {
 
   l = SwapLong(m_pow);
   memcpy( buf, (char *)&l, 4 );
-  d = SwapDbl(m_spin);
+  d = SwapDbl(m_spinX);
   memcpy( &(buf[4]), (char *)&d, 8 );
+  d = SwapDbl(m_spinY);
+  memcpy( &(buf[12]), (char *)&d, 8 );
   l = SwapLong(m_swingType);
-  memcpy( &(buf[12]), (char *)&l, 4 );
-  l = SwapLong((long)m_swingSide);
-  memcpy( &(buf[16]), (char *)&l, 4 );
-  l = SwapLong(m_swing);
   memcpy( &(buf[20]), (char *)&l, 4 );
+  l = SwapLong((long)m_swingSide);
+  memcpy( &(buf[24]), (char *)&l, 4 );
+  l = SwapLong(m_swing);
+  memcpy( &(buf[28]), (char *)&l, 4 );
 
 #ifdef LOGGING
   Logging::GetLogging()->LogSendPSMessage( this );
@@ -1423,7 +1433,8 @@ Player::SendAll( int sd ) {
 
   SendLong( sd, m_pow );
 
-  SendDouble( sd, m_spin );
+  SendDouble( sd, m_spinX );
+  SendDouble( sd, m_spinY );
   SendDouble( sd, m_stamina );
 
   SendLong( sd, m_statusMax );

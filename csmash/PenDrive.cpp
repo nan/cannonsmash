@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -43,11 +43,11 @@ PenDrive::PenDrive( long playerType, long side, double x, double y, double z,
 		    long swingType, bool swingSide, long afterSwing,
 		    long swingError,
 		    double targetX, double targetY, double eyeX, double eyeY,
-		    double eyeZ, long pow, double spin, double stamina,
-		    long statusMax ) :
+		    double eyeZ, long pow, double spinX, double spinY,
+		    double stamina, long statusMax ) :
   Player( playerType, side, x, y, z, vx, vy, vz, status, swing, swingType,
 	  swingSide, afterSwing, swingError, targetX, targetY,
-	  eyeX, eyeY, eyeZ, pow, spin, stamina, statusMax ) {
+	  eyeX, eyeY, eyeZ, pow, spinX, spinY, stamina, statusMax ) {
 }
 
 PenDrive::~PenDrive() {
@@ -141,15 +141,18 @@ PenDrive::StartSwing( long spin ) { // Argument is valid only on serve
 	(theBall.GetStatus() == 7 && m_side == -1) ) {	// Serve
       switch ( spin-1 ) {
       case 0:
-	m_spin = 0.2;	// straight
+	m_spinX = 0.0;
+	m_spinY = 0.2;	// straight
 	m_swingType = SWING_NORMAL;
 	break;
       case 1:
-	m_spin = -0.1;	// knuckle
+	m_spinX = 0.0;
+	m_spinY = -0.1;	// knuckle
 	m_swingType = SWING_POKE;
 	break;
       case 2:
-	m_spin = -0.6;
+	m_spinX = 0.0;
+	m_spinY = -0.6;
 	m_swingType = SWING_POKE;
 	break;
       }
@@ -198,9 +201,10 @@ PenDrive::HitBall() {
     else
       level = 0.90-diff*2.0;
 
-    theBall.TargetToVS( m_targetX, m_targetY, level, m_spin, vx, vy, vz );
+    theBall.TargetToVS( m_targetX, m_targetY, level, m_spinX, m_spinY,
+			vx, vy, vz );
 
-    theBall.Hit( vx, vy, vz, m_spin, this );
+    theBall.Hit( vx, vy, vz, m_spinX, m_spinY, this );
   } else if ( ((m_side == 1 && theBall.GetStatus() == 3) ||
 	       (m_side ==-1 && theBall.GetStatus() == 1)) &&
 	      fabs(m_x-theBall.GetX()) < 0.6 && 
@@ -215,8 +219,8 @@ PenDrive::HitBall() {
     double maxVy;
     CalcLevel( &theBall, diff, level, maxVy );
 
-    theBall.TargetToV( targetX, targetY, level, m_spin, vx, vy, vz,
-		       0.1, maxVy );
+    theBall.TargetToV( targetX, targetY, level, m_spinX, m_spinY, 
+		       vx, vy, vz, 0.1, maxVy );
 
     if ((m_status-StatusBorder())*3/2000.0 <
 	fabs(fabs(m_x-theBall.GetX())-0.3))
@@ -225,7 +229,8 @@ PenDrive::HitBall() {
     // Reduce status
     m_afterSwing = (long)
       (hypot( theBall.GetVX()*0.8-vx, theBall.GetVY()*0.8+vy )
-       * (1.0+diff*10.0) + fabs(m_spin)*5.0 + fabs(theBall.GetSpinY())*4.0);
+       * (1.0+diff*10.0) + hypot(m_spinX, m_spinY)*5.0 +
+       fabs(theBall.GetSpinY())*4.0);
 
     if ( ForeOrBack() || m_swingType == SWING_POKE )
       AddStatus( -m_afterSwing*2 );
@@ -235,7 +240,7 @@ PenDrive::HitBall() {
     if ( m_status == 1 )
       m_afterSwing *= 3;
 
-    theBall.Hit( vx, vy, vz, m_spin, this );
+    theBall.Hit( vx, vy, vz, m_spinX, m_spinY, this );
   } else {
     m_swingError = SWING_MISS;
     if ( Control::TheControl()->GetThePlayer() == this &&
@@ -248,6 +253,7 @@ PenDrive::HitBall() {
 
 bool
 PenDrive::SwingType( Ball *ball, long spin ) {
+  m_spinX = 0.0;
   if ( (ball->GetStatus() == 3 && m_side == 1) ||
        (ball->GetStatus() == 1 && m_side == -1) ) {
     if ( fabs(ball->GetX()) < TABLEWIDTH/2 &&
@@ -257,41 +263,41 @@ PenDrive::SwingType( Ball *ball, long spin ) {
       if ( ball->GetSpinY() < 0 ) {
 	m_swingType = SWING_POKE;
 	//m_spin = -spin*0.2-0.3;
-	m_spin = -0.7;
+	m_spinY = -0.7;
       } else {
 	m_swingType = SWING_NORMAL;
 	//m_spin = spin*0.2;
-	m_spin = 0.4;
+	m_spinY = 0.4;
       }
     } else if ( ball->GetZ() < TABLEHEIGHT+NETHEIGHT*2 ) { // under the net
       if ( ForeOrBack() ) {
 	m_swingType = SWING_DRIVE;
 	//m_spin = spin*0.3+0.4;
-	m_spin = 1.0;
+	m_spinY = 1.0;
       } else {
 	if ( ball->GetSpinY() < 0 ) {
 	  m_swingType = SWING_POKE;
 	  //m_spin = -spin*0.2-0.3;
-	  m_spin = -0.7;
+	  m_spinY = -0.7;
 	} else {
 	  m_swingType = SWING_NORMAL;
 	  //m_spin = spin*0.2;
-	  m_spin = 0.4;
+	  m_spinY = 0.4;
 	}
       }
     } else if ( fabs(ball->GetY()) < TABLELENGTH/2+1.0 &&
 		ball->GetZ() > TABLEHEIGHT+NETHEIGHT && ForeOrBack() ) {
       m_swingType = SWING_SMASH;
-      m_spin = 0.2;
+      m_spinY = 0.2;
     } else {
       m_swingType = SWING_NORMAL;
       //m_spin = spin*0.2;
-      m_spin = 0.4;
+      m_spinY = 0.4;
     }
   } else {
     m_swingType = SWING_NORMAL;
     //m_spin = spin*0.2;
-    m_spin = 0.4;
+    m_spinY = 0.4;
   }
 
   return true;
@@ -350,19 +356,19 @@ PenDrive::CalcLevel( Ball *ball, double &diff, double &level, double &maxVy ) {
     case SWING_POKE:
     case SWING_NORMAL:
       maxVy = hypot(ball->GetVX(), ball->GetVY())*0.4 + 12.0 -
-	(fabs(m_spin)+fabs(ball->GetSpinY()))*3.0;
+	(fabs(m_spinY)+fabs(ball->GetSpinY()))*3.0;
       break;
     case SWING_DRIVE:
       maxVy = hypot(ball->GetVX(), ball->GetVY())*0.4 + 15.0 -
-	(fabs(m_spin)+fabs(ball->GetSpinY())/2)*3.0;
+	(fabs(m_spinY)+fabs(ball->GetSpinY())/2)*3.0;
       break;
     case SWING_SMASH:
       maxVy = hypot(ball->GetVX(), ball->GetVY())*0.4 + 20.0 -
-	(fabs(m_spin)+fabs(ball->GetSpinY()))*3.0;
+	(fabs(m_spinY)+fabs(ball->GetSpinY()))*3.0;
       break;
     default:
       maxVy = hypot(ball->GetVX(), ball->GetVY())*0.4 + 12.0 -
-	(fabs(m_spin)+fabs(ball->GetSpinY()))*3.0;
+	(fabs(m_spinY)+fabs(ball->GetSpinY()))*3.0;
     }
   } else {
     switch ( m_swingType ) {
@@ -371,15 +377,15 @@ PenDrive::CalcLevel( Ball *ball, double &diff, double &level, double &maxVy ) {
     case SWING_NORMAL:
     case SWING_DRIVE:
       maxVy = hypot(ball->GetVX(), ball->GetVY())*0.4 + 8.0 -
-	(fabs(m_spin)+fabs(ball->GetSpinY()))*4.0;
+	(fabs(m_spinY)+fabs(ball->GetSpinY()))*4.0;
       break;
     case SWING_SMASH:
       maxVy = hypot(ball->GetVX(), ball->GetVY())*0.4 + 10.0 -
-	(fabs(m_spin)+fabs(ball->GetSpinY()))*4.0;
+	(fabs(m_spinY)+fabs(ball->GetSpinY()))*4.0;
       break;
     default:
       maxVy = hypot(ball->GetVX(), ball->GetVY())*0.4 + 8.0 -
-	(fabs(m_spin)+fabs(ball->GetSpinY()))*4.0;
+	(fabs(m_spinY)+fabs(ball->GetSpinY()))*4.0;
     }
   }
 

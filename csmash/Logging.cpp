@@ -133,7 +133,7 @@ Logging::LogBall( long logType, Ball *ball ) {
   LogTime( logType );
   snprintf( buf, sizeof(buf),
            "status = %2d x = %4.2f y = %4.2f z = %4.2f "
-           "vx = %4.2f vy = %4.2f vz = %4.2f spin = %3.2f\n",
+           "vx = %4.2f vy = %4.2f vz = %4.2f spinY = %3.2f\n",
 	   (int)ball->GetStatus(), ball->GetX(), ball->GetY(), ball->GetZ(),
            ball->GetVX(), ball->GetVY(), ball->GetVZ(), ball->GetSpinY() );
   Log( logType, buf );
@@ -153,7 +153,7 @@ Logging::LogPlayer( long logType, Player *player ) {
             "swingError=%1d targetX=%4.2f targetY=%4.2f "
             "eyeX=%4.2f eyeY=%4.2f eyeZ=%4.2f "
             "lookAtX=%4.2f lookAtY=%4.2f lookAtZ=%4.2f "
-            "pow=%1d spin=%3.2f stamina=%2.0f dragX=%2d dragY=%2d\n",
+            "pow=%1d spinY=%3.2f stamina=%2.0f dragX=%2d dragY=%2d\n",
             (int)player->GetPlayerType(), (int)player->GetSide(), 
             player->GetX(), player->GetY(), player->GetZ(), 
             player->GetVX(), player->GetVY(), player->GetVZ(), 
@@ -163,7 +163,7 @@ Logging::LogPlayer( long logType, Player *player ) {
             player->GetTargetX(), player->GetTargetY(),
             player->GetEyeX(), player->GetEyeY(), player->GetEyeZ(),
             player->GetLookAtX(), player->GetLookAtY(), player->GetLookAtZ(),
-            (int)player->GetPower(), player->GetSpin(), player->GetStamina(),
+            (int)player->GetPower(), player->GetSpinY(), player->GetStamina(),
             (int)player->GetDragX(), (int)player->GetDragY() );
   Log( logType, buf );
 
@@ -182,7 +182,7 @@ Logging::LogRecvBVMessage( ExternalBVData *bv ) {
 
   snprintf( buf, sizeof(buf),
             "x=%4.2f y=%4.2f z=%4.2f "
-            "vx=%4.2f vy=%4.2f vz=%4.2f spin=%3.2f status=%2d\n",
+            "vx=%4.2f vy=%4.2f vz=%4.2f spinY=%3.2f status=%2d\n",
 	   tmpBall->GetX(), tmpBall->GetY(), tmpBall->GetZ(), 
 	   tmpBall->GetVX(), tmpBall->GetVY(), tmpBall->GetVZ(), 
 	   tmpBall->GetSpinY(), (int)tmpBall->GetStatus() );
@@ -232,8 +232,8 @@ Logging::LogSendPSMessage( Player *player ) {
   LogTime( LOG_COMTHEPLAYER );
 
   snprintf( buf, sizeof(buf),
-            "send PS: pow=%2d spin=%3.2f swingType=%1d swingSide=%2d swing=%2d\n",
-	   (int)player->GetPower(), player->GetSpin(),
+            "send PS: pow=%2d spinY=%3.2f swingType=%1d swingSide=%2d swing=%2d\n",
+	   (int)player->GetPower(), player->GetSpinY(),
 	   (int)player->GetSwingType(), player->GetSwingSide(),
 	   (int)player->GetSwing() );
   Log( LOG_COMTHEPLAYER, buf );
@@ -253,8 +253,8 @@ Logging::LogRecvPSMessage( ExternalPSData *ps ) {
   tmpPlayer->ExternalSwing(ps->data);
 
   snprintf( buf, sizeof(buf),
-           "pow=%2d spin=%3.2f swingType=%1d swingSide=%2d swing=%2d\n",
-	   (int)tmpPlayer->GetPower(), tmpPlayer->GetSpin(),
+           "pow=%2d spinY=%3.2f swingType=%1d swingSide=%2d swing=%2d\n",
+	   (int)tmpPlayer->GetPower(), tmpPlayer->GetSpinY(),
 	   (int)tmpPlayer->GetSwingType(), tmpPlayer->GetSwingSide(),
 	   (int)tmpPlayer->GetSwing() );
   Log( LOG_COMCOMPLAYER, buf );

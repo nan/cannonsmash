@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -42,11 +42,12 @@ ComTrainingPenDrive::ComTrainingPenDrive( long playerType, long side,
 					  double targetX, double targetY,
 					  double eyeX, double eyeY,
 					  double eyeZ,
-					  long pow, double spin,
+					  long pow,
+					  double spinX, double spinY,
 					  double stamina, long statusMax ) :
   ComPenDrive( playerType, side, x, y, z, vx, vy, vz, status, swing, swingType,
 	       swingSide, afterSwing, swingError, targetX, targetY,
-	       eyeX, eyeY, eyeZ, pow, spin, stamina, statusMax ) {
+	       eyeX, eyeY, eyeZ, pow, spinX, spinY, stamina, statusMax ) {
 }
 
 ComTrainingPenDrive::~ComTrainingPenDrive() {
@@ -182,10 +183,10 @@ ComTrainingPenDrive::HitBall() {
 
       level = 1.0 - 1.0/((double)((Training *)Control::TheControl())->GetTrainingCount()/20.0+1.5);
       theBall.TargetToV( -TABLEWIDTH/5*2+TABLEWIDTH/5*4*(((Training *)Control::TheControl())->GetTrainingCount()%2),
-			 TABLELENGTH/5*2*m_side, level, m_spin,
+			 TABLELENGTH/5*2*m_side, level, m_spinX, m_spinY, 
 			 vx, vy, vz, 0.1, 20.0 );
 
-      theBall.Hit( vx, vy, vz, m_spin, this );
+      theBall.Hit( vx, vy, vz, m_spinX, m_spinY, this );
     } else
       m_swingError = SWING_MISS;
   }

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -42,11 +42,11 @@ ComPenDrive::ComPenDrive( long playerType, long side,
 			  long afterSwing, long swingError,
 			  double targetX, double targetY,
 			  double eyeX, double eyeY, double eyeZ,
-			  long pow, double spin, double stamina,
-			  long statusMax ) :
+			  long pow, double spinX, double spinY,
+			  double stamina, long statusMax ) :
   PenDrive( playerType, side, x, y, z, vx, vy, vz, status, swing, swingType,
 	    swingSide, afterSwing, swingError, targetX, targetY,
-	    eyeX, eyeY, eyeZ, pow, spin, stamina, statusMax ), ComPlayer() {
+	    eyeX, eyeY, eyeZ, pow, spinX, spinY, stamina, statusMax ), ComPlayer() {
 }
 
 ComPenDrive::~ComPenDrive() {

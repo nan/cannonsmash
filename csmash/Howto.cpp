@@ -231,7 +231,7 @@ Howto::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     } else if ( m_count == 1000 ) {
       m_thePlayer->m_x = 0.2;
       theBall.Warp( 0.243705, 0.673854, 1.017764,
-		    -1.042663, -4.457266, 0.108404, -1.0, 2 );
+		    -1.042663, -4.457266, 0.108404, 0.0, -1.0, 2 );
       m_thePlayer->m_x = -0.1;
       m_mouseB = 0;
     } else if ( m_count > 1000 && m_count < 1500 ) {
