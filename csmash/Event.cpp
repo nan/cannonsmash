@@ -95,6 +95,9 @@ Event::TheEvent() {
 
 bool
 Event::Init() {
+  if (isComm)
+    m_External = new ExternalNullData();
+
   switch ( mode ){
   case MODE_SOLOPLAY:
     SoloPlay::Create( 0, RAND(2) );
@@ -117,9 +120,6 @@ Event::Init() {
   }
 
   theBall.Init();
-
-  if (isComm)
-    m_External = new ExternalNullData();
 
   return true;
 }
