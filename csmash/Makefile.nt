@@ -36,7 +36,8 @@ AOUT = -Fe
 BASEDIR	= .$(BDIR)
 VPATH = $(BASEDIR)
 
-DFLAGS = -DHAVE_LIBZ -DHAVE_LIBSDL_MIXER -DHAVE_LIBVORBIS -DCHIYO -DUSE_GETTEXT_DLL
+DFLAGS = -DHAVE_LIBZ -DHAVE_LIBSDL_MIXER -DHAVE_LIBVORBIS -DUSE_GETTEXT_DLL
+#DFLAGS = -DHAVE_LIBZ -DHAVE_LIBSDL_MIXER -DHAVE_LIBVORBIS -DUSE_GETTEXT_DLL -DCHIYO 
 
 INCDIRS = -I$(BASEDIR) -I$(BASEDIR)/include/ \
 	  -I$(BASEDIR)/include/glib/ -I$(BASEDIR)/include/gdk/
@@ -107,7 +108,7 @@ $(BASEDIR)/win32/all:
 
 # include directive is not available in nmake.exe
 # If you are using gnu-make, uncomment next line.
-#-include .depend.nt
+-include .depend.nt
 ############################################################################
 # END
 ############################################################################

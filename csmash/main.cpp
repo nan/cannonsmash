@@ -37,6 +37,8 @@
 #include "Logging.h"
 #endif
 
+#include <locale.h>
+
 int LoadData( void *dum );
 
 Ball theBall;
@@ -88,7 +90,38 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR CmdLine, int nShow)
 #endif /* WIN32CONSOLE */
 #endif /* WIN32 */
 
+#define PROBE_FILE "Parts/Fnormal/Fnormal-head01.dat"
+
 int main(int argc, char** argv) {
+  char *dataDir = NULL;
+
+  if ( (access( PROBE_FILE, F_OK ) == 0) ) {
+    dataDir = ".";
+  } else {
+#if !defined(WIN32)
+#ifdef CANNONSMASH_DATADIR
+    dataDir = CANNONSMASH_DATADIR;
+#else
+    fprintf( stderr, _("No datafile directory.\n") );
+    exit(1);
+#endif
+#else
+    char *path = (char*)alloca(MAX_PATH);
+    *path = '\0';
+    GetModuleFileName(GetModuleHandle(NULL), path, MAX_PATH);
+    int l;
+    for (l = strlen(path); l > 0 && '\\' != path[l]; --l);
+    path[l] = '\0';
+    dataDir = path;
+#endif
+  }
+
+  if ( chdir( dataDir ) == -1 ) {
+    fprintf( stderr, _("No datafile directory.\n") );
+    exit(1);
+  }
+
+  printf( dataDir );
 
     /* initialize i18n */
 #ifdef WIN32
@@ -112,32 +145,32 @@ int main(int argc, char** argv) {
 #endif
 
     gtk_set_locale();
-    setlocale (LC_ALL, "");
+    setlocale(LC_ALL, "");
 
     putenv("SDL_MOUSE_RELATIVE=0");
 
 #ifdef WIN32
     char *localedir = (char*)alloca(MAX_PATH);
     *localedir = '\0';
-    GetCurrentDirectory(MAX_PATH, localedir);
+//    GetCurrentDirectory(MAX_PATH, localedir);
+    strncpy(localedir, dataDir, MAX_PATH-1);
     strcat( localedir, "\\locale" );
     printf("\nlocale=%s\n", localedir);
     bindtextdomain ("csmash", localedir);
     textdomain ("csmash");
 
     *localedir = '\0';
-    GetCurrentDirectory(MAX_PATH, localedir);
+//    GetCurrentDirectory(MAX_PATH, localedir);
+    strncpy(localedir, dataDir, MAX_PATH-1);
     strcat( localedir, "\\gtk\\gtkrc" );
     gtk_rc_add_default_file( localedir );
-
-    free( localedir );
 #else
-    bindtextdomain (PACKAGE, LOCALEDIR);
-    textdomain (PACKAGE);
+    bindtextdomain(PACKAGE, LOCALEDIR);
+    textdomain(PACKAGE);
 #endif
 
     int c;
-    while(EOF != (c = getopt(argc, argv, "schfS2Op:"))) {
+    while (EOF != (c = getopt(argc, argv, "schfS2Op:"))) {
         switch (c) {
         case 'h':
 	    // brief help
@@ -183,37 +216,6 @@ int main(int argc, char** argv) {
       mode = MODE_SELECT;
       strncpy(theRC->serverName, argv[optind], sizeof(theRC->serverName));
     }
-
-#define PROBE_FILE "Parts/Fnormal/Fnormal-head01.dat"
-  char *dataDir = NULL;
-
-  if ( (access( PROBE_FILE, F_OK ) == 0) ) {
-    dataDir = ".";
-  } else {
-#if !defined(WIN32)
-#ifdef CANNONSMASH_DATADIR
-    dataDir = CANNONSMASH_DATADIR;
-#else
-    fprintf( stderr, _("No datafile directory.\n") );
-    exit(1);
-#endif
-#else
-    char *path = (char*)alloca(MAX_PATH);
-    *path = '\0';
-    GetModuleFileName(GetModuleHandle(NULL), path, MAX_PATH);
-    int l;
-    for (l = strlen(path); l > 0 && '\\' != path[l]; --l);
-    path[l] = '\0';
-    dataDir = path;
-#endif
-  }
-
-  if ( chdir( dataDir ) == -1 ) {
-    fprintf( stderr, _("No datafile directory.\n") );
-    exit(1);
-  }
-
-  printf( dataDir );
 
   struct timeb tb;
 #ifdef WIN32

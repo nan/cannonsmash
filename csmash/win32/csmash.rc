@@ -38,13 +38,13 @@ IDI_ICON2               ICON    DISCARDABLE     "scream.ico"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,6,1,1
- PRODUCTVERSION 0,6,1,1
+ FILEVERSION 0,6,4,1
+ PRODUCTVERSION 0,6,4,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
- FILEFLAGS 0x1L
+ FILEFLAGS 0x21L
 #else
- FILEFLAGS 0x0L
+ FILEFLAGS 0x20L
 #endif
  FILEOS 0x4L
  FILETYPE 0x1L
@@ -57,15 +57,15 @@ BEGIN
             VALUE "Comments", "http://CannonSmash.sorceforge.net/\0"
             VALUE "CompanyName", "utmc.or.jp\0"
             VALUE "FileDescription", "Cannon Smash for Windows\0"
-            VALUE "FileVersion", "0, 6, 1, 1\0"
+            VALUE "FileVersion", "0, 6, 4, 1\0"
             VALUE "InternalName", "csmash-i386-win32\0"
             VALUE "LegalCopyright", "Copyright (C) 2001 nan@utmc.or.jp\0"
             VALUE "LegalTrademarks", "nan@utmc.or.jp\0"
             VALUE "OriginalFilename", "csmash.exe\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "Cannon Smash\0"
-            VALUE "ProductVersion", "0, 6, 1, 1\0"
-            VALUE "SpecialBuild", "\0"
+            VALUE "ProductVersion", "0, 6, 4, 1\0"
+            VALUE "SpecialBuild", "Built for Comic market 2001 winter\0"
         END
     END
     BLOCK "VarFileInfo"
