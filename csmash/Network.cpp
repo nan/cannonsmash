@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001-2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -177,6 +177,40 @@ ReadTime( int sd, struct timeb* tb ) {
   Logging::GetLogging()->LogTime( LOG_COMMISC, tb );
   Logging::GetLogging()->Log( LOG_COMMISC, "\n" );
 #endif
+}
+
+// Read two character header of incoming message
+void
+ReadHeader( int socket, char *buf ) {
+  long len = 0;
+  while (1) {
+    if ( (len+=recv( socket, buf+len, 2-len, 0 )) == 2 )
+      break;
+  }
+}
+
+// Read entire message, except for header and length field
+long
+ReadEntireMessage( int socket, char **buf ) {
+  long msgLength;
+  long len = 0;
+  char lengthBuf[16];
+
+  while (1) {
+    if ( (len+=recv( socket, lengthBuf+len, 4-len, 0 )) == 4 )
+      break;
+  }
+  ReadLong( lengthBuf, msgLength );
+
+  // Read all
+  (*buf) = new char[msgLength+1];
+  len = 0;
+  while (1) {
+    if ( (len+=recv( socket, (*buf)+len, msgLength-len, 0 )) == msgLength )
+      break;
+  }
+
+  return msgLength;
 }
 
 // Send PlayerData using "PI" protocol
