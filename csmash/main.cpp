@@ -116,7 +116,7 @@ int main(int argc, char** argv) {
 #ifdef WIN32
     char *localedir = (char*)alloca(MAX_PATH);
     *localedir = '\0';
-    GetCurrentDir(localedir, MAX_PATH);
+    GetCurrentDirectory(MAX_PATH, localedir);
     strcat( localedir, "\\locale" );
     bindtextdomain ("csmash", localedir);
     textdomain ("csmash");
