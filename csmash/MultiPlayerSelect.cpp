@@ -74,8 +74,6 @@ MultiPlayerSelect::Create() {
 
   m_theControl = new MultiPlayerSelect();
   m_theControl->Init();
-
-  SDL_ShowCursor(0);
 }
 
 bool

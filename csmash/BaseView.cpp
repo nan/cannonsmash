@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -69,6 +69,26 @@ BaseView::~BaseView() {
 
 bool
 BaseView::Init() {
+#ifdef HAVE_LIBSDL_MIXER
+  if ( theRC->sndMode != SOUND_NONE ) {
+    if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_NOPARACHUTE) < 0 ) {
+      perror( _("SDL initialize failed\n") );
+      exit(1);
+    }
+  } else {
+    if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) < 0 ) {
+      perror( _("SDL initialize failed\n") );
+      exit(1);
+    }
+  }
+#else
+  if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) < 0 ) {
+    perror( _("SDL initialize failed\n") );
+    exit(1);
+  }
+  theRC->sndMode = SOUND_NONE;
+#endif
+
 // Create and initialize Window
 
   if ( theRC->fullScreen )

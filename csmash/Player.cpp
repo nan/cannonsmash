@@ -553,7 +553,8 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   if ( theBall.GetStatus() == 8 || theBall.GetStatus() == -1 )
     AddStatus( 200 );
 
-  if ( SDL_WM_GrabInput( SDL_GRAB_QUERY ) == SDL_GRAB_ON )
+  if ( Control::TheControl()->IsPlaying() &&
+	 !((PlayGame *)Control::TheControl())->IsPause() )
     KeyCheck( KeyHistory, MouseXHistory, MouseYHistory, MouseBHistory,Histptr );
 
   if ( Control::TheControl()->GetThePlayer() == this &&
@@ -807,7 +808,8 @@ const char keytable[][5] = {
   // ちなみに, スイング後のマウスのドラッグによってボールの回転を
   // 制御する場合, この方法は使えないかも知れない. 
 
-  if ( SDL_WM_GrabInput( SDL_GRAB_QUERY ) == SDL_GRAB_OFF )
+  if ( !Control::TheControl()->IsPlaying() ||
+       ((PlayGame *)Control::TheControl())->IsPause() )
     return true;
 
   if ( m_swing > 10 && m_swing <= 20 ) {
