@@ -26,6 +26,7 @@ extern bool isComm;
 extern char serverName[256];
 extern long mode;
 
+extern void StartGame();
 
 LauncherHeader::LauncherHeader() {
 }
@@ -304,7 +305,7 @@ ModeNote::Toggle( GtkWidget *widget, gpointer data ) {
 
 void
 ModeNote::StartGame( GtkWidget *widget, gpointer data ) {
-  gtk_main_quit();
+  ::StartGame();
 }
 
 void
@@ -314,7 +315,7 @@ ModeNote::LANStartGame( GtkWidget *widget, gpointer data ) {
     strncpy( serverName, gtk_entry_get_text( GTK_ENTRY(data) ), 256 );
   isComm = true;
   mode = MODE_SELECT;
-  gtk_main_quit();
+  ::StartGame();
 }
 
 void

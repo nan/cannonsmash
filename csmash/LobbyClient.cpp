@@ -25,6 +25,8 @@ extern bool isComm;
 extern char serverName[256];
 extern long mode;
 
+extern void StartGame();
+
 LobbyClient::LobbyClient() {
   m_timeout = 0;
 }
@@ -185,6 +187,12 @@ LobbyClient::PollServerMessage( gpointer data ) {
 	printf( "PI!\n" );
       } else if ( !strncmp( buf, "OI", 2 ) ) {
 	lobby->ReadOI();
+      } else if ( !strncmp( buf, "AP", 2 ) ) {
+	isComm = true;
+	mode = MODE_SELECT;
+	serverName[0] = '\0';
+	StartGame();
+      } else if ( !strncmp( buf, "DP", 2 ) ) {
       } else {
 	xerror("%s(%d) read header", __FILE__, __LINE__);
 	gtk_main_quit();
@@ -224,7 +232,8 @@ LobbyClient::Connect( GtkWidget *widget, gpointer data ) {
   send( lobby->m_socket, "PI", 2, 0 );
   long len = 4;
   SendLong( lobby->m_socket, len );
-  SendLong( lobby->m_socket, lobby->m_selected );
+  SendLong( lobby->m_socket, lobby->m_player[lobby->m_selected].m_ID );
+  printf( "%d\n", lobby->m_selected );
 }
 
 void
@@ -330,7 +339,8 @@ LobbyClient::ReadPI() {
   SendLong( m_socket, uniqID );
 
   // ここに置くのは問題かも
-  PopupPIDialog( uniqID );
+  PIDialog *piDialog = new PIDialog( this );
+  piDialog->PopupDialog( uniqID );
 }
 
 void
@@ -339,7 +349,6 @@ LobbyClient::ReadOI() {
   long protocolLength;
   long len = 0;
   char buf[1024];
-  long uniqID;
 
   while (1) {
     if ( (len+=recv( m_socket, buf+len, 4-len, 0 )) == 4 )
@@ -370,61 +379,94 @@ LobbyClient::ReadOI() {
   printf( "%s %d\n", serverName, csmash_port );
 }
 
-void
-LobbyClient::PopupPIDialog( long uniqID ) {
-  PIDialog *piDialog = new PIDialog();
-  GtkWidget *label, *button;
-  char buf[256];
-
-  piDialog->m_window = gtk_dialog_new();
-  gtk_container_border_width (GTK_CONTAINER (piDialog->m_window), 10);
-  gtk_window_set_modal( (GtkWindow *)piDialog->m_window, true );
-
-  sprintf( buf, "\"%s\" (message: %s)want to play with you. OK?\n",
-	   m_player[uniqID].m_nickname, m_player[uniqID].m_message );
-  label = gtk_label_new( buf );
-  gtk_label_set_line_wrap( GTK_LABEL(label), true );
-  gtk_widget_show( label );
-
-  gtk_box_pack_start( GTK_BOX(GTK_DIALOG(piDialog->m_window)->vbox), label, 
-		      TRUE, TRUE, 0 );
-
-  gtk_widget_show (piDialog->m_window);
-
-  button = gtk_button_new_with_label ("OK!");
-  gtk_signal_connect (GTK_OBJECT (button), "clicked",
-		      GTK_SIGNAL_FUNC (PIDialog::PIOK), this);
-
-  GTK_WIDGET_SET_FLAGS (button, GTK_CAN_DEFAULT);
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (piDialog->m_window)->action_area),
-		      button, TRUE, TRUE, 0);
-
-  gtk_widget_grab_default (button);
-  gtk_widget_show (button);
-
-  button = gtk_button_new_with_label ("No!");
-  gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
-			     (GtkSignalFunc) gtk_widget_destroy,
-			     GTK_OBJECT (piDialog->m_window));
-  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (piDialog->m_window)->action_area),
-		      button, TRUE, TRUE, 0);
-  gtk_widget_show (button);
-}
-
 
 PIDialog::PIDialog() {
+}
+
+PIDialog::PIDialog( LobbyClient *parent ) {
+  m_parent = parent;
 }
 
 PIDialog::~PIDialog() {
 }
 
 void
+PIDialog::PopupDialog( long uniqID ) {
+  GtkWidget *label, *button;
+  char buf[256];
+
+  m_uniqID = uniqID;
+
+  m_window = gtk_dialog_new();
+  gtk_container_border_width (GTK_CONTAINER (m_window), 10);
+  gtk_window_set_modal( (GtkWindow *)m_window, true );
+
+  PlayerInfo *p = m_parent->GetPlayerInfo();
+
+  int i;
+  for ( i = 0 ; i < m_parent->GetPlayerNum() ; i++ ) {
+    if ( p[i].m_ID == m_uniqID ) {
+      sprintf( buf, "\"%s\" (message: %s)want to play with you. OK?\n",
+	       p[i].m_nickname, p[i].m_message );
+      break;
+    }
+  }
+
+  label = gtk_label_new( buf );
+  gtk_label_set_line_wrap( GTK_LABEL(label), true );
+  gtk_widget_show( label );
+
+  gtk_box_pack_start( GTK_BOX(GTK_DIALOG(m_window)->vbox), label, 
+		      TRUE, TRUE, 0 );
+
+  gtk_widget_show (m_window);
+
+  button = gtk_button_new_with_label ("OK!");
+  gtk_signal_connect (GTK_OBJECT (button), "clicked",
+		      GTK_SIGNAL_FUNC (PIDialog::PIOK), this);
+
+  GTK_WIDGET_SET_FLAGS (button, GTK_CAN_DEFAULT);
+  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (m_window)->action_area),
+		      button, TRUE, TRUE, 0);
+
+  gtk_widget_grab_default (button);
+  gtk_widget_show (button);
+
+  button = gtk_button_new_with_label ("No!");
+  gtk_signal_connect (GTK_OBJECT (button), "clicked",
+		      GTK_SIGNAL_FUNC (PIDialog::PINo), this);
+
+  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (m_window)->action_area),
+		      button, TRUE, TRUE, 0);
+  gtk_widget_show (button);
+}
+
+void
 PIDialog::PIOK( GtkWidget *widget, gpointer data ) {
+  PIDialog *piDialog = (PIDialog *)data;
+
   isComm = true;
   mode = MODE_SELECT;
 
-  gtk_main_quit();
+  send( piDialog->m_parent->GetSocket(), "AP", 2, 0 );
+  long len = 4;
+  SendLong( piDialog->m_parent->GetSocket(), len );
+  SendLong( piDialog->m_parent->GetSocket(), piDialog->m_uniqID );
+
+  StartGame();
 }
+
+void
+PIDialog::PINo( GtkWidget *widget, gpointer data ) {
+  PIDialog *piDialog = (PIDialog *)data;
+  gtk_widget_destroy( GTK_WIDGET(piDialog->m_window) );
+
+  send( piDialog->m_parent->GetSocket(), "DP", 2, 0 );
+  long len = 4;
+  SendLong( piDialog->m_parent->GetSocket(), len );
+  SendLong( piDialog->m_parent->GetSocket(), piDialog->m_uniqID );
+}
+
 
 PlayerInfo::PlayerInfo() {
 }

@@ -65,6 +65,7 @@ long sndMode;			// あとで引数化
 SDL_mutex *loadMutex;
 
 extern void QuitGame();
+void StartGame();
 
 #ifdef WIN32
 #include "win32/getopt.h"
@@ -143,21 +144,24 @@ int main(int argc, char** argv) {
 
   Launcher *launcher = new Launcher();
   launcher->Init();
+}
 
+void
+StartGame() {
   if ( isSimple )
     isTexture = false;
 
 #ifdef HAVE_LIBSDL_MIXER
   sndMode = SOUND_SDL;
 
-  if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) < 0 ) {
+  if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_NOPARACHUTE) < 0 ) {
     perror( "SDL initialize failed\n" );
-    return false;
+    exit(1);
   }
 #else
   if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
     perror( "SDL initialize failed\n" );
-    return false;
+    exit(1);
   }
   sndMode = SOUND_NONE;
 #endif
@@ -237,16 +241,16 @@ int main(int argc, char** argv) {
 			   event.motion.x, event.motion.y );
 	break;
       case SDL_QUIT:
-	QuitGame();
-	break;
+	return;
       case SDL_SYSWMEVENT:
 	break;
       }
     }
+
     Event::IdleFunc();
   }
 
-  return 0;
+  return;
 }
 
 int

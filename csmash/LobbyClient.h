@@ -31,6 +31,10 @@ public:
 
   void Init( char *nickname, char *message );
 
+  int GetSocket() { return m_socket; };
+  PlayerInfo *GetPlayerInfo() { return m_player; };
+  long GetPlayerNum() { return m_playerNum; };
+
 protected:
   static gint PollServerMessage( gpointer data );
   static void SelectRow( GtkCList *clist, gint row, gint column,
@@ -47,8 +51,6 @@ protected:
   void ReadPI();
   void ReadOI();
 
-  void PopupPIDialog( long uniqID );
-
   GtkWidget *m_window;
   GtkWidget *m_table;
   GtkWidget *m_connectButton;
@@ -64,11 +66,18 @@ protected:
 class PIDialog {
 public:
   PIDialog();
+  PIDialog( LobbyClient *parent );
   ~PIDialog();
 
+  void PopupDialog( long uniqID );
+
   GtkWidget *m_window;
+  LobbyClient *m_parent;
+
+  long m_uniqID;
 
   static void PIOK( GtkWidget *widget, gpointer data );
+  static void PINo( GtkWidget *widget, gpointer data );
 };
 
 class PlayerInfo {

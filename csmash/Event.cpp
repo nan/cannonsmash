@@ -720,5 +720,4 @@ QuitGame() {
   theView.QuitGame();
 
   SDL_Quit();
-  exit(2);
 }
