@@ -20,6 +20,7 @@
 #include "Event.h"
 #include "Control.h"
 #include "BaseView.h"
+#include "BaseView2D.h"
 #include "SoloPlay.h"
 #include "MultiPlay.h"
 #include "PlayerSelect.h"
@@ -29,7 +30,7 @@
 #include "TrainingSelect.h"
 #include "Training.h"
 
-extern BaseView theView;
+extern BaseView* theView;
 extern Ball theBall;
 extern Player* thePlayer;
 extern Player* comPlayer;
@@ -180,7 +181,7 @@ Event::IdleFunc() {
 		  (unsigned short)theEvent.m_MouseYHistory[theEvent.m_Histptr] );
 
   if ( reDraw )
-    theView.DisplayFunc();
+    theView->RedrawAll();
 }
 
 bool

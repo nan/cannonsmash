@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 #include "ttinc.h"
 #include "BaseView.h"
+#include "BaseView2D.h"
 #include "Player.h"
 #include "Control.h"
 #include "Event.h"
@@ -33,7 +34,7 @@ extern Control*      theControl;
 
 extern Event theEvent;
 
-extern BaseView theView;
+extern BaseView* theView;
 extern Ball theBall;
 
 extern bool isLighting;
@@ -41,6 +42,7 @@ extern bool isTexture;
 extern bool isPolygon;
 extern bool isSimple;
 extern bool fullScreen;
+extern bool is2D;
 
 long BaseView::m_winWidth = WINXSIZE;
 long BaseView::m_winHeight = WINYSIZE;
@@ -50,6 +52,14 @@ long BaseView::m_winHeight = WINYSIZE;
 // y --- y axis is the center line. The plane y=0 includes the net. 
 // z --- z axis is the vertical line which includes the center point of
 //       the table. The plane z=0 is the floor. 
+
+BaseView *
+BaseView::Create() {
+  if ( is2D )
+    return new BaseView2D();
+  else
+    return new BaseView();
+}
 
 BaseView::BaseView() {
   m_View = (View*)0;
@@ -160,7 +170,7 @@ BaseView::Init() {
 
 void
 BaseView::DisplayFunc() {
-  theView.RedrawAll();
+  theView->RedrawAll();
 }
 
 bool
@@ -406,12 +416,4 @@ BaseView::QuitGame() {
   //SDL_WM_ToggleFullScreen( m_baseSurface );
   SDL_FreeSurface( m_baseSurface );
   delete m_fieldView;
-}
-
-void
-BaseView::ReshapeFunc( int width, int height ) {
-  m_winWidth = width;
-  m_winHeight = height;
-
-  glViewport( 0, 0, m_winWidth, m_winHeight );
 }

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,24 +26,27 @@
 class BaseView {
 public:
   BaseView();
-  ~BaseView();
+  virtual ~BaseView();
 
-  bool Init();
+  static BaseView *Create();
+
+  virtual bool Init();
 
   static void DisplayFunc();
-  static void ReshapeFunc( int width, int height );
 
-  bool RedrawAll();
-  bool SetViewPosition();
+  virtual bool RedrawAll();
+  virtual bool SetViewPosition();
 
-  bool AddView( View *view );
-  bool RemoveView( View *view );
+  virtual bool AddView( View *view );
+  virtual bool RemoveView( View *view );
 
-  void EndGame();
-  void QuitGame();
+  virtual void EndGame();
+  virtual void QuitGame();
 
   static long GetWinWidth() { return m_winWidth; };
   static long GetWinHeight() { return m_winHeight; };
+
+  virtual SDL_Surface *GetSurface() { return m_baseSurface; };
 protected:
   double         m_centerX;
   double         m_centerY;
@@ -61,7 +64,7 @@ protected:
 
   SDL_Surface	*m_baseSurface;
 
-  void SetLookAt();
+  virtual void SetLookAt();
 };
 
 #endif // _BaseView

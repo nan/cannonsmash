@@ -24,7 +24,7 @@
 #include "Ball.h"
 #include "Event.h"
 
-extern BaseView theView;
+extern BaseView* theView;
 
 extern Player* thePlayer;
 extern Player* comPlayer;
@@ -39,7 +39,7 @@ Training::Training() {
 
 Training::~Training() {
   if ( m_View ){
-    theView.RemoveView( m_View );
+    theView->RemoveView( m_View );
     delete m_View;
   }
 }
@@ -49,7 +49,7 @@ Training::Init() {
   m_View = new TrainingView();
   m_View->Init( this );
 
-  theView.AddView( m_View );
+  theView->AddView( m_View );
 
   return true;
 }

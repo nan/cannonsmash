@@ -24,7 +24,7 @@
 #include "TrainingSelectView.h"
 #include "Event.h"
 
-extern BaseView theView;
+extern BaseView* theView;
 extern long mode;
 
 extern Player *thePlayer;
@@ -41,7 +41,7 @@ TrainingSelect::Init() {
   m_View = new TrainingSelectView();
   m_View->Init( this );
 
-  theView.AddView( m_View );
+  theView->AddView( m_View );
 
   return true;
 }

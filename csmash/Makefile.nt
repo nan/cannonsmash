@@ -40,7 +40,7 @@ LIBS =	win32/GetArgs.obj win32/getopt.obj win32/wsaerror.obj \
 	win32/wsainit.obj win32/csmash.res \
 	SDL.lib SDL_mixer.lib opengl32.lib glu32.lib zlib.lib \
 	libjpeg.lib ws2_32.lib gtk/gtk-1.3.lib glib/glib-1.3.lib \
-        vorbis.lib vorbisfile.lib winmm.lib -link /LIBPATH:./lib
+	winmm.lib -link /LIBPATH:./lib
 
 SRCS = \
 	Ball.cpp BallView.cpp BaseView.cpp Event.cpp HitMark.cpp \
@@ -53,7 +53,9 @@ SRCS = \
 	TrainingSelect.cpp TrainingSelectView.cpp TrainingView.cpp \
 	FieldView.cpp SoloPlay.cpp PlayGame.cpp Control.cpp Training.cpp \
 	Opening.cpp OpeningView.cpp MenuItem.cpp MenuItemView.cpp \
-	main.cpp z.cpp parts.cpp xerror.cpp Launcher.cpp LobbyClient.cpp
+	main.cpp z.cpp parts.cpp xerror.cpp Launcher.cpp LobbyClient.cpp \
+	Logging.cpp BaseView2D.cpp FieldView2D.cpp PlayerView2D.cpp
+	BallView2D.cpp
 
 OBJS = $(SRCS:.cpp=.obj)
 

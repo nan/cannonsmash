@@ -28,6 +28,9 @@
 #include "Launcher.h"
 #include "HitMark.h"
 #include "HowtoView.h"
+#ifdef LOGGING
+#include "Logging.h"
+#endif
 
 int LoadData( void *dum );
 
@@ -35,7 +38,7 @@ Ball theBall;
 
 Sound theSound;
 
-BaseView theView;
+BaseView *theView;
 Player *thePlayer = NULL;
 Player *comPlayer = NULL;
 Event theEvent;
@@ -110,7 +113,7 @@ int main(int argc, char** argv) {
 #endif
 
     int c;
-    while(EOF != (c = getopt(argc, argv, "schfSOp:"))) {
+    while(EOF != (c = getopt(argc, argv, "schfS2Op:"))) {
         switch (c) {
         case 'h':
 	    // brief help
@@ -141,6 +144,11 @@ int main(int argc, char** argv) {
 	    // Simple mode
 	    isSimple = true;
 	    isTexture = false;
+	    break;
+	case '2':
+	    // Simple mode
+	    is2D = true;
+	    mode = MODE_TITLE;
 	    break;
 	}
     }
@@ -201,7 +209,6 @@ int main(int argc, char** argv) {
 
   EndianCheck();
 
-// Temporal
   loadMutex = SDL_CreateMutex();
   SDL_CreateThread( LoadData, NULL );
 
@@ -243,8 +250,15 @@ StartGame() {
   }
 
   theSound.Init( sndMode );
-  theView.Init();
+  theView = BaseView::Create();
+  theView->Init();
   theEvent.Init();
+
+#ifdef LOGGING
+  if ( isComm ) {
+    Logging::GetLogging()->Init();
+  }
+#endif
 
   SDL_EnableUNICODE(1);
 }
@@ -275,7 +289,7 @@ bool PollEvent() {
       break;
     case SDL_QUIT:
       Event::ClearObject();
-      theView.QuitGame();
+      theView->QuitGame();
       theSound.Clear();
 
       HitMark::m_textures[0] = 0;
@@ -305,10 +319,8 @@ int
 LoadData( void *dum ) {
   SDL_mutexP( loadMutex );
 
-  PlayerView::LoadData(NULL);
-  if ( access( OPENINGFILENAME, F_OK ) == 0 ) {
-    theSound.LoadBGM( OPENINGFILENAME );
-  }
+  if ( !is2D )
+    PlayerView::LoadData(NULL);
 
   SDL_mutexV( loadMutex );
 

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,14 +35,19 @@
 #include "HitMark.h"
 #include "PlayGame.h"
 #include "MultiPlay.h"
+#ifdef LOGGING
+#include "Logging.h"
+#endif
 
 extern Ball   theBall;
-extern BaseView theView;
+extern BaseView* theView;
 extern Control *theControl;
 
 extern Player *thePlayer;
 extern Player *comPlayer;
 extern Event theEvent;
+
+extern bool is2D;
 
 extern long mode;
 extern long gameLevel;
@@ -181,7 +186,7 @@ Player::Player( long playerType, long side, double x, double y, double z,
 
 Player::~Player() {
   if ( m_View ){
-    theView.RemoveView( m_View );
+    theView->RemoveView( m_View );
     delete m_View;
   }
 }
@@ -274,10 +279,14 @@ Player::Create( long player, long side, long type ) {
 
 bool
 Player::Init() {
-  m_View = new PlayerView();
+  if ( is2D )
+    m_View = new PlayerView2D();
+  else
+    m_View = new PlayerView();
+
   m_View->Init( this );
 
-  theView.AddView( m_View );
+  theView->AddView( m_View );
 
   HitMark::Init();
 
@@ -395,7 +404,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   if ( m_swing == 20 ){
     HitBall();
 
-    if ( thePlayer == this ) {
+    if ( thePlayer == this && !is2D ) {
       HitMark *hit;
 
       hit = new HitMark();
@@ -403,7 +412,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 		theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(), 
 		GetSwingError() );
 
-      theView.AddView( hit );
+      theView->AddView( hit );
     }
     m_spin = 0.0;
   }
@@ -1239,6 +1248,10 @@ Player::SendSwing( char *buf ) {
   l = SwapLong(m_swing);
   memcpy( &(buf[20]), (char *)&l, 4 );
 
+#ifdef LOGGING
+  Logging::GetLogging()->LogSendPSMessage( this );
+#endif
+
   return buf;
 }
 
@@ -1260,6 +1273,10 @@ Player::SendLocation( char *buf ) {
   memcpy( &(buf[40]), (char *)&d, 8 );
 
   UpdateLastSend();
+
+#ifdef LOGGING
+  Logging::GetLogging()->LogSendPVMessage( this );
+#endif
 
   return buf;
 }

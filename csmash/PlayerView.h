@@ -30,7 +30,7 @@ public:
 
   static void * LoadData(void *dum);
 
-  bool Init( Player *player );
+  virtual bool Init( Player *player );
 
   virtual bool Redraw();
   virtual bool RedrawAlpha();
@@ -59,7 +59,7 @@ private:
   static partsmotion *motion_Bpeck;
   static partsmotion *motion_Fsmash;
 
-  bool SubRedraw();
+  virtual bool SubRedraw();
 };
 
 #endif	// _PlayerView

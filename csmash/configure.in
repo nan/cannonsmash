@@ -19,12 +19,11 @@ AC_CHECK_LIB(ICE, main)
 AC_CHECK_LIB(X11, main)
 AC_CHECK_LIB(Xext, main)
 AC_CHECK_LIB(Xi, main)
-AC_CHECK_LIB(m, fabs)
+dnl AC_CHECK_LIB(m, fabs)
 AC_CHECK_LIB(jpeg, jpeg_std_error)
 AC_CHECK_LIB(GL, glLoadIdentity, , [AC_CHECK_LIB(MesaGL, glLoadIdentity, , [AC_CHECK_LIB(OpenGL32, main, , AC_MSG_ERROR(OpenGL library not found.))])])
 AC_CHECK_LIB(GLU, gluPerspective, , [AC_CHECK_LIB(MesaGLU, gluPerspective, , [AC_CHECK_LIB(GLU32, main, , AC_MSG_ERROR(GLU library not found))])])
-AC_CHECK_LIB(z, gzdopen)
-AC_CHECK_LIB(vorbis, main)
+dnl AC_CHECK_LIB(z, gzdopen)
 
 dnl Check for SDL
 SDL_VERSION=1.2.0
@@ -65,7 +64,7 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 
-AM_INIT_AUTOMAKE(csmash, 0.6.2, no-define)
+AM_INIT_AUTOMAKE(csmash, 0.6.3, no-define)
 
 AC_DEFINE_UNQUOTED(CANNONSMASH_DATADIR, "@prefix@/share/$PACKAGE/")
 

@@ -19,6 +19,7 @@
 #include "ttinc.h"
 #include "Title.h"
 #include "BaseView.h"
+#include "BaseView2D.h"
 #include "Sound.h"
 #include "Player.h"
 #include "Ball.h"
@@ -26,7 +27,7 @@
 #include "Event.h"
 #include "MenuItem.h"
 
-extern BaseView theView;
+extern BaseView* theView;
 extern long mode;
 
 extern Sound theSound;
@@ -59,7 +60,7 @@ Title::~Title() {
   }
 
   if ( m_View ){
-    theView.RemoveView( m_View );
+    theView->RemoveView( m_View );
     delete m_View;
   }
 }
@@ -69,7 +70,7 @@ Title::Init() {
   m_View = new TitleView();
   m_View->Init( this );
 
-  theView.AddView( m_View );
+  theView->AddView( m_View );
 
   thePlayer = Player::Create( RAND(3), 1, 1 );
   comPlayer = Player::Create( RAND(3), -1, 1 );

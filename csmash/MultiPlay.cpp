@@ -25,6 +25,10 @@
 #include "ShakeCut.h"
 #include "Event.h"
 
+#ifdef LOGGING
+#include "Logging.h"
+#endif
+
 #if !defined(WIN32)
 #include <netinet/tcp.h>
 #endif
@@ -145,6 +149,10 @@ SendTime( int sd, struct timeb* tb ) {
   send( sd, "TM", 2, 0 );
   SendLong( sd, tb->time );
   SendLong( sd, millitm );
+#ifdef LOGGING
+  Logging::GetLogging()->LogTime( LOG_COMMISC, tb );
+  Logging::GetLogging()->Log( LOG_COMMISC, "SendTime\n" );
+#endif
 }
 
 void
@@ -167,6 +175,28 @@ ReadTime( int sd, struct timeb* tb ) {
   b = ReadLong( b, tb->time );
   b = ReadLong( b, millitm );
   tb->millitm = millitm;
+
+#ifdef LOGGING
+  struct timeb tbCurrent;
+
+#ifndef WIN32
+  struct timeval tv;
+  struct timezone tz;
+#endif
+
+#ifdef WIN32
+  ftime( &tbCurrent );
+#else
+  gettimeofday( &tv, &tz );
+  tbCurrent.time = tv.tv_sec;
+  tbCurrent.millitm = tv.tv_usec/1000;
+#endif
+
+  Logging::GetLogging()->LogTime( LOG_COMMISC, &tbCurrent );
+  Logging::GetLogging()->Log( LOG_COMMISC, "ReadTime " );
+  Logging::GetLogging()->LogTime( LOG_COMMISC, tb );
+  Logging::GetLogging()->Log( LOG_COMMISC, "\n" );
+#endif
 }
 
 // Send PlayerData
@@ -174,6 +204,11 @@ void
 SendPlayerData() {
   send( theSocket, "PI", 2, 0 );
   thePlayer->SendAll( theSocket );
+
+#ifdef LOGGING
+  Logging::GetLogging()->LogPlayer( LOG_COMTHEPLAYER, thePlayer );
+#endif
+
 }
 
 // Recv PlayerData
@@ -254,6 +289,10 @@ ReadPlayerData() {
   default:
     return 0;
   }
+
+#ifdef LOGGING
+  Logging::GetLogging()->LogPlayer( LOG_COMCOMPLAYER, player );
+#endif
 
   return player;
 }
@@ -459,7 +498,22 @@ StartServer() {
       break;
   }
 
+#ifdef LOGGING
+  char logBuf[256];
+  Logging::GetLogging()->LogTime( LOG_COMBALL );
+  sprintf( logBuf, "recv BI: " );
+  Logging::GetLogging()->Log( LOG_COMBALL, logBuf );
+#endif
+
   theBall.Warp( buf );
+
+#ifdef LOGGING
+  sprintf( buf, "x=%4.2f y=%4.2f z=%4.2f vx=%4.2f vy=%4.2f vz=%4.2f spin=%3.2f status=%2d\n",
+	   theBall.GetX(), theBall.GetY(), theBall.GetZ(), 
+	   theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(), 
+	   theBall.GetSpin(), (int)theBall.GetStatus() );
+  Logging::GetLogging()->Log( LOG_COMBALL, buf );
+#endif
 
   SendPlayerData();
 
@@ -584,6 +638,12 @@ StartClient() {
   }
 
   // Send Ball Data
+#ifdef LOGGING
+  char logBuf[256];
+  Logging::GetLogging()->LogTime( LOG_COMBALL );
+  sprintf( logBuf, "send BI\n" );
+  Logging::GetLogging()->Log( LOG_COMBALL, logBuf );
+#endif
   send( theSocket, "BI", 2, 0 );
   theBall.Send( buf );
   send( theSocket, buf, 60, 0 );
@@ -605,6 +665,9 @@ MultiPlay::~MultiPlay() {
 
 bool
 MultiPlay::Init() {
+#ifdef LOGGING
+  Logging::GetLogging()->StartLog();
+#endif
   return true;
 }
 
@@ -657,10 +720,37 @@ MultiPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
       SDL_WM_GrabInput( SDL_GRAB_ON );
   }
 
+#ifdef LOGGING
+  long prevStatus = theBall.GetStatus();
+  theBall.Move();
+  if ( prevStatus != theBall.GetStatus() && prevStatus >= -1 ) {
+    Logging::GetLogging()->LogBall( LOG_ACTBALL, &theBall );
+  }
+
+  double prevVx = thePlayer->GetVX();
+  double prevVy = thePlayer->GetVY();
+  long   prevSwing = thePlayer->GetSwing();
+  reDraw |= thePlayer->Move( KeyHistory, MouseXHistory,
+			     MouseYHistory, MouseBHistory, Histptr );
+  if ( prevVx != thePlayer->GetVX() || prevVy == thePlayer->GetVY() ||
+       prevSwing != thePlayer->GetSwing() ) {
+    Logging::GetLogging()->LogPlayer( LOG_ACTTHEPLAYER, thePlayer );
+  }
+
+  prevVx = comPlayer->GetVX();
+  prevVy = comPlayer->GetVY();
+  prevSwing = comPlayer->GetSwing();
+  reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+  if ( prevVx != comPlayer->GetVX() || prevVy == comPlayer->GetVY() ||
+       prevSwing != comPlayer->GetSwing() ) {
+    Logging::GetLogging()->LogPlayer( LOG_ACTCOMPLAYER, comPlayer );
+  }
+#else
   theBall.Move();
   reDraw |= thePlayer->Move( KeyHistory, MouseXHistory,
 			     MouseYHistory, MouseBHistory, Histptr );
   reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+#endif
 
   return reDraw;
 }
@@ -805,13 +895,8 @@ ExternalPVData::Apply( Player *targetPlayer, bool &fThePlayer,
   else if ( targetPlayer == comPlayer )
     fComPlayer = true;
 
-#if 0
-  printf( "PV: sec = %d count = %d\n", sec, count);
-  printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n", targetPlayer->GetX(),
-	  targetPlayer->GetY(), targetPlayer->GetZ(),
-	  targetPlayer->GetVX(), targetPlayer->GetVY(),
-	  targetPlayer->GetVZ() );
-  fflush(0);
+#ifdef LOGGING
+  Logging::GetLogging()->LogRecvPVMessage( this );
 #endif
 
   return true;
@@ -826,7 +911,13 @@ ExternalPVData::Read( long sock ) {
     if ( (len+=recv( sock, data+len, 48-len, 0 )) == 48 )
       break;
   }
-//  printf( "Get PV : %d %d\n", extNow->sec, extNow->count );
+
+#ifdef LOGGING
+  char buf[256];
+  Logging::GetLogging()->LogTime( LOG_COMCOMPLAYER );
+  sprintf( buf, "Recv PV: %d.%3d\n", (int)sec, (int)count );
+  Logging::GetLogging()->Log( LOG_COMCOMPLAYER, buf );
+#endif
 
   return true;
 }
@@ -849,11 +940,10 @@ ExternalPSData::Apply( Player *targetPlayer, bool &fThePlayer,
   else if ( targetPlayer == comPlayer )
     fComPlayer = true;
 
-#if 0
-  printf( "PS: sec = %d count = %d swing = %d\n",
-	  sec, count, targetPlayer->GetSwing());
-  fflush(0);
+#ifdef LOGGING
+  Logging::GetLogging()->LogRecvPSMessage( this );
 #endif
+
   return true;
 }
 
@@ -866,6 +956,13 @@ ExternalPSData::Read( long sock ) {
     if ( (len+=recv( sock, data+len, 24-len, 0 )) == 24 )
       break;
   }
+
+#ifdef LOGGING
+  char buf[256];
+  Logging::GetLogging()->LogTime( LOG_COMCOMPLAYER );
+  sprintf( buf, "Recv PS: %d.%3d\n", (int)sec, (int)count );
+  Logging::GetLogging()->Log( LOG_COMCOMPLAYER, buf );
+#endif
 
   return true;
 }
@@ -885,11 +982,8 @@ ExternalBVData::Apply( Player *targetPlayer, bool &fThePlayer,
   theBall.Warp( data );
   fTheBall = true;
 
-#if 0
-  printf( "BV: sec = %d count = %d\n", sec, count);
-  printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n", theBall.GetX(),
-	  theBall.GetY(), theBall.GetZ(),
-	  theBall.GetVX(), theBall.GetVY(), theBall.GetVZ() );
+#ifdef LOGGING
+  Logging::GetLogging()->LogRecvBVMessage( this );
 #endif
 
   return true;
@@ -899,17 +993,18 @@ bool
 ExternalBVData::Read( long sock ) {
   ReadTime( sock, &sec, &count );
 
-  /*
-  printf( "BVRead: sec = %d count = %d : ", sec, count);
-  printf( "sec = %d count = %d\n",
-	  Event::m_lastTime.time, Event::m_lastTime.millitm);
-  */
-
   long len = 0;
   while (1) {
     if ( (len+=recv( sock, data+len, 60-len, 0 )) == 60 )
       break;
   }
+
+#ifdef LOGGING
+  char buf[256];
+  Logging::GetLogging()->LogTime( LOG_COMBALL );
+  sprintf( buf, "Recv BV: %d.%3d\n", (int)sec, (int)count );
+  Logging::GetLogging()->Log( LOG_COMBALL, buf );
+#endif
 
   return true;
 }

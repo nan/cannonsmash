@@ -20,6 +20,7 @@
 #define _Ball_
 
 #include "BallView.h"
+#include "BallView2D.h"
 #include "Player.h"
 
 class Ball {

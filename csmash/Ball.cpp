@@ -24,18 +24,23 @@
 #include "Sound.h"
 #include "Event.h"
 #include "MultiPlay.h"
+#ifdef LOGGING
+#include "Logging.h"
+#endif
 
 extern Player* thePlayer;
 extern Player* comPlayer;
 extern Ball theBall;
 extern Event theEvent;
 extern Control* theControl;
-extern BaseView theView;
+extern BaseView* theView;
 extern long mode;
 extern Sound theSound;
 
 extern long gameMode;
 extern long wins;
+
+extern bool is2D;
 
 #if 0
 inline double LOG(double f) { return log(f); }
@@ -74,16 +79,20 @@ Ball::Ball( double x, double y, double z, double vx, double vy, double vz,
 
 Ball::~Ball() {
   if ( m_View && &theBall == this){
-    theView.RemoveView( m_View );
+    theView->RemoveView( m_View );
     delete m_View;
   }
 }
 
 bool
 Ball::Init() {
-  m_View = new BallView();
+  if ( is2D )
+    m_View = (BallView *)new BallView2D();
+  else
+    m_View = new BallView();
+
   m_View->Init();
-  theView.AddView( m_View );
+  theView->AddView( m_View );
 
   return true;
 }
@@ -163,7 +172,7 @@ Ball::Move() {
       m_status = 8;
 
       if ( ((PlayGame *)theControl)->IsGameEnd() == true ){
-	theView.EndGame();
+	theView->EndGame();
 	((PlayGame *)theControl)->EndGame();
       }
     } else {
@@ -615,6 +624,10 @@ Ball::Send( char *buf ) {
   memcpy( &(buf[48]), (char *)&d, 8 );
   l = SwapLong(m_status);
   memcpy( &(buf[56]), (char *)&l, 4 );
+
+#ifdef LOGGING
+  Logging::GetLogging()->LogBall( LOG_COMBALL, this );
+#endif
 
   return buf;
 }

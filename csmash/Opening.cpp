@@ -28,7 +28,7 @@
 
 #include <signal.h>
 
-extern BaseView theView;
+extern BaseView* theView;
 extern long mode;
 
 extern long gameLevel;
@@ -56,7 +56,7 @@ Opening::Opening() {
 
 Opening::~Opening() {
   if ( m_View ){
-    theView.RemoveView( m_View );
+    theView->RemoveView( m_View );
     delete m_View;
   }
 
@@ -72,7 +72,7 @@ Opening::Init() {
   m_View = new OpeningView();
   m_View->Init( this );
 
-  theView.AddView( m_View );
+  theView->AddView( m_View );
 
   thePlayer = Player::Create( 1, 1, 0 );
   comPlayer = Player::Create( 2, -1, 0 );

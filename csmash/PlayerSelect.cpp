@@ -24,7 +24,7 @@
 #include "PlayerSelectView.h"
 #include "Event.h"
 
-extern BaseView theView;
+extern BaseView* theView;
 extern long mode;
 
 extern bool isComm;
@@ -43,7 +43,7 @@ PlayerSelect::PlayerSelect() {
 
 PlayerSelect::~PlayerSelect() {
   if ( m_View ){
-    theView.RemoveView( m_View );
+    theView->RemoveView( m_View );
     delete m_View;
   }
 }
@@ -53,7 +53,7 @@ PlayerSelect::Init() {
   m_View = new PlayerSelectView();
   m_View->Init( this );
 
-  theView.AddView( m_View );
+  theView->AddView( m_View );
 
   return true;
 }

@@ -26,7 +26,7 @@
 #include "ShakeCut.h"
 #include "Event.h"
 
-extern BaseView theView;
+extern BaseView* theView;
 
 extern long mode;
 
@@ -47,7 +47,7 @@ Howto::Howto() {
 
 Howto::~Howto() {
   if ( m_View ){
-    theView.RemoveView( m_View );
+    theView->RemoveView( m_View );
     delete m_View;
   }
 }
@@ -57,7 +57,7 @@ Howto::Init() {
   m_View = new HowtoView();
   m_View->Init( this );
 
-  theView.AddView( m_View );
+  theView->AddView( m_View );
 
   thePlayer = new PenAttack(1);
   comPlayer = new ShakeCut(-1);

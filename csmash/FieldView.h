@@ -25,7 +25,7 @@
 class FieldView : public View {
 public:
   FieldView();
-  bool Init();
+  virtual bool Init();
   virtual ~FieldView();
 
   virtual bool Redraw();

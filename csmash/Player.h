@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 #ifndef _Player_
 #define _Player_
 #include "PlayerView.h"
+#include "PlayerView2D.h"
 
 // m_playerType
 #define PLAYER_PROTO		0	// Prototype player
@@ -68,6 +69,8 @@ public:
 		     int Histptr );
 
   virtual bool AddStatus( long diff );
+
+  virtual View *GetView() { return m_View; };
 
   virtual long   GetSide() { return m_side; }
   virtual long   GetPlayerType() { return m_playerType; }
