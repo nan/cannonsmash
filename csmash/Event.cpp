@@ -258,7 +258,7 @@ Event::Record() {
   m_MouseBHistory[m_Histptr] = btn;
 
   m_BacktrackBuffer[m_Histptr].sec = m_lastTime.time;
-  m_BacktrackBuffer[m_Histptr].count = m_lastTime.millitm;
+  m_BacktrackBuffer[m_Histptr].count = m_lastTime.millitm/10;
   while ( m_BacktrackBuffer[m_Histptr].count > 100 ) {
     m_BacktrackBuffer[m_Histptr].sec--;
     m_BacktrackBuffer[m_Histptr].count += 100;
@@ -272,6 +272,10 @@ Event::Record() {
       ((PlayGame *)theControl)->GetScore( thePlayer );
     m_BacktrackBuffer[m_Histptr].score2 =
       ((PlayGame *)theControl)->GetScore( comPlayer );
+
+    printf( "Hptr = %d x=%f y=%f vx=%f vy=%f vz=%f\n", m_Histptr, 
+	    comPlayer->GetX(), comPlayer->GetY(),
+	    comPlayer->GetVX(), comPlayer->GetVY(), comPlayer->GetVZ() );
   }
 
   return;
@@ -502,7 +506,9 @@ Event::ReadData() {
       bool fTheBall, fThePlayer, fComPlayer;
       fTheBall = fThePlayer = fComPlayer = false;
 
+      printf( "Backtrack From %d to", m_Histptr );
       BackTrack( btHistptr );
+      printf( " %d\n", m_Histptr );
 
       // 適用する -> 進めるをbtCount繰り返す
       while (1) {
@@ -535,10 +541,6 @@ Event::ReadData() {
 	  m_External = m_External->next;
 	  delete externalOld;
 	}
-
-//	printf( "sec=%d count=%d status=%d\nx=%f y=%f z=%f spin = %f\n",
-//		m_lastTime.time, m_lastTime.millitm/10,	theBall.GetStatus(),
-//		theBall.GetX(), theBall.GetY(), theBall.GetZ(), theBall.GetSpin() );
 
 	m_Histptr++;
 	if ( m_Histptr == MAX_HISTORY )
@@ -573,7 +575,7 @@ Event::ClearBacktrack() {
     theEvent.m_MouseYHistory[i] = 0;
     theEvent.m_MouseBHistory[i] = 0;
     theEvent.m_BacktrackBuffer[i].sec = m_lastTime.time;
-    theEvent.m_BacktrackBuffer[i].count = m_lastTime.millitm;
+    theEvent.m_BacktrackBuffer[i].count = m_lastTime.millitm/10;
     theEvent.m_BacktrackBuffer[i].theBall = theBall;
     CopyPlayerData( theEvent.m_BacktrackBuffer[i].thePlayer, thePlayer );
     CopyPlayerData( theEvent.m_BacktrackBuffer[i].comPlayer, comPlayer );

@@ -604,24 +604,24 @@ MultiPlay::LookAt( double &srcX, double &srcY, double &srcZ,
 void
 MultiPlay::SendTime() {
   char v;
-  long time, millitm;
+  long sec, count;
 
-  time = Event::m_lastTime.time;
-  millitm = Event::m_lastTime.millitm/10;
+  sec = Event::m_lastTime.time;
+  count = Event::m_lastTime.millitm/10;
 
-  millitm += timeAdj;
+  count += timeAdj;
 
-  while ( millitm >= 100 ) {
-    millitm -= 100;
-    time++;
+  while ( count >= 100 ) {
+    count -= 100;
+    sec++;
   }
-  while ( millitm < 0 ) {
-    millitm += 100;
-    time--;
+  while ( count < 0 ) {
+    count += 100;
+    sec--;
   }
 
-  send( theSocket, (char *)&time, 4, 0 );
-  v = (char)(millitm);
+  send( theSocket, (char *)&sec, 4, 0 );
+  v = (char)(count);
   send( theSocket, (char *)&v, 1, 0 );
 }
 
@@ -717,11 +717,12 @@ ExternalPVData::Apply( Player *targetPlayer, bool &fThePlayer,
   else if ( targetPlayer == comPlayer )
     fComPlayer = true;
 
-//  printf( "PV: sec = %d count = %d\n",
-//	  m_External->sec, m_External->count);
-//  printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n",
-//	  x, y, z, vx, vy, vz );
-//  fflush(0);
+  printf( "PV: sec = %d count = %d\n", sec, count);
+  printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n", targetPlayer->GetX(),
+	  targetPlayer->GetY(), targetPlayer->GetZ(),
+	  targetPlayer->GetVX(), targetPlayer->GetVY(),
+	  targetPlayer->GetVZ() );
+  fflush(0);
 
   return true;
 }
@@ -758,9 +759,9 @@ ExternalPSData::Apply( Player *targetPlayer, bool &fThePlayer,
   else if ( targetPlayer == comPlayer )
     fComPlayer = true;
 
-//  printf( "PS: sec = %d count = %d swing = %d\n",
-//	  m_External->sec, m_External->count, targetPlayer->GetSwing());
-//  fflush(0);
+  printf( "PS: sec = %d count = %d swing = %d\n",
+	  sec, count, targetPlayer->GetSwing());
+  fflush(0);
   return true;
 }
 
@@ -792,11 +793,11 @@ ExternalBVData::Apply( Player *targetPlayer, bool &fThePlayer,
   theBall.Warp( data );
   fTheBall = true;
 
-//  printf( "BV: sec = %d count = %d\n",
-//	  m_External->sec, m_External->count);
-//  printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n",
-//	  x, y, z, vx, vy, vz );
-//  fflush(0);
+  printf( "BV: sec = %d count = %d\n", sec, count);
+  printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n", theBall.GetX(),
+	  theBall.GetY(), theBall.GetZ(),
+	  theBall.GetVX(), theBall.GetVY(), theBall.GetVZ() );
+  fflush(0);
   return true;
 }
 
