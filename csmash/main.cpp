@@ -154,11 +154,21 @@ int main(int argc, char** argv) {
   if ( (access( PROBE_FILE, F_OK ) == 0) ) {
     dataDir = ".";
   } else {
+#if !defined(_WIN32)
 #ifdef CANNONSMASH_DATADIR
     dataDir = CANNONSMASH_DATADIR;
 #else
     fprintf( stderr, "No datafile directory.\n" );
     exit(1);
+#endif
+#else
+    char *path = (char*)alloca(MAX_PATH);
+    *path = '\0';
+    GetModuleFileName(GetModuleHandle(NULL), path, MAX_PATH);
+    int l;
+    for (l = strlen(path); l > 0 && '\\' != path[l]; --l);
+    path[l] = '\0';
+    dataDir = path;
 #endif
   }
 

@@ -33,7 +33,7 @@ EXE = .exe
 AOUT = -Fe
 
 ############################################################################
-DFLAGS = -DHAVE_LIBZ -DHAVE_LIBSDL_MIXER
+DFLAGS = -DHAVE_LIBZ -DHAVE_LIBSDL_MIXER #-DWIN32CONSOLE
 INCDIRS = -I. -I./glib/ -I./gdk/
 
 LIBS =	win32/GetArgs.obj win32/getopt.obj win32/wsaerror.obj \
