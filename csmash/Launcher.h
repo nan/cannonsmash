@@ -42,6 +42,8 @@ public:
 
   void Init( GtkBox *box );
 
+  GtkWidget *m_serverName;
+  GtkWidget *m_lobbyEdit[2];
 protected:
   GtkWidget * InitSoloPlayPanel();
   GtkWidget * InitLANPlayPanel();

@@ -21,7 +21,7 @@
 #include "LoadImage.h"
 
 extern bool isTexture;
-extern bool isSimple;
+extern long gmode;
 
 GLuint HitMark::m_textures[2] = {0, 0};
 
@@ -220,7 +220,7 @@ HitMark::RedrawAlpha() {
   glPopMatrix();
 
   glDepthMask(1);
-  if (!isSimple)
+  if ( gmode != GMODE_SIMPLE )
     glEnable(GL_DEPTH_TEST);
 
   return true;

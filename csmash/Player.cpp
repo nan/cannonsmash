@@ -47,10 +47,9 @@ extern Player *thePlayer;
 extern Player *comPlayer;
 extern Event theEvent;
 
-extern bool is2D;
-
 extern long mode;
 extern long gameLevel;
+extern long gmode;
 
 Player::Player() {
   m_side = 1;
@@ -279,7 +278,7 @@ Player::Create( long player, long side, long type ) {
 
 bool
 Player::Init() {
-  if ( is2D )
+  if ( gmode == GMODE_2D )
     m_View = new PlayerView2D();
   else
     m_View = new PlayerView();
@@ -404,7 +403,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   if ( m_swing == 20 ){
     HitBall();
 
-    if ( thePlayer == this && !is2D ) {
+    if ( thePlayer == this && gmode != GMODE_2D ) {
       HitMark *hit;
 
       hit = new HitMark();

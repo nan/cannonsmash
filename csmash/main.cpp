@@ -53,8 +53,7 @@ long timeAdj = 0;
 bool isLighting	= true;
 bool isTexture	= true;
 bool isPolygon	= true;
-bool isSimple	= false;
-bool is2D	= false;
+long gmode	= GMODE_FULL;
 bool isWireFrame = true;
 bool fullScreen = false;
 
@@ -145,12 +144,12 @@ int main(int argc, char** argv) {
 	    break;
 	case 'S':
 	    // Simple mode
-	    isSimple = true;
+	    gmode = GMODE_SIMPLE;
 	    isTexture = false;
 	    break;
 	case '2':
 	    // Simple mode
-	    is2D = true;
+	    gmode = GMODE_2D;
 	    mode = MODE_SELECT;
 	    break;
 	}
@@ -230,10 +229,10 @@ int main(int argc, char** argv) {
 
 void
 StartGame() {
-  if ( isSimple )
-    isTexture = false;
-  else
+  if ( gmode == GMODE_FULL )
     isTexture = true;
+  else
+    isTexture = false;
 
 #ifdef HAVE_LIBSDL_MIXER
   sndMode = SOUND_SDL;
@@ -324,7 +323,7 @@ int
 LoadData( void *dum ) {
   SDL_mutexP( loadMutex );
 
-  if ( !is2D )
+  if ( gmode != GMODE_2D )
     PlayerView::LoadData(NULL);
 
   SDL_mutexV( loadMutex );

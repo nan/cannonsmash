@@ -40,9 +40,9 @@ extern Ball theBall;
 extern bool isLighting;
 extern bool isTexture;
 extern bool isPolygon;
-extern bool isSimple;
 extern bool fullScreen;
-extern bool is2D;
+
+extern long gmode;
 
 long BaseView::m_winWidth = WINXSIZE;
 long BaseView::m_winHeight = WINYSIZE;
@@ -55,7 +55,7 @@ long BaseView::m_winHeight = WINYSIZE;
 
 BaseView *
 BaseView::Create() {
-  if ( is2D )
+  if ( gmode == GMODE_2D )
     return new BaseView2D();
   else
     return new BaseView();
@@ -98,7 +98,7 @@ BaseView::Init() {
   GLfloat light_intensity_dif[] = { 1.0F, 1.0F, 1.0F, 1.0F };
   GLfloat light_intensity_none[] = { 0.0F, 0.0F, 0.0F, 0.0F };
 
-  if (!isSimple) {
+  if ( gmode != GMODE_SIMPLE ) {
     glShadeModel (GL_SMOOTH);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
@@ -117,7 +117,7 @@ BaseView::Init() {
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
 
-  if (!isSimple) {
+  if ( gmode != GMODE_SIMPLE ) {
     glEnable(GL_FOG);
     GLfloat fogcolor[] = {0.2F, 0.2F, 0.2F, 1.0F};
     glFogi(GL_FOG_MODE, GL_EXP);
@@ -129,7 +129,7 @@ BaseView::Init() {
   }
 
   glClearColor(0.2F, 0.2F, 0.2F, 1.0F);
-  if (isSimple) {
+  if ( gmode == GMODE_SIMPLE ) {
     glClear(GL_COLOR_BUFFER_BIT);
   } else {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -182,7 +182,7 @@ BaseView::RedrawAll() {
 
   glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
-  if (isSimple) {
+  if ( gmode == GMODE_SIMPLE ) {
     glClear(GL_COLOR_BUFFER_BIT);
   } else {
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -197,7 +197,7 @@ BaseView::RedrawAll() {
 
   glDisable(GL_BLEND);
   m_fieldView->Redraw();
-  if (isSimple)
+  if ( gmode == GMODE_SIMPLE )
     m_fieldView->RedrawAlpha();
 
   view = m_View;
@@ -223,11 +223,11 @@ BaseView::RedrawAll() {
     view = view->m_next;
   }
 
-  if ( !isSimple )
+  if ( gmode != GMODE_SIMPLE )
     glEnable(GL_BLEND);
 
 //  glDisable(GL_CULL_FACE);
-  if (!isSimple)
+  if ( gmode != GMODE_SIMPLE )
     m_fieldView->RedrawAlpha();
 
   view = m_View;

@@ -29,7 +29,7 @@ extern BaseView* theView;
 extern long mode;
 
 extern bool isComm;
-extern bool is2D;
+extern long gmode;
 
 extern Player *thePlayer;
 
@@ -52,7 +52,7 @@ PlayerSelect::~PlayerSelect() {
 
 bool
 PlayerSelect::Init() {
-  if ( is2D )
+  if ( gmode == GMODE_2D )
     m_View = new PlayerSelectView2D();
   else
     m_View = new PlayerSelectView();

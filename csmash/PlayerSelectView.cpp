@@ -26,7 +26,7 @@ extern long wins;
 
 extern bool isComm;
 extern bool isTexture;
-extern bool isSimple;
+extern long gmode;
 
 PlayerSelectView::PlayerSelectView() {
   m_offset = 0;
@@ -107,7 +107,7 @@ PlayerSelectView::Redraw() {
 
     glPushMatrix();
     if ( m_playerSelect->GetSelected() < 100 ) {
-      if ( !isSimple )
+      if ( gmode != GMODE_SIMPLE )
 	glEnable(GL_TEXTURE_2D);
       glTranslatef( -0.01F*m_playerSelect->GetSelected(),
 		    -1.5F+0.01F*m_playerSelect->GetSelected(), 1.4F );
@@ -146,7 +146,8 @@ PlayerSelectView::Redraw() {
       }
     }
   } else {
-    if ( !isSimple || (m_playerSelect->GetRotate()%360)%(360/PLAYERS) == 0 )
+    if ( gmode != GMODE_SIMPLE ||
+	 (m_playerSelect->GetRotate()%360)%(360/PLAYERS) == 0 )
       glEnable(GL_TEXTURE_2D);
 
     for ( i = 0 ; i < PLAYERS ; i++ ){

@@ -26,7 +26,7 @@
 extern bool isPolygon;
 extern bool isLighting;
 extern bool isWireFrame;
-extern bool isSimple;
+extern long gmode;
 
 extern SDL_mutex *loadMutex;
 
@@ -190,7 +190,7 @@ PlayerView::SubRedraw() {
       return false;
     }
 
-    if ( isSimple )
+    if ( gmode == GMODE_SIMPLE )
       motion->renderWire(swing);
     else {
       if (m_player == comPlayer) {
@@ -374,7 +374,7 @@ PlayerView::DrawTargetCircle( double diff ) {
   static double ballHeight = 1.4F;
   static bool count = true;
 
-  if (isSimple) {
+  if ( gmode == GMODE_SIMPLE ) {
     count = !count;
     if ( count )
       return;

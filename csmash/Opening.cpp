@@ -30,6 +30,7 @@
 
 extern BaseView* theView;
 extern long mode;
+extern long gmode;
 
 extern long gameLevel;
 extern long gameMode;
@@ -43,7 +44,6 @@ extern Player* thePlayer;
 extern Player* comPlayer;
 extern Ball theBall;
 extern bool isWireFrame;
-extern bool isSimple;
 
 #define PHRASELENGTH (35.80)
 
@@ -90,7 +90,7 @@ Opening::Init() {
   m_telop[0] = new MenuItem();
   m_telop[0]->Init( 0, 0, 800, 600, &telop[0][0], NULL );
 
-  if ( !isSimple )
+  if ( gmode != GMODE_SIMPLE )
     isWireFrame = false;
 
   theSound.InitBGM( OPENINGFILENAME );
@@ -1240,7 +1240,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
   if ( KeyHistory[Histptr] == SDLK_ESCAPE || MouseBHistory[Histptr] 
        || phrase > 350 ) {
     mode = MODE_TITLE;
-    if ( !isSimple )
+    if ( gmode != GMODE_SIMPLE )
       isWireFrame = true;
     theSound.StopBGM();
   }

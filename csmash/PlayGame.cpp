@@ -28,8 +28,7 @@ extern Ball theBall;
 extern long mode;
 extern long gameMode;
 extern long wins;
-
-extern bool isSimple;
+extern long gmode;
 
 PlayGame::PlayGame() {
   m_Score1 = 0;
@@ -101,7 +100,7 @@ PlayGame::ChangeScore() {
     }
   }
 
-  if ( isSimple )
+  if ( gmode == GMODE_SIMPLE )
     printf( "You : %d -  %d : Opponent\n", GetScore(thePlayer), GetScore(comPlayer) );
 }
 

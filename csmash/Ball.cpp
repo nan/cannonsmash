@@ -40,7 +40,7 @@ extern Sound theSound;
 extern long gameMode;
 extern long wins;
 
-extern bool is2D;
+extern long gmode;
 
 #if 0
 inline double LOG(double f) { return log(f); }
@@ -86,7 +86,7 @@ Ball::~Ball() {
 
 bool
 Ball::Init() {
-  if ( is2D )
+  if ( gmode == GMODE_2D )
     m_View = (BallView *)new BallView2D();
   else
     m_View = new BallView();

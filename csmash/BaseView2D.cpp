@@ -39,7 +39,6 @@ extern Ball theBall;
 extern bool isLighting;
 extern bool isTexture;
 extern bool isPolygon;
-extern bool isSimple;
 extern bool fullScreen;
 
 // x --- x axis is the bottom line of the net. The plane x=0 represents

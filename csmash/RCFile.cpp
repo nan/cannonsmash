@@ -1,20 +1,38 @@
+/* $Id$ */
+
+// Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
 #include "ttinc.h"
 
-extern bool isSimple;
 extern bool isTexture;
-extern bool is2D;
 extern bool fullScreen;
-extern char serverName[256];
+extern long gmode;
 
+extern char serverName[256];
 extern char nickname[32];
 extern char message[64];
 
-FILE * OpenRCFile();
+FILE * OpenRCFile( char *mode );
 
 bool
 ReadRCFile() {
-  FILE *fp = OpenRCFile();
+  FILE *fp = OpenRCFile( "r" );
   char buf[1024];
+  char *p;
 
   while ( fgets( buf, 1024, fp ) ) {
     if ( strncmp( buf, "fullscreen=", 11 ) == 0 ) {
@@ -24,17 +42,29 @@ ReadRCFile() {
 	fullScreen = false;
     } else if ( strncmp( buf, "graphics=", 9 ) == 0 ) {
       if ( strncmp( &buf[9], "simple", 6 ) == 0 ) {
-	isSimple = true;
+	gmode = GMODE_SIMPLE;
 	isTexture = false;
       } else if ( strncmp( &buf[9], "2D", 2 ) == 0 ) {
-	is2D = true;
+	gmode = GMODE_2D;
       }
     } else if ( strncmp( buf, "server=", 7 ) == 0 ) {
       strncpy( serverName , &buf[7], 256 );
+      if ( (p = strchr( serverName, '\r' )) )
+	*p = '\0';
+      else if ( (p = strchr( serverName, '\n' )) )
+	*p = '\0';
     } else if ( strncmp( buf, "nickname=", 9 ) == 0 ) {
       strncpy( nickname , &buf[9], 32 );
+      if ( (p = strchr( nickname, '\r' )) )
+	*p = '\0';
+      else if ( (p = strchr( nickname, '\n' )) )
+	*p = '\0';
     } else if ( strncmp( buf, "message=", 8 ) == 0 ) {
       strncpy( message , &buf[8], 64 );
+      if ( (p = strchr( message, '\r' )) )
+	*p = '\0';
+      else if ( (p = strchr( message, '\n' )) )
+	*p = '\0';
     }
   }
 
@@ -45,14 +75,14 @@ ReadRCFile() {
 
 bool
 WriteRCFile() {
-  FILE *fp = OpenRCFile();
+  FILE *fp = OpenRCFile( "w" );
 
   fprintf( fp, "fullscreen=%d\n", fullScreen ? 1 : 0 );
 
   fprintf( fp, "graphics=" );
-  if ( isSimple )
+  if ( gmode == GMODE_SIMPLE )
     fprintf( fp, "simple\n" );
-  else if ( is2D )
+  else if ( gmode == GMODE_2D )
     fprintf( fp, "2D\n" );
   else
     fprintf( fp, "full\n" );
@@ -69,7 +99,7 @@ WriteRCFile() {
 }
 
 FILE *
-OpenRCFile() {
+OpenRCFile( char *mode ) {
   char *csmashrc;
 
   csmashrc = getenv( "CSMASH_RC" );
@@ -95,9 +125,9 @@ OpenRCFile() {
     }
   }
 
-  FILE *fp = fopen( csmashrc, "r+" );
-  if ( fp == NULL ) {	// file doesn't exist
-    fp = fopen( csmashrc, "w" );
+  FILE *fp = fopen( csmashrc, mode );
+  if ( fp == NULL ) {
+    fp = fopen( csmashrc, "w" );	// touch
   }
 
   if ( fp == NULL ) {

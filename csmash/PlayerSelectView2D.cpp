@@ -27,7 +27,6 @@ extern long wins;
 
 extern bool isComm;
 extern bool isTexture;
-extern bool isSimple;
 
 PlayerSelectView2D::PlayerSelectView2D() {
 }

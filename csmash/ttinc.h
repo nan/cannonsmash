@@ -82,6 +82,11 @@
 
 #define MAX_HISTORY (1024)
 
+// Graphics mode
+#define GMODE_FULL          (0)
+#define GMODE_SIMPLE        (1)
+#define GMODE_2D            (2)
+
 // Play mode
 #define MODE_SOLOPLAY       (1)	// Play VS COM
 #define MODE_MULTIPLAY      (2)	// Play VS MAN

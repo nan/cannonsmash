@@ -21,7 +21,7 @@
 #include "Howto.h"
 #include "BaseView.h"
 
-extern bool isSimple;
+extern long gmode;
 
 GLuint HowtoView::m_textures[4] = {0, 0, 0, 0};
 
@@ -274,7 +274,7 @@ HowtoView::RedrawAlpha() {
 	      &m_howtoText[m_howto->GetMode()][0] );
   }
 
-  if (!isSimple)
+  if ( gmode != GMODE_SIMPLE )
     glEnable(GL_DEPTH_TEST);
 
   glMatrixMode(GL_PROJECTION);
