@@ -57,7 +57,7 @@ SRCS = \
 	main.cpp z.cpp parts.cpp xerror.cpp Launcher.cpp LobbyClient.cpp \
 	Logging.cpp BaseView2D.cpp FieldView2D.cpp PlayerView2D.cpp \
 	BallView2D.cpp PlayerSelectView2D.cpp TitleView2D.cpp \
-	MenuItemView2D.cpp RCFile.cpp PlayGameView.cpp
+	MenuItemView2D.cpp RCFile.cpp PlayGameView.cpp Network.cpp
 
 OBJS = $(SRCS:.cpp=.obj)
 
