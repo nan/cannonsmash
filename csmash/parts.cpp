@@ -72,6 +72,7 @@ polyhedron::polyhedron(const char* filename)
 	    }
 	    loop[numPolygons][3] = -1;
 	    while ((NULL != (token = strtok(NULL, delim))) && (4 > i)) {
+		if ('#' == *token) break;
 		loop[numPolygons][i++] = atoi(token);
 	    }
 	    numPolygons++;
