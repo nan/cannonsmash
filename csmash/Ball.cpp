@@ -329,7 +329,7 @@ Ball::Move() {
   }
   else if ( m_z > AREAZSIZE ){
     m_z = AREAZSIZE;
-    m_vz = -m_vz*TABLE_E;
+    m_vz = -m_vz*0.1;
     if ( this == &theBall ) {
       theSound.Play( SOUND_TABLE );
     }
