@@ -329,7 +329,7 @@ Sound::GetSoundMode() {
 long
 Sound::InitBGM( char *filename ) {
   if ( m_soundMode == SOUND_NONE )
-    return true;
+    return 0;
 
 #ifdef HAVE_LIBSDL_MIXER
   m_opening = Mix_LoadMUS( OPENINGFILENAME );
@@ -347,7 +347,7 @@ Sound::InitBGM( char *filename ) {
 long
 Sound::PlayBGM() {
   if ( m_soundMode == SOUND_NONE )
-    return true;
+    return 0;
 
 #ifdef HAVE_LIBSDL_MIXER
   Mix_PlayMusic( m_opening, 1 );
@@ -362,7 +362,7 @@ Sound::PlayBGM() {
 long
 Sound::StopBGM() {
   if ( m_soundMode == SOUND_NONE )
-    return true;
+    return 0;
 
 #ifdef HAVE_LIBSDL_MIXER
   Mix_FadeOutMusic( 2000 );
