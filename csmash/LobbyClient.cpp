@@ -89,10 +89,11 @@ LobbyClient::Create() {
  * 
  * @param nick nickname in lobby server
  * @param message join message
+ * @param ping whether this client accepts ping or not. 
  * @return returns true if succeeds. 
  */
 bool
-LobbyClient::Init( char *nick, char *message ) {
+LobbyClient::Init( char *nick, char *message, bool ping ) {
   char buf[1024];
 
 #ifdef ENABLE_IPV6
@@ -219,6 +220,7 @@ LobbyClient::Init( char *nick, char *message ) {
   m_view->Init( this );
 
   strncpy( m_nickname, nick, 32 );
+  m_ping = ping;
   return true;
 }
 
@@ -227,97 +229,76 @@ LobbyClient::Init( char *nick, char *message ) {
  * This method is periodically called by GTK. 
  * 
  * @param data pointer to LobbyClient object. 
- * @return returns 1 if succeeds. 
+ * @param source source socket of the event which calls this function. 
+ * @param condition the triggering condition. 
  */
-gint
-LobbyClient::PollServerMessage( gpointer data ) {
+void
+LobbyClient::PollServerMessage( gpointer data,
+				gint source,
+				GdkInputCondition condition ) {
   LobbyClient *lobby = (LobbyClient *)data;
-  fd_set rdfds;
-  struct timeval to;
 
-  while (1) {
-    int max = 0;
-    FD_ZERO( &rdfds );
-    FD_SET( (SOCKET)lobby->m_socket, &rdfds );
-    int i = 0;
-    while ( listenSocket[i] >= 0 ) {
-      FD_SET( listenSocket[i], &rdfds );
-      if ( listenSocket[i] > max )
-	max = listenSocket[i];
-      i++;
+  int i = 0;
+  bool listenIsSet = false;
+  while ( listenSocket[i] >= 0 ) {
+    if ( listenSocket[i] == source ) {
+      int acSocket;
+      acSocket = accept( listenSocket[i], NULL, NULL );
+
+      closesocket( acSocket );
+      lobby->m_canBeServer = true;
+      listenIsSet = true;
+      break;
     }
+    i++;
+  }
 
-    if ( (int)lobby->m_socket > max )
-      max = lobby->m_socket;
+  if ( !listenIsSet && source == lobby->m_socket ) {
+    char buf[1024];
 
-    to.tv_sec = to.tv_usec = 0;
+    ReadHeader( lobby->m_socket, buf );
 
-    if ( select( max+1, &rdfds, NULL, NULL, &to ) <= 0 ) {
-      return 1;
+    if ( !strncmp( buf, "UI", 2 ) ) {
+      lobby->ReadUI();
+      lobby->m_view->UpdateTable();
+    } else if ( !strncmp( buf, "PI", 2 ) ) {
+      lobby->ReadPI();
+    } else if ( !strncmp( buf, "OI", 2 ) ) {
+      lobby->ReadOI();
+    } else if ( !strncmp( buf, "AP", 2 ) ) {
+      char *buffer;
+      ReadEntireMessage( lobby->m_socket, &buffer );
+
+      delete buffer;
+
+      isComm = true;
+      mode = MODE_MULTIPLAYSELECT;
+
+      if ( lobby->m_canBeServer == true ) {	// I can be server
+	theRC->serverName[0] = '\0';
+      }
+
+      lobby->m_view->SetSensitive( true );
+
+      lobby->SendSP();
+
+      ::StartGame();
+
+      lobby->SendQP();
+    } else if ( !strncmp( buf, "DP", 2 ) ) {
+      char *buffer;
+      ReadEntireMessage( lobby->m_socket, &buffer );
+
+      delete buffer;
+
+      lobby->m_view->SetSensitive( true );
+    } else if ( !strncmp( buf, "OV", 2 ) ) {
+      lobby->ReadOV();
+    } else if ( !strncmp( buf, "MS", 2 ) ) {
+      lobby->ReadMS();
     } else {
-      int i = 0;
-      bool listenIsSet = false;
-      while ( listenSocket[i] >= 0 ) {
-	if ( FD_ISSET( listenSocket[i], &rdfds ) ) {
-	  int acSocket;
-	  acSocket = accept( listenSocket[i], NULL, NULL );
-
-	  closesocket( acSocket );
-	  lobby->m_canBeServer = true;
-	  listenIsSet = true;
-	  break;
-	}
-	i++;
-      }
-
-      if ( !listenIsSet ) {
-	char buf[1024];
-
-	ReadHeader( lobby->m_socket, buf );
-
-	if ( !strncmp( buf, "UI", 2 ) ) {
-	  lobby->ReadUI();
-	  lobby->m_view->UpdateTable();
-	} else if ( !strncmp( buf, "PI", 2 ) ) {
-	  lobby->ReadPI();
-	} else if ( !strncmp( buf, "OI", 2 ) ) {
-	  lobby->ReadOI();
-	} else if ( !strncmp( buf, "AP", 2 ) ) {
-	  char *buffer;
-	  ReadEntireMessage( lobby->m_socket, &buffer );
-
-	  delete buffer;
-
-	  isComm = true;
-	  mode = MODE_MULTIPLAYSELECT;
-
-	  if ( lobby->m_canBeServer == true ) {	// I can be server
-	    theRC->serverName[0] = '\0';
-	  }
-
-	  lobby->m_view->SetSensitive( true );
-
-	  lobby->SendSP();
-
-	  ::StartGame();
-
-	  lobby->SendQP();
-	} else if ( !strncmp( buf, "DP", 2 ) ) {
-	  char *buffer;
-	  ReadEntireMessage( lobby->m_socket, &buffer );
-
-	  delete buffer;
-
-	  lobby->m_view->SetSensitive( true );
-	} else if ( !strncmp( buf, "OV", 2 ) ) {
-	  lobby->ReadOV();
-	} else if ( !strncmp( buf, "MS", 2 ) ) {
-	  lobby->ReadMS();
-	} else {
-	  xerror("%s(%d) read header", __FILE__, __LINE__);
-	  exit(1);
-	}
-      }
+      xerror("%s(%d) read header", __FILE__, __LINE__);
+      exit(1);
     }
   }
 }

@@ -220,13 +220,15 @@ public:
   static LobbyClient* Create();
   static LobbyClient* TheLobbyClient() { return m_lobbyClient; }	///< SIngleton getter method. 
 
-  bool Init( char *nickname, char *message );
+  bool Init( char *nickname, char *message, bool ping );
 
   int GetSocket() { return m_socket; }			///< Getter method of socket for connecting to lobby server. 
   PlayerInfo *GetPlayerInfo() { return m_player; }	///< Getter method of PlayerInfo object. 
   long GetPlayerNum() { return m_playerNum; }		///< Getter method of the number of players
 
-  static gint PollServerMessage( gpointer data );
+  static void PollServerMessage( gpointer data,
+				 gint source,
+				 GdkInputCondition condition );
   static void Connect( GtkWidget *widget, gpointer data );
 
   void SendAP( long uniqID );
@@ -243,6 +245,7 @@ public:
   long m_selected;		///< Selected row of the table
 
   char m_nickname[32];		///< nickname
+  bool m_ping;			///< Whether this client accepts ping or not. 
 
   /**
    * Getter method of language code
