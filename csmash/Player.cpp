@@ -292,12 +292,16 @@ Player::Reset( Player *p ) {
 }
 
 bool
-Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
+Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 	      long *MouseYHistory, unsigned long *MouseBHistory,
 	      int Histptr ) {
   //static double  lastSendX = 0,  lastSendY = 0,  lastSendZ = 0;
   //static double lastSendVX = 0, lastSendVY = 0, lastSendVZ = 0;
   //static long lastSendCount = 0;
+
+#if 0
+  m_swing = 0;
+#endif
 
 // swing
   if ( m_swing > 0 ){
@@ -415,7 +419,6 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   // Automatically move towards the ball
   // Only for human. 
-#if 0
   if ( (mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
 	mode == MODE_PRACTICE) && KeyHistory &&
        theRC->gameLevel != LEVEL_TSUBORISH ) {
@@ -443,6 +446,8 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	else if ( vxdiff < -2.0 )
 	  vxdiff = -2.0;
 
+	vxdiff /= theRC->gameLevel+1;
+
 	m_vx += vxdiff;
 
 	if ( fabs(ydiff) > 0.3 ) {
@@ -451,13 +456,15 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	    vydiff = 2.0;
 	  else if ( vydiff < -2.0 )
 	    vydiff = -2.0;
+
+	  vydiff /= theRC->gameLevel+1;
+
 	  m_vy += vydiff;
 	}
       }
       delete tmpBall;
     }
   }
-#endif
 
 // move player
   if ( m_x+m_vx*TICK < -AREAXSIZE/2 ){
@@ -542,7 +549,8 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   if ( SDL_WM_GrabInput( SDL_GRAB_QUERY ) == SDL_GRAB_ON )
     KeyCheck( KeyHistory, MouseXHistory, MouseYHistory, MouseBHistory,Histptr );
 
-  if ( Control::TheControl()->GetThePlayer() == this && mode == MODE_MULTIPLAY ) {
+  if ( Control::TheControl()->GetThePlayer() == this &&
+       mode == MODE_MULTIPLAY ) {
     m_lastSendCount++;
 
     m_lastSendX += m_lastSendVX*TICK;
@@ -568,17 +576,166 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 }
 
 bool
-Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
+Player::KeyCheck( SDL_keysym *KeyHistory, long *MouseXHistory,
 		  long *MouseYHistory, unsigned long *MouseBHistory,
 		  int Histptr ) {
   long mouse, lastmouse;
+
+const char keytable[][5] = {
+  {'\0'},
+  {'\0'},
+  {'1', '1', '1', '[', '\0'},
+  {'2', '2', '2', '7', '\0'},
+  {'3', '3', '3', '5', '\0'},
+  {'4', '4', '4', '3', '\0'},
+  {'5', '5', '5', '1', '\0'},
+  {'6', '6', '6', '9', '\0'},
+  {'7', '7', '7', '0', '\0'},
+  {'8', '8', '8', '2', '\0'},
+  {'9', '9', '9', '6', '\0'},
+  {'0', '0', '0', '8', '\0'},
+  {'\0'},
+  {'\0'},
+  {'\0'},
+  {'\0'},
+  {'q', 'q', 'a', '/', '\0'},
+  {'w', 'w', 'z', ',', '\0'},
+  {'e', 'e', 'e', '.', '\0'},
+  {'r', 'r', 'r', 'p', '\0'},
+  {'t', 't', 't', 'y', '\0'},
+  {'y', 'z', 'y', 'f', '\0'},
+  {'u', 'u', 'u', 'g', '\0'},
+  {'i', 'i', 'i', 'c', '\0'},
+  {'o', 'o', 'o', 'r', '\0'},
+  {'p', 'p', 'p', 'l', '\0'},
+  {'\0'},
+  {'\0'},
+  {'\0'},
+  {'\0'},
+  {'a', 'a', 'q', 'a', '\0'},
+  {'s', 's', 's', 'o', '\0'},
+  {'d', 'd', 'd', 'e', '\0'},
+  {'f', 'f', 'f', 'u', '\0'},
+  {'g', 'g', 'g', 'i', '\0'},
+  {'h', 'h', 'h', 'd', '\0'},
+  {'j', 'j', 'j', 'h', '\0'},
+  {'k', 'k', 'k', 't', '\0'},
+  {'l', 'l', 'l', 'n', '\0'},
+  {'\0'},			// {          'm', 's', '\0'},
+  {'\0'},
+  {'\0'},
+  {'\0'},
+  {'\0'},
+  {'z', 'y', 'w', ';', '\0'},
+  {'x', 'x', 'x', 'q', '\0'},
+  {'c', 'c', 'c', 'j', '\0'},
+  {'v', 'v', 'v', 'k', '\0'},
+  {'b', 'b', 'b', 'x', '\0'},
+  {'n', 'n', 'n', 'b', '\0'},
+  {'m', 'm'     , 'm', '\0'},
+  {'\0'},			// {               'w', '\0'},
+  {'\0'},			// {               'v', '\0'},
+  {'\0'}			// {               'z', '\0'}
+};
 
 // COM
   if ( !KeyHistory || !MouseXHistory || !MouseYHistory || !MouseBHistory )
     return true;
 
 // key input
-  switch ( KeyHistory[Histptr] ) {
+#if 0
+  switch ( KeyHistory[Histptr].scancode ) {
+  case 10:  case 24:  case 38:  case 52:	/* '1', 'q', 'a', 'z' */
+  case 11:  case 25:  case 39:  case 53:	/* '2', 'w', 's', 'x' */
+  case 12:					/* '3' */
+    m_targetX = -TABLEWIDTH/2*0.9*GetSide();
+    break;
+  case 26:	/* 'e' */
+    m_targetX = -TABLEWIDTH/2*0.75*GetSide();
+    break;
+  case 40:	/* 'd' */
+    m_targetX = -TABLEWIDTH/2*0.6*GetSide();
+    break;
+  case 13:  case 54:	/* '4', 'c' */
+    m_targetX = -TABLEWIDTH/2*0.45*GetSide();
+    break;
+  case 27:	/* 'r' */
+    m_targetX = -TABLEWIDTH/2*0.3*GetSide();
+    break;
+  case 41:	/* 'f' */
+    m_targetX = -TABLEWIDTH/2*0.15*GetSide();
+    break;
+  case 14:  case 55:	/* '5', 'v' */
+    m_targetX = 0;
+    break;
+  case 28:	/* 't' */
+    m_targetX = TABLEWIDTH/2*0.15*GetSide();
+    break;
+  case 42:	/* 'g' */
+    m_targetX = TABLEWIDTH/2*0.3*GetSide();
+    break;
+  case 15:  case 56:	/* '6', 'b' */
+    m_targetX = TABLEWIDTH/2*0.45*GetSide();
+    break;
+  case 29:	/* 'y' */
+    m_targetX = TABLEWIDTH/2*0.6*GetSide();
+    break;
+  case 43:	/* 'h' */
+    m_targetX = TABLEWIDTH/2*0.75*GetSide();
+    break;
+  case 16:  case 57:  case 30:  case 44:	/* '7', 'n', 'u', 'j' */
+  case 17:  case 58:  case 31:  case 45:
+  case 18:  case 59:  case 32:  case 46:
+  case 19:  case 60:  case 33:  case 47:
+    m_targetX = TABLEWIDTH/2*0.9*GetSide();
+    break;
+  }
+
+  if ( KeyHistory[Histptr].scancode >= 10 &&
+       KeyHistory[Histptr].scancode <= 21 ) {	/* from '1' to '^' */
+    m_targetY = TABLELENGTH/12*5*GetSide();
+  } else if ( KeyHistory[Histptr].scancode >= 24 &&
+	      KeyHistory[Histptr].scancode <= 35 ) {	/* from 'q' to '[' */
+    m_targetY = TABLELENGTH/12*4*GetSide();
+  } else if ( KeyHistory[Histptr].scancode >= 38 &&
+	      KeyHistory[Histptr].scancode <= 48 ) {	/* from 'a' to ':' */
+    m_targetY = TABLELENGTH/12*3*GetSide();
+  } else if ( KeyHistory[Histptr].scancode >= 52 &&
+	      KeyHistory[Histptr].scancode <= 61 ) {	/* from 'z' to '/' */
+    m_targetY = TABLELENGTH/12*2*GetSide();
+  }
+#else
+  int code = -1;
+
+  if ( KeyHistory[Histptr].scancode < 54 ) {
+    int i = 0;
+    while (keytable[KeyHistory[Histptr].scancode][i]) {
+      if ( keytable[KeyHistory[Histptr].scancode][i]
+	   == KeyHistory[Histptr].unicode ) {
+	code = keytable[KeyHistory[Histptr].scancode][0];
+	break;
+      }
+      i++;
+    }
+  }
+
+  if ( KeyHistory[Histptr].scancode < 62 && code < 0 ) {	// for X11
+    int i = 0;
+    while (keytable[KeyHistory[Histptr].scancode-8][i]) {
+      if ( keytable[KeyHistory[Histptr].scancode-8][i]
+	   == KeyHistory[Histptr].unicode ) {
+	code = keytable[KeyHistory[Histptr].scancode-8][0];
+	printf( "Hit\n" );
+	break;
+      }
+      i++;
+    }
+  }
+
+  if ( code < 0 )
+    code = KeyHistory[Histptr].unicode;
+
+  switch ( code ) {
   case '1':  case 'q':  case 'a':  case 'z':
   case '2':  case 'w':  case 's':  case 'x':
   case '3':
@@ -625,7 +782,7 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
     break;
   }
 
-  switch ( KeyHistory[Histptr] ){
+  switch ( code ){
   case '1':  case '2':  case '3':  case '4':  case '5':  case '6':
   case '7':  case '8':  case '9':  case '0':  case '-':  case '^':
     m_targetY = TABLELENGTH/12*5*GetSide();
@@ -643,10 +800,14 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
     m_targetY = TABLELENGTH/12*2*GetSide();
     break;
   }
+#endif
 
-  if ( (Histptr == 0 && KeyHistory[Histptr] != KeyHistory[MAX_HISTORY-1]) ||
-       (Histptr != 0 && KeyHistory[Histptr] != KeyHistory[Histptr-1]) ) {
-    switch ( KeyHistory[Histptr] ){
+
+  if ( (Histptr == 0 &&
+	KeyHistory[Histptr].unicode != KeyHistory[MAX_HISTORY-1].unicode) ||
+       (Histptr != 0 &&
+	KeyHistory[Histptr].unicode != KeyHistory[Histptr-1].unicode) ) {
+    switch ( KeyHistory[Histptr].unicode ) {
     case 'H':
       m_eyeX -= 0.05;
       break;
@@ -665,6 +826,26 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
     case '>':
       m_eyeY += 0.05;
       break;
+
+    case 'A':
+      m_lookAtX -= 0.05;
+      break;
+    case 'S':
+      m_lookAtZ -= 0.05;
+      break;
+    case 'D':
+      m_lookAtZ += 0.05;
+      break;
+    case 'F':
+      m_lookAtX += 0.05;
+      break;
+    case 'C':
+      m_lookAtY -= 0.05;
+      break;
+    case 'V':
+      m_lookAtY += 0.05;
+      break;
+
     }
   }
 
