@@ -22,6 +22,10 @@
 
 #include "parts.h"
 
+#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+# define for if(0);else for
+#endif
+
 //namespace {
     inline bool streq(const char *a, const char *b)
     {
@@ -450,6 +454,9 @@ bool partsmotion::render(int frame)
 	{-1, -1, -1, -1}		// stop
     };
 #undef c
+    GLfloat NanTheBLACK[4] = { 0,0,0,1 };
+
+#define RENDEREDGE 0
 
     for (int i = 0; numParts > i; i++) {
 	const polyhedron &ref = parts[i]->ref;
@@ -457,47 +464,52 @@ bool partsmotion::render(int frame)
 	const affine4F &aff = parts[i]->anim[frame];
 	glPushMatrix();
 	glMultMatrixf((float*)&aff);
+
 	for (int j = 0; ref.numPolygons > j; j++) {
-	    int size = ref.polsize(j);
-	    if (3 == size) {
-		glBegin(GL_TRIANGLES);
-	    } else {
-		glBegin(GL_QUADS);
-	    }
-	    glColor4fv(colors[ref.cindex[j]]);
-	    for (int k = 0; size > k; k++) {
-		glNormal3fv((float*)&ref.normals[j][k]);
-		glVertex3fv((float*)&ref.points[ref.polygons[j][k]]);
+	    polygon poly = ref.getPolygon(j);
+#if RENDEREDGE
+	    vector3F center(0);
+#endif
+	    glBegin(poly.glBeginSize());
+	    glColor4fv(colors[poly.c()]);
+	    for (int k = 0; poly.size > k; k++) {
+		glNormal3fv((float*)&poly.rn(k));
+#if RENDEREDGE
+		center += poly.rv(k);
+#endif
+		glVertex3fv((float*)&poly.rv(k));
 	    }
 	    glEnd();
+
+#if RENDEREDGE
+	    // stop here if alpha blending is active
+	    if (glIsEnabled(GL_BLEND)) continue;
+
+	    center /= poly.size;
+	    bool culling = glIsEnabled(GL_CULL_FACE)>0;
+	    if (!culling) glEnable(GL_CULL_FACE);
+
+	    glBegin(poly.glBeginSize());
+	    glColor4fv(NanTheBLACK);
+
+	    for (int k = poly.size-1; 0 <= k; --k) {
+		vector3F p = poly.rv(k);
+		p -= center;
+		Float l = p.len();
+		p *= 1 + (0.01F/l);
+		p += center;
+		p -= poly.n() * 1e-8F;
+		glVertex3fv((float*)&p);
+	    }
+	    glEnd();
+	    if (!culling) glDisable(GL_CULL_FACE);
+#endif
 	}
 	glPopMatrix();
     }
     return true;
 }
 
-#if 0
-bool partsmotion::renderWire(int frame)
-{
-    for (int i = 0; numParts > i; i++) {
-	const polyhedron &ref = parts[i]->ref;
-	if (0 == ref.numPolygons) continue;
-	const affine4F &aff = parts[i]->anim[frame];
-	glPushMatrix();
-	glMultMatrixf((float*)&aff);
-	for (int j = 0; ref.numPolygons > j; j++) {
-	    int size = ref.polsize(j);
-	    glBegin(GL_LINE_LOOP);
-	    for (int k = 0; size > k; k++) {
-		glVertex3fv((float*)&ref.points[ref.polygons[j][k]]);
-	    }
-	    glEnd();
-	}
-	glPopMatrix();
-    }
-    return true;
-}
-#else
 bool partsmotion::renderWire(int frame)
 {
     for (int i = 0; numParts > i; i++) {
@@ -542,12 +554,10 @@ bool partsmotion::renderWire(int frame)
     }
     return true;
 }
-#endif
-
 
 #if 0
 /***********************************************************************
- *	Class 
+ *	test
  ***********************************************************************/
 
 int main(int argc, char *argv[])
