@@ -169,6 +169,7 @@ LobbyClient::Init( char *nick, char *message ) {
   m_view = new LobbyClientView();
   m_view->Init( this );
 
+  strncpy( m_nickname, nick, 32 );
   return true;
 }
 
@@ -226,6 +227,11 @@ LobbyClient::PollServerMessage( gpointer data ) {
 	} else if ( !strncmp( buf, "OI", 2 ) ) {
 	  lobby->ReadOI();
 	} else if ( !strncmp( buf, "AP", 2 ) ) {
+	  char *buffer;
+	  ReadEntireMessage( lobby->m_socket, &buffer );
+
+	  delete buffer;
+
 	  isComm = true;
 	  mode = MODE_SELECT;
 
@@ -241,9 +247,16 @@ LobbyClient::PollServerMessage( gpointer data ) {
 
 	  lobby->SendQP();
 	} else if ( !strncmp( buf, "DP", 2 ) ) {
+	  char *buffer;
+	  ReadEntireMessage( lobby->m_socket, &buffer );
+
+	  delete buffer;
+
 	  lobby->m_view->SetSensitive( true );
 	} else if ( !strncmp( buf, "OV", 2 ) ) {
 	  lobby->ReadOV();
+	} else if ( !strncmp( buf, "MS", 2 ) ) {
+	  lobby->ReadMS();
 	} else {
 	  xerror("%s(%d) read header", __FILE__, __LINE__);
 	  exit(1);
@@ -276,9 +289,7 @@ LobbyClient::Connect( GtkWidget *widget, gpointer data ) {
 void
 LobbyClient::ReadUI() {
   // get length
-  long protocolLength;
   long len = 0;
-  char buf[1024];
 
   char *buffer;
   ReadEntireMessage( m_socket, &buffer );
@@ -313,10 +324,7 @@ LobbyClient::ReadUI() {
 
 void
 LobbyClient::ReadPI() {
-  // get length
-  long protocolLength;
   long len = 0;
-  char buf[1024];
   long uniqID;
 
   char *buffer;
@@ -340,11 +348,6 @@ LobbyClient::ReadPI() {
 
 void
 LobbyClient::ReadOI() {
-  // get length
-  long protocolLength;
-  long len = 0;
-  char buf[1024];
-
   char *buffer;
   ReadEntireMessage( m_socket, &buffer );
 
@@ -366,11 +369,6 @@ LobbyClient::ReadOI() {
 
 void
 LobbyClient::ReadOV() {
-  // get length
-  long protocolLength;
-  long len = 0;
-  char buf[1024];
-
   char *buffer;
   ReadEntireMessage( m_socket, &buffer );
 
@@ -380,6 +378,20 @@ LobbyClient::ReadOV() {
 	   (unsigned char)buffer[0], (unsigned char)buffer[1],
 	   (unsigned char)buffer[2] );
   m_view->ShowUpdateDialog(version, &(buffer[3])); // second argument is URL. 
+
+  delete buffer;
+}
+
+void
+LobbyClient::ReadMS() {
+  char *buffer;
+  long len;
+  len = ReadEntireMessage( m_socket, &buffer );
+
+  long channelID;
+  ReadLong( buffer, channelID );
+  buffer[len] = 0;
+  m_view->AddChatMessage( channelID, &(buffer[4]) );
 
   delete buffer;
 }
@@ -420,6 +432,8 @@ LobbyClient::SendDP( long uniqID ) {
 void
 LobbyClient::SendQT() {
   send( m_socket, "QT", 2, 0 );
+  long len = 0;
+  SendLong( m_socket, len );
   shutdown( m_socket, 2 );
 }
 
@@ -431,6 +445,17 @@ LobbyClient::SendSC( int score1, int score2 ) {
 
   SendLong( m_socket, score1 );	// Temp
   SendLong( m_socket, score2 );
+}
+
+void
+LobbyClient::SendMS( char *message ) {
+  send( m_socket, "MS", 2, 0 );
+  long len = 4+strlen(message);
+  SendLong( m_socket, len );
+
+  len = 0;	// ChannelID, temporary
+  SendLong( m_socket, len );
+  send( m_socket, message, strlen(message), 0 );
 }
 
 

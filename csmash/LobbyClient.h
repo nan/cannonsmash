@@ -22,7 +22,7 @@
 #include <gtk/gtk.h>
 
 #define LOBBYSERVER_NAME	"nan.p.utmc.or.jp"
-#define LOBBYSERVER_PORT	(5734)
+#define LOBBYSERVER_PORT	(5735)
 
 class PlayerInfo;
 class LobbyClientView;
@@ -50,12 +50,14 @@ public:
   void SendDP( long uniqID);
   void SendQT();
   void SendSC( int score1, int score2 );
+  void SendMS( char *message );
 
   long m_playerNum;
   PlayerInfo *m_player;
 
   long m_selected;		// Selected row of the table
 
+  char m_nickname[32];
 protected:
   void ReadUI();
   void UpdateTable();
@@ -63,6 +65,7 @@ protected:
   void ReadPI();
   void ReadOI();
   void ReadOV();
+  void ReadMS();
 
   LobbyClientView *m_view;
 

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001-2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #define _LobbyClientView_
 
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 
 class LobbyClient;
 
@@ -33,26 +34,25 @@ public:
   void SetSensitive( bool sensitive );
   void UpdateTable();
   void ShowUpdateDialog( char *version, char *URL );
+  void AddChatMessage( long channelID, char *message );
+
 protected:
   static gint IdleFunc( gpointer data );
   static void SelectRow( GtkCList *clist, gint row, gint column,
 			 GdkEventButton *event, gpointer data );
   static void Connect( GtkWidget *widget, gpointer data );
   static void WarmUp( GtkWidget *widget, gpointer data );
+  static void KeyPress( GtkWidget *widget, GdkEventKey *event, gpointer data );
   static void Quit( GtkWidget *widget, gpointer data );
 
   guint m_timeout;
   guint m_idle;
   LobbyClient *m_parent;
 
-  void ReadHeader( char *buf );
-
-  void ReadUI();
-  void ReadPI();
-  void ReadOI();
-
   GtkWidget *m_window;
   GtkWidget *m_table;
+  GtkWidget *m_chat;
+  GtkWidget *m_chatinput;
   GtkWidget *m_connectButton;
   GtkWidget *m_warmUpButton;
 

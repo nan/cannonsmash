@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001, 2002  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2001-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #include "LobbyClient.h"
 #include "LobbyClientView.h"
 #include "RCFile.h"
+#include <time.h>
 
 extern RCFile *theRC;
 
@@ -34,6 +35,17 @@ extern bool PollEvent();
 extern void QuitGame();
 
 bool isWaiting = false;		// waiting for opponent player on the internet
+
+void
+getcurrenttimestr( char *buf ) {
+  struct tm *ltime;
+  time_t t;
+
+  time(&t);
+  ltime = localtime( &t );
+
+  strftime( buf, 32, "%T ", ltime );
+}  
 
 LobbyClientView::LobbyClientView() {
   m_timeout = 0;
@@ -61,7 +73,7 @@ LobbyClientView::Init( LobbyClient *lobby ) {
   gtk_window_set_title( GTK_WINDOW(m_window), _("Cannon Smash"));
   gtk_widget_show(m_window);
   gtk_window_set_modal( (GtkWindow *)m_window, true );
-  gtk_widget_set_usize( m_window, 300, 200 );
+  gtk_widget_set_usize( m_window, 300, 400 );
 
   GtkWidget *scrolled_window;
   GtkWidget *button;
@@ -87,6 +99,33 @@ LobbyClientView::Init( LobbyClient *lobby ) {
   gtk_widget_show(m_table);
 
   UpdateTable();
+
+
+  GtkWidget *table = gtk_table_new( 1, 2, FALSE );
+  m_chat = gtk_text_new( NULL, NULL );
+  GtkWidget *vscrollbar = gtk_vscrollbar_new( GTK_TEXT(m_chat)->vadj );
+
+  gtk_table_attach(GTK_TABLE(table), m_chat, 0, 1, 0, 1, 
+		   (GtkAttachOptions)(GTK_EXPAND|GTK_SHRINK|GTK_FILL), 
+		   (GtkAttachOptions)(GTK_EXPAND|GTK_SHRINK|GTK_FILL), 0, 0 );
+  gtk_table_attach(GTK_TABLE(table), vscrollbar, 1, 2, 0, 1, 
+		   (GtkAttachOptions)(GTK_FILL), 
+		   (GtkAttachOptions)(GTK_EXPAND|GTK_SHRINK|GTK_FILL), 0, 0 );
+
+  gtk_box_pack_start( GTK_BOX(GTK_DIALOG(m_window)->vbox), table,
+		      TRUE, TRUE, 0 );
+
+  gtk_widget_show(m_chat);
+  gtk_widget_show(vscrollbar);
+  gtk_widget_show(table);
+
+  m_chatinput = gtk_entry_new();
+  gtk_box_pack_start( GTK_BOX(GTK_DIALOG(m_window)->vbox), m_chatinput,
+		      TRUE, TRUE, 10 );
+  gtk_signal_connect (GTK_OBJECT (m_chatinput), "key-press-event",
+		      GTK_SIGNAL_FUNC (LobbyClientView::KeyPress), this);
+  gtk_widget_show(m_chatinput);
+
 
   m_connectButton = gtk_button_new_with_label (_("connect"));
   gtk_signal_connect (GTK_OBJECT (m_connectButton), "clicked",
@@ -151,6 +190,31 @@ LobbyClientView::WarmUp( GtkWidget *widget, gpointer data ) {
   lobby->m_idle = gtk_idle_add( LobbyClientView::IdleFunc, data );
 }
 
+void
+LobbyClientView::KeyPress( GtkWidget *widget,
+			   GdkEventKey *event,
+			   gpointer data) {
+  LobbyClientView *lobby = (LobbyClientView *)data;
+
+  if ( event->keyval == GDK_Return ) {
+    lobby->m_parent->SendMS(gtk_entry_get_text(GTK_ENTRY(lobby->m_chatinput)));
+
+    char buf[32];
+    getcurrenttimestr(buf);
+
+    
+    gtk_text_insert (GTK_TEXT(lobby->m_chat), NULL, NULL, NULL, buf, -1);
+    gtk_text_insert (GTK_TEXT(lobby->m_chat), NULL, NULL, NULL, ">", -1);
+    gtk_text_insert (GTK_TEXT(lobby->m_chat), NULL, NULL, NULL, 
+		     lobby->m_parent->m_nickname, -1);
+    gtk_text_insert (GTK_TEXT(lobby->m_chat), NULL, NULL, NULL, "< ", -1);
+    gtk_text_insert (GTK_TEXT(lobby->m_chat), NULL, NULL, NULL,
+		     gtk_entry_get_text(GTK_ENTRY(lobby->m_chatinput)), -1);
+    gtk_text_insert (GTK_TEXT(lobby->m_chat), NULL, NULL, NULL, "\n", -1);
+    gtk_entry_set_text(GTK_ENTRY(lobby->m_chatinput), "");
+  }
+}
+
 gint
 LobbyClientView::IdleFunc( gpointer data ) {
   if ( !PollEvent() ) {
@@ -210,6 +274,14 @@ LobbyClientView::ShowUpdateDialog( char *version, char *URL ) {
   gtk_widget_show (button);
 }
 
+void
+LobbyClientView::AddChatMessage( long channelID, char *message ) {
+  char buf[32];
+  getcurrenttimestr( buf );
+  gtk_text_insert (GTK_TEXT(m_chat), NULL, NULL, NULL, buf, -1);
+  gtk_text_insert (GTK_TEXT(m_chat), NULL, NULL, NULL, message, -1);
+  gtk_text_insert (GTK_TEXT(m_chat), NULL, NULL, NULL, "\n", -1);
+}
 
 PIDialog::PIDialog() {
 }
@@ -310,3 +382,4 @@ PIDialog::PINo( GtkWidget *widget, gpointer data ) {
 
   piDialog->m_parent->SendDP( piDialog->m_uniqID );
 }
+
