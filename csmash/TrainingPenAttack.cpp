@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of TrainingPenAttack class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -22,12 +27,41 @@
 
 extern Ball   theBall;
 
+/**
+ * Default constructor. 
+ */
 TrainingPenAttack::TrainingPenAttack() : PenAttack() {
 }
 
+/**
+ * Constructor. 
+ * Set player type and side. 
+ * 
+ * @param side side of the player. 
+ */
 TrainingPenAttack::TrainingPenAttack(long side) : PenAttack(side) {
 }
 
+/**
+ * Constructor which specifies almost all member variables. 
+ * 
+ * @param playerType player type (pen attack, etc. )
+ * @param side side (1 or -1)
+ * @param x location of the player
+ * @param v velocity of the player
+ * @param status status of the player (0 - 200)
+ * @param swing swing status of the player (0-50)
+ * @param swingType type of swing (smash, cut, etc. )
+ * @param swingSide side of swing (forehand or backhand)
+ * @param afterSwing afterswing stop penalty
+ * @param swingError valuation of the swing (good, bad, miss, etc. )
+ * @param target location of the target
+ * @param eye location of the camera
+ * @param pow power to hit the ball
+ * @param spin spin to hit the ball
+ * @param stamina stamina (not used currently)
+ * @param statusMax max of the status
+ */
 TrainingPenAttack::TrainingPenAttack( long playerType, long side, 
 				      const vector3d x, const vector3d v, 
 				      long status, long swing, 
@@ -42,15 +76,36 @@ TrainingPenAttack::TrainingPenAttack( long playerType, long side,
 	     statusMax ) {
 }
 
+/**
+ * Destructor. 
+ * Do nothing. 
+ */
 TrainingPenAttack::~TrainingPenAttack() {
 }
 
+/**
+ * Change status value. 
+ * Do nothing because training mode doesn't support status. 
+ * 
+ * @param diff this value is added to m_status. 
+ * @return returns true if succeeds. 
+ */
 bool
 TrainingPenAttack::AddStatus( long diff ) {
   // Add something in the future
   return true;
 }
 
+/**
+ * Move this player object. 
+ * 
+ * @param KeyHistory history of keyboard input
+ * @param MouseXHistory history of mouse cursor move
+ * @param MouseYHistory history of mouse cursor move
+ * @param MouseBHistory history of mouse button push/release
+ * @param Histptr current position of histories described above. 
+ * @return returns true if it is neccesary to redraw. 
+ */
 bool
 TrainingPenAttack::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 			 long *MouseYHistory, unsigned long *MouseBHistory,
@@ -68,6 +123,13 @@ TrainingPenAttack::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   return true;
 }
 
+/**
+ * Hit the ball with racket. 
+ * Referring the relative location of player and the ball, this method
+ * decides the velocity and spin of the ball. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 TrainingPenAttack::HitBall() {
   vector3d v;

@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of TrainingSelect class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -28,9 +33,18 @@ extern long mode;
 
 extern long wins;
 
+/**
+ * Default constructor. 
+ */
 TrainingSelect::TrainingSelect() : PlayerSelect() {
 }
 
+/**
+ * Initializer method. 
+ * Create TrainingSelectView object and attach it to this object. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 TrainingSelect::Init() {
   m_View = (TrainingSelectView *)View::CreateView( VIEW_TRAININGSELECT );
@@ -42,6 +56,10 @@ TrainingSelect::Init() {
   return true;
 }
 
+/**
+ * TrainingSelect object creater. 
+ * This method creates singleton TrainingSelect object. 
+ */
 void
 TrainingSelect::Create() {
   Control::ClearControl();
@@ -52,6 +70,16 @@ TrainingSelect::Create() {
   SDL_ShowCursor(0);
 }
 
+/**
+ * Move player panels as the game player moves mouse. 
+ * 
+ * @param KeyHistory history of keyboard input
+ * @param MouseXHistory history of mouse cursor move
+ * @param MouseYHistory history of mouse cursor move
+ * @param MouseBHistory history of mouse button push/release
+ * @param Histptr current position of histories described above. 
+ * @return returns true if it is neccesary to redraw. 
+ */
 bool
 TrainingSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		    long *MouseYHistory, unsigned long *MouseBHistory,
@@ -137,6 +165,11 @@ TrainingSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   return true;
 }
 
+/**
+ * Get player ID of the player type of which the panel is shown in front. 
+ * 
+ * @return returns player ID
+ */
 long
 TrainingSelect::GetPlayerNum() {
   if ( GetRotate() < 0 )

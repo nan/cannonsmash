@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of ComPenDrive class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -21,6 +26,10 @@
 #include "PenDrive.h"
 #include "comPlayer.h"
 
+/**
+ * ComPenDrive class is a Player class of pen drive type player. 
+ * This player is for opponent player in solo play mode. 
+ */
 class ComPenDrive : public PenDrive, public ComPlayer {
 public:
   ComPenDrive();

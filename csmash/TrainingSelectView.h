@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of TrainingSelectView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
 //
@@ -20,6 +25,9 @@
 #define _TrainingSelectView_
 #include "PlayerSelectView.h"
 
+/**
+ * TrainingSelectView class is a view class which corresponds to TrainingSelect object. 
+ */
 class TrainingSelectView : public PlayerSelectView {
 public:
   TrainingSelectView();

@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of View class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
@@ -32,6 +37,9 @@
 #define VIEW_TITLE          11
 #define VIEW_TRAINING       12
 
+/**
+ * View class. This class is a base class of all other view classes. 
+ */
 class View {
 public:
   View();
@@ -43,7 +51,7 @@ public:
   virtual bool RedrawAlpha();
   virtual bool GetDamageRect();
 
-  View *m_next;
+  View *m_next;		///< List of view classes managed by this object. 
 
 private:
   static View* CreateView2D( int viewType );

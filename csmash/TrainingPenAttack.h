@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of TrainingPenAttack class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -20,6 +25,9 @@
 #define _TrainingPenAttack_
 #include "PenAttack.h"
 
+/**
+ * TrainingPenAttack class is a Player class of pen attack type player. 
+ */
 class TrainingPenAttack : public PenAttack {
 public:
   TrainingPenAttack();

@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of TrainingPenDrive class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -20,6 +25,10 @@
 #define _TrainingPenDrive_
 #include "PenDrive.h"
 
+/**
+ * TrainingPenDrive class is a Player class of pen drive type player. 
+ * This player is the opponent player in training mode. 
+ */
 class TrainingPenDrive : public PenDrive {
 public:
   TrainingPenDrive();

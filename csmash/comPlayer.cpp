@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of ComPlayer class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -23,16 +28,29 @@
 
 extern Ball   theBall;
 
+/**
+ * Default constructor. 
+ */
 ComPlayer::ComPlayer() {
   _prevBallstatus = 0;
   _hitX[0] = 0;
   _hitX[1] = -TABLELENGTH/3;
 }
 
+/**
+ * Destructor. 
+ * Do nothing. 
+ */
 ComPlayer::~ComPlayer() {
 }
 
-// Calculate top of the ball
+/**
+ * Calculate peak of the ball. 
+ * 
+ * @param maxX peak point [out]
+ * @param p Player object who want to hit the ball at peak point. 
+ * @return returns the height of the peak. 
+ */
 double
 ComPlayer::GetBallTop( vector2d &maxX, Player *p ) {
   Ball *tmpBall;

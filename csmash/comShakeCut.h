@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of ComShakeCut class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -21,6 +26,10 @@
 #include "ShakeCut.h"
 #include "comPlayer.h"
 
+/**
+ * ComShakeCut class is a Player class of shake cut type player. 
+ * This player is for opponent player in solo play mode. 
+ */
 class ComShakeCut : public ShakeCut, public ComPlayer {
 public:
   ComShakeCut();

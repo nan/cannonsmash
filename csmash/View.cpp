@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of View class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
@@ -46,13 +51,25 @@
 
 extern RCFile *theRC;
 
+/**
+ * Constructor. 
+ */
 View::View() {
   m_next = (View *)0;
 }
 
+/**
+ * Destructor. 
+ * Do nothing. 
+ */
 View::~View() {
 }
 
+/**
+ * Redraw transparent object. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 View::RedrawAlpha() {
   return true;
@@ -110,6 +127,13 @@ View::CreateView2D( int viewType ) {
   }
 }
 
+/**
+ * Creater of view class. 
+ * This method creates a subclass of View class. 
+ * 
+ * @param viewType type of view class. 
+ * @return returns created View class. 
+ */
 View*
 View::CreateView3D( int viewType ) {
   switch ( viewType ) {

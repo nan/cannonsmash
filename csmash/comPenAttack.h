@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of ComPenAttack class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -21,6 +26,10 @@
 #include "PenAttack.h"
 #include "comPlayer.h"
 
+/**
+ * ComPenAttack class is a Player class of pen attack type player. 
+ * This player is for opponent player in solo play mode. 
+ */
 class ComPenAttack : public PenAttack, public ComPlayer {
 public:
   ComPenAttack();

@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of ComPlayer class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -24,6 +29,9 @@
 #define LEVELMARGIN	(0.30/(theRC->gameLevel*theRC->gameLevel*2+1))
 //#define LEVELMARGIN	(0.15-gameLevel*0.05)
 
+/**
+ * ComPlayer class is a base class of Player classes controlled by COM. 
+ */
 class ComPlayer {
 public:
   ComPlayer();
@@ -33,8 +41,8 @@ protected:
   virtual bool Think() = 0;
 
 // Valuable for Think()
-  int _prevBallstatus;		// previous ball status
-  vector2d _hitX;		// hit point
+  int _prevBallstatus;		///< previous ball status
+  vector2d _hitX;		///< hit point
 
 // Calc hit point
   virtual bool Hitarea( vector2d &hitX ) = 0;

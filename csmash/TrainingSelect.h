@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of TrainingSelect class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
@@ -22,6 +27,9 @@
 
 class TrainingSelectView;
 
+/**
+ * TrainingSelect class is a controller classes for selecting player for training mode. 
+ */
 class TrainingSelect : public PlayerSelect {
 public:
   TrainingSelect();

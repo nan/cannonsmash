@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of ComShakeCut class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -28,12 +33,41 @@ extern RCFile *theRC;
 
 extern Ball   theBall;
 
+/**
+ * Default constructor. 
+ */
 ComShakeCut::ComShakeCut() : ShakeCut(), ComPlayer() {
 }
 
+/**
+ * Constructor. 
+ * Set player type and side. 
+ * 
+ * @param side side of the player. 
+ */
 ComShakeCut::ComShakeCut(long side) : ShakeCut(side), ComPlayer() {
 }
 
+/**
+ * Constructor which specifies almost all member variables. 
+ * 
+ * @param playerType player type (pen attack, etc. )
+ * @param side side (1 or -1)
+ * @param x location of the player
+ * @param v velocity of the player
+ * @param status status of the player (0 - 200)
+ * @param swing swing status of the player (0-50)
+ * @param swingType type of swing (smash, cut, etc. )
+ * @param swingSide side of swing (forehand or backhand)
+ * @param afterSwing afterswing stop penalty
+ * @param swingError valuation of the swing (good, bad, miss, etc. )
+ * @param target location of the target
+ * @param eye location of the camera
+ * @param pow power to hit the ball
+ * @param spin spin to hit the ball
+ * @param stamina stamina (not used currently)
+ * @param statusMax max of the status
+ */
 ComShakeCut::ComShakeCut( long playerType, long side, const vector3d x,
 			  const vector3d v, long status, long swing, 
 			  long swingType, bool swingSide, long afterSwing,
@@ -45,9 +79,25 @@ ComShakeCut::ComShakeCut( long playerType, long side, const vector3d x,
 	     eye, pow, spin, stamina, statusMax ), ComPlayer() {
 }
 
+/**
+ * Destructor. 
+ * Do nothing. 
+ */
 ComShakeCut::~ComShakeCut() {
 }
 
+/**
+ * Move this player object. 
+ * Move this player and change m_status. Then, call Think() to decide
+ * where to move and whether to swing or not. 
+ * 
+ * @param KeyHistory history of keyboard input
+ * @param MouseXHistory history of mouse cursor move
+ * @param MouseYHistory history of mouse cursor move
+ * @param MouseBHistory history of mouse button push/release
+ * @param Histptr current position of histories described above. 
+ * @return returns true if it is neccesary to redraw. 
+ */
 bool
 ComShakeCut::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		 long *MouseYHistory, unsigned long *MouseBHistory,
@@ -68,6 +118,11 @@ ComShakeCut::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   return true;
 }
 
+/**
+ * Decide where to move and when to swing. 
+ *
+ * @return returns true if succeeds. 
+ */
 bool
 ComShakeCut::Think() {
   double hitT;	// estimation time until ball reaches _hitX, _hitY
@@ -237,9 +292,14 @@ ComShakeCut::Think() {
   return true;
 }
 
-// Calc hit point
-// (1) If the ball haven't bound, calc bound point
-// (2) Calc hit point from current ball location or bound location
+/**
+ * Calc the point of hitting ball. 
+ * If the ball haven't bound, calc bound point. 
+ * Then, calc hit point from current ball location or bound location. 
+ * 
+ * @param hitX point of hitting [out]. 
+ * @return returns true if succeeds. 
+ */
 bool
 ComShakeCut::Hitarea( vector2d &hitX ) {
   Ball *tmpBall;
@@ -298,6 +358,12 @@ ComShakeCut::Hitarea( vector2d &hitX ) {
   return true;
 }
 
+/**
+ * Decide the x-coordinates of the target. 
+ * 
+ * @param opponent Player object of the opponent. 
+ * @return returns true if succeeds. 
+ */
 bool
 ComShakeCut::SetTargetX( Player *opponent ) {
   double width;

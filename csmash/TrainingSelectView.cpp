@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of TrainingSelectView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
@@ -27,12 +32,26 @@ extern RCFile *theRC;
 
 extern long wins;
 
+/**
+ * Default constructor. 
+ */
 TrainingSelectView::TrainingSelectView() : PlayerSelectView() {
 }
 
+/**
+ * Destructor. 
+ */
 TrainingSelectView::~TrainingSelectView() {
 }
 
+/**
+ * Initializer method. 
+ * Load training type image texture. 
+ * Create textures of player panels. 
+ * 
+ * @param playerSelect attached PlayerSelect object. 
+ * @return returns true if succeeds. 
+ */
 bool
 TrainingSelectView::Init( PlayerSelect *playerSelect ) {
   ImageData image;
@@ -69,6 +88,11 @@ TrainingSelectView::Init( PlayerSelect *playerSelect ) {
   return true;
 }
 
+/**
+ * Redraw background and player panels. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 TrainingSelectView::Redraw() {
   int i;

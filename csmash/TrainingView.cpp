@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of TrainingView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
@@ -25,12 +30,26 @@
 
 extern Ball theBall;
 
+/**
+ * Default constructor. 
+ */
 TrainingView::TrainingView() {
 }
 
+/**
+ * Destructor. 
+ */
 TrainingView::~TrainingView() {
 }
 
+/**
+ * Initializer method. 
+ * Load "Max" image texture. 
+ * Create textures of player panels. 
+ * 
+ * @param training attached Training object. 
+ * @return returns true if succeeds. 
+ */
 bool
 TrainingView::Init( PlayGame *training ) {
   static char max[20] = "images/Max.ppm";
@@ -63,6 +82,11 @@ TrainingView::Init( PlayGame *training ) {
   return true;
 }
 
+/**
+ * Redraw transparent objects. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 TrainingView::RedrawAlpha() {
   PlayGameView::RedrawAlpha();

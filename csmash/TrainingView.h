@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of TrainingView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
@@ -22,6 +27,9 @@
 
 class Training;
 
+/**
+ * TrainingView class is a view class which corresponds to Training object. 
+ */
 class TrainingView : public PlayGameView {
 public:
   TrainingView();
@@ -32,7 +40,7 @@ public:
   virtual bool RedrawAlpha();
 
 protected:
-  GLuint        m_max;
+  GLuint        m_max;		///< "Max" texture handler
 };
 
 #endif	// _TitleView_
