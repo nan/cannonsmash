@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001, 2002, 2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2001-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -205,7 +205,7 @@ GtkWidget *
 LauncherHeader::GraphicsFrame() {
   GtkWidget *frame;
   GtkWidget *box;
-  GtkWidget *twoDButton, *simpleButton, *normalButton;
+  GtkWidget *toonButton, *simpleButton, *normalButton;
   GSList *list;
 
   frame = gtk_frame_new( _("Graphics") );
@@ -213,20 +213,15 @@ LauncherHeader::GraphicsFrame() {
   box = gtk_hbox_new( FALSE, 10 );
   gtk_container_border_width (GTK_CONTAINER (box), 5);
 
-#if 0
-  twoDButton = gtk_radio_button_new_with_label ( (GSList *)NULL, "2D");
-  list = gtk_radio_button_group( GTK_RADIO_BUTTON(twoDButton) );
-  gtk_box_pack_start( GTK_BOX(box), twoDButton, FALSE, FALSE, 10 );
-  gtk_widget_show (twoDButton);
-  if ( theRC->gmode == GMODE_2D ) {
-    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(twoDButton), TRUE );
+  toonButton = gtk_radio_button_new_with_label ( (GSList *)NULL, =("Toon"));
+  list = gtk_radio_button_group( GTK_RADIO_BUTTON(toonButton) );
+  gtk_box_pack_start( GTK_BOX(box), toonButton, FALSE, FALSE, 10 );
+  gtk_widget_show (toonButton);
+  if ( theRC->gmode == GMODE_TOON ) {
+    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(toonButton), TRUE );
   }
 
   simpleButton = gtk_radio_button_new_with_label ( list, _("Simple"));
-#else
-  simpleButton = gtk_radio_button_new_with_label ( (GSList *)NULL, _("Simple"));
-#endif
-
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(simpleButton) );
   gtk_box_pack_start( GTK_BOX(box), simpleButton, FALSE, FALSE, 10 );
   if ( theRC->gmode == GMODE_SIMPLE ) {
@@ -240,10 +235,8 @@ LauncherHeader::GraphicsFrame() {
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(normalButton), TRUE );
   }
 
-#if 0
-  gtk_signal_connect (GTK_OBJECT (twoDButton), "clicked",
+  gtk_signal_connect (GTK_OBJECT (toonButton), "clicked",
 		      GTK_SIGNAL_FUNC (LauncherHeader::Toggle), &theRC->gmode);
-#endif
   gtk_signal_connect (GTK_OBJECT (simpleButton), "clicked",
 		      GTK_SIGNAL_FUNC (LauncherHeader::Toggle), &theRC->gmode);
   gtk_signal_connect (GTK_OBJECT (normalButton), "clicked",
@@ -383,8 +376,8 @@ LauncherHeader::Toggle( GtkWidget *widget, gpointer data ) {
     theRC->isTexture = false;
   } else if ( gtk_toggle_button_get_active
 	      ( (GtkToggleButton *)g_slist_nth_data( list, 2 ) ) ) {
-    theRC->gmode = GMODE_2D;
-    theRC->isTexture = false;
+    theRC->gmode = GMODE_TOON;
+    theRC->isTexture = true;
   }
 }
 
