@@ -637,9 +637,9 @@ MultiPlay::SendTime_forNODELAY( char *buf ) {
     sec--;
   }
 
-  strncat( buf, (char *)&sec, 4 );
+  memcpy( buf, (char *)&sec, 4 );
   v = (char)(count);
-  strncat( buf, (char *)&v, 1 );
+  memcpy( &(buf[4]), (char *)&v, 1 );
 }
 
 void

@@ -406,11 +406,11 @@ Event::SendSwing( Player *player ) {
     return false;
 
   strncpy( buf, "PS", 2 );
-  ((MultiPlay *)theControl)->SendTime_forNODELAY( buf );
+  ((MultiPlay *)theControl)->SendTime_forNODELAY( &(buf[2]) );
 
-  player->SendSwing_forNODELAY( buf );
+  player->SendSwing_forNODELAY( &(buf[7]) );
 
-  send( theSocket, buf, strlen(buf), 0 );
+  send( theSocket, buf, 31, 0 );
   return true;
 }
 #endif
@@ -438,11 +438,11 @@ Event::SendPlayer( Player *player ) {
     return false;
 
   strncpy( buf, "PV", 2 );
-  ((MultiPlay *)theControl)->SendTime_forNODELAY( buf );
+  ((MultiPlay *)theControl)->SendTime_forNODELAY( &(buf[2]) );
 
-  player->SendLocation_forNODELAY( buf );
+  player->SendLocation_forNODELAY( &(buf[7]) );
 
-  send( theSocket, buf, strlen(buf), 0 );
+  send( theSocket, buf, 55, 0 );
 
   return true;
 }
