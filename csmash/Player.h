@@ -106,6 +106,8 @@ public:
   virtual long   GetDragX() { return m_dragX; }		///< Getter method of m_dragX
   virtual long   GetDragY() { return m_dragY; }		///< Getter method of m_dragY
 
+  virtual bool   GetDominantHand();
+
   // true  -> forehand
   // false -> backhand
   virtual bool ForeOrBack();
@@ -128,7 +130,6 @@ public:
   long StatusBorder();
 protected:
   long m_playerType;	///< Player type
-
   long m_side;		/**< Player side
 			 * <ul>
 			 *  <li> 1  --- ( y < 0 )

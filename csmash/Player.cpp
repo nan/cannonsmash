@@ -1276,3 +1276,20 @@ Player::StatusBorder() {
   return (long)(50+(TABLELENGTH/4-nearEdge)*40);
 
 }
+
+/**
+ * Returns dominant hand. 
+ * 
+ * @return returns true if the dominant hand is right. Otherwise returns false. 
+ */
+bool
+GetDominantHand() {
+  switch (m_playerType) {
+  case PLAYER_PROTO:
+  case PLAYER_PENATTACK:
+  case PLAYER_SHAKECUT:
+  case PLAYER_PENDRIVE:
+    return true;
+  }
+}
+
