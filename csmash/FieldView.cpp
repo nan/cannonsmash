@@ -53,10 +53,17 @@ FieldView::Init() {
 
   static char pname[][30] = {"images/Left.jpg", "images/Front.jpg", 
 			     "images/Right.jpg", "images/Back.jpg" };
+#if 0
   static char tutorialname[][30] = {"images/EasyTutorial.ppm",
 				    "images/EasyTutorial.ppm", 
 				    "images/EasyTutorial.ppm", 
 				    "images/EasyTutorial.ppm" };
+#else
+  static char tutorialname[][30] = {"images/EasyTutorial",
+				    "images/EasyTutorial", 
+				    "images/EasyTutorial", 
+				    "images/EasyTutorial" };
+#endif
 
   glGenTextures( 4, m_wall );
   for ( i = 0 ; i < 4 ; i++ ) {
@@ -74,11 +81,13 @@ FieldView::Init() {
 		 0, GL_RGBA, GL_UNSIGNED_BYTE, image.GetImage() );
   }
 
-
   glGenTextures( 4, m_tutorial );
 
+  char filename[256];
+
   for ( i = 0 ; i < 4 ; i++ ) {
-    image.LoadPPM( &(tutorialname[i][0]) );
+    sprintf( filename, _("%s.ppm"), &(tutorialname[i][0]) );
+    image.LoadPPM( filename );
     for ( int j = 0 ; j < image.GetWidth() ; j++ ) {
       for ( int k = 0 ; k < image.GetHeight() ; k++ ) {
 	if ( image.GetPixel( j, k, 0 ) >= 5 )

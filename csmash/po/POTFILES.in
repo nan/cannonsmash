@@ -4,6 +4,7 @@
 # source files:
 BaseView.cpp
 Event.cpp
+FieldView.cpp
 Launcher.cpp
 LobbyClient.cpp
 main.cpp

@@ -4,9 +4,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Cannon Smash 0.6.4\n"
 "POT-Creation-Date: 2002-01-20 22:07+0100\n"
-"PO-Revision-Date: 2002-01-30 02:08+0900\n"
+"PO-Revision-Date: 2002-02-03 19:00+0900\n"
 "Last-Translator: KANNA Yoshihiro <nan@utmc.or.jp>\n"
-"Language-Team: Japanese <ja@li.org>\n"
+"Language-Team: Cannon Smash development project <csmash@utmc.or.jp>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -46,6 +46,11 @@ msgstr ""
 #, c-format
 msgid "BackTrack = %f\n"
 msgstr ""
+
+#: FieldView.cpp:89
+#, c-format
+msgid "%s.ppm"
+msgstr "%s.ja.ppm"
 
 #: Launcher.cpp:64
 msgid "FullScreen"
