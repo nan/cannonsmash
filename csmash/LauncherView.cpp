@@ -301,11 +301,14 @@ LauncherHeader::GraphicsFrame() {
   }
 
   gtk_signal_connect (GTK_OBJECT (toonButton), "clicked",
-		      GTK_SIGNAL_FUNC (LauncherHeader::Toggle), &theRC->gmode);
+		      GTK_SIGNAL_FUNC (LauncherHeader::ToggleGraphics),
+		      &theRC->gmode);
   gtk_signal_connect (GTK_OBJECT (simpleButton), "clicked",
-		      GTK_SIGNAL_FUNC (LauncherHeader::Toggle), &theRC->gmode);
+		      GTK_SIGNAL_FUNC (LauncherHeader::ToggleGraphics),
+		      &theRC->gmode);
   gtk_signal_connect (GTK_OBJECT (normalButton), "clicked",
-		      GTK_SIGNAL_FUNC (LauncherHeader::Toggle), &theRC->gmode);
+		      GTK_SIGNAL_FUNC (LauncherHeader::ToggleGraphics),
+		      &theRC->gmode);
 
   gtk_container_add (GTK_CONTAINER (frame), box);
 
@@ -474,7 +477,7 @@ LauncherHeader::ToggleProtocol( GtkWidget *widget, gpointer data ) {
  * @param data dumy data
  */
 void
-LauncherHeader::Toggle( GtkWidget *widget, gpointer data ) {
+LauncherHeader::ToggleGraphics( GtkWidget *widget, gpointer data ) {
   GSList *list = gtk_radio_button_group( (GtkRadioButton *)widget );
 
   if ( gtk_toggle_button_get_active
@@ -804,11 +807,16 @@ void
 ModeNote::InternetStartGame( GtkWidget *widget, gpointer data ) {
   LobbyClient *lb;
   lb = LobbyClient::Create();
-  if ( lb->
-       Init((char *)gtk_entry_get_text(GTK_ENTRY(((GtkWidget **)data)[0])),
-	    (char *)gtk_entry_get_text(GTK_ENTRY(((GtkWidget **)data)[1])),
-	    gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(((GtkWidget **)data)[2])))
-       == false ) {
+
+  char *nickname = gtk_entry_get_text(GTK_ENTRY(((GtkWidget **)data)[0]));
+  char *password = gtk_entry_get_text(GTK_ENTRY(((GtkWidget **)data)[1]));
+  bool *ping     = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(((GtkWidget **)data)[2]));
+
+  if ( strncmp( theRC->message, password, 64 ) ) {
+    //TODO: encrypt password. At that time, password buffer should not be overwritten. 
+  }
+
+  if ( lb->Init(nickname, password, ping) == false ) {
     LauncherView::ConnectionFailedDialog();
   }
 }
@@ -914,12 +922,15 @@ void
 LauncherView::Destroy(GtkWidget *widget, gpointer data) {
   ModeNote *note = ((LauncherView *)data)->m_note;
 
-  strncpy( theRC->serverName,
-	   gtk_entry_get_text( GTK_ENTRY(note->m_serverName) ), 256 );
-  strncpy( theRC->nickname,
-	   gtk_entry_get_text( GTK_ENTRY(note->m_lobbyEdit[0]) ), 32 );
-  strncpy( theRC->message,
-	   gtk_entry_get_text( GTK_ENTRY(note->m_lobbyEdit[1]) ), 64 );
+  char *serverName = gtk_entry_get_text( GTK_ENTRY(note->m_serverName) );
+  char *nickname   = gtk_entry_get_text( GTK_ENTRY(note->m_lobbyEdit[0]) );
+  char *password   = gtk_entry_get_text( GTK_ENTRY(note->m_lobbyEdit[1]) );
+  strncpy( theRC->serverName, serverName, 256 );
+  strncpy( theRC->nickname, nickname, 256 );
+  if ( strncmp( theRC->message, password, 64 ) ) {
+    //TODO: encrypt password. At that time, password buffer should not be overwritten. 
+    strncpy( theRC->message, password, 64 );
+  }
 
   theRC->WriteRCFile();
 
