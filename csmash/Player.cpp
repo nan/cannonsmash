@@ -425,7 +425,8 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   // Automatically move towards the ball
   // Only for human. 
   if ( (mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
-	mode == MODE_PRACTICE) && KeyHistory ) {
+	mode == MODE_PRACTICE) && KeyHistory &&
+       theRC->gameLevel != LEVEL_TSUBORISH ) {
     if ( m_swing > 10 && m_swing < 20 ) {
       Ball *tmpBall;
 
@@ -489,25 +490,21 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   else
     m_x += m_vx*TICK;
 
-  if ( m_y+m_vy*TICK < -AREAYSIZE/2 ){
+  if ( m_y+m_vy*TICK < -AREAYSIZE/2 ) {
     m_y = -AREAYSIZE/2;
     m_vy = 0.0;
-  }
-  else if ( m_y+m_vy*TICK > AREAYSIZE/2 ){
+  } else if ( m_y+m_vy*TICK > AREAYSIZE/2 ) {
     m_y = AREAYSIZE/2;
     m_vy = 0.0;
-  }
-  else if ( m_y <= -TABLELENGTH/2+0.5 && m_y+m_vy*TICK >= -TABLELENGTH/2+0.5 &&
-	    m_x > -TABLEWIDTH/2 && m_x < TABLEWIDTH/2 ){
+  } else if ( m_y <= -TABLELENGTH/2+0.5 && m_y+m_vy*TICK >= -TABLELENGTH/2+0.5
+	      && m_x > -TABLEWIDTH/2 && m_x < TABLEWIDTH/2 ) {
     m_y = -TABLELENGTH/2+0.5;
     m_vy = 0.0;
-  }
-  else if ( m_y >= TABLELENGTH/2-0.5 && m_y+m_vy*TICK <= TABLELENGTH/2-0.5 &&
-	    m_x > -TABLEWIDTH/2 && m_x < TABLEWIDTH/2 ){
+  } else if ( m_y >= TABLELENGTH/2-0.5 && m_y+m_vy*TICK <= TABLELENGTH/2-0.5
+	      && m_x > -TABLEWIDTH/2 && m_x < TABLEWIDTH/2 ) {
     m_y = TABLELENGTH/2-0.5;
     m_vy = 0.0;
-  }
-  else
+  } else
     m_y += m_vy*TICK;
 
 #if 0
@@ -568,6 +565,14 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	 fabs(m_lastSendVY-m_vy) >= 0.25 || fabs(m_lastSendVZ-m_vz) >= 0.25 ) {
       Event::TheEvent()->SendPlayer( this );
     }
+
+    // theBall goes out of hitting area. 
+    if ( ((theBall.GetStatus() == 1 && m_side == -1) ||
+	  (theBall.GetStatus() == 3 && m_side == 1 ) ) &&
+	 m_swing <= 10 &&
+	 (m_y-theBall.GetY())*m_side > 0.3 &&
+	 (m_y+m_vy*TICK-(theBall.GetY()+theBall.GetVY()*TICK))*m_side > 0.3 )
+      Event::TheEvent()->SendBall();
   }
 
   return true;
