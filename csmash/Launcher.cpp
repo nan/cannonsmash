@@ -443,7 +443,7 @@ Launcher::Init() {
   gtk_init( (int *)NULL, (char ***)NULL );
   style = gtk_widget_get_default_style();
 #ifdef WIN32
-  style->font = gdk_font_load("-unknown-MS UI Gothic-normal-r-normal--12-100-*-*-*-*-windows-shiftjis");
+  style->font = gdk_font_load("-unknown-MS UI Gothic-normal-r-normal--12-100-*-*-*-*-windows-*");
   gtk_widget_set_default_style(style);
 #endif
 
