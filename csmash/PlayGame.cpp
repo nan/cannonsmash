@@ -20,9 +20,11 @@
 #include "PlayGame.h"
 #include "Player.h"
 #include "Ball.h"
+#include "BaseView.h"
 
 extern Player* thePlayer;
 extern Player* comPlayer;
+extern BaseView* theView;
 extern Ball theBall;
 
 extern long mode;
@@ -31,11 +33,17 @@ extern long wins;
 extern long gmode;
 
 PlayGame::PlayGame() {
+  m_View = NULL;
+
   m_Score1 = 0;
   m_Score2 = 0;
 }
 
 PlayGame::~PlayGame() {
+  if ( m_View ){
+    theView->RemoveView( m_View );
+    delete m_View;
+  }
 }
 
 long
@@ -47,7 +55,7 @@ PlayGame::GetService() {
     if ( m_Score1 > 9 && m_Score2 > 9 ) {	// Deuce
       return ((m_Score1+m_Score2) & 1 ? -1 : 1);
     } else {
-      if ( (m_Score1 + m_Score2)%10 >= 5 )
+      if ( (m_Score1 + m_Score2)%4 >= 2 )
 	return -1;
       else
 	return 1;

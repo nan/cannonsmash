@@ -181,7 +181,8 @@ Event::IdleFunc() {
     theEvent.IsModeChanged( preMode );
   }
 
-  if ( mode != MODE_OPENING && mode != MODE_TITLE )
+  if ( mode != MODE_OPENING && mode != MODE_TITLE &&
+       SDL_WM_GrabInput( SDL_GRAB_QUERY ) == SDL_GRAB_ON )
     SDL_WarpMouse((unsigned short)theEvent.m_MouseXHistory[theEvent.m_Histptr],
 		  (unsigned short)theEvent.m_MouseYHistory[theEvent.m_Histptr] );
 

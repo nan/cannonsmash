@@ -680,6 +680,9 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
   // ちなみに, スイング後のマウスのドラッグによってボールの回転を
   // 制御する場合, この方法は使えないかも知れない. 
 
+  if ( SDL_WM_GrabInput( SDL_GRAB_QUERY ) == SDL_GRAB_OFF )
+    return true;
+
   if ( m_swing > 10 && m_swing <= 20 ) {
     long hptr = Histptr-(m_swing-11);
     if ( hptr < 0 )

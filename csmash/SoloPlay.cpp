@@ -21,10 +21,12 @@
 #include "Player.h"
 #include "Ball.h"
 #include "Event.h"
+#include "BaseView.h"
 
 extern Player* thePlayer;
 extern Player* comPlayer;
 extern Ball theBall;
+extern BaseView* theView;
 extern Event theEvent;
 extern long mode;
 
@@ -42,6 +44,12 @@ SoloPlay::~SoloPlay() {
 
 bool
 SoloPlay::Init() {
+  m_View = new PlayGameView();
+
+  m_View->Init( this );
+
+  theView->AddView( m_View );
+
   return true;
 }
 

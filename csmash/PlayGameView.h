@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,33 +16,26 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#ifndef _SoloPlay_
-#define _SoloPlay_
-#include "PlayGame.h"
+#ifndef _PlayGameView_
+#define _PlayGameView_
+#include "View.h"
 
-class SoloPlay : public PlayGame {
+class PlayGame;
+
+class PlayGameView : public View {
 public:
-  SoloPlay();
-  virtual ~SoloPlay();
+  PlayGameView();
+  virtual ~PlayGameView();
 
-  virtual bool Init();
+  virtual bool Init( PlayGame * );
 
-  static SoloPlay* Create( long player, long com );
-
-  virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
-		     long *MouseYHistory, unsigned long *MouseBHistory,
-		     int Histptr );
-
-  long GetSmashPtr() { return m_smashPtr; };
-
-  virtual bool LookAt( double &srcX, double &srcY, double &srcZ,
-		       double &destX, double &destY, double &destZ );
-  long SmashEffect( bool start, long histPtr );
+  virtual bool Redraw();
+  virtual bool RedrawAlpha();
 
 protected:
-  bool m_smash;
-  long m_smashCount;
-  long m_smashPtr;
+  PlayGame    *m_playGame;
+
+  GLubyte      m_image[256*150/8];
 };
 
-#endif	// _SoloPlay_
+#endif	// _PlayGameView_

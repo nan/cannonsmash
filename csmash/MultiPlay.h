@@ -126,7 +126,6 @@ public:
 
   virtual void EndGame();
 
-  virtual View *GetView() { return NULL; };
 protected:
   //bool m_smash;
   //long m_smashCount;

@@ -24,6 +24,7 @@
 #include "PenDrive.h"
 #include "ShakeCut.h"
 #include "Event.h"
+#include "BaseView.h"
 
 #ifdef LOGGING
 #include "Logging.h"
@@ -48,6 +49,7 @@ extern long mode;
 extern Ball theBall;
 extern Player *thePlayer;
 extern Player *comPlayer;
+extern BaseView* theView;
 
 extern char serverName[256];
 
@@ -669,6 +671,12 @@ MultiPlay::Init() {
 #ifdef LOGGING
   Logging::GetLogging()->StartLog();
 #endif
+  m_View = new PlayGameView();
+
+  m_View->Init( this );
+
+  theView->AddView( m_View );
+
   return true;
 }
 

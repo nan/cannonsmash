@@ -20,6 +20,7 @@
 #define _PlayGame_
 
 #include "Control.h"
+#include "PlayGameView.h"
 class Player;
 
 // Base class of SoloPlay, MultiPlay, Training
@@ -46,7 +47,10 @@ public:
   virtual void EndGame();
   void ChangeScore();
   void ChangeScore( long score1, long score2 );
+
+  virtual View *GetView() { return m_View; };
 protected:
+  PlayGameView *m_View;
 
   long m_Score1;	// Score of near side. Counter when training
   long m_Score2;	// Score of far side
