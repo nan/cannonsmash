@@ -25,6 +25,7 @@
 #include "ShakeCut.h"
 #include "Event.h"
 #include "BaseView.h"
+#include "RCFile.h"
 
 #ifdef LOGGING
 #include "Logging.h"
@@ -51,7 +52,7 @@ extern Player *thePlayer;
 extern Player *comPlayer;
 extern BaseView* theView;
 
-extern char serverName[256];
+extern RCFile *theRC;
 
 extern long timeAdj;
 
@@ -60,9 +61,6 @@ extern int theSocket;
 bool endian;
 
 int listenSocket = 0;
-
-extern long gameLevel;
-extern long gameMode;
 
 extern void QuitGame();
 
@@ -533,7 +531,7 @@ StartClient() {
   struct sockaddr_in saddr;
   memset(&saddr, 0, sizeof(saddr));
 
-  if (1 == serverName[0]) { // Broadcast mode
+  if (1 == theRC->serverName[0]) { // Broadcast mode
     struct sockaddr_in sba;
     memset(&sba, 0, sizeof(sba));
     int sb;
@@ -587,7 +585,7 @@ StartClient() {
     saddr.sin_addr.s_addr = sba.sin_addr.s_addr;
   } else {
     struct hostent *hent;
-    hent = gethostbyname( serverName );
+    hent = gethostbyname( theRC->serverName );
     memcpy( &saddr.sin_addr, hent->h_addr, hent->h_length );
   }
 
@@ -690,7 +688,7 @@ MultiPlay::Create( long player, long com ) {
   newMultiPlay = new MultiPlay();
   newMultiPlay->Init();
 
-  if ( !(serverName[0]) )
+  if ( !(theRC->serverName[0]) )
     side = 1;		// server side
   else
     side = -1;	// client side
@@ -711,8 +709,8 @@ MultiPlay::Create( long player, long com ) {
   SDL_ShowCursor(0);
   SDL_WM_GrabInput( SDL_GRAB_ON );
 
-  gameLevel = LEVEL_HARD;
-  gameMode = GAME_21PTS;
+  theRC->gameLevel = LEVEL_HARD;
+  theRC->gameMode = GAME_21PTS;
 
   return newMultiPlay;
 }

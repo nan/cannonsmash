@@ -21,9 +21,9 @@
 #include "PracticeSelect.h"
 #include "LoadImage.h"
 #include "BaseView.h"
+#include "RCFile.h"
 
-extern bool isTexture;
-extern long gmode;
+extern RCFile *theRC;
 
 PracticeSelectView::PracticeSelectView() : PlayerSelectView() {
 }
@@ -44,7 +44,7 @@ PracticeSelectView::Redraw() {
 
     glPushMatrix();
     if ( m_playerSelect->GetSelected() < 100 ) {
-      if ( gmode != GMODE_SIMPLE )
+      if ( theRC->gmode != GMODE_SIMPLE )
 	glEnable(GL_TEXTURE_2D);
       glTranslatef( -1.0, -1.0F+0.01F*m_playerSelect->GetSelected(), 1.0F );
       glRotatef( m_playerSelect->GetSelected()*360.0F/100, 0.0F, 0.0F, 1.0F );
@@ -62,7 +62,7 @@ PracticeSelectView::Redraw() {
     glEnd();
     glPopMatrix();
   } else {
-    if ( gmode != GMODE_SIMPLE ||
+    if ( theRC->gmode != GMODE_SIMPLE ||
 	 (m_playerSelect->GetRotate()%360)%(360/PLAYERS) == 0 )
       glEnable(GL_TEXTURE_2D);
 
@@ -92,7 +92,7 @@ PracticeSelectView::Redraw() {
 
       glPushMatrix();
       if ( ((PracticeSelect *)m_playerSelect)->GetOpponentSelected() < 100 ) {
-	if ( gmode != GMODE_SIMPLE )
+	if ( theRC->gmode != GMODE_SIMPLE )
 	  glEnable(GL_TEXTURE_2D);
 	glTranslatef( 0.01F*100,
 		      -1.0F+0.01F*((PracticeSelect *)m_playerSelect)->GetOpponentSelected(), 1.4F );
@@ -112,7 +112,7 @@ PracticeSelectView::Redraw() {
       glEnd();
       glPopMatrix();
     } else {
-      if ( gmode != GMODE_SIMPLE ||
+      if ( theRC->gmode != GMODE_SIMPLE ||
 	   (((PracticeSelect *)m_playerSelect)->GetOpponentRotate()%360)%(360/PLAYERS) == 0 )
 	glEnable(GL_TEXTURE_2D);
 

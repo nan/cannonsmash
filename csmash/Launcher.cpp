@@ -19,20 +19,17 @@
 #include "ttinc.h"
 #include "LobbyClient.h"
 #include "Launcher.h"
+#include "RCFile.h"
 
-extern bool fullScreen;
 extern bool isComm;
-extern char serverName[256];
 extern long mode;
-extern long gmode;
+
+extern RCFile *theRC;
 
 extern void StartGame();
 extern void EventLoop();
 
 extern bool WriteRCFile();
-
-char nickname[32] = {'\0'};
-char message[64] = {'\0'};
 
 LauncherHeader::LauncherHeader() {
 }
@@ -67,24 +64,24 @@ LauncherHeader::FullScreenFrame() {
   button = gtk_radio_button_new_with_label ((GSList *)NULL, "On");
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(button) );
   gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
-  if (fullScreen)
+  if (theRC->fullScreen)
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(button), TRUE );
   gtk_widget_show (button);
 
   gtk_signal_connect (GTK_OBJECT (button), "clicked",
 		      GTK_SIGNAL_FUNC (LauncherHeader::ToggleFullScreen),
-		      &fullScreen);
+		      &theRC->fullScreen);
 
   button = gtk_radio_button_new_with_label (list, "Off");
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(button) );
   gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
-  if (!fullScreen)
+  if (!theRC->fullScreen)
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(button), TRUE );
   gtk_widget_show (button);
 
   gtk_signal_connect (GTK_OBJECT (button), "clicked",
 		      GTK_SIGNAL_FUNC (LauncherHeader::ToggleFullScreen),
-		      &fullScreen);
+		      &theRC->fullScreen);
 
   gtk_widget_show (box);
   gtk_container_add (GTK_CONTAINER (frame), box);
@@ -108,7 +105,7 @@ LauncherHeader::GraphicsFrame() {
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(twoDButton) );
   gtk_box_pack_start( GTK_BOX(box), twoDButton, FALSE, FALSE, 10 );
   gtk_widget_show (twoDButton);
-  if ( gmode == GMODE_2D ) {
+  if ( theRC->gmode == GMODE_2D ) {
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(twoDButton), TRUE );
   }
 
@@ -116,7 +113,7 @@ LauncherHeader::GraphicsFrame() {
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(simpleButton) );
   gtk_box_pack_start( GTK_BOX(box), simpleButton, FALSE, FALSE, 10 );
   gtk_widget_show (simpleButton);
-  if ( gmode == GMODE_SIMPLE ) {
+  if ( theRC->gmode == GMODE_SIMPLE ) {
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(simpleButton), TRUE );
   }
 
@@ -124,16 +121,16 @@ LauncherHeader::GraphicsFrame() {
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(normalButton) );
   gtk_box_pack_start( GTK_BOX(box), normalButton, FALSE, FALSE, 10 );
   gtk_widget_show (normalButton);
-  if ( gmode == GMODE_FULL ) {
+  if ( theRC->gmode == GMODE_FULL ) {
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(normalButton), TRUE );
   }
 
   gtk_signal_connect (GTK_OBJECT (twoDButton), "clicked",
-		      GTK_SIGNAL_FUNC (LauncherHeader::Toggle), &gmode);
+		      GTK_SIGNAL_FUNC (LauncherHeader::Toggle), &theRC->gmode);
   gtk_signal_connect (GTK_OBJECT (simpleButton), "clicked",
-		      GTK_SIGNAL_FUNC (LauncherHeader::Toggle), &gmode);
+		      GTK_SIGNAL_FUNC (LauncherHeader::Toggle), &theRC->gmode);
   gtk_signal_connect (GTK_OBJECT (normalButton), "clicked",
-		      GTK_SIGNAL_FUNC (LauncherHeader::Toggle), &gmode);
+		      GTK_SIGNAL_FUNC (LauncherHeader::Toggle), &theRC->gmode);
 
   gtk_widget_show (box);
   gtk_container_add (GTK_CONTAINER (frame), box);
@@ -147,9 +144,9 @@ LauncherHeader::ToggleFullScreen( GtkWidget *widget, gpointer data ) {
 
   if ( gtk_toggle_button_get_active
        ( (GtkToggleButton *)g_slist_nth_data( list, 0 ) ) ) {
-    fullScreen = false;
+    theRC->fullScreen = false;
   } else {
-    fullScreen = true;
+    theRC->fullScreen = true;
   }
 }
 
@@ -159,13 +156,13 @@ LauncherHeader::Toggle( GtkWidget *widget, gpointer data ) {
 
   if ( gtk_toggle_button_get_active
        ( (GtkToggleButton *)g_slist_nth_data( list, 0 ) ) ) {
-    gmode = GMODE_FULL;
+    theRC->gmode = GMODE_FULL;
   } else if ( gtk_toggle_button_get_active
 	      ( (GtkToggleButton *)g_slist_nth_data( list, 1 ) ) ) {
-    gmode = GMODE_SIMPLE;
+    theRC->gmode = GMODE_SIMPLE;
   } else if ( gtk_toggle_button_get_active
 	      ( (GtkToggleButton *)g_slist_nth_data( list, 2 ) ) ) {
-    gmode = GMODE_2D;
+    theRC->gmode = GMODE_2D;
   }
 }
 
@@ -248,7 +245,7 @@ ModeNote::InitLANPlayPanel() {
   gtk_widget_show (toggleBox);
   gtk_box_pack_start( GTK_BOX(box), toggleBox, FALSE, FALSE, 5 );
 
-  if (serverName[0])
+  if (theRC->serverName[0])
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(toggleButton[1]), TRUE );
 
   // Lower input area for server name
@@ -261,8 +258,8 @@ ModeNote::InitLANPlayPanel() {
   m_serverName = gtk_entry_new ();
   gtk_table_attach( GTK_TABLE(editBox), m_serverName, 1, 2, 1, 2,
 		    GTK_FILL, GTK_EXPAND, 0, 0 );
-  if ( serverName[0] > 1 ) {
-    gtk_entry_set_text( GTK_ENTRY(m_serverName), serverName );
+  if ( theRC->serverName[0] > 1 ) {
+    gtk_entry_set_text( GTK_ENTRY(m_serverName), theRC->serverName );
     gtk_widget_show ( GTK_WIDGET(m_serverName) );
   }
 
@@ -305,7 +302,7 @@ ModeNote::InitInternetPlayPanel() {
   gtk_table_attach( GTK_TABLE(editBox), m_lobbyEdit[0], 1, 2, 0, 1,
 		    GTK_FILL, GTK_EXPAND, 0, 0 );
   gtk_widget_show (m_lobbyEdit[0]);
-  gtk_entry_set_text( GTK_ENTRY(m_lobbyEdit[0]), nickname );
+  gtk_entry_set_text( GTK_ENTRY(m_lobbyEdit[0]), theRC->nickname );
 
   label = gtk_label_new( "Message:" );
   gtk_table_attach( GTK_TABLE(editBox), label, 0, 1, 1, 2,
@@ -315,7 +312,7 @@ ModeNote::InitInternetPlayPanel() {
   gtk_table_attach( GTK_TABLE(editBox), m_lobbyEdit[1], 1, 2, 1, 2,
 		    GTK_FILL, GTK_EXPAND, 0, 0 );
   gtk_widget_show (m_lobbyEdit[1]);
-  gtk_entry_set_text( GTK_ENTRY(m_lobbyEdit[1]), message );
+  gtk_entry_set_text( GTK_ENTRY(m_lobbyEdit[1]), theRC->message );
 
   gtk_widget_show (editBox);
   gtk_box_pack_start( GTK_BOX(box), editBox, FALSE, FALSE, 5 );
@@ -337,17 +334,17 @@ ModeNote::Toggle( GtkWidget *widget, gpointer data ) {
   GSList *list = gtk_radio_button_group( (GtkRadioButton *)widget );
 
   if ( g_slist_index( list, widget ) == 0 ) {
-    serverName[0] = 1;	// :-p
+    theRC->serverName[0] = 1;	// :-p
     gtk_widget_show ( GTK_WIDGET(data) );
   } else {
-    serverName[0] = '\0';
+    theRC->serverName[0] = '\0';
     gtk_widget_hide ( GTK_WIDGET(data) );
   }
 }
 
 void
 ModeNote::StartGame( GtkWidget *widget, gpointer data ) {
-  if ( gmode == GMODE_2D )
+  if ( theRC->gmode == GMODE_2D )
     mode = MODE_TITLE;
   ::StartGame();
   ::EventLoop();
@@ -355,9 +352,9 @@ ModeNote::StartGame( GtkWidget *widget, gpointer data ) {
 
 void
 ModeNote::LANStartGame( GtkWidget *widget, gpointer data ) {
-  if ( serverName[0] == 1 &&
+  if ( theRC->serverName[0] == 1 &&
        strlen(gtk_entry_get_text( GTK_ENTRY(data) )) > 0 )
-    strncpy( serverName, gtk_entry_get_text( GTK_ENTRY(data) ), 256 );
+    strncpy( theRC->serverName, gtk_entry_get_text( GTK_ENTRY(data) ), 256 );
   isComm = true;
   mode = MODE_SELECT;
   ::StartGame();
@@ -381,10 +378,6 @@ Launcher::~Launcher() {
 
 void
 Launcher::Init() {
-  GtkWidget *frame;
-  GtkWidget *edit;
-  GtkWidget *button;
-
   GtkWidget *label;
 
   GtkWidget *allbox, *mainbox, *quitBox;
@@ -439,14 +432,14 @@ void
 Launcher::Destroy(GtkWidget *widget, gpointer data) {
   ModeNote *note = ((Launcher *)data)->m_note;
 
-  strncpy( serverName,
+  strncpy( theRC->serverName,
 	   gtk_entry_get_text( GTK_ENTRY(note->m_serverName) ), 256 );
-  strncpy( nickname,
+  strncpy( theRC->nickname,
 	   gtk_entry_get_text( GTK_ENTRY(note->m_lobbyEdit[0]) ), 32 );
-  strncpy( message,
+  strncpy( theRC->message,
 	   gtk_entry_get_text( GTK_ENTRY(note->m_lobbyEdit[1]) ), 64 );
 
-  WriteRCFile();
+  theRC->WriteRCFile();
 
   gtk_main_quit();
 

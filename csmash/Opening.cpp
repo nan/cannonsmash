@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,15 +25,12 @@
 #include "Ball.h"
 #include "Event.h"
 #include "HitMark.h"
+#include "RCFile.h"
 
 #include <signal.h>
 
 extern BaseView* theView;
 extern long mode;
-extern long gmode;
-
-extern long gameLevel;
-extern long gameMode;
 
 extern Sound theSound;
 
@@ -43,7 +40,8 @@ extern void KeyUp( unsigned char key, int x, int y );
 extern Player* thePlayer;
 extern Player* comPlayer;
 extern Ball theBall;
-extern bool isWireFrame;
+
+extern RCFile *theRC;
 
 #define PHRASELENGTH (35.80)
 
@@ -90,8 +88,8 @@ Opening::Init() {
   m_telop[0] = new MenuItem();
   m_telop[0]->Init( 0, 0, 800, 600, &telop[0][0], NULL );
 
-  if ( gmode != GMODE_SIMPLE )
-    isWireFrame = false;
+  if ( theRC->gmode != GMODE_SIMPLE )
+    theRC->isWireFrame = false;
 
   theSound.InitBGM( OPENINGFILENAME );
 
@@ -1088,7 +1086,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->m_View = new PlayerView();
       comPlayer->m_View->Init( comPlayer );
 
-      gameLevel = LEVEL_HARD;
+      theRC->gameLevel = LEVEL_HARD;
 
       theBall.m_status = -1000;
     }
@@ -1240,8 +1238,8 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
   if ( KeyHistory[Histptr] == SDLK_ESCAPE || MouseBHistory[Histptr] 
        || phrase > 350 ) {
     mode = MODE_TITLE;
-    if ( gmode != GMODE_SIMPLE )
-      isWireFrame = true;
+    if ( theRC->gmode != GMODE_SIMPLE )
+      theRC->isWireFrame = true;
     theSound.StopBGM();
   }
 

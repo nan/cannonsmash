@@ -28,6 +28,7 @@
 #include "Launcher.h"
 #include "HitMark.h"
 #include "HowtoView.h"
+#include "RCFile.h"
 #ifdef LOGGING
 #include "Logging.h"
 #endif
@@ -46,24 +47,19 @@ Event theEvent;
 short csmash_port = CSMASH_PORT;
 int theSocket = -1;
 bool isComm = false;		// Network Play?
-char serverName[256] = {'\0'};
 
 long timeAdj = 0;
 
 bool isLighting	= true;
-bool isTexture	= true;
 bool isPolygon	= true;
-long gmode	= GMODE_FULL;
-bool isWireFrame = true;
-bool fullScreen = false;
 
 bool isWaiting = false;		// waiting for opponent player on the internet
 
 long wins	= 0;
-long gameLevel  = LEVEL_EASY;
-long gameMode   = GAME_21PTS;	// game length
 
 Control*      theControl = NULL;
+
+RCFile *theRC = RCFile::GetRCFile();
 
 long mode = MODE_OPENING;
 
@@ -75,8 +71,6 @@ extern void QuitGame();
 void StartGame();
 void EventLoop();
 bool PollEvent();
-
-extern bool ReadRCFile();
 
 #ifdef __CYGWIN__
 #include <getopt.h>
@@ -125,13 +119,13 @@ int main(int argc, char** argv) {
 	    // Server mode
 	    isComm = true;
 	    mode = MODE_SELECT;
-	    serverName[0] = '\0';
+	    theRC->serverName[0] = '\0';
 	    break;
 	case 'c':
 	    // Client mode
 	    isComm = true;
 	    mode = MODE_SELECT;
-	    serverName[0] = 1;	// :-p
+	    theRC->serverName[0] = 1;	// :-p
 	    break;
 	case 'p':
 	    // set the csmash_port
@@ -140,16 +134,16 @@ int main(int argc, char** argv) {
 	    break;
 	case 'f':
 	    // Fullscreen mode
-	    fullScreen = true;
+	    theRC->fullScreen = true;
 	    break;
 	case 'S':
 	    // Simple mode
-	    gmode = GMODE_SIMPLE;
-	    isTexture = false;
+	    theRC->gmode = GMODE_SIMPLE;
+	    theRC->isTexture = false;
 	    break;
 	case '2':
 	    // Simple mode
-	    gmode = GMODE_2D;
+	    theRC->gmode = GMODE_2D;
 	    mode = MODE_SELECT;
 	    break;
 	}
@@ -159,7 +153,7 @@ int main(int argc, char** argv) {
       // Client mode
       isComm = true;
       mode = MODE_SELECT;
-      strncpy(serverName, argv[optind], sizeof(serverName));
+      strncpy(theRC->serverName, argv[optind], sizeof(theRC->serverName));
     }
 
 #define PROBE_FILE "Parts/Fnormal/Fnormal-head01.dat"
@@ -215,7 +209,7 @@ int main(int argc, char** argv) {
   SDL_CreateThread( LoadData, NULL );
 
   if ( mode == MODE_OPENING ) {
-    ReadRCFile();
+    theRC->ReadRCFile();
 
     Launcher *launcher = new Launcher();
     launcher->Init();
@@ -229,10 +223,10 @@ int main(int argc, char** argv) {
 
 void
 StartGame() {
-  if ( gmode == GMODE_FULL )
-    isTexture = true;
+  if ( theRC->gmode == GMODE_FULL )
+    theRC->isTexture = true;
   else
-    isTexture = false;
+    theRC->isTexture = false;
 
 #ifdef HAVE_LIBSDL_MIXER
   sndMode = SOUND_SDL;
@@ -321,7 +315,7 @@ int
 LoadData( void *dum ) {
   SDL_mutexP( loadMutex );
 
-  if ( gmode != GMODE_2D )
+  if ( theRC->gmode != GMODE_2D )
     PlayerView::LoadData(NULL);
 
   SDL_mutexV( loadMutex );

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,9 +24,13 @@
 #include "Sound.h"
 #include "Event.h"
 #include "MultiPlay.h"
+#include "RCFile.h"
+
 #ifdef LOGGING
 #include "Logging.h"
 #endif
+
+extern RCFile *theRC;
 
 extern Player* thePlayer;
 extern Player* comPlayer;
@@ -36,10 +40,6 @@ extern Control* theControl;
 extern BaseView* theView;
 extern long mode;
 extern Sound theSound;
-
-extern long gameMode;
-
-extern long gmode;
 
 #if 0
 inline double LOG(double f) { return log(f); }
@@ -85,7 +85,7 @@ Ball::~Ball() {
 
 bool
 Ball::Init() {
-  if ( gmode == GMODE_2D )
+  if ( theRC->gmode == GMODE_2D )
     m_View = (BallView *)new BallView2D();
   else
     m_View = new BallView();

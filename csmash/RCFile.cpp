@@ -17,22 +17,33 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
+#include "RCFile.h"
 
-extern bool isTexture;
-extern bool isWireFrame;
-extern bool fullScreen;
-extern long gmode;
-extern long gameLevel;
-extern long gameMode;
+RCFile* RCFile::m_rcFile = NULL;
 
-extern char serverName[256];
-extern char nickname[32];
-extern char message[64];
+RCFile::RCFile() {
+  isTexture = true;
+  isWireFrame = true;
+  fullScreen = false;
+  gmode = GMODE_FULL;
+  gameLevel = LEVEL_EASY;
+  gameMode = GAME_21PTS;
 
-FILE * OpenRCFile( char *mode );
+  serverName[0] = '\0';
+  nickname[0] = '\0';
+  message[0] = '\0';
+}
+
+RCFile*
+RCFile::GetRCFile() {
+  if ( !RCFile::m_rcFile )
+    RCFile::m_rcFile = new RCFile();
+
+  return m_rcFile;
+}
 
 bool
-ReadRCFile() {
+RCFile::ReadRCFile() {
   FILE *fp = OpenRCFile( "r" );
   char buf[1024];
   char *p;
@@ -90,7 +101,7 @@ ReadRCFile() {
 }
 
 bool
-WriteRCFile() {
+RCFile::WriteRCFile() {
   FILE *fp = OpenRCFile( "w" );
 
   fprintf( fp, "fullscreen=%d\n", fullScreen ? 1 : 0 );
@@ -117,7 +128,7 @@ WriteRCFile() {
 }
 
 FILE *
-OpenRCFile( char *mode ) {
+RCFile::OpenRCFile( char *mode ) {
   char *csmashrc;
 
   csmashrc = getenv( "CSMASH_RC" );

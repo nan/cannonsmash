@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,27 +16,35 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#ifndef _comPlayer_
-#define _comPlayer_
+#ifndef _RCFile_
+#define _RCFile_
 
-#define LEVELMARGIN	(0.30/(theRC->gameLevel*theRC->gameLevel*2+1))
-//#define LEVELMARGIN	(0.15-gameLevel*0.05)
+#include "ttinc.h"
 
-class ComPlayer {
+class RCFile {
 public:
-  ComPlayer();
-  virtual ~ComPlayer();
+  static RCFile *GetRCFile();
 
-protected:
-  virtual bool Think() = 0;
+  bool isTexture;
+  bool isWireFrame;
+  bool fullScreen;
+  long gmode;
+  long gameLevel;
+  long gameMode;
 
-// Valuable for Think()
-  int _prevBallstatus;		// previous ball status
-  double _hitX;			// hit point
-  double _hitY;
+  char serverName[256];
+  char nickname[32];
+  char message[64];
 
-// Calc hit point
-  virtual bool Hitarea( double &hitX, double &hitY) = 0;
+  bool ReadRCFile();
+  bool WriteRCFile();
+
+private:
+  RCFile();
+
+  static RCFile* m_rcFile;
+
+  FILE * OpenRCFile( char *mode );
 };
 
-#endif // _comPlayer_
+#endif	// _RCFile_

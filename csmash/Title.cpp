@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,17 +27,14 @@
 #include "TitleView2D.h"
 #include "Event.h"
 #include "MenuItem.h"
+#include "RCFile.h"
+
+extern RCFile *theRC;
 
 extern BaseView* theView;
 extern long mode;
 
 extern Sound theSound;
-
-extern long gameLevel;
-extern long gameMode;
-
-extern bool isWireFrame;
-extern long gmode;
 
 extern void QuitGame();
 
@@ -69,7 +66,7 @@ Title::~Title() {
 
 bool
 Title::Init() {
-  if ( gmode == GMODE_2D )
+  if ( theRC->gmode == GMODE_2D )
     m_View = new TitleView2D();
   else
     m_View = new TitleView();
@@ -222,18 +219,18 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
       break;
     case MENU_CONFIG:
       if ( m_selected < GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL ) )
-	gameLevel = m_selected;
+	theRC->gameLevel = m_selected;
       else if ( m_selected < GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )+
 		             GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE ) )
-	gameMode = m_selected-GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL );
+	theRC->gameMode = m_selected-GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL );
       else if ( m_selected < GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )+
 		GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )+
 		GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER ) ) {
 	if ( m_selected-GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )
 	     -GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE ) == 0 )
-	  isWireFrame = true;
+	  theRC->isWireFrame = true;
 	else
-	  isWireFrame = false;
+	  theRC->isWireFrame = false;
       } else if ( m_selected == GetMenuNum( MENU_CONFIG, MENU_ALL )-1 )
 	m_selectMode = MENU_MAIN;
     }
@@ -340,12 +337,12 @@ Title::CreateMenu( long menuMajorNum ) {
     }
     m_menuItem[j+1]->Init( 300, 20, 400, 70, &menu[5][0], this );
 
-    m_menuItem[gameLevel]->SetSelected( true );
+    m_menuItem[theRC->gameLevel]->SetSelected( true );
 
-    m_menuItem[GetMenuNum(MENU_CONFIG, MENU_CONFIG_LEVEL)+gameMode]
+    m_menuItem[GetMenuNum(MENU_CONFIG, MENU_CONFIG_LEVEL)+theRC->gameMode]
       ->SetSelected( true );
 
-    if ( isWireFrame )
+    if ( theRC->isWireFrame )
       m_menuItem[GetMenuNum(MENU_CONFIG, MENU_CONFIG_LEVEL)+
 		GetMenuNum(MENU_CONFIG, MENU_CONFIG_MODE)]
 	->SetSelected( true );
@@ -383,7 +380,7 @@ Title::SetSelected( long selected ) {
 
 long 
 Title::HitTest( long x, long y ) {
-  if ( gmode != GMODE_2D )
+  if ( theRC->gmode != GMODE_2D )
     y = BaseView::GetWinHeight()-y;
   for ( int i = 0 ; i < GetMenuNum( m_selectMode ) ; i++ ) {
     if ( x > m_menuItem[i]->GetX() &&

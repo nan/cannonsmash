@@ -21,9 +21,11 @@
 #include "LoadImage.h"
 #include "PlayerSelect.h"
 #include "BaseView.h"
+#include "RCFile.h"
+
+extern RCFile *theRC;
 
 extern long wins;
-extern long gmode;
 
 TrainingSelectView::TrainingSelectView() : PlayerSelectView() {
 }
@@ -88,7 +90,7 @@ bool
 TrainingSelectView::Redraw() {
   int i;
 
-  if ( gmode != GMODE_SIMPLE ||
+  if ( theRC->gmode != GMODE_SIMPLE ||
        (m_playerSelect->GetRotate()%360)%(360/PLAYERS) == 0 )
     glEnable(GL_TEXTURE_2D);
 

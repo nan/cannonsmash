@@ -20,8 +20,9 @@
 #include "HowtoView.h"
 #include "Howto.h"
 #include "BaseView.h"
+#include "RCFile.h"
 
-extern long gmode;
+extern RCFile *theRC;
 
 GLuint HowtoView::m_textures[4] = {0, 0, 0, 0};
 
@@ -274,7 +275,7 @@ HowtoView::RedrawAlpha() {
 	      &m_howtoText[m_howto->GetMode()][0] );
   }
 
-  if ( gmode != GMODE_SIMPLE )
+  if ( theRC->gmode != GMODE_SIMPLE )
     glEnable(GL_DEPTH_TEST);
 
   glMatrixMode(GL_PROJECTION);

@@ -35,9 +35,12 @@
 #include "HitMark.h"
 #include "PlayGame.h"
 #include "MultiPlay.h"
+#include "RCFile.h"
 #ifdef LOGGING
 #include "Logging.h"
 #endif
+
+extern RCFile *theRC;
 
 extern Ball   theBall;
 extern BaseView* theView;
@@ -48,8 +51,6 @@ extern Player *comPlayer;
 extern Event theEvent;
 
 extern long mode;
-extern long gameLevel;
-extern long gmode;
 
 Player::Player() {
   m_side = 1;
@@ -277,7 +278,7 @@ Player::Create( long player, long side, long type ) {
 
 bool
 Player::Init() {
-  if ( gmode == GMODE_2D )
+  if ( theRC->gmode == GMODE_2D )
     m_View = new PlayerView2D();
   else
     m_View = new PlayerView();
@@ -286,7 +287,7 @@ Player::Init() {
 
   theView->AddView( m_View );
 
-  if ( gmode != GMODE_2D )
+  if ( theRC->gmode != GMODE_2D )
     HitMark::Init();
 
   return true;
@@ -403,7 +404,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   if ( m_swing == 20 ){
     HitBall();
 
-    if ( thePlayer == this && gmode != GMODE_2D ) {
+    if ( thePlayer == this && theRC->gmode != GMODE_2D ) {
       HitMark *hit;
 
       hit = new HitMark();
@@ -767,7 +768,7 @@ Player::AddStatus( long diff ) {
 
     if ( diff < -3 ) {	// Not good... When status decreased without moving...
       if ( this == thePlayer ) {
-	switch (gameLevel) {
+	switch (theRC->gameLevel) {
 	case LEVEL_EASY:
 	  m_statusMax = (m_statusMax*3+m_status)/4;
 	  break;

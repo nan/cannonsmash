@@ -19,9 +19,9 @@
 #include "ttinc.h"
 #include "HitMark.h"
 #include "LoadImage.h"
+#include "RCFile.h"
 
-extern bool isTexture;
-extern long gmode;
+extern RCFile *theRC;
 
 GLuint HitMark::m_textures[2] = {0, 0};
 
@@ -133,7 +133,7 @@ HitMark::Redraw() {
 
 bool
 HitMark::RedrawAlpha() {
-  if ( !isTexture )
+  if ( !theRC->isTexture )
     return true;
 
   glDisable(GL_DEPTH_TEST);
@@ -220,7 +220,7 @@ HitMark::RedrawAlpha() {
   glPopMatrix();
 
   glDepthMask(1);
-  if ( gmode != GMODE_SIMPLE )
+  if ( theRC->gmode != GMODE_SIMPLE )
     glEnable(GL_DEPTH_TEST);
 
   return true;

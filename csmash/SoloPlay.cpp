@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,6 +22,9 @@
 #include "Ball.h"
 #include "Event.h"
 #include "BaseView.h"
+#include "RCFile.h"
+
+extern RCFile *theRC;
 
 extern Player* thePlayer;
 extern Player* comPlayer;
@@ -29,7 +32,6 @@ extern Ball theBall;
 extern BaseView* theView;
 extern Event theEvent;
 extern long mode;
-extern long gmode;
 
 //extern void CopyPlayerData( struct PlayerData& dest, Player* src );
 extern void CopyPlayerData( Player& dest, Player* src );
@@ -45,7 +47,7 @@ SoloPlay::~SoloPlay() {
 
 bool
 SoloPlay::Init() {
-  if ( gmode != GMODE_2D ) {
+  if ( theRC->gmode != GMODE_2D ) {
     m_View = new PlayGameView();
 
     m_View->Init( this );

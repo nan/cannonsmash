@@ -26,6 +26,9 @@
 #include "Ball.h"
 #include "LoadImage.h"
 #include "PlayGame.h"
+#include "RCFile.h"
+
+extern RCFile *theRC;
 
 extern Player* thePlayer;
 extern Player* comPlayer;
@@ -38,11 +41,7 @@ extern BaseView* theView;
 extern Ball theBall;
 
 extern bool isLighting;
-extern bool isTexture;
 extern bool isPolygon;
-extern bool fullScreen;
-
-extern long gmode;
 
 long BaseView::m_winWidth = WINXSIZE;
 long BaseView::m_winHeight = WINYSIZE;
@@ -55,7 +54,7 @@ long BaseView::m_winHeight = WINYSIZE;
 
 BaseView *
 BaseView::Create() {
-  if ( gmode == GMODE_2D )
+  if ( theRC->gmode == GMODE_2D )
     return new BaseView2D();
   else
     return new BaseView();
@@ -75,7 +74,7 @@ bool
 BaseView::Init() {
 // Create and initialize Window
 
-  if ( fullScreen )
+  if ( theRC->fullScreen )
     m_baseSurface = SDL_SetVideoMode( m_winWidth, m_winHeight, 0,
 				      SDL_OPENGL|SDL_FULLSCREEN );
   else
@@ -98,7 +97,7 @@ BaseView::Init() {
   GLfloat light_intensity_dif[] = { 1.0F, 1.0F, 1.0F, 1.0F };
   GLfloat light_intensity_none[] = { 0.0F, 0.0F, 0.0F, 0.0F };
 
-  if ( gmode != GMODE_SIMPLE ) {
+  if ( theRC->gmode != GMODE_SIMPLE ) {
     glShadeModel (GL_SMOOTH);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
@@ -117,7 +116,7 @@ BaseView::Init() {
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
 
-  if ( gmode != GMODE_SIMPLE ) {
+  if ( theRC->gmode != GMODE_SIMPLE ) {
     glEnable(GL_FOG);
     GLfloat fogcolor[] = {0.2F, 0.2F, 0.2F, 1.0F};
     glFogi(GL_FOG_MODE, GL_EXP);
@@ -129,7 +128,7 @@ BaseView::Init() {
   }
 
   glClearColor(0.2F, 0.2F, 0.2F, 1.0F);
-  if ( gmode == GMODE_SIMPLE ) {
+  if ( theRC->gmode == GMODE_SIMPLE ) {
     glClear(GL_COLOR_BUFFER_BIT);
   } else {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -182,7 +181,7 @@ BaseView::RedrawAll() {
 
   glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
-  if ( gmode == GMODE_SIMPLE ) {
+  if ( theRC->gmode == GMODE_SIMPLE ) {
     glClear(GL_COLOR_BUFFER_BIT);
   } else {
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -197,7 +196,7 @@ BaseView::RedrawAll() {
 
   glDisable(GL_BLEND);
   m_fieldView->Redraw();
-  if ( gmode == GMODE_SIMPLE )
+  if ( theRC->gmode == GMODE_SIMPLE )
     m_fieldView->RedrawAlpha();
 
   view = m_View;
@@ -223,11 +222,11 @@ BaseView::RedrawAll() {
     view = view->m_next;
   }
 
-  if ( gmode != GMODE_SIMPLE )
+  if ( theRC->gmode != GMODE_SIMPLE )
     glEnable(GL_BLEND);
 
 //  glDisable(GL_CULL_FACE);
-  if ( gmode != GMODE_SIMPLE )
+  if ( theRC->gmode != GMODE_SIMPLE )
     m_fieldView->RedrawAlpha();
 
   view = m_View;
@@ -249,7 +248,7 @@ BaseView::RedrawAll() {
 
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-  if ( isTexture ) {
+  if ( theRC->isTexture ) {
     glEnable(GL_TEXTURE_2D);
 
     glBindTexture(GL_TEXTURE_2D, m_title );

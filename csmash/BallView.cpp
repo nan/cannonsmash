@@ -23,6 +23,9 @@
 #include "Control.h"
 #include "LoadImage.h"
 #include "PlayGame.h"
+#include "RCFile.h"
+
+extern RCFile *theRC;
 
 extern Ball   theBall;
 extern Player* thePlayer;
@@ -32,7 +35,6 @@ extern long mode;
 extern Control* theControl;
 
 extern bool isLighting;
-extern bool isTexture;
 
 GLuint BallView::m_number[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -204,7 +206,7 @@ BallView::RedrawAlpha() {
     glPushMatrix();
     glTranslatef( -TABLEWIDTH/2-0.3F, 0, TABLEHEIGHT );
 
-    if ( isTexture || theBall.GetStatus() < -10 ) {
+    if ( theRC->isTexture || theBall.GetStatus() < -10 ) {
       long score1, score2;
 
       glEnable(GL_TEXTURE_2D);

@@ -19,6 +19,7 @@
 #include "ttinc.h"
 #include "LobbyClient.h"
 #include "MultiPlay.h"
+#include "RCFile.h"
 
 #if !defined(WIN32)
 #include <netinet/tcp.h>
@@ -34,9 +35,10 @@ typedef int socklen_t;		/* mimic Penguin's typedef */
 
 #endif
 
+extern RCFile *theRC;
+
 extern short csmash_port;
 extern bool isComm;
-extern char serverName[256];
 extern long mode;
 
 extern bool isWaiting;
@@ -257,7 +259,7 @@ LobbyClient::PollServerMessage( gpointer data ) {
       } else if ( !strncmp( buf, "AP", 2 ) ) {
 	isComm = true;
 	mode = MODE_SELECT;
-	serverName[0] = '\0';
+	theRC->serverName[0] = '\0';
 	gtk_widget_set_sensitive (lobby->m_connectButton, true);
 	gtk_widget_set_sensitive (lobby->m_warmUpButton, true);
 	gtk_widget_set_sensitive (lobby->m_table, true);
@@ -481,7 +483,7 @@ LobbyClient::ReadOI() {
   }
 
   // get IP address
-  sprintf( serverName, "%d.%d.%d.%d",
+  sprintf( theRC->serverName, "%d.%d.%d.%d",
 	   (unsigned char)buffer[0], (unsigned char)buffer[1],
 	   (unsigned char)buffer[2], (unsigned char)buffer[3] );
   // get port number

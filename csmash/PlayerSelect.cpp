@@ -24,12 +24,14 @@
 #include "PlayerSelectView.h"
 #include "PlayerSelectView2D.h"
 #include "Event.h"
+#include "RCFile.h"
+
+extern RCFile *theRC;
 
 extern BaseView* theView;
 extern long mode;
 
 extern bool isComm;
-extern long gmode;
 
 extern Player *thePlayer;
 
@@ -52,7 +54,7 @@ PlayerSelect::~PlayerSelect() {
 
 bool
 PlayerSelect::Init() {
-  if ( gmode == GMODE_2D )
+  if ( theRC->gmode == GMODE_2D )
     m_View = new PlayerSelectView2D();
   else
     m_View = new PlayerSelectView();

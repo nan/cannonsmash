@@ -21,6 +21,9 @@
 #include "Player.h"
 #include "Ball.h"
 #include "BaseView.h"
+#include "RCFile.h"
+
+extern RCFile *theRC;
 
 extern Player* thePlayer;
 extern Player* comPlayer;
@@ -28,9 +31,7 @@ extern BaseView* theView;
 extern Ball theBall;
 
 extern long mode;
-extern long gameMode;
 extern long wins;
-extern long gmode;
 
 PlayGame::PlayGame() {
   m_View = NULL;
@@ -48,7 +49,7 @@ PlayGame::~PlayGame() {
 
 long
 PlayGame::GetService() {
-  switch ( gameMode ) {
+  switch ( theRC->gameMode ) {
   case GAME_5PTS:
     return ((m_Score1+m_Score2) & 1 ? -1 : 1);
   case GAME_11PTS:
@@ -111,7 +112,7 @@ PlayGame::ChangeScore() {
     }
   }
 
-  if ( gmode == GMODE_SIMPLE )
+  if ( theRC->gmode == GMODE_SIMPLE )
     printf( "You : %d -  %d : Opponent\n", GetScore(thePlayer), GetScore(comPlayer) );
 }
 
@@ -123,7 +124,7 @@ PlayGame::ChangeScore( long score1, long score2 ) {
 
 bool
 PlayGame::IsGameEnd() {
-  switch ( gameMode ) {
+  switch ( theRC->gameMode ) {
   case GAME_5PTS:
     if ( (m_Score1 > 4 || m_Score2 > 4) )
       return true;

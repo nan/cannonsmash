@@ -25,6 +25,7 @@
 #include "Ball.h"
 #include "LoadImage.h"
 #include "PlayGame.h"
+#include "RCFile.h"
 
 extern Player* thePlayer;
 extern Player* comPlayer;
@@ -37,9 +38,9 @@ extern BaseView* theView;
 extern Ball theBall;
 
 extern bool isLighting;
-extern bool isTexture;
 extern bool isPolygon;
-extern bool fullScreen;
+
+extern RCFile *theRC;
 
 // x --- x axis is the bottom line of the net. The plane x=0 represents
 //       the vertical plain which includes center line. 
@@ -57,7 +58,7 @@ bool
 BaseView2D::Init() {
 // Create and initialize Window
 
-  if ( fullScreen )
+  if ( theRC->fullScreen )
     m_baseSurface = SDL_SetVideoMode( m_winWidth, m_winHeight, 0,
 				      SDL_HWSURFACE|SDL_FULLSCREEN );
   else

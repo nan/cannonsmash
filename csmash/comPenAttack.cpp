@@ -22,14 +22,15 @@
 #include "Ball.h"
 #include "Player.h"
 #include "PlayGame.h"
+#include "RCFile.h"
+
+extern RCFile *theRC;
 
 extern Control *theControl;
 
 extern Ball   theBall;
 extern Player *thePlayer;
 extern Player *comPlayer;
-
-extern long    gameLevel;
 
 ComPenAttack::ComPenAttack() : PenAttack(), ComPlayer() {
 }
@@ -281,7 +282,7 @@ bool
 ComPenAttack::SetTargetX( Player *opponent ) {
   double width;
 
-  switch ( gameLevel ) {
+  switch ( theRC->gameLevel ) {
   case LEVEL_EASY:
     width = TABLEWIDTH/4;
     break;
@@ -340,7 +341,7 @@ ComPenAttack::SetTargetX( Player *opponent ) {
     }
   }
 
-  if ( gameLevel == LEVEL_TSUBORISH ) {
+  if ( theRC->gameLevel == LEVEL_TSUBORISH ) {
     if ( opponent->GetX()+opponent->GetVX()*0.5 < 0.0 ) {
       m_targetX = width*7/16;
     } else {

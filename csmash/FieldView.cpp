@@ -19,10 +19,11 @@
 #include "ttinc.h"
 #include "FieldView.h"
 #include "LoadImage.h"
+#include "RCFile.h"
+
+extern RCFile *theRC;
 
 extern bool isLighting;
-extern bool isTexture;
-extern long gmode;
 
 FieldView::FieldView() {
 }
@@ -73,7 +74,7 @@ FieldView::Init() {
 
   glNewList( m_offset, GL_COMPILE );
 
-  if (gmode == GMODE_SIMPLE) {
+  if (theRC->gmode == GMODE_SIMPLE) {
     glBegin(GL_LINE_LOOP);			// Draw floor
       glNormal3f( 0.0F, 0.0F, 1.0F );
       glVertex3f( -AREAXSIZE,  AREAYSIZE, 0.0F );
@@ -104,17 +105,17 @@ FieldView::Init() {
 
 bool
 FieldView::Redraw() {
-  if ( isTexture )
+  if ( theRC->isTexture )
     glEnable(GL_TEXTURE_2D);
 
-  if ( gmode != GMODE_SIMPLE )
+  if ( theRC->gmode != GMODE_SIMPLE )
     glColor4f(0.8F, 0.8F, 0.8F, 0.0F);
   else
     glColor4f(0.6F, 0.4F, 0.2F, 0.0F);
 
   glCallList( m_offset );
 
-  if ( gmode == GMODE_SIMPLE ) {
+  if ( theRC->gmode == GMODE_SIMPLE ) {
     glBegin(GL_LINE_LOOP);			// Draw wall
       glNormal3f( 1.0F, 0.0F, 0.0F );
       glVertex3f( -AREAXSIZE,  AREAYSIZE, 0.0F );
@@ -199,7 +200,7 @@ FieldView::Redraw() {
       glTexCoord2f(0.0F, 0.0F); glVertex3f(  AREAXSIZE, AREAYSIZE, AREAZSIZE);
     glEnd();
 
-    if ( isTexture )
+    if ( theRC->isTexture )
       glDisable(GL_TEXTURE_2D);
 
     glColor4f(0.1F, 0.1F, 0.1F, 0.0F);
@@ -345,7 +346,7 @@ FieldView::RedrawAlpha() {
 
   glDepthMask(0);
   glBegin(GL_QUADS);			// Draw table
-  if ( isLighting && gmode != GMODE_SIMPLE ) {
+  if ( isLighting && theRC->gmode != GMODE_SIMPLE ) {
     glNormal3f( 0.0F, 0.0F, -1.0 );
     glVertex3f( -TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
     glVertex3f( -TABLEWIDTH/2,  TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );

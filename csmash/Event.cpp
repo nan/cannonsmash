@@ -31,6 +31,9 @@
 #include "TrainingSelect.h"
 #include "Training.h"
 #include "PracticeSelect.h"
+#include "RCFile.h"
+
+extern RCFile *theRC;
 
 extern BaseView* theView;
 extern Ball theBall;
@@ -46,11 +49,6 @@ extern void Timer( int value );
 struct timeb Event::m_lastTime = {0, 0, 0, 0};	// 直前にTimerEventが呼ばれたときの時刻
 
 extern int theSocket;
-
-extern bool isLighting;
-extern bool isTexture;
-extern bool isPolygon;
-extern bool fullScreen;
 
 extern bool isWaiting;
 
@@ -341,9 +339,9 @@ void HotKey_ToggleFullScreen(void)
 {
   SDL_Surface *screen = SDL_GetVideoSurface();
   if ( SDL_WM_ToggleFullScreen(screen) ) {
-    fullScreen = (screen->flags & SDL_FULLSCREEN) ? 1 : 0;
+    theRC->fullScreen = (screen->flags & SDL_FULLSCREEN) ? 1 : 0;
     fprintf(stderr, "Toggled fullscreen mode - now %s\n",
-            fullScreen  ? "fullscreen" : "windowed");
+            theRC->fullScreen  ? "fullscreen" : "windowed");
   } else {
     fprintf(stderr, "Unable to toggle fullscreen mode\n");
   }

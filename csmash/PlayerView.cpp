@@ -22,11 +22,12 @@
 #include "Player.h"
 #include "parts.h"
 #include "Ball.h"
+#include "RCFile.h"
+
+extern RCFile *theRC;
 
 extern bool isPolygon;
 extern bool isLighting;
-extern bool isWireFrame;
-extern long gmode;
 
 extern SDL_mutex *loadMutex;
 
@@ -116,7 +117,7 @@ PlayerView::RedrawAlpha() {
 
   if ( m_player == thePlayer ) {
     if ( isLighting ) {
-      if ( isWireFrame ) {
+      if ( theRC->isWireFrame ) {
 	glColor4f( 1.0F, 1.0F, 1.0F, 1.0F );
       } else {
 	glColor4f( 0.05F, 0.05F, 0.05F, 1.0F );
@@ -190,14 +191,14 @@ PlayerView::SubRedraw() {
       return false;
     }
 
-    if ( gmode == GMODE_SIMPLE )
+    if ( theRC->gmode == GMODE_SIMPLE )
       motion->renderWire(swing);
     else {
       if (m_player == comPlayer) {
 	motion->render(swing);
       }
       if (m_player == thePlayer) {
-	if ( isWireFrame )
+	if ( theRC->isWireFrame )
 	  motion->renderWire(swing);
 	else {
 	  glEnable(GL_CULL_FACE);
@@ -374,7 +375,7 @@ PlayerView::DrawTargetCircle( double diff ) {
   static double ballHeight = 1.4F;
   static bool count = true;
 
-  if ( gmode == GMODE_SIMPLE ) {
+  if ( theRC->gmode == GMODE_SIMPLE ) {
     count = !count;
     if ( count )
       return;

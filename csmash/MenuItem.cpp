@@ -22,9 +22,9 @@
 #include "MenuItemView2D.h"
 #include "BaseView.h"
 #include "Title.h"
+#include "RCFile.h"
 
-extern long gmode;
-
+extern RCFile *theRC;
 
 MenuItem::MenuItem() {
   m_View = NULL;
@@ -47,7 +47,7 @@ bool
 MenuItem::Init( long x, long y, long width, long height, char *fileName,
 		Title *parent ) {
   m_x = x;
-  if ( gmode == GMODE_2D )
+  if ( theRC->gmode == GMODE_2D )
     m_y = BaseView::GetWinHeight()-y-height;
   else
     m_y = y;
@@ -56,7 +56,7 @@ MenuItem::Init( long x, long y, long width, long height, char *fileName,
 
   m_parent = parent;
 
-  if ( gmode == GMODE_2D )
+  if ( theRC->gmode == GMODE_2D )
     m_View = new MenuItemView2D();
   else
     m_View = new MenuItemView();
