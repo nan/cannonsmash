@@ -345,14 +345,15 @@ AcceptClient() {
 
 void
 StartServer() {
-  int i;
+  int i, j;
   char buf[256];
   long len;
 
   AcceptClient();
 
   // タイマ調整
-  for ( i = 0 ; i < 5 ; i++ ) {
+  long adjLog[16];
+  for ( i = 0 ; i < 16 ; i++ ) {
 #ifndef WIN32
     struct timeval tv;
     struct timezone tz;
@@ -391,10 +392,31 @@ StartServer() {
     }
     tb1.millitm = mtm;
 
-    timeAdj += (tb3.time-tb1.time)*1000 + tb3.millitm-tb1.millitm;
+    //timeAdj += (tb3.time-tb1.time)*1000 + tb3.millitm-tb1.millitm;
+    adjLog[i] = (tb3.time-tb1.time)*1000 + tb3.millitm-tb1.millitm;
   }
 
-  timeAdj /= 50;	/* 5*10 */
+  // 軽くバカソート
+  i = 0;
+  while ( i == 0 ) {
+    i = 1;
+    for ( j = 0 ; j < 15 ; j++ ) {
+      if ( adjLog[j] > adjLog[j+1] ) {
+	long k = adjLog[j];
+	adjLog[j] = adjLog[j+1];
+	adjLog[j+1] = k;
+	i = 0;
+      }
+    }
+  }
+
+  // 中央の8値をとる. 
+  timeAdj = 0;
+  for ( i = 4 ; i < 12 ; i++ ) {
+    timeAdj += adjLog[i];
+  }
+
+  timeAdj /= 80;	/* 8*10 */
 
   printf( "%d\n", timeAdj );
 
@@ -513,7 +535,7 @@ StartClient() {
 #endif
   int i;
 
-  for ( i = 0 ; i < 5 ; i++ ) {
+  for ( i = 0 ; i < 16 ; i++ ) {
     ReadTime( theSocket, &tb );	// 捨てる
 
 #ifdef WIN32
