@@ -301,12 +301,7 @@ PenAttack::HitBall() {
 
     theBall.TargetToV( target, level, m_spin, v, 0.1, maxVy );
 
-    // If your target is near the edge of the table, much more status point
-    // is necessary. 
-
-    if ((m_status-StatusBorder())*3/2000.0 <
-	fabs(fabs(m_x[0]-theBall.GetX()[0])-0.3))
-      AddError(v);
+    AddError(v);
 
     // Reduce status
     m_afterSwing = (long)
