@@ -278,6 +278,32 @@ Event::Record() {
   if ( m_Histptr == MAX_HISTORY )
     m_Histptr = 0;
 
+#ifdef LOGGING
+  long sec = m_BacktrackBuffer[m_Histptr].sec;
+  long cnt = m_BacktrackBuffer[m_Histptr].count;
+  char buf[1024];
+
+  if ( isComm )
+    cnt += ((MultiPlay *)Control::TheControl())->GetTimeAdj();
+  while ( cnt < 0 ) {
+    sec--;
+    cnt += 100;
+  }
+  while ( cnt >= 100 ) {
+    sec++;
+    cnt -= 100;
+  }
+
+  sprintf( buf, "sec = %d msec = %d %d - %d  x = %4.2f y = %4.2f z = %4.2f st = %d\n", 
+	  sec, cnt,
+	  m_BacktrackBuffer[m_Histptr].score1, m_BacktrackBuffer[m_Histptr].score2, 
+	  m_BacktrackBuffer[m_Histptr].theBall.GetX(), 
+	  m_BacktrackBuffer[m_Histptr].theBall.GetY(),
+	  m_BacktrackBuffer[m_Histptr].theBall.GetZ(),
+	  m_BacktrackBuffer[m_Histptr].theBall.GetStatus() );
+  Logging::GetLogging()->Log( LOG_ACTBALL, buf );
+#endif
+
   if ( (mode == MODE_SOLOPLAY || mode == MODE_PRACTICE) &&
        Control::TheControl() &&
        ((SoloPlay *)Control::TheControl())->GetSmashPtr() >= 0 )

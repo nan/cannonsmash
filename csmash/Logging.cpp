@@ -112,9 +112,12 @@ Logging::LogTime( long logType, struct timeb *tb ) {
 bool
 Logging::LogTime( long logType ) {
   char buf[64];
+  long sec, count;
 
-  snprintf( buf, sizeof(buf), "%d.%3d: ", 
-	   (int)Event::m_lastTime.time, (int)Event::m_lastTime.millitm );
+  sec = Event::m_lastTime.time;
+  count = Event::m_lastTime.millitm/10;
+  Event::GetAdjustedTime( sec, count );
+  snprintf( buf, sizeof(buf), "%d.%2d: ", sec, count );
   Log( logType, buf );
 
   return true;

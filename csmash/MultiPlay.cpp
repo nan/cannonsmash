@@ -221,9 +221,6 @@ MultiPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
     Logging::GetLogging()->LogPlayer( LOG_ACTCOMPLAYER, comPlayer );
   }
 
-  if ( prevStatus != theBall.GetStatus() && prevStatus >= -1 ) {
-    Logging::GetLogging()->LogBall( LOG_ACTBALL, &theBall );
-  }
 #else
   theBall.Move();
   reDraw |= thePlayer->Move( KeyHistory, MouseXHistory,
