@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of PlayGame class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
@@ -31,6 +36,10 @@ extern Ball theBall;
 extern long mode;
 extern long wins;
 
+/**
+ * Default constructor. 
+ * Initialize member variables to 0 or NULL. 
+ */
 PlayGame::PlayGame() {
   m_View = NULL;
 
@@ -42,6 +51,10 @@ PlayGame::PlayGame() {
   m_pause = false;
 }
 
+/**
+ * Destructor. 
+ * Detatch m_View and delete it. 
+ */
 PlayGame::~PlayGame() {
   if ( m_View ){
     BaseView::TheView()->RemoveView( m_View );
@@ -49,6 +62,11 @@ PlayGame::~PlayGame() {
   }
 }
 
+/**
+ * Returns which side of the player can serve. 
+ * 
+ * @return returns -1 if near side can serve. Otherwise returns 1. 
+ */
 long
 PlayGame::GetService() {
   long ret = 0;
@@ -83,6 +101,12 @@ PlayGame::GetService() {
   return ret;
 }
 
+/**
+ * Returns score of the specified player. 
+ * 
+ * @param p Player object of which score is requested. 
+ * @return returns score. 
+ */
 long
 PlayGame::GetScore( Player *p ) {
   if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
@@ -96,6 +120,12 @@ PlayGame::GetScore( Player *p ) {
   }
 }
 
+/**
+ * Returns score of the specified side. 
+ * 
+ * @param side side of which score is requested. 
+ * @return returns score. 
+ */
 long
 PlayGame::GetScore( long side ) {
   if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
@@ -109,6 +139,12 @@ PlayGame::GetScore( long side ) {
   }
 }
 
+/**
+ * Returns game count of the specified player. 
+ * 
+ * @param p Player object of which score is requested. 
+ * @return returns game count. 
+ */
 long
 PlayGame::GetGame( Player *p ) {
   if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
@@ -122,6 +158,12 @@ PlayGame::GetGame( Player *p ) {
   }
 }
 
+/**
+ * Returns game count of the specified side. 
+ * 
+ * @param side side of which game count is requested. 
+ * @return returns score. 
+ */
 long
 PlayGame::GetGame( long side ) {
   if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
@@ -135,6 +177,10 @@ PlayGame::GetGame( long side ) {
   }
 }
 
+/**
+ * Referring the ball status, add score to either side of players. 
+ * Add score to either side of players and call score. 
+ */
 void
 PlayGame::ChangeScore() {
   if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
@@ -154,12 +200,24 @@ PlayGame::ChangeScore() {
 	    GetScore(m_comPlayer) );
 }
 
+/**
+ * Set score of both players. 
+ * 
+ * @param score1 score of near side
+ * @param score2 score of far side
+ */
 void
 PlayGame::ChangeScore( long score1, long score2 ) {
   m_Score1 = score1;
   m_Score2 = score2;
 }
 
+/**
+ * Check whether the game is over or not. 
+ * Check whether the score of either player reaches the game point. 
+ * 
+ * @return returns true if the game is over. 
+ */
 bool
 PlayGame::IsGameEnd() {
   switch ( theRC->gameMode ) {
@@ -183,6 +241,9 @@ PlayGame::IsGameEnd() {
   return false;
 }
 
+/**
+ * Re-initialize game score. 
+ */
 void
 PlayGame::EndGame() {
   // Re-initialize
@@ -199,6 +260,11 @@ PlayGame::EndGame() {
   m_Score1 = m_Score2 = 0;
 }
 
+/**
+ * Setter method for m_pause. 
+ * 
+ * @param pause if it is true, game is paused. 
+ */
 void
 PlayGame::SetPause( bool pause ) {
   m_pause = pause;

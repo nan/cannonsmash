@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of Player class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -46,6 +51,9 @@ class PlayerView;
 class HitMark;
 class Ball;
 
+/**
+ * Player class is a base class of player classes (PenAttack, PenDrive, etc.). 
+ */
 class Player {
   friend class Howto;
   friend class Opening;
@@ -75,28 +83,28 @@ public:
 
   virtual bool AddStatus( long diff );
 
-  virtual View *GetView() { return m_View; };
+  virtual View *GetView() { return m_View; }		///< Getter method of m_View
 
-  virtual long   GetSide() { return m_side; }
-  virtual long   GetPlayerType() { return m_playerType; }
+  virtual long   GetSide() { return m_side; }		///< Getter method of m_side
+  virtual long   GetPlayerType() { return m_playerType; }///< Getter method of m_playerType
 
-  virtual vector3d GetX() { return m_x; }
-  virtual vector3d GetV() { return m_v; }
-  virtual long   GetPower() { return m_pow; }
-  virtual vector2d GetSpin() { return m_spin; }
-  virtual vector2d GetTarget() { return m_target; }
-  virtual vector3d GetEye() { return m_eye; }
-  virtual vector3d GetLookAt() { return m_lookAt; }
-  virtual double GetStamina() { return m_stamina; }
-  virtual long   GetStatus() { return m_status; }
-  virtual long   GetSwing() { return m_swing; }
-  virtual long   GetSwingType() { return m_swingType; }
-  virtual bool   GetSwingSide() { return m_swingSide; }
-  virtual long   GetSwingError() { return m_swingError; }
-  virtual long   GetAfterSwing() { return m_afterSwing; }
+  virtual vector3d GetX() { return m_x; }		///< Getter method of m_x
+  virtual vector3d GetV() { return m_v; }		///< Getter method of m_v
+  virtual long   GetPower() { return m_pow; }		///< Getter method of m_pow
+  virtual vector2d GetSpin() { return m_spin; }		///< Getter method of m_spin
+  virtual vector2d GetTarget() { return m_target; }	///< Getter method of m_target
+  virtual vector3d GetEye() { return m_eye; }		///< Getter method of m_eye
+  virtual vector3d GetLookAt() { return m_lookAt; }	///< Getter method of m_lookAt
+  virtual double GetStamina() { return m_stamina; }	///< Getter method of m_stamina
+  virtual long   GetStatus() { return m_status; }	///< Getter method of m_status
+  virtual long   GetSwing() { return m_swing; }		///< Getter method of m_swing
+  virtual long   GetSwingType() { return m_swingType; }	///< Getter method of m_swingType
+  virtual bool   GetSwingSide() { return m_swingSide; }	///< Getter method of m_swingSide
+  virtual long   GetSwingError() { return m_swingError; }///< Getter method of m_swingError
+  virtual long   GetAfterSwing() { return m_afterSwing; }///< Getter method of m_afterSwing
 
-  virtual long   GetDragX() { return m_dragX; }
-  virtual long   GetDragY() { return m_dragY; }
+  virtual long   GetDragX() { return m_dragX; }		///< Getter method of m_dragX
+  virtual long   GetDragY() { return m_dragY; }		///< Getter method of m_dragY
 
   // true  -> forehand
   // false -> backhand
@@ -119,46 +127,53 @@ public:
 
   long StatusBorder();
 protected:
-  long m_playerType;	// Player type
+  long m_playerType;	///< Player type
 
-  long m_side;		// 1  --- ( y < 0 )
-			// -1 --- ( y > 0 )
+  long m_side;		/**< Player side
+			 * <ul>
+			 *  <li> 1  --- ( y < 0 )
+			 *  <li> -1 --- ( y > 0 )
+			 * </ul>
+			 */
 
-  vector3d m_x;		// player location
-  vector3d m_v;		// player velocity
+  vector3d m_x;		///< player location
+  vector3d m_v;		///< player velocity
 
-  long m_status;	// status gauge
-  long m_swing;		// swing status
-  long m_swingType;	// swing type
-  bool m_swingSide;	// forehand or backhand
-  long m_afterSwing;	// 
-  long m_swingError;	// Error when hitting
-                        // 0 --- Perfect
-                        // 1 --- Great
-                        // 2 --- Good
-                        // 3 --- Boo
-                        // 4 --- Miss
-  vector2d m_target;	// location of target circle
+  long m_status;	///< status gauge
+  long m_swing;		///< swing status
+  long m_swingType;	///< swing type
+  bool m_swingSide;	///< forehand or backhand
+  long m_afterSwing;	///< after swing stop penalty
+  long m_swingError;	/**< Error when hitting
+			 * <ul>
+			 *  <li> 0 --- Perfect
+			 *  <li> 1 --- Great
+			 *  <li> 2 --- Good
+			 *  <li> 3 --- Boo
+			 *  <li> 4 --- Miss
+			 * </ul>
+			 */
+  vector2d m_target;	///< location of target circle
 
-  vector3d m_eye;	// Viewpoint
+  vector3d m_eye;	///< camera location
 
-  vector3d m_lookAt;
+  vector3d m_lookAt;	///< target of camera
 
-  long m_pow;		// power
-  vector2d m_spin;	// {sidespin, topspin/backspin}
+  long m_pow;		///< power
+  vector2d m_spin;	///< {sidespin, topspin/backspin}
 
-  double m_stamina;
+  double m_stamina;	///< Not used
 
-  long m_statusMax;	// Max status value
+  long m_statusMax;	///< Max status value
 
-  long m_dragX;
-  long m_dragY;		// Mouse drag
+  long m_dragX;		///< Mouse drag
+  long m_dragY;		///< Mouse drag
 
-  PlayerView* m_View;
+  PlayerView* m_View;	///< Reference to view class
 
-  vector3d m_lastSendX;
-  vector3d m_lastSendV;
-  long m_lastSendCount;
+  vector3d m_lastSendX;	///< m_x which is sent to the opponent recently. 
+  vector3d m_lastSendV;	///< m_v which is sent to the opponent recently. 
+  long m_lastSendCount;	///< TICKs from when something is sent to the opponent recently. 
 
   virtual bool KeyCheck( SDL_keysym *KeyHistory, long *MouseXHistory,
 			 long *MouseYHistory, unsigned long *MouseBHistory,

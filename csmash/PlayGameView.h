@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of PlayGameView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
@@ -23,6 +28,9 @@
 class PlayGame;
 class ImageData;
 
+/**
+ * PlayGameView class is a view class which corresponds to PlayGame object. 
+ */
 class PlayGameView : public View {
 public:
   PlayGameView();
@@ -34,9 +42,9 @@ public:
   virtual bool RedrawAlpha();
 
 protected:
-  PlayGame    *m_playGame;
+  PlayGame    *m_playGame;	///< Attached PlayGame object. 
 
-  ImageData    *m_image;
+  ImageData    *m_image;	///< Handler for "Pause" image. 
 };
 
 #endif	// _PlayGameView_

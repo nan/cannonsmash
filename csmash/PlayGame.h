@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of PlayGame class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -23,7 +28,10 @@
 #include "PlayGameView.h"
 class Player;
 
-// Base class of SoloPlay, MultiPlay, Training
+/**
+ * PlayGame class is a base class of controller classes for playing game. 
+ * SoloPlay, MultiPlay, Training are subclasses of this class. 
+ */
 class PlayGame : public Control {
 public:
   PlayGame();
@@ -36,9 +44,9 @@ public:
 		     int Histptr ) = 0;
   virtual bool LookAt( vector3d &srcX, vector3d &destX ) = 0;
 
-  virtual bool IsPlaying() { return true; };
+  virtual bool IsPlaying() { return true; }	///< Always returns true. 
 
-  virtual bool IsPause() { return m_pause; };
+  virtual bool IsPause() { return m_pause; }	///< Getter method of m_pause
   virtual void SetPause( bool pause );
 
   long GetService();
@@ -52,15 +60,15 @@ public:
   void ChangeScore();
   void ChangeScore( long score1, long score2 );
 
-  virtual View *GetView() { return m_View; };
+  virtual View *GetView() { return m_View; }	///< Getter method for m_View
 protected:
-  PlayGameView *m_View;
+  PlayGameView *m_View;	///< PlayGameView object attached to this object. 
 
-  long m_Score1;	// Point of near side. Counter when training
-  long m_Game1;		// Game of near side. 
-  long m_Score2;	// Point of far side
-  long m_Game2;		// Game of far side. 
-  bool m_pause;		// True when pause. 
+  long m_Score1;	///< Point of near side. Counter when training. 
+  long m_Game1;		///< Game count of near side. 
+  long m_Score2;	///< Point of far side
+  long m_Game2;		///< Game count of far side. 
+  bool m_pause;		///< True when paused. 
 };
 
 #endif	// _PlayGame_

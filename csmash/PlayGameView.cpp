@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of PlayGameView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2001, 2002, 2003  神南 吉宏(Kanna Yoshihiro)
 //
@@ -22,15 +27,29 @@
 #include "LoadImage.h"
 #include "BaseView.h"
 
+/**
+ * Default constructor. 
+ */
 PlayGameView::PlayGameView() {
   m_image = 0;
 }
 
+/**
+ * Destructor. 
+ * Delete image handler. 
+ */
 PlayGameView::~PlayGameView() {
   if ( m_image )
     delete m_image;
 }
 
+/**
+ * Initializer method. 
+ * Load "Pause" image texture. 
+ * 
+ * @param playGame attached PlayGame object. 
+ * @return returns true if succeeds. 
+ */
 bool
 PlayGameView::Init( PlayGame *playGame ) {
   static char imageFile[30] = "images/Pause";
@@ -49,11 +68,23 @@ PlayGameView::Init( PlayGame *playGame ) {
   return true;
 }
 
+/**
+ * Redraw valid objects. 
+ * Do nothing. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 PlayGameView::Redraw() {
   return true;
 }
 
+/**
+ * Redraw transparent objects. 
+ * If the game is paused, show "Pause" texture. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 PlayGameView::RedrawAlpha() {
   glColor4f( 1.0, 1.0, 1.0, 1.0 );

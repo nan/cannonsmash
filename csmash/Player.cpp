@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of Player class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
@@ -50,6 +55,9 @@ extern long mode;
  *	Class  Player
  ***********************************************************************/
 
+/**
+ * Default constructor. 
+ */
 Player::Player() : 
   m_x((const double[]){0.0, -TABLELENGTH/2-0.2, 1.4}), 
   m_v((const double[]){0.0, 0.0, 0.0}),
@@ -79,6 +87,12 @@ Player::Player() :
 
 }
 
+/**
+ * Constructor. 
+ * Set player side. 
+ * 
+ * @param side side of the player. 
+ */
 Player::Player( long side ) :
   m_x((const double[]){0.0, -TABLELENGTH/2-0.2, 1.4}), 
   m_v((const double[]){0.0, 0.0, 0.0}),
@@ -113,6 +127,26 @@ Player::Player( long side ) :
 
 }
 
+/**
+ * Constructor which specifies almost all member variables. 
+ * 
+ * @param playerType player type (pen attack, etc. )
+ * @param side side (1 or -1)
+ * @param x location of the player
+ * @param v velocity of the player
+ * @param status status of the player (0 - 200)
+ * @param swing swing status of the player (0-50)
+ * @param swingType type of swing (smash, cut, etc. )
+ * @param swingSide side of swing (forehand or backhand)
+ * @param afterSwing afterswing stop penalty
+ * @param swingError valuation of the swing (good, bad, miss, etc. )
+ * @param target location of the target
+ * @param eye location of the camera
+ * @param pow power to hit the ball
+ * @param spin spin to hit the ball
+ * @param stamina stamina (not used currently)
+ * @param statusMax max of the status
+ */
 Player::Player( long playerType, long side, vector3d x, const vector3d v,
 		long status, long swing, long swingType, bool swingSide, long afterSwing,
 		long swingError, const vector2d target, const vector3d eye,
@@ -147,6 +181,10 @@ Player::Player( long playerType, long side, vector3d x, const vector3d v,
 
 }
 
+/**
+ * Destructor. 
+ * Detach view class. 
+ */
 Player::~Player() {
   if ( m_View ){
     BaseView::TheView()->RemoveView( m_View );
@@ -154,6 +192,9 @@ Player::~Player() {
   }
 }
 
+/**
+ * Copy operator. 
+ */
 void
 Player::operator=(Player& p) {
   m_playerType = p.m_playerType;
@@ -185,6 +226,14 @@ Player::operator=(Player& p) {
   m_View = NULL;
 }
 
+/**
+ * Creator method of subclasses of Player class. 
+ * 
+ * @param player player type
+ * @param side player side
+ * @param type class type of the player (normal, com, training, etc. )
+ * @return returns created player object. 
+ */
 Player*
 Player::Create( long player, long side, long type ) {
   switch (type) {
@@ -230,6 +279,12 @@ Player::Create( long player, long side, long type ) {
   exit(1);
 }
 
+/**
+ * Initializer method. 
+ * Create PlayerView object and attach it to this object. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 Player::Init() {
   m_View = (PlayerView *)View::CreateView( VIEW_PLAYER );
@@ -244,6 +299,12 @@ Player::Init() {
   return true;
 }
 
+/**
+ * Reset member variables. 
+ * 
+ * @param p player object. Member variables of the object is set to this object. 
+ * @return returns true if succeeds. 
+ */
 bool
 Player::Reset( Player *p ) {
   *this = *p;
@@ -251,6 +312,17 @@ Player::Reset( Player *p ) {
   return true;
 }
 
+/**
+ * Move this player object. 
+ * Move this player and change m_status. 
+ * 
+ * @param KeyHistory history of keyboard input
+ * @param MouseXHistory history of mouse cursor move
+ * @param MouseYHistory history of mouse cursor move
+ * @param MouseBHistory history of mouse button push/release
+ * @param Histptr current position of histories described above. 
+ * @return returns true if it is neccesary to redraw. 
+ */
 bool
 Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 	      long *MouseYHistory, unsigned long *MouseBHistory,
@@ -510,13 +582,23 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   return true;
 }
 
+/**
+ * Check keyboard input, mouse move and click to move player. 
+ * 
+ * @param KeyHistory history of keyboard input
+ * @param MouseXHistory history of mouse cursor move
+ * @param MouseYHistory history of mouse cursor move
+ * @param MouseBHistory history of mouse button push/release
+ * @param Histptr current position of histories described above. 
+ * @return returns true if succeeds. 
+ */
 bool
 Player::KeyCheck( SDL_keysym *KeyHistory, long *MouseXHistory,
 		  long *MouseYHistory, unsigned long *MouseBHistory,
 		  int Histptr ) {
   long mouse, lastmouse;
 
-const char keytable[][5] = {
+  const char keytable[][5] = {
   {'\0', '\0', '\0', '\0', '\0'},
   {'\0', '\0', '\0', '\0', '\0'},
   {'1', '1', '1', '[', '\0'},
@@ -571,7 +653,7 @@ const char keytable[][5] = {
   {'\0', '\0', '\0', '\0', '\0'},	// {               'w', '\0'},
   {'\0', '\0', '\0', '\0', '\0'},	// {               'v', '\0'},
   {'\0', '\0', '\0', '\0', '\0'}	// {               'z', '\0'}
-};
+  };
 
 // COM
   if ( !KeyHistory || !MouseXHistory || !MouseYHistory || !MouseBHistory )
@@ -794,6 +876,13 @@ const char keytable[][5] = {
   return true;
 }
 
+/**
+ * Change status value. 
+ * diff is added to m_status. 
+ * 
+ * @param diff this value is added to m_status. 
+ * @return returns true if succeeds. 
+ */
 bool
 Player::AddStatus( long diff ) {
   if ( diff == 200 ) {	// Not good...
@@ -835,11 +924,21 @@ Player::AddStatus( long diff ) {
   return true;
 }
 
+/**
+ * Check whether this player swings forehand or backhand. 
+ * 
+ * @return if this player swings forhand, returns true. Otherwise returns false. 
+ */
 bool
 Player::ForeOrBack() {
   return GetSwingSide();
 }
 
+/**
+ * Referring the relative location of player and the ball, this method checks the error level of hitting (perfect, good, miss, etc. )
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 Player::SwingError() {
   double diff;
@@ -861,6 +960,13 @@ Player::SwingError() {
   return true;
 }
 
+/**
+ * Set location and velocity of the player. 
+ * 
+ * @param x location of the player
+ * @param v velocity of the player
+ * @return returns true if succeeds. 
+ */
 bool
 Player::Warp( const vector3d &x, const vector3d &v ) {
   m_x = x;
@@ -869,6 +975,12 @@ Player::Warp( const vector3d &x, const vector3d &v ) {
   return true;
 }
 
+/**
+ * Set location and velocity of the player. 
+ * 
+ * @param buf stream of location/velocity data. 
+ * @return returns true if succeeds. 
+ */
 bool
 Player::Warp( char *buf ) {
   char *b = buf;
@@ -881,6 +993,15 @@ Player::Warp( char *buf ) {
   return true;
 }
 
+/**
+ * Set spin and swing of the player. 
+ * 
+ * @param pow power
+ * @param spin spin
+ * @param swingType swing type
+ * @param swing swing status
+ * @return returns true if succeeds. 
+ */
 bool
 Player::ExternalSwing( long pow, const vector2d &spin,
 		       long swingType, long swing ) {
@@ -892,6 +1013,12 @@ Player::ExternalSwing( long pow, const vector2d &spin,
   return true;
 }
 
+/**
+ * Set spin and swing of the player. 
+ * 
+ * @param buf stream of power/spin/swingType/swingSide/swing data. 
+ * @return returns true if succeeds. 
+ */
 bool
 Player::ExternalSwing( char *buf ) {
   char *b = buf;
@@ -908,6 +1035,12 @@ Player::ExternalSwing( char *buf ) {
   return true;
 }
 
+/**
+ * Send swing information to the opponent. 
+ * 
+ * @param buf swing power/spin/type/side/status are set to this buffer. 
+ * @return returns pointer to buf. 
+ */
 char *
 Player::SendSwing( char *buf ) {
   long l;
@@ -933,6 +1066,12 @@ Player::SendSwing( char *buf ) {
   return buf;
 }
 
+/**
+ * Send location/velocity of the player to the opponent. 
+ * 
+ * @param buf location/velocity are set to this buffer. 
+ * @return returns pointer to buf. 
+ */
 char *
 Player::SendLocation( char *buf ) {
   double d;
@@ -958,6 +1097,12 @@ Player::SendLocation( char *buf ) {
   return buf;
 }
 
+/**
+ * Send all player information to the opponent. 
+ * 
+ * @param sd socket descriptor. 
+ * @return returns true if succeeds. 
+ */
 bool
 Player::SendAll( int sd ) {
   SendLong( sd, m_playerType );
@@ -999,31 +1144,72 @@ Player::SendAll( int sd ) {
   return true;
 }
 
-// Must be overridden
+/**
+ * Modify location of the target. 
+ * This method must be overridden. 
+ * 
+ * @param target original target and modified target. [in, out]
+ * @return returns true if succeeds. 
+ */
 bool
 Player::GetModifiedTarget( vector2d &target ) {
   return false;
 }
 
+/**
+ * Calculate the level of ball to be hit. 
+ * This method must be overridden. 
+ * 
+ * @param ball the ball object to be hit. 
+ * @param diff difference from ideal hit. [out]
+ * @param level level of the hit. [out]
+ * @param maxVy maximum ball speed of y-coodinate [out]
+ */
 void
 Player::CalcLevel( Ball *ball, double &diff, double &level, double &maxVy ) {
 }
 
+/**
+ * Start swing (backswing is already done). 
+ * This must be overridden. 
+ * 
+ * @param spin spin level. Currently this parameter is used for deciding forehand/backhand. 
+ * @return returns true if succeeds. 
+ */
 bool
-Player::Swing( long power ) {
+Player::Swing( long spin ) {
   return false;
 }
 
+/**
+ * Start swing (backswing). 
+ * This method must be overridden. 
+ * 
+ * @param spin spin level. Currently this parameter is used on serve only. 
+ * @return returns true if succeeds. 
+ */
 bool
-Player::StartSwing( long power ) {
+Player::StartSwing( long spin ) {
   return false;
 }
 
+/**
+ * Hit the ball with racket. 
+ * This method must be overridden. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 Player::HitBall() {
   return false;
 }
 
+/**
+ * Update last send information. 
+ * This method is called when some player information is sent to the 
+ * opponent machine. This method reset m_lastSendCount and update
+ * m_lastSendX and m_lastSendV. 
+ */
 void
 Player::UpdateLastSend() {
   m_lastSendCount = 0;
@@ -1032,6 +1218,13 @@ Player::UpdateLastSend() {
   m_lastSendV = m_v;
 }
 
+/**
+ * Add error to volocity of the ball. 
+ * Referring the relative location of player and the ball, this method
+ * add error to the velocity of the ball. 
+ * 
+ * @param v velocity of the ball [in, out]
+ */
 void
 Player::AddError( vector3d &v ) {
   double vl;
@@ -1065,7 +1258,12 @@ Player::AddError( vector3d &v ) {
   v += n1*cos(radRand) + n2*sin(radRand);
 }
 
-// If status point is less than this value, player will miss. 
+/**
+ * Referring the location of the target, calculate the border of the status. 
+ * If status point is less than the border, player will miss. 
+ * 
+ * @return returns border. 
+ */
 long
 Player::StatusBorder() {
   double nearEdge = TABLEWIDTH/2-fabs(m_target[0]);
