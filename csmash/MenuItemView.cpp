@@ -62,6 +62,7 @@ MenuItemView::RedrawAlpha() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
+  glDisable(GL_DEPTH_TEST);
   glDepthMask(0);
 
   if ( m_menuItem->GetSelected() )
@@ -74,6 +75,7 @@ MenuItemView::RedrawAlpha() {
 	    0.0F, 0.0F, 0.0F, 0, m_image->GetImage() );
 
   glDepthMask(1);
+  glEnable(GL_DEPTH_TEST);
 
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
