@@ -40,6 +40,7 @@ void SelectInit();
 void TitleInit();
 void HowtoInit();
 void TrainingInit( long player, long com );
+void TrainingSelectInit();
 void *LoadData( void *dum );
 
 Ball theBall;
@@ -490,6 +491,17 @@ HowtoInit() {
 }
 
 void
+TrainingSelectInit() {
+  ClearObject();
+
+  theSelect = new TrainingSelect();
+
+  theSelect->Init();
+
+  glutSetCursor( GLUT_CURSOR_NONE );
+}
+
+void
 TrainingInit( long player, long com ) {
   long side;
 
@@ -500,9 +512,6 @@ TrainingInit( long player, long com ) {
     thePlayer = new TrainingPenAttack(1);
     break;
   case 1:
-    thePlayer = new ShakeCut(1);
-    break;
-  case 2:
     thePlayer = new TrainingPenDrive(1);
     break;
   default:
@@ -514,13 +523,10 @@ TrainingInit( long player, long com ) {
     comPlayer = new ComTrainingPenAttack(-1);
     break;
   case 1:
-    comPlayer = new ComShakeCut(-1);
-    break;
-  case 2:
     comPlayer = new ComTrainingPenDrive(-1);
     break;
   default:
-    comPlayer = new ComPenAttack(-1);
+    comPlayer = new ComTrainingPenAttack(-1);
     break;
   }
 

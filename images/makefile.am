@@ -9,7 +9,8 @@ pkgdata_src = Bad.ppm Easy.ppm Floor.ppm Hard.ppm Howto.ppm Howto1.ppm \
 		lose.ppm nine.ppm one.ppm rightArrow.ppm seven.ppm six.ppm \
 		three.ppm two.ppm upArrow.ppm win.ppm zero.ppm \
 		ModeSelect.ppm 5point.ppm 11point.ppm 21point.ppm \
-		SoundSelect.ppm ESD.ppm OSS.ppm
+		SoundSelect.ppm ESD.ppm OSS.ppm \
+		Front.ppm Back.ppm Left.ppm Right.ppm
 
 pkgdata_DATA = $(pkgdata_src:=@PKGDATA@)
 EXTRA_DIST = $(wildcard *.ppm)

@@ -230,7 +230,7 @@ BallView::RedrawAlpha() {
     glDisable(GL_TEXTURE_2D);
 
     glPopMatrix();
-  } else if ( mode == MODE_TRAINING ){
+  } else if ( mode == MODE_TRAINING ) {
     glPushMatrix();
     glTranslatef( TABLEWIDTH/2-0.3, 0, TABLEHEIGHT+NETHEIGHT );
 

@@ -24,14 +24,14 @@ public:
   PlayerSelectView();
   virtual ~PlayerSelectView();
 
-  bool Init( PlayerSelect * );
+  virtual bool Init( PlayerSelect * );
 
   virtual bool Redraw();
   virtual bool RedrawAlpha();
 protected:
   PlayerSelect *m_playerSelect;
   GLuint       m_offset;
-  static GLuint m_textures[PLAYERS+1];
+  GLuint       m_textures[PLAYERS+1];
   GLubyte      m_choice[4][400*70/8];
   GLubyte      m_selectPlayer[400*70/8];
 };

@@ -37,6 +37,7 @@ extern void DemoInit();
 extern void SelectInit();
 extern void TitleInit();
 extern void HowtoInit();
+extern void TrainingSelectInit();
 extern void TrainingInit( long player, long com );
 
 extern int theSocket;
@@ -293,6 +294,7 @@ Event::Move() {
     reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
     break;
   case MODE_SELECT:
+  case MODE_TRAININGSELECT:
     reDraw |= theSelect->Move( m_KeyHistory, m_MouseXHistory,
 			       m_MouseYHistory, m_MouseBHistory, m_Histptr );
     break;
@@ -359,8 +361,16 @@ Event::Move() {
     case MODE_HOWTO:
       HowtoInit();
       break;
+    case MODE_TRAININGSELECT:
+      TrainingSelectInit();
+      break;
     case MODE_TRAINING:
-      TrainingInit( 2, 2 );	// Temporary
+      if ( theSelect->GetRotate() < 0 )
+	p = (360+(theSelect->GetRotate()%360))/(360/TRAININGPLAYERS);
+      else
+	p = (theSelect->GetRotate()%360)/(360/TRAININGPLAYERS);
+
+      TrainingInit( p, p );
       break;
     }
 
@@ -392,7 +402,7 @@ Event::Record() {
   if ( mode == MODE_TITLE ) {
     m_MouseXHistory[m_Histptr] = x;
     m_MouseYHistory[m_Histptr] = y;
-  } else if ( mode == MODE_SELECT ) {
+  } else if ( mode == MODE_SELECT || mode == MODE_TRAININGSELECT ) {
     m_MouseXHistory[m_Histptr] = winWidth/2 + (x-winWidth/2)*15/16;
     m_MouseYHistory[m_Histptr] = y;
   } else {

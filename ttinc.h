@@ -81,7 +81,8 @@
 #define MODE_DEMO   (3)		// Demo Play
 #define MODE_TITLE  (4)		// Title
 #define MODE_HOWTO  (5)		// How to Play
-#define MODE_TRAINING (6)	// Training
+#define MODE_TRAININGSELECT (6)	// Training Select
+#define MODE_TRAINING (7)	// Training
 
 // サウンド
 #define SOUND_RACKET (0)
@@ -165,6 +166,8 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 #include "HitMark.h"
 #include "PlayerSelect.h"
 #include "PlayerSelectView.h"
+#include "TrainingSelect.h"
+#include "TrainingSelectView.h"
 #include "Title.h"
 #include "TitleView.h"
 #include "Howto.h"

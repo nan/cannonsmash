@@ -28,7 +28,7 @@ public:
   PlayerSelect();
   virtual ~PlayerSelect();
 
-  bool Init();
+  virtual bool Init();
 
   virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,

@@ -46,7 +46,7 @@ protected:
   GLuint       m_offset;
   GLuint       m_floor;
   GLuint       m_title;
-  GLuint       m_wall;
+  GLuint       m_wall[4];
 
   void SetLookAt();
 };

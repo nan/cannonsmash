@@ -116,7 +116,7 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	break;
       case 1:	// Training
 	theBall.EndGame();
-	mode = MODE_TRAINING;
+	mode = MODE_TRAININGSELECT;
 	break;
       case 2:	// Howto
 	theBall.EndGame();

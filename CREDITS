@@ -5,3 +5,6 @@ yotsuya			Add datafile compression, smooth shading,
 ----------------------------------------------------------------------
 <trackman@mfa.gr>	Patch for Voodoo 2. 
 ----------------------------------------------------------------------
+Pavel Bibergal		Make wall texture image. 
+<pavel@dimona.org.il>
+----------------------------------------------------------------------
