@@ -290,16 +290,16 @@ Title::LookAt( double &srcX, double &srcY, double &srcZ,
 
 void
 Title::CreateMenu( long menuMajorNum ) {
-  static char menu[][30] = {"images/StartGame.ppm", "images/Training.ppm",
-			    "images/Howto.ppm", "images/Config.ppm",
-			    "images/Quit.ppm"};
-  static char configMenu[][30] = {"images/Easy.ppm", "images/Normal.ppm",
-				  "images/Hard.ppm", "images/Tsuborish.ppm", 
-				  "images/5point.ppm", "images/11point.ppm",
-				  "images/21point.ppm",
-				  "images/WireFrame.ppm", "images/Transparent.ppm" };
-  static char configTitle[][30] = {"images/LevelSelect.ppm",
-				   "images/ModeSelect.ppm"
+  static char menu[][30] = {"images/StartGame", "images/Training",
+			    "images/Howto", "images/Config",
+			    "images/Quit"};
+  static char configMenu[][30] = {"images/Easy", "images/Normal",
+				  "images/Hard", "images/Tsuborish", 
+				  "images/5point", "images/11point",
+				  "images/21point",
+				  "images/WireFrame", "images/Transparent" };
+  static char configTitle[][30] = {"images/LevelSelect",
+				   "images/ModeSelect"
 				    };
 
   int i, j;

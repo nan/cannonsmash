@@ -33,9 +33,6 @@ public:
   virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,
 		     int Histptr );
-
-  long GetRotate();
-  long GetSelected();
 };
 
 #endif	// _TrainingSelect_

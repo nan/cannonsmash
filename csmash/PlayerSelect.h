@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,9 +35,9 @@ public:
 		     long *MouseYHistory, unsigned long *MouseBHistory,
 		     int Histptr );
 
-  long GetRotate();
-  long GetPlayerNum();
-  long GetSelected();
+  virtual long GetRotate() { return m_rotate; };
+  virtual long GetPlayerNum();
+  virtual long GetSelected() { return m_selected; };
 
   virtual bool LookAt( double &srcX, double &srcY, double &srcZ,
 		       double &destX, double &destY, double &destZ );

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,6 +33,9 @@ MenuItemView::~MenuItemView() {
 
 bool
 MenuItemView::Init( MenuItem *menu, char *fileName ) {
+  char fname[256];
+
+  sprintf( fname, "%s.ppm", fileName );
 
 #ifndef HAVE_LIBZ
   FILE *fp;
@@ -47,11 +50,11 @@ MenuItemView::Init( MenuItem *menu, char *fileName ) {
   m_menuItem = menu;
 
 #ifndef HAVE_LIBZ
-  if( (fp = fopen(fileName, "r")) == NULL ) {
+  if( (fp = fopen(fname, "r")) == NULL ) {
     return false;
   }
 #else
-  if (NULL == (fp = gzopenx(fileName, "rs"))) return false;
+  if (NULL == (fp = gzopenx(fname, "rs"))) return false;
 #endif
 
   m_image = 

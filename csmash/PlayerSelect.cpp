@@ -173,21 +173,11 @@ PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
 }
 
 long
-PlayerSelect::GetRotate() {
-  return m_rotate;
-}
-
-long
 PlayerSelect::GetPlayerNum() {
   if ( GetRotate() < 0 )
     return (360+(GetRotate()%360))/(360/PLAYERS);
   else
     return (GetRotate()%360)/(360/PLAYERS);
-}
-
-long
-PlayerSelect::GetSelected() {
-  return m_selected;
 }
 
 bool
