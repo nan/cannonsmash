@@ -466,7 +466,7 @@ bool texture_parts::realize()
     ImageData img;
     bool loaded;
 
-#if !defined(CHIYO)
+#if !defined(CHIYO) || !defined(WIN32)
     loaded = img.LoadFile(filename.c_str());
 #else
     if (LANG_HINDI == PRIMARYLANGID(GetUserDefaultLangID())) {
