@@ -4,7 +4,7 @@ AC_PREREQ(2.50)
 AC_INIT(csmash, 0.6.5, nan@utmc.or.jp)
 AC_CONFIG_SRCDIR(main.cpp)
 AC_CANONICAL_TARGET
-AM_INIT_AUTOMAKE(csmash, 0.6.4)
+AM_INIT_AUTOMAKE(csmash, 0.6.5)
 AM_CONFIG_HEADER(config.h)
 
 dnl this must be defined before AM_GNU_GETTEXT
