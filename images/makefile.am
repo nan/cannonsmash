@@ -9,7 +9,7 @@ pkgdata_ppm = Bad.ppm Easy.ppm Hard.ppm Howto.ppm Howto1.ppm \
 		six.ppm three.ppm two.ppm zero.ppm Max.ppm \
 		upArrow.ppm win.ppm ModeSelect.ppm \
 		5point.ppm 11point.ppm 21point.ppm \
-		SoundSelect.ppm ESD.ppm OSS.ppm
+		SoundSelect.ppm Transparent.ppm WireFrame.ppm
 
 pkgdata_jpg = Floor.jpg Mouse1.jpg Mouse2.jpg Mouse3.jpg Mouse4.jpg \
 		PenDrive.jpg PenAttack.jpg ShakeCut.jpg \
