@@ -36,6 +36,7 @@ public:
 
 private:
   Player  *m_player;	// Model
+  SDL_Rect m_damageRect;
 
   SDL_Surface *m_playerBMP;
 

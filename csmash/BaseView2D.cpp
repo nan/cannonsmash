@@ -116,6 +116,8 @@ BaseView2D::RedrawAll() {
   SDL_SetClipRect( m_baseSurface, &rect );
   m_fieldView->RedrawAlpha();
 
+  SDL_SetClipRect( m_baseSurface, NULL );
+
   if ( thePlayer )
     thePlayer->GetView()->RedrawAlpha();
   theBall.GetView()->Redraw();
@@ -244,6 +246,23 @@ BaseView2D::AddUpdateRect( SDL_Rect *r ) {
     if ( r->y+r->h-1 > m_updateY2 )
       m_updateY2 = r->y+r->h-1;
   }
+
+  if ( m_updateX1 < 0 )
+    m_updateX1 = 0;
+  if ( m_updateX2 < 0 )
+    m_updateX2 = 0;
+  if ( m_updateX1 > BaseView::GetWinWidth() )
+    m_updateX1 = BaseView::GetWinWidth();
+  if ( m_updateX2 > BaseView::GetWinWidth() )
+    m_updateX2 = BaseView::GetWinWidth();
+  if ( m_updateY1 < 0 )
+    m_updateY1 = 0;
+  if ( m_updateY2 < 0 )
+    m_updateY2 = 0;
+  if ( m_updateY1 > BaseView::GetWinHeight() )
+    m_updateY1 = BaseView::GetWinHeight();
+  if ( m_updateY2 > BaseView::GetWinHeight() )
+    m_updateY2 = BaseView::GetWinHeight();
 
   return true;
 }

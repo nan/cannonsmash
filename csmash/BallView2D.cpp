@@ -123,7 +123,7 @@ BallView2D::GetDamageRect() {
 	 rectShadow.w != _rectShadow.w || rectShadow.h != _rectShadow.h ) {
       ((BaseView2D *)theView)->AddUpdateRect( &rectShadow );
       ((BaseView2D *)theView)->AddUpdateRect( &_rectShadow );
-      rect = _rect;
+      rectShadow = _rectShadow;
     }
   }
 

@@ -28,6 +28,7 @@ extern long mode;
 
 PlayerView2D::PlayerView2D() {
   m_player = NULL;
+  m_damageRect.x = m_damageRect.y = m_damageRect.w = m_damageRect.h = 0;
 }
 
 PlayerView2D::~PlayerView2D() {
@@ -61,27 +62,13 @@ PlayerView2D::RedrawAlpha() {
 
 bool
 PlayerView2D::SubRedraw() {
-  static SDL_Rect rect = {0, 0, 0, 0};
+  SDL_Rect srcRect, destRect;
   if ( m_player->GetY() > -3.5 ) {
     int x, y;
 
-    RenderPoint( m_player->GetX(), m_player->GetY(), 1.7, &x, &y );
+    GetDrawRect( &destRect );
 
-    rect.x = x-m_playerBMP->w/2;
-    rect.y = y;
-    rect.w = m_playerBMP->w;
-    rect.h = m_playerBMP->h;
-
-    if ( rect.x > BaseView::GetWinWidth() )
-      rect.x = BaseView::GetWinWidth();
-    if ( rect.x+rect.w > BaseView::GetWinWidth() )
-      rect.w = BaseView::GetWinWidth()-rect.x;
-    if ( rect.y > BaseView::GetWinHeight() )
-      rect.y = BaseView::GetWinHeight();
-    if ( rect.y+rect.h > BaseView::GetWinHeight() )
-      rect.h = BaseView::GetWinHeight()-rect.y;
-
-    SDL_BlitSurface(m_playerBMP, NULL, theView->GetSurface(), &rect);
+    SDL_BlitSurface(m_playerBMP, NULL, theView->GetSurface(), &destRect);
   }
 
   return true;
@@ -89,20 +76,19 @@ PlayerView2D::SubRedraw() {
 
 bool
 PlayerView2D::GetDamageRect() {
-  static SDL_Rect rect = {0, 0, 0, 0};
   if ( m_player->GetY() > -3.5 ) {
     int x, y;
     SDL_Rect _rect;
 
     GetDrawRect( &_rect );
 
-    if ( rect.x != _rect.x || rect.y != _rect.y || rect.w != _rect.w ||
-	 rect.h != _rect.h ) {
-      ((BaseView2D *)theView)->AddUpdateRect( &rect );
+    if ( m_damageRect.x != _rect.x || m_damageRect.y != _rect.y ||
+	 m_damageRect.w != _rect.w || m_damageRect.h != _rect.h ) {
+      ((BaseView2D *)theView)->AddUpdateRect( &m_damageRect );
 
-      rect = _rect;
+      m_damageRect = _rect;
 
-      ((BaseView2D *)theView)->AddUpdateRect( &rect );
+      ((BaseView2D *)theView)->AddUpdateRect( &m_damageRect );
     }
   }
 
@@ -123,10 +109,18 @@ PlayerView2D::GetDrawRect( SDL_Rect *drawRect ) {
     drawRect->w = m_playerBMP->w;
     drawRect->h = m_playerBMP->h;
 
+    if ( drawRect->x < 0 ) {
+      drawRect->w += drawRect->x;
+      drawRect->x = 0;
+    }
     if ( drawRect->x > BaseView::GetWinWidth() )
       drawRect->x = BaseView::GetWinWidth();
     if ( drawRect->x+drawRect->w > BaseView::GetWinWidth() )
       drawRect->w = BaseView::GetWinWidth()-drawRect->x;
+    if ( drawRect->y < 0 ) {
+      drawRect->h += drawRect->y;
+      drawRect->y = 0;
+    }
     if ( drawRect->y > BaseView::GetWinHeight() )
       drawRect->y = BaseView::GetWinHeight();
     if ( drawRect->y+drawRect->h > BaseView::GetWinHeight() )
