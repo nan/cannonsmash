@@ -49,6 +49,9 @@
 #include "parts.h"
 #include "loadparts.h"
 
+#include "RCFile.h"
+extern RCFile *theRC;
+
 // for(;;) namescoping hack.
 // VC++ 6 is not compliant with latest ANSI C++ (but VC++7 does).
 #if defined(_MSC_VER) && (_MSC_VER <= 1200)
@@ -609,6 +612,7 @@ void polyhedron_parts::render() const
     float NanTheBLACK[4] = { 0, 0, 0, 1 };
     float ManOfVirtue[4] = { 1, 1, 1, 1 };
 
+    vector3F light;
     if ( theRC->gmode == GMODE_TOON ) {
 	affine4F t;
 	glGetFloatv(GL_PROJECTION_MATRIX, (float*)&t);
@@ -616,7 +620,7 @@ void polyhedron_parts::render() const
 	float _light[] = {1,1,-1};
 //	vector3F _light;
 //	_light = 1.0f, 1.0f, -1.0f;
-	vector3F light = (vector3F(_light) ^ it).norm();
+	light = (vector3F(_light) ^ it).norm();
 
 	glActiveTextureARB(GL_TEXTURE1_ARB);
 	glEnable(GL_TEXTURE_1D);

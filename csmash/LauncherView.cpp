@@ -213,7 +213,7 @@ LauncherHeader::GraphicsFrame() {
   box = gtk_hbox_new( FALSE, 10 );
   gtk_container_border_width (GTK_CONTAINER (box), 5);
 
-  toonButton = gtk_radio_button_new_with_label ( (GSList *)NULL, =("Toon"));
+  toonButton = gtk_radio_button_new_with_label ( (GSList *)NULL, _("Toon"));
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(toonButton) );
   gtk_box_pack_start( GTK_BOX(box), toonButton, FALSE, FALSE, 10 );
   gtk_widget_show (toonButton);

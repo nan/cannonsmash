@@ -380,30 +380,6 @@ public:
     }
 };
 
-template <int vector_size, typename _float_t = float>
-class Vector;
-
-template <int vector_size, typename _float_t>
-class _Vector_initializer
-{
-protected:
-    typedef Vector<vector_size, _float_t> target_type;
-    friend target_type;
-
-    target_type& v;
-    size_t idx;
-
-    inline _Vector_initializer(target_type& v) : v(v), idx(1) {}
-
-public:
-    _Vector_initializer& operator ,(const _float_t& f) {
-	assert(idx < vector_size);
-	v[idx] = f;
-	idx += 1;
-	return *this;
-    }
-};
-
 // vector_size MUST BE larger than 1.
 template <int vector_size, typename _float_t>
 class Vector
@@ -422,11 +398,6 @@ public:
     }
     inline explicit Vector(float_t e) {
 	for (int i = 0; vector_size > i; i++) v[i] = e;
-    }
-
-    _Vector_initializer<vector_size, _float_t> operator =(float_t e) {
-	v[0] = e;
-	return _Vector_initializer<vector_size, _float_t>(*this);
     }
 
     inline explicit Vector(const float_t a[vector_size]) {
