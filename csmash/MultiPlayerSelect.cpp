@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of MultiPlayerSelect class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2003, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -41,6 +46,10 @@ extern RCFile *theRC;
 extern SDL_mutex *networkMutex;
 extern int theSocket;
 
+/**
+ * Default constructor. 
+ * Initialize member variables. 
+ */
 MultiPlayerSelect::MultiPlayerSelect() {
   m_rotate = 0; m_opponentRotate = 0;
   m_View = NULL;
@@ -51,9 +60,19 @@ MultiPlayerSelect::MultiPlayerSelect() {
   m_isConnected = false;
 }
 
+/**
+ * Destructor. Do nothing. 
+ */
 MultiPlayerSelect::~MultiPlayerSelect() {
 }
 
+/**
+ * Initializer method. 
+ * This method creates PracticeSelectView singleton object and create
+ * thread to connect to the opponent machine. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 MultiPlayerSelect::Init() {
   m_View = (PracticeSelectView *)View::CreateView( VIEW_PRACTICESELECT );
@@ -68,6 +87,11 @@ MultiPlayerSelect::Init() {
   return true;
 }
 
+/**
+ * Singleton creator method. 
+ * This method deletes existing singleton objects and create MultiPlayerSelect
+ * singleton object. 
+ */
 void
 MultiPlayerSelect::Create() {
   Control::ClearControl();
@@ -76,6 +100,18 @@ MultiPlayerSelect::Create() {
   m_theControl->Init();
 }
 
+/**
+ * Move valid objects. 
+ * This method moves player panel as the game player moves mouse. 
+ * Additionally, this method moves player panel of the opponent. 
+ * 
+ * @param KeyHistory history of keyboard input
+ * @param MouseXHistory history of mouse cursor move
+ * @param MouseYHistory history of mouse cursor move
+ * @param MouseBHistory history of mouse button push/release
+ * @param Histptr current position of histories described above. 
+ * @return returns true if it is neccesary to redraw. 
+ */
 bool
 MultiPlayerSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 			 long *MouseYHistory, unsigned long *MouseBHistory,
@@ -163,6 +199,11 @@ MultiPlayerSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   return true;
 }
 
+/**
+ * Get player ID of opponent which is selected. 
+ * 
+ * @return return player ID. 
+ */
 long
 MultiPlayerSelect::GetOpponentNum() {
   if ( GetOpponentRotate() < 0 )
@@ -171,7 +212,16 @@ MultiPlayerSelect::GetOpponentNum() {
     return (GetOpponentRotate()%360)/(360/PLAYERS);
 }
 
-// Make connection with opponent
+/**
+ * Make connection with opponent machine. 
+ * If this machine is the server, this method wait for connection from the 
+ * client and adjust clock. Otherwise, this method tries to connect to the 
+ * server and adjust clock. After that, this method starts a thread to 
+ * listen to the message from the opponent machine. 
+ * 
+ * @param dum not used. 
+ * @return returns 0 if succeeds. 
+ */
 int
 MultiPlayerSelect::Connect( void *dum ) {
   long side;
@@ -212,6 +262,15 @@ MultiPlayerSelect::Connect( void *dum ) {
   return 0;
 }
 
+/**
+ * Read PT(player type) message from the opponent machine. 
+ * PT message is received when the opponent game player changes player type
+ * or fix player type. 
+ * Referring PT message, this method sets m_lastOpponentRotate, 
+ * m_opponentRotate and m_opponentSelected. 
+ * 
+ * @param data message payload
+ */
 void
 MultiPlayerSelect::ReadPT( char *data ) {
   long rotate;
@@ -233,6 +292,13 @@ MultiPlayerSelect::ReadPT( char *data ) {
     m_opponentSelected = 1;
 }
 
+/**
+ * Send PT(player type) message to the opponent machine. 
+ * PT message is sent when the game player changes player type or fix player
+ * type. 
+ * 
+ * @param fixed if player type is fixed, this parameter is 1. Otherwise it is 0. 
+ */
 void
 MultiPlayerSelect::SendPT( char fixed ) {
   long rotate;

@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of MultiPlay and ExternalData classes. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -21,6 +26,11 @@
 
 #include "PlayGame.h"
 
+/**
+ * ExternalData class represents a message from the lobby server or the opponent machine. 
+ * ExternalData class is a base class. For each message type, subclass of 
+ * ExternalData is defined. 
+ */
 class ExternalData {
 public:
   ExternalData();
@@ -28,12 +38,12 @@ public:
 
   virtual ~ExternalData();
 
-  long side;
-  long dataType;
-  long sec;
-  char count;
-  char data[256];
-  ExternalData *next;
+  long side;		///< side of the player who send this message
+  long dataType;	///< type of the message
+  long sec;		///< time in second when this message is sent
+  char count;		///< time in 1/100 second when this message is sent
+  char data[256];	///< payload
+  ExternalData *next;	///< next ExternalData object
 
   virtual bool Apply( Player *targetPlayer, bool &fThePlayer, bool &fComPlayer,
 		      bool &fTheBall ) = 0;
@@ -41,12 +51,18 @@ public:
 
   static ExternalData* ReadData( long s );
 
+  /**
+   * Whether this ExternalData object is ExternalNullData or not. 
+   */
   virtual bool isNull() { return false; };
 
 protected:
   void ReadTime( int sd, long *sec, char *count );
 };
 
+/**
+ * ExternalPVData class represents a PV message from the opponent machine. 
+ */
 class ExternalPVData : public ExternalData {
 public:
   ExternalPVData();
@@ -57,6 +73,9 @@ public:
   virtual bool Read( long sock );
 };
 
+/**
+ * ExternalPSData class represents a PS message from the opponent machine. 
+ */
 class ExternalPSData : public ExternalData {
 public:
   ExternalPSData();
@@ -67,6 +86,9 @@ public:
   virtual bool Read( long sock );
 };
 
+/**
+ * ExternalBVData class represents a BV message from the opponent machine. 
+ */
 class ExternalBVData : public ExternalData {
 public:
   ExternalBVData();
@@ -77,6 +99,9 @@ public:
   virtual bool Read( long sock );
 };
 
+/**
+ * ExternalPTData class represents a PT message from the opponent machine. 
+ */
 class ExternalPTData : public ExternalData {
 public:
   ExternalPTData();
@@ -87,16 +112,29 @@ public:
   virtual bool Read( long sock );
 };
 
+/**
+ * ExternalNullData class represents a null message. 
+ * This object is used for the anchor of ExternalData list. 
+ */
 class ExternalNullData : public ExternalData {
 public:
   virtual bool Apply( Player *targetPlayer, bool &fThePlayer, bool &fComPlayer,
 		      bool &fTheBall ) { return false; };
+  /**
+   * Always returns false. 
+   */
   virtual bool Read( long sock ) { return false; };
 
+  /**
+   * Whether this object is ExternalNullData or not. 
+   */
   virtual bool isNull() { return true; };
 };
 
 
+/**
+ * MultiPlay class is the controller class for multiplayer mode. 
+ */
 class MultiPlay : public PlayGame {
 public:
   MultiPlay();
@@ -110,26 +148,16 @@ public:
 		     long *MouseYHistory, unsigned long *MouseBHistory,
 		     int Histptr );
 
-  //long GetSmashPtr() { return m_smashPtr; };
-
   virtual bool LookAt( vector3d &srcX, vector3d &destX );
 
   void SendTime( char *buf );
 
   virtual void EndGame();
 
-  //long GetTimeAdj() { return m_timeAdj; };
-
   void StartServer();
   void StartClient();
 
   static int WaitForData( void * );
-  static int Connect( void * );
-
-protected:
-  //bool m_smash;
-  //long m_smashCount;
-  //long m_smashPtr;
 };
 
 #endif	// _MultiPlay_

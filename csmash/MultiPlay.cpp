@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of MultiPlay and ExternalData classes. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -55,21 +60,41 @@ int one=1;
 
 SDL_mutex *networkMutex;
 
+/**
+ * Setver setup method. 
+ * Currently this method do nothing. All setup are moved to MultiPlayerSelect. 
+ */
 void
 MultiPlay::StartServer() {
 }
 
+/**
+ * Client setup method. 
+ * Currently this method do nothing. All setup are moved to MultiPlayerSelect. 
+ */
 void
 MultiPlay::StartClient() {
   //Event::TheEvent()->SendBall();
 }
 
+/**
+ * Default constructor. 
+ */
 MultiPlay::MultiPlay() {
 }
 
+/**
+ * Destructor. Do nothing. 
+ */
 MultiPlay::~MultiPlay() {
 }
 
+/**
+ * Initializer method. 
+ * Setup member variable and PlayGameView. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 MultiPlay::Init() {
 #ifdef LOGGING
@@ -94,6 +119,13 @@ MultiPlay::Init() {
   return true;
 }
 
+/**
+ * MultiPlay object creater. 
+ * This method creates singleton MultiPlay object, and two players. 
+ * 
+ * @param player type of the player controlled by this game player. 
+ * @param com type of the player controlled by the opponent game player. 
+ */
 void
 MultiPlay::Create( long player, long com ) {
   long side;
@@ -125,6 +157,17 @@ MultiPlay::Create( long player, long com ) {
   m_comPlayer->Init();
 }
 
+/**
+ * Move valid objects. 
+ * Call Move method of the ball and players. 
+ * 
+ * @param KeyHistory history of keyboard input
+ * @param MouseXHistory history of mouse cursor move
+ * @param MouseYHistory history of mouse cursor move
+ * @param MouseBHistory history of mouse button push/release
+ * @param Histptr current position of histories described above. 
+ * @return returns true if it is neccesary to redraw. 
+ */
 bool
 MultiPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		 long *MouseYHistory, unsigned long *MouseBHistory,
@@ -139,6 +182,13 @@ MultiPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   return reDraw;
 }
 
+/**
+ * Set camera position and direction. 
+ * 
+ * @param srcX camera position [out]
+ * @param destX point where the camera is directed. 
+ * @return returns true if succeeds. 
+ */
 bool
 MultiPlay::LookAt( vector3d &srcX, vector3d &destX ) {
   if (m_thePlayer) {
@@ -149,7 +199,12 @@ MultiPlay::LookAt( vector3d &srcX, vector3d &destX ) {
   return true;
 }
 
-
+/**
+ * Send adjusted time information to the opponent machine. 
+ * Calculate adjusted current time and set it to buf. 
+ * 
+ * @param buf buffer of which current time is set. Buf must be the pointer to allocated memory of more than 5 bytes long. 
+ */
 void
 MultiPlay::SendTime( char *buf ) {
   char v;
@@ -174,13 +229,24 @@ MultiPlay::SendTime( char *buf ) {
   memcpy( &(buf[4]), (char *)&v, 1 );
 }
 
+/**
+ * A method to quit game. 
+ */
 void
 MultiPlay::EndGame() {
   QuitGame();
   //mode = MODE_TITLE;
 }
 
-
+/**
+ * Network message handler. 
+ * This method is invoked as a thread. This method waits for a message from
+ * the opponent machine. When a message arrives, this method calls
+ * Event::GetExternalData to fetch the message. 
+ * 
+ * @param dum not used. 
+ * @return returns 0. 
+ */
 int
 MultiPlay::WaitForData( void *dum ) {
   fd_set rdfds;
@@ -217,6 +283,10 @@ MultiPlay::WaitForData( void *dum ) {
 }
 
 
+/**
+ * Default constructor. 
+ * Initialise member variables to default. 
+ */
 ExternalData::ExternalData() {
   side = 1;
   dataType = 0;
@@ -226,6 +296,12 @@ ExternalData::ExternalData() {
   next = NULL;
 }
 
+/**
+ * Constructor. 
+ * Initialise member variables to default. 
+ * 
+ * @param s side of the player who sent this message. 
+ */
 ExternalData::ExternalData( long s ) {
   side = s;
   dataType = 0;
@@ -235,9 +311,21 @@ ExternalData::ExternalData( long s ) {
   next = NULL;
 }
 
+/**
+ * Destructor. Do nothing. 
+ */
 ExternalData::~ExternalData() {
 }
 
+/**
+ * Read time information. 
+ * This method reads the header of incoming message to extract time
+ * information.
+ * 
+ * @param sd socket
+ * @param sec time in second [out]
+ * @param count time in 1/100 second [out]
+ */
 void
 ExternalData::ReadTime( int sd, long *sec, char *count ) {
   char buf[256];
@@ -265,6 +353,15 @@ ExternalData::ReadTime( int sd, long *sec, char *count ) {
   *count = (char)ctmp;
 }
 
+/**
+ * Read message type header and message payload. 
+ * This method first checks the message header. Referring the header, this
+ * method creates appropriate subclass object of ExternalData. Then, this
+ * method calls Read() to read message payload. 
+ * 
+ * @param s side of the player who sent this message. 
+ * @return returns created subclass object of ExternalData. If the message header is not valid, returns NULL. 
+ */
 ExternalData *
 ExternalData::ReadData( long s ) {
   char buf[256];
@@ -297,14 +394,30 @@ ExternalData::ReadData( long s ) {
 }
 
 
+/**
+ * Default constructor. 
+ */
 ExternalPVData::ExternalPVData() : ExternalData() {
   dataType = DATA_PV;
 }
 
+/**
+ * Constructor. 
+ */
 ExternalPVData::ExternalPVData( long s ) : ExternalData(s) {
   dataType = DATA_PV;
 }
 
+/**
+ * Apply this ExternalData object to the ball and players. 
+ * Referring the PV message, this method moves the player. 
+ * 
+ * @param targetPlayer the Player object of which this ExternalPVData should be applied. 
+ * @param fThePlayer if this method modifies Control::ThePlayer singleton object, this is set to true. [out]
+ * @param fComPlayer if this method modifies Control::ComPlayer singleton object, this is set to true. [out]
+ * @param fTheBall if this method modifies TheBall singleton object, this is set to true. [out]
+ * @return returns true if succeeds. 
+ */
 bool
 ExternalPVData::Apply( Player *targetPlayer, bool &fThePlayer,
 		       bool &fComPlayer, bool &fTheBall ) {
@@ -321,6 +434,14 @@ ExternalPVData::Apply( Player *targetPlayer, bool &fThePlayer,
   return true;
 }
 
+/**
+ * Read incoming message payload. 
+ * This method reads payload of incoming PV message and set it to 
+ * internal buffer. 
+ * 
+ * @param sock socket
+ * @return returns true if succeeds. 
+ */
 bool
 ExternalPVData::Read( long sock ) {
   ReadTime( sock, &sec, &count );
@@ -342,14 +463,30 @@ ExternalPVData::Read( long sock ) {
 }
 
 
+/**
+ * Default constructor. 
+ */
 ExternalPSData::ExternalPSData() : ExternalData() {
   dataType = DATA_PS;
 }
 
+/**
+ * Constructor. 
+ */
 ExternalPSData::ExternalPSData( long s ) : ExternalData(s) {
   dataType = DATA_PS;
 }
 
+/**
+ * Apply this ExternalData object to the ball and players. 
+ * Referring the PS message, this method changes swing status of the player. 
+ * 
+ * @param targetPlayer the Player object of which this ExternalPSData should be applied. 
+ * @param fThePlayer if this method modifies Control::ThePlayer singleton object, this is set to true. [out]
+ * @param fComPlayer if this method modifies Control::ComPlayer singleton object, this is set to true. [out]
+ * @param fTheBall if this method modifies TheBall singleton object, this is set to true. [out]
+ * @return returns true if succeeds. 
+ */
 bool
 ExternalPSData::Apply( Player *targetPlayer, bool &fThePlayer,
 		       bool &fComPlayer, bool &fTheBall ) {
@@ -366,6 +503,14 @@ ExternalPSData::Apply( Player *targetPlayer, bool &fThePlayer,
   return true;
 }
 
+/**
+ * Read incoming message payload. 
+ * This method reads payload of incoming PS message and set it to 
+ * internal buffer. 
+ * 
+ * @param sock socket
+ * @return returns true if succeeds. 
+ */
 bool
 ExternalPSData::Read( long sock ) {
   ReadTime( sock, &sec, &count );
@@ -387,14 +532,30 @@ ExternalPSData::Read( long sock ) {
 }
 
 
+/**
+ * Default constructor. 
+ */
 ExternalBVData::ExternalBVData() : ExternalData() {
   dataType = DATA_BV;
 }
 
+/**
+ * Constructor. 
+ */
 ExternalBVData::ExternalBVData( long s ) : ExternalData(s) {
   dataType = DATA_BV;
 }
 
+/**
+ * Apply this ExternalData object to the ball and players. 
+ * Referring the BV message, this method moves the ball. 
+ * 
+ * @param targetPlayer the Player object of which this ExternalBVData should be applied. 
+ * @param fThePlayer if this method modifies Control::ThePlayer singleton object, this is set to true. [out]
+ * @param fComPlayer if this method modifies Control::ComPlayer singleton object, this is set to true. [out]
+ * @param fTheBall if this method modifies TheBall singleton object, this is set to true. [out]
+ * @return returns true if succeeds. 
+ */
 bool
 ExternalBVData::Apply( Player *targetPlayer, bool &fThePlayer,
 		       bool &fComPlayer, bool &fTheBall ) {
@@ -408,6 +569,14 @@ ExternalBVData::Apply( Player *targetPlayer, bool &fThePlayer,
   return true;
 }
 
+/**
+ * Read incoming message payload. 
+ * This method reads payload of incoming BV message and set it to 
+ * internal buffer. 
+ * 
+ * @param sock socket
+ * @return returns true if succeeds. 
+ */
 bool
 ExternalBVData::Read( long sock ) {
   ReadTime( sock, &sec, &count );
@@ -429,14 +598,30 @@ ExternalBVData::Read( long sock ) {
 }
 
 
+/**
+ * Default constructor. 
+ */
 ExternalPTData::ExternalPTData() : ExternalData() {
   dataType = DATA_PT;
 }
 
+/**
+ * Constructor. 
+ */
 ExternalPTData::ExternalPTData( long s ) : ExternalData(s) {
   dataType = DATA_PT;
 }
 
+/**
+ * Apply this ExternalData object to the ball and players. 
+ * Referring the PT message, this method changes point. 
+ * 
+ * @param targetPlayer the Player object of which this ExternalPTData should be applied. 
+ * @param fThePlayer if this method modifies Control::ThePlayer singleton object, this is set to true. [out]
+ * @param fComPlayer if this method modifies Control::ComPlayer singleton object, this is set to true. [out]
+ * @param fTheBall if this method modifies TheBall singleton object, this is set to true. [out]
+ * @return returns true if succeeds. 
+ */
 bool
 ExternalPTData::Apply( Player *targetPlayer, bool &fThePlayer,
 		       bool &fComPlayer, bool &fTheBall ) {
@@ -449,6 +634,14 @@ ExternalPTData::Apply( Player *targetPlayer, bool &fThePlayer,
   return true;
 }
 
+/**
+ * Read incoming message payload. 
+ * This method reads payload of incoming PT message and set it to 
+ * internal buffer. 
+ * 
+ * @param sock socket
+ * @return returns true if succeeds. 
+ */
 bool
 ExternalPTData::Read( long sock ) {
   //ReadTime( sock, &sec, &count );

@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of MultiPlayerSelect class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2003  神南 吉宏(Kanna Yoshihiro)
 //
@@ -22,6 +27,10 @@
 #include "PlayerSelect.h"
 #include "PracticeSelectView.h"
 
+/**
+ * MultiPlayerSelect class is the controller class for player select mode
+ * of multiplayer. 
+ */
 class MultiPlayerSelect : public PlayerSelect {
 public:
   MultiPlayerSelect();
@@ -35,8 +44,10 @@ public:
 		     long *MouseYHistory, unsigned long *MouseBHistory,
 		     int Histptr );
 
-  virtual long GetOpponentRotate() { return m_opponentRotate; };
   virtual long GetOpponentNum();
+  /** Getter method of m_opponentRotate */
+  virtual long GetOpponentRotate() { return m_opponentRotate; };
+  /** Getter method of m_opponentSelected */
   virtual long GetOpponentSelected() { return m_opponentSelected; };
 
   static int Connect( void *dum );
@@ -45,16 +56,16 @@ public:
   void SendPT( char fixed );
 
 protected:
-  long m_opponentRotate;	// Rotation of players
-  long m_opponentSelected;	// Selected : m_selected > 0
+  long m_opponentRotate;	///< Rotation angle of opponent player
+  long m_opponentSelected;	///< If selected, m_opponentSelected > 0
 
 
-  long m_lastRotate;
-  long m_lastOpponentRotate;
+  long m_lastRotate;		///< Last rotation angle
+  long m_lastOpponentRotate;	///< Last rotation angle of opponent player
 
-  bool m_isConnected;
+  bool m_isConnected;		///< If this machine is already connected to the opponent machine, m_isConnected is true. 
 
-  SDL_Thread *m_connectThread;
+  SDL_Thread *m_connectThread;	///< Thread for connecting to the opponent machine. 
 };
 
 #endif	// _MultiPlayerSelect_
