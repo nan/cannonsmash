@@ -40,6 +40,15 @@ TrainingView::Init( Training *training ) {
 
   glGenTextures( 1, &m_max );
   Image.LoadPPM( max );
+  for ( int i = 0 ; i < Image.GetWidth() ; i++ ) {
+    for ( int j = 0 ; j < Image.GetHeight() ; j++ ) {
+      if ( Image.GetPixel( i, j, 0 ) >= 5 )
+	Image.SetPixel( i, j, 3 , 255 );
+      else
+	Image.SetPixel( i, j, 3 , 0 );
+    }
+  }
+
   glBindTexture( GL_TEXTURE_2D, m_max );
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);

@@ -70,7 +70,7 @@ BallView::Init() {
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
 		 Image.GetWidth(), Image.GetHeight(), 
 		 0, GL_RGBA, GL_UNSIGNED_BYTE,
 		 Image.GetImage() );
