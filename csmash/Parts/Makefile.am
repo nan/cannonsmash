@@ -1,1 +1,1 @@
-SUBDIRS = Bcut Bnormal Bpeck Fcut Fdrive Fnormal Fpeck Fsmash
+SUBDIRS = model Bcut Bnormal Bpeck Fcut Fdrive Fnormal Fpeck Fsmash
