@@ -47,6 +47,9 @@ LauncherHeader::Init( GtkBox *box ) {
   frame = GraphicsFrame();
   gtk_box_pack_start( box, frame, FALSE, FALSE, 10 );
   gtk_widget_show (frame);
+  frame = SoundFrame();
+  gtk_box_pack_start( box, frame, FALSE, FALSE, 10 );
+  gtk_widget_show (frame);
 }
 
 GtkWidget *
@@ -138,6 +141,46 @@ LauncherHeader::GraphicsFrame() {
   return frame;
 }
 
+GtkWidget *
+LauncherHeader::SoundFrame() {
+  GtkWidget *frame;
+  GtkWidget *box;
+  GtkWidget *button;
+  GSList *list;
+
+  frame = gtk_frame_new( "Sound" );
+
+  box = gtk_hbox_new( FALSE, 10 );
+  gtk_container_border_width (GTK_CONTAINER (box), 5);
+
+  button = gtk_radio_button_new_with_label ((GSList *)NULL, "On");
+  list = gtk_radio_button_group( GTK_RADIO_BUTTON(button) );
+  gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
+  if (theRC->sndMode == SOUND_SDL)
+    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(button), TRUE );
+  gtk_widget_show (button);
+
+  gtk_signal_connect (GTK_OBJECT (button), "clicked",
+		      GTK_SIGNAL_FUNC (LauncherHeader::ToggleSound),
+		      &theRC->sndMode);
+
+  button = gtk_radio_button_new_with_label (list, "Off");
+  list = gtk_radio_button_group( GTK_RADIO_BUTTON(button) );
+  gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
+  if (theRC->sndMode == SOUND_NONE)
+    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(button), TRUE );
+  gtk_widget_show (button);
+
+  gtk_signal_connect (GTK_OBJECT (button), "clicked",
+		      GTK_SIGNAL_FUNC (LauncherHeader::ToggleSound),
+		      &theRC->sndMode);
+
+  gtk_widget_show (box);
+  gtk_container_add (GTK_CONTAINER (frame), box);
+
+  return frame;
+}
+
 void
 LauncherHeader::ToggleFullScreen( GtkWidget *widget, gpointer data ) {
   GSList *list = gtk_radio_button_group( (GtkRadioButton *)widget );
@@ -149,6 +192,19 @@ LauncherHeader::ToggleFullScreen( GtkWidget *widget, gpointer data ) {
     theRC->fullScreen = true;
   }
 }
+
+void
+LauncherHeader::ToggleSound( GtkWidget *widget, gpointer data ) {
+  GSList *list = gtk_radio_button_group( (GtkRadioButton *)widget );
+
+  if ( gtk_toggle_button_get_active
+       ( (GtkToggleButton *)g_slist_nth_data( list, 0 ) ) ) {
+    theRC->sndMode = SOUND_NONE;
+  } else {
+    theRC->sndMode = SOUND_SDL;
+  }
+}
+
 
 void
 LauncherHeader::Toggle( GtkWidget *widget, gpointer data ) {

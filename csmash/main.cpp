@@ -49,8 +49,6 @@ RCFile *theRC = RCFile::GetRCFile();
 
 long mode = MODE_OPENING;
 
-long sndMode;			// This var should be an argument of some func
-
 SDL_mutex *loadMutex;
 
 extern void QuitGame();
@@ -215,7 +213,7 @@ StartGame() {
     theRC->isTexture = false;
 
 #ifdef HAVE_LIBSDL_MIXER
-  sndMode = SOUND_SDL;
+//  theRC->sndMode = SOUND_SDL;
 
   if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_NOPARACHUTE) < 0 ) {
     perror( "SDL initialize failed\n" );
@@ -226,14 +224,14 @@ StartGame() {
     perror( "SDL initialize failed\n" );
     exit(1);
   }
-  sndMode = SOUND_NONE;
+  theRC->sndMode = SOUND_NONE;
 #endif
 
   if ( mode == MODE_OPENING && (access( OPENINGFILENAME, F_OK ) != 0) ) {
     mode = MODE_TITLE;
   }
 
-  Sound::TheSound()->Init( sndMode );
+  Sound::TheSound()->Init( theRC->sndMode );
   BaseView::TheView()->Init();
   Event::TheEvent()->Init();
 

@@ -28,7 +28,7 @@
 
 #define MAJOR_VERSION	0
 #define MIDDLE_VERSION	6
-#define MINOR_VERSION	3
+#define MINOR_VERSION	4
 
 #define CSMASH_PORT	3573	// TCP Port num. 
 
@@ -114,11 +114,8 @@
 #define DATA_BV      (3)
 
 // Sound
-#define SOUND_NONE	-1
-#define SOUND_ESD	0
-#define SOUND_OSS	1
-#define SOUND_WIN32	2
-#define SOUND_SDL	3
+#define SOUND_NONE	0
+#define SOUND_SDL	1
 
 // Others
 #define RAND(N) ((int)((float)(N)*rand()/RAND_MAX))
@@ -184,6 +181,7 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 #endif
 
 #include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
 #include <SDL/SDL_thread.h>
 #ifdef HAVE_LIBSDL_MIXER
 #include <SDL/SDL_mixer.h>
