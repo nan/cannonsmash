@@ -643,68 +643,7 @@ const char keytable[][5] = {
     return true;
 
 // key input
-#if 0
-  switch ( KeyHistory[Histptr].scancode ) {
-  case 10:  case 24:  case 38:  case 52:	/* '1', 'q', 'a', 'z' */
-  case 11:  case 25:  case 39:  case 53:	/* '2', 'w', 's', 'x' */
-  case 12:					/* '3' */
-    m_targetX = -TABLEWIDTH/2*0.9*GetSide();
-    break;
-  case 26:	/* 'e' */
-    m_targetX = -TABLEWIDTH/2*0.75*GetSide();
-    break;
-  case 40:	/* 'd' */
-    m_targetX = -TABLEWIDTH/2*0.6*GetSide();
-    break;
-  case 13:  case 54:	/* '4', 'c' */
-    m_targetX = -TABLEWIDTH/2*0.45*GetSide();
-    break;
-  case 27:	/* 'r' */
-    m_targetX = -TABLEWIDTH/2*0.3*GetSide();
-    break;
-  case 41:	/* 'f' */
-    m_targetX = -TABLEWIDTH/2*0.15*GetSide();
-    break;
-  case 14:  case 55:	/* '5', 'v' */
-    m_targetX = 0;
-    break;
-  case 28:	/* 't' */
-    m_targetX = TABLEWIDTH/2*0.15*GetSide();
-    break;
-  case 42:	/* 'g' */
-    m_targetX = TABLEWIDTH/2*0.3*GetSide();
-    break;
-  case 15:  case 56:	/* '6', 'b' */
-    m_targetX = TABLEWIDTH/2*0.45*GetSide();
-    break;
-  case 29:	/* 'y' */
-    m_targetX = TABLEWIDTH/2*0.6*GetSide();
-    break;
-  case 43:	/* 'h' */
-    m_targetX = TABLEWIDTH/2*0.75*GetSide();
-    break;
-  case 16:  case 57:  case 30:  case 44:	/* '7', 'n', 'u', 'j' */
-  case 17:  case 58:  case 31:  case 45:
-  case 18:  case 59:  case 32:  case 46:
-  case 19:  case 60:  case 33:  case 47:
-    m_targetX = TABLEWIDTH/2*0.9*GetSide();
-    break;
-  }
-
-  if ( KeyHistory[Histptr].scancode >= 10 &&
-       KeyHistory[Histptr].scancode <= 21 ) {	/* from '1' to '^' */
-    m_targetY = TABLELENGTH/12*5*GetSide();
-  } else if ( KeyHistory[Histptr].scancode >= 24 &&
-	      KeyHistory[Histptr].scancode <= 35 ) {	/* from 'q' to '[' */
-    m_targetY = TABLELENGTH/12*4*GetSide();
-  } else if ( KeyHistory[Histptr].scancode >= 38 &&
-	      KeyHistory[Histptr].scancode <= 48 ) {	/* from 'a' to ':' */
-    m_targetY = TABLELENGTH/12*3*GetSide();
-  } else if ( KeyHistory[Histptr].scancode >= 52 &&
-	      KeyHistory[Histptr].scancode <= 61 ) {	/* from 'z' to '/' */
-    m_targetY = TABLELENGTH/12*2*GetSide();
-  }
-#else
+  // Check keyboard type and modify keycode. 
   int code = -1;
 
   if ( KeyHistory[Histptr].scancode < 54 ) {
@@ -734,6 +673,7 @@ const char keytable[][5] = {
 
   if ( code < 0 )
     code = KeyHistory[Histptr].unicode;
+
 
   switch ( code ) {
   case '1':  case 'q':  case 'a':  case 'z':
@@ -800,7 +740,6 @@ const char keytable[][5] = {
     m_targetY = TABLELENGTH/12*2*GetSide();
     break;
   }
-#endif
 
 
   if ( (Histptr == 0 &&
