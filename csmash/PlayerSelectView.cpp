@@ -21,6 +21,7 @@
 extern long wins;
 
 extern bool isComm;
+extern bool isTexture;
 
 PlayerSelectView::PlayerSelectView() {
   m_offset = 0;
@@ -89,7 +90,8 @@ bool
 PlayerSelectView::Redraw() {
   int i;
 
-  glEnable(GL_TEXTURE_2D);
+  if ( isTexture )
+    glEnable(GL_TEXTURE_2D);
 
   glColor4f( 0.0, 0.0, 0.0, 0.0 );
 

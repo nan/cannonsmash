@@ -68,4 +68,21 @@ Ex.
 (4) You can see Player Select on client machine. After you select player, 
     client machine makes connection with server machine and game starts. 
 
+5. Other options
+(1) Fullscreen mode  '-f'
+You can play the game on fullscreen if you specify this option. 
+With some video cards like VooDoo2, you should specify this option
+to play this game correctly. 
+
+Ex.
+# csmash -f
+
+(2) Simple mode  '-S'
+If you specify this option, you will see very 'simple' window
+is displayed. If the game runs too slowly on your machine, 
+try this option. 
+
+Ex.
+# csmash -S
+
 Enjoy!
