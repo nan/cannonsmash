@@ -60,6 +60,10 @@ void StartGame();
 void EventLoop();
 bool PollEvent();
 
+#if defined(WIN32)
+static int win32ver = 0;	//0: win9x, 1: nt4 2: nt5
+#endif
+
 #ifdef __CYGWIN__
 #include <getopt.h>
 int main(int argc, char** argv) {
@@ -97,6 +101,17 @@ int main(int argc, char** argv) {
 
     /* initialize i18n */
 #ifdef WIN32
+    OSVERSIONINFO osver;
+    osver.dwOSVersionInfoSize = sizeof(osver);
+    GetVersionEx(&osver);
+    if (osver.dwPlatformId != VER_PLATFORM_WIN32_NT) {
+	win32ver = 0;
+    } else if (osver.dwMajorVersion < 5) {
+	win32ver = 1;
+    } else {
+	win32ver = 2;
+    }
+
     switch (PRIMARYLANGID(GetUserDefaultLangID())) {
     default: break;
     case LANG_JAPANESE: putenv("LANGUAGE=ja"); break;
@@ -129,7 +144,6 @@ int main(int argc, char** argv) {
 #endif
 
     int c;
-
     while(EOF != (c = getopt(argc, argv, "schfS2Op:"))) {
         switch (c) {
         case 'h':
