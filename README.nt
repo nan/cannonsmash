@@ -1,7 +1,12 @@
-Compile csmash on NT
+How to compile csmash on NT
 
-1. Get glut-3.7 binary package for Win32 from somewhere.
-2. Make directory "GL" at soruce directry, put glut.h, glut32.lib to the
-   directory you just created.
-   Put glut32.dll at source directory.
-3. Run gmake at source directory as "gmake -f NT/Makefile.nt".
+You need two external libraries.
+  zlib-1.1.3, glut-3.7
+You can get these libraries from <URL:http://www.cdrom.com/pub/infozip/zlib/>,
+<URL:http://reality.sgi.com/mjk/glut3/glut3.html>, respectively.
+
+Dig a directory named "GL" here, and place glut library headers under the
+directory. Put other files at source directory.
+
+There may be a separate binary distribution named 
+"csmashlibs-i386-win32.tar.gz". It contains the libraries you need.

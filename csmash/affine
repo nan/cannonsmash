@@ -1,0 +1,108 @@
+/***********************************************************************
+ *	c:/users/wata/src/csmash-0.3.8.new/affine
+ *	$Id$
+ *
+ *	Copyright by ESESoft.
+ *	You are granted the right to redistribute this file under
+ *	the "Artistic license". See "ARTISTIC" for detail.
+ *
+ ***********************************************************************/
+#ifndef __ESESoft_wata_0296__affine__INCLUDED__
+#define __ESESoft_wata_0296__affine__INCLUDED__
+/***********************************************************************/
+#include "matrix"
+
+/* __BEGIN__BEGIN__ */
+#if 0
+typedef ese::Matrix<4, Float> affine4F;
+typedef ese::Vector<4, Float> vector4F;
+typedef ese::Vector<3, Float> vector3F;
+#else
+typedef Matrix<4,Float> affine4F;
+typedef Vector<4,Float> vector4F;
+typedef Vector<3,Float> vector3F;
+#endif
+
+inline vector4F operator ^(const vector4F &a, const vector4F &b)
+{
+    vector4F v;
+    v[0] = a[1]*b[2] - a[2]*b[1];
+    v[1] = a[2]*b[0] - a[0]*b[2];
+    v[2] = a[0]*b[1] - a[1]*b[0];
+    v[3] = 0;
+    return v;
+}
+
+inline vector3F operator ^(const vector3F &a, const vector3F &b)
+{
+    vector3F v;
+    v[0] = a[1]*b[2] - a[2]*b[1];
+    v[1] = a[2]*b[0] - a[0]*b[2];
+    v[2] = a[0]*b[1] - a[1]*b[0];
+    return v;
+}
+
+inline vector3F operator *(const vector3F &a, const affine4F &t)
+{
+    vector3F v(0);
+    for (int i = 0; 3 > i; i++) {
+	int j;
+	for (j = 0; 3 > j; j++) {
+	    v[i] += a[j] * t[j][i];
+	}
+	v[i] += t[j][i];
+    }
+    return v;
+}
+
+inline affine4F translate(const vector4F &v)
+{
+    affine4F t(1);
+    for (int i = 0; 3 > i; i++) {
+	t[3][i] = v[i];
+    }
+    return t;
+}
+
+inline affine4F translate(const vector3F &v)
+{
+    affine4F t(1);
+    for (int i = 0; 3 > i; i++) {
+	t[3][i] = v[i];
+    }
+    return t;
+}
+
+inline affine4F rotateX(Float r)
+{
+    affine4F t(1);
+
+    t[1][1] =  cosF(r);	t[1][2] = sinF(r);
+    t[2][1] = -sinF(r);	t[2][2] = cosF(r);
+    return t;
+}
+
+inline affine4F rotateY(Float r)
+{
+    affine4F t(1);
+
+    t[2][2] =  cosF(r);	t[2][0] = sinF(r);
+    t[0][2] = -sinF(r);	t[0][0] = cosF(r);
+    return t;
+}
+
+inline affine4F rotateZ(Float r)
+{
+    affine4F t(1);
+
+    t[0][0] =  cosF(r);	t[0][1] = sinF(r);
+    t[1][0] = -sinF(r);	t[1][1] = cosF(r);
+    return t;
+}
+
+/* __END__END__ */
+/***********************************************************************/
+#endif
+/***********************************************************************
+ *	END OF affine
+ ***********************************************************************/

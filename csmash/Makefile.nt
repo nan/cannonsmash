@@ -1,15 +1,15 @@
 #
-# Makefile for gmake (NOT for nmake, sorry.)
+# Makefile for gmake (It should run with Microsoft's nmake)
 #
 ############################################################################
 .SUFFIXES: .exe .so .dll .a .lib .o .obj .cpp .cc .c .asm .s .y .h .l
 
 .c.obj:
- $(CC) $(Cpre) $(CFLAGS) $(Cpost) $<
+	$(CC) $(CFLAGS) $(Cpost) $<
 .cpp.obj:
- $(CXX) $(CXXpre) $(CXXFLAGS) $(CXXpost) $<
+	$(CXX) $(CXXFLAGS) $(CXXpost) $<
 .cc.obj:
- $(CXX) $(CXXpre) $(CXXFLAGS) $(CXXpost) $<
+	$(CXX) $(CXXFLAGS) $(CXXpost) $<
 
 ############################################################################
 CC = cl -nologo -W3
@@ -18,7 +18,9 @@ CXX = $(CC)
 Cpost = -c -Tc
 CXXpost = -c -Tp
 
-CFLAGS = -MD -Ox -Oa -G6 -vms -DZLIB $(INCDIRS)
+#CFLAGS = -MD -Ox -G6 -vms $(INCDIRS)
+CFLAGS = -MD -Ox -G6 -vms -DHAVE_LIBZ $(INCDIRS)
+
 CXXFLAGS=$(CFLAGS) -GX
 
 O = obj
@@ -29,24 +31,29 @@ AOUT = -Fe
 
 ############################################################################
 
-INCDIRS = -I./
-LIBS = GL/glut32.lib zlib.lib
+INCDIRS = -I.
+LIBS =	win32/GetArgs.obj win32/getopt.obj win32/wsaerror.obj \
+	win32/wsainit.obj \
+	glut32.lib zlib.lib ws2_32.lib
 
 HDRS = \
- Ball.h BallView.h BaseView.h Event.h HitMark.h Howto.h HowtoView.h \
- LoadImage.h PenAttack.h PenDrive.h Player.h PlayerSelect.h \
- PlayerSelectView.h PlayerView.h ShakeCut.h Sound.h Title.h \
- TitleView.h View.h comPenAttack.h comPenDrive.h comPlayer.h \
- comShakeCut.h ttinc.h z.h
+	Ball.h BallView.h BaseView.h Event.h HitMark.h Howto.h HowtoView.h \
+	LoadImage.h PenAttack.h PenDrive.h Player.h PlayerSelect.h \
+	PlayerSelectView.h PlayerView.h ShakeCut.h Sound.h Title.h \
+	TitleView.h View.h comPenAttack.h comPenDrive.h comPlayer.h \
+	comShakeCut.h ttinc.h z.h
 
 SRCS = \
- Ball.cpp BallView.cpp BaseView.cpp Event.cpp HitMark.cpp \
- Howto.cpp HowtoView.cpp LoadImage.cpp PenAttack.cpp \
- PenDrive.cpp Player.cpp PlayerSelect.cpp PlayerSelectView.cpp \
- PlayerView.cpp ShakeCut.cpp Sound.cpp Title.cpp TitleView.cpp \
- View.cpp comPenAttack.cpp comPenDrive.cpp comPlayer.cpp \
- comShakeCut.cpp main.cpp z.cpp
+	Ball.cpp BallView.cpp BaseView.cpp Event.cpp HitMark.cpp \
+	Howto.cpp HowtoView.cpp LoadImage.cpp PenAttack.cpp \
+	PenDrive.cpp Player.cpp PlayerSelect.cpp PlayerSelectView.cpp \
+	ShakeCut.cpp Sound.cpp Title.cpp TitleView.cpp PlayerView.cpp \
+	View.cpp comPenAttack.cpp comPenDrive.cpp comPlayer.cpp \
+	comShakeCut.cpp ComTrainingPenAttack.cpp TrainingPenAttack.cpp \
+	MultiPlayer.cpp \
+	main.cpp z.cpp parts.cpp xerror.cpp
 
+#	PlayerView.cpp Normal.cpp
 OBJS = $(SRCS:.cpp=.obj)
 
 TARGET = csmash$(EXE)
@@ -54,19 +61,24 @@ TARGET = csmash$(EXE)
 ############################################################################
 all: $(TARGET)
 clean:
- rm -f $(TARGET) *.$(O)
+	rm -f $(TARGET) *.$(O)
+	cd win32; $(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" clean
 distclean:
- rm -f $(TARGET) *.$(O) *~ *.bak
+	rm -f $(TARGET) *.$(O) *~ *.bak depend.nt
+	cd win32; $(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" distclean
 
 depend:
- touch depend.nt
- makedepend -fdepend.nt -D_WIN32 -DHAVE_LIBZ *.cpp
- cat depend.nt | sed -e "s/.:\/Program.*\/include\/[^ ]*//g" \
- | grep -v ".*:[ ]*$$" > depend.new
- mv depend.new depend.nt
+	touch depend.nt
+	makedepend -fdepend.nt $(INCDIRS) -D_WIN32 -DHAVE_LIBZ *.cpp
+	cat depend.nt | sed -e "s/.:\/.*\/VC98[^ ]*include\/[^ ]*//g" \
+	| grep -v ".*:[ ]*$$" > depend.new
+	mv depend.new depend.nt
 
-$(TARGET): $(OBJS)
- $(CC) $(CFLAGS) $(AOUT)$@ $(OBJS) $(LIBS)
+$(TARGET): $(OBJS) win32/all
+	$(CC) $(CFLAGS) $(AOUT)$@ $(OBJS) $(LIBS)
+
+win32/all:
+	cd win32; $(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" all
 
 #-include depend.nt
 ############################################################################

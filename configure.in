@@ -19,7 +19,7 @@ AC_CHECK_LIB(Xi, main)
 AC_CHECK_LIB(m, fabs)
 AC_CHECK_LIB(GL, glLoadIdentity, , [AC_CHECK_LIB(MesaGL, glLoadIdentity, , [AC_CHECK_LIB(OpenGL32, main, , AC_MSG_ERROR(OpenGL library not found.))])])
 AC_CHECK_LIB(GLU, gluPerspective, , [AC_CHECK_LIB(MesaGLU, gluPerspective, , [AC_CHECK_LIB(GLU32, main, , AC_MSG_ERROR(GLU library not found))])])
-AC_CHECK_LIB(glut, glutCreateWindow, , [AC_CHECK_LIB(glut32, main)])
+AC_CHECK_LIB(glut, glutCreateWindow, , [AC_CHECK_LIB(glut32, main, , AC_MSG_ERROR(glut library not found.))])
 AC_CHECK_LIB(esd, esd_play_stream)
 AC_CHECK_LIB(pthread, pthread_create)
 AC_CHECK_LIB(z, gzdopen)
@@ -46,11 +46,20 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 
-AM_INIT_AUTOMAKE(csmash, 0.3.5, no-define)
+AM_INIT_AUTOMAKE(csmash, 0.4.2, no-define)
 
 AC_DEFINE_UNQUOTED(CANNONSMASH_DATADIR, "@prefix@/share/$PACKAGE/")
 
 AC_OUTPUT(makefile \
-	Motion/makefile \
+	Parts/makefile \
+	Parts/Bcut/makefile \
+	Parts/Bnormal/makefile \
+	Parts/Bpeck/makefile \
+	Parts/Fcut/makefile \
+	Parts/Fdrive/makefile \
+	Parts/Fnormal/makefile \
+	Parts/Fpeck/makefile \
+	Parts/Fsmash/makefile \
 	images/makefile \
-	wav/makefile)
+	wav/makefile \
+	win32/makefile)
