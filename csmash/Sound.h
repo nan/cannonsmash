@@ -19,6 +19,10 @@
 #ifndef _Sound_
 #define _Sound_
 
+#include <ogg/ogg.h>
+#include <vorbis/vorbisfile.h>
+#include <vorbis/codec.h>
+
 struct buffer {
   unsigned char const *start;
   unsigned long length;
@@ -39,7 +43,9 @@ public:
   bool SetSoundMode( long mode );
 
   long InitBGM( char *filename );
+  long LoadBGM( char *filename );
   long PlayBGM();
+  long StopBGM();
   long SkipBGM();
 
   // For BGM

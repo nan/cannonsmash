@@ -21,7 +21,7 @@ AC_CHECK_LIB(jpeg, jpeg_std_error)
 AC_CHECK_LIB(GL, glLoadIdentity, , [AC_CHECK_LIB(MesaGL, glLoadIdentity, , [AC_CHECK_LIB(OpenGL32, main, , AC_MSG_ERROR(OpenGL library not found.))])])
 AC_CHECK_LIB(GLU, gluPerspective, , [AC_CHECK_LIB(MesaGLU, gluPerspective, , [AC_CHECK_LIB(GLU32, main, , AC_MSG_ERROR(GLU library not found))])])
 AC_CHECK_LIB(z, gzdopen)
-AC_CHECK_LIB(mad, mad_decoder_init)
+AC_CHECK_LIB(vorbis, main)
 
 dnl Check for SDL
 SDL_VERSION=1.2.0

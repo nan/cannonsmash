@@ -190,7 +190,6 @@ PlayerView::SubRedraw() {
       return false;
     }
 
-//    glEnable(GL_CULL_FACE);
     if ( isSimple )
       motion->renderWire(swing);
     else {
@@ -201,16 +200,17 @@ PlayerView::SubRedraw() {
 	if ( isWireFrame )
 	  motion->renderWire(swing);
 	else {
+	  glEnable(GL_CULL_FACE);
 	  glDisable(GL_DEPTH_TEST);
 	  glDepthMask(0);
 	  motion->render(swing);
 	  glDepthMask(1);
 	  glEnable(GL_DEPTH_TEST);
+	  glDisable(GL_CULL_FACE);
 	}
       }
     }
 
-//    glDisable(GL_CULL_FACE);
 
   } else {
     m_player->GetShoulder( x, y, deg );

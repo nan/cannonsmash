@@ -94,11 +94,7 @@
 #define SOUND_CLICK  (2)
 #define SOUND_OPENING (3)
 
-#ifdef WIN32
-#define OPENINGFILENAME "danslatristesse2-48.wav"
-#else
-#define OPENINGFILENAME "danslatristesse2-48.mp3"
-#endif
+#define OPENINGFILENAME "danslatristesse2-48.ogg"
 
 // Communication
 #define DATA_PV      (0)

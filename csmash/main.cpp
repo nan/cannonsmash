@@ -196,13 +196,10 @@ int main(int argc, char** argv) {
   srand(tb.millitm);
 
   EndianCheck();
+
 // Temporal
-#if 0
   loadMutex = SDL_CreateMutex();
   SDL_CreateThread( LoadData, NULL );
-#else
-  LoadData( NULL );
-#endif
 
   Launcher *launcher = new Launcher();
   launcher->Init();
@@ -298,7 +295,12 @@ bool PollEvent() {
 int
 LoadData( void *dum ) {
   SDL_mutexP( loadMutex );
+
   PlayerView::LoadData(NULL);
+  if ( access( OPENINGFILENAME, F_OK ) == 0 ) {
+    theSound.LoadBGM( OPENINGFILENAME );
+  }
+
   SDL_mutexV( loadMutex );
 
   return 0;
