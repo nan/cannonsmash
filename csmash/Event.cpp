@@ -639,11 +639,11 @@ Event::ReadData() {
 
   SDL_mutexP( networkMutex );
 
-  // externalDataの先頭までbacktrackする
+  // externalDataの先頭までbacktrackする. 
   long btCount = 0;
   ExternalData *externalOld;
   long btHistptr;
-  while ( !(m_External->isNull()) ) {	// 古すぎる情報を捨てる
+  while ( !(m_External->isNull()) ) {	// 古すぎる情報を捨てる. 
     btCount = (m_lastTime.time-m_External->sec)*100 + 
       (m_lastTime.millitm/10-m_External->count);
     if ( btCount > MAX_HISTORY ) {
