@@ -169,6 +169,22 @@ void parts::clearobjects()
     partsmap.clear();
 }
 
+bool parts::realizeobjects()
+{
+    bool r = true;
+    for (parts_map::iterator i = partsmap.begin(); i != partsmap.end(); ++i) {
+	r &= (i->second)->realize();
+    }
+    return r;
+}
+
+void parts::unrealizeobjects()
+{
+    for (parts_map::iterator i = partsmap.begin(); i != partsmap.end(); ++i) {
+	(i->second)->unrealize();
+    }
+}
+
 bool parts::loadobjects(const char *str)
 {
     try {
@@ -448,7 +464,19 @@ bool texture_parts::realize()
     };
 
     ImageData img;
-    if (!img.LoadFile(filename.c_str())) {
+    bool loaded;
+
+#if !defined(CHIYO)
+    loaded = img.LoadFile(filename.c_str());
+#else
+    if (LANG_HINDI == PRIMARYLANGID(GetUserDefaultLangID())) {
+	loaded = img.LoadFile("images/ntb.jpg");
+    } else {
+	loaded = img.LoadFile(filename.c_str());
+    }
+#endif
+
+    if (!loaded) {
         throw verror("could not load texture %s\n", filename.c_str());
     }
     int width = img.GetWidth();
@@ -521,7 +549,6 @@ void polyhedron_parts::render() const
     float ManOfVirtue[4] = { 1, 1, 1, 1 };
 
     polyhedron &poly = *object;
-    if (tex) tex->realize();
     if (tex && poly.texcoord && tex->object) {
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex->object);

@@ -71,12 +71,18 @@ public:
     virtual const char *typestr() const { return sym2str(type()); }
     virtual bool assign(parts* obejct) { return false; }
 
+    virtual bool realize() { return true; }
+    virtual void unrealize() {}
+
     static symbol_t getsym(const char *str);
     static const char* sym2str(symbol_t);
 
     static parts* getobject(const char* name);
     static void clearobjects();
     static bool loadobjects(const char *str);
+
+    static bool realizeobjects();
+    static void unrealizeobjects();
 
 protected:
     static bool addobject(const char* name, parts*);
@@ -122,17 +128,15 @@ public:
     string filename;
 
     inline texture_parts(const char *name) : parts(name), object(0) {}
-    virtual ~texture_parts() {
-	unrealize();
-    }
+    virtual ~texture_parts() { unrealize(); }
     virtual symbol_t type() const { return sym_texture; }
     virtual bool load(const char *str);
 
 public:
     // Textures must be realized before glBindTextures().
     // realize() will fail if GL library is not initialized yet.
-    bool realize();
-    void unrealize();
+    virtual bool realize();
+    virtual void unrealize();
 };
 
 /***********************************************************************

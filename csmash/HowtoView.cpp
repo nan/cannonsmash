@@ -177,7 +177,7 @@ HowtoView::RedrawAlpha() {
   case 1:
   case 3:
   case 4:
-    glColor4f( 0.0, 0.0, 0.0, 0.3 );
+    glColor4f( 0.0F, 0.0F, 0.0F, 0.3F );
     glBegin(GL_QUADS);
     glVertex2i(             0,               0);
     glVertex2i(IMAGE_WIDTH+50,               0);

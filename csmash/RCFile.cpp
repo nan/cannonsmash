@@ -97,7 +97,7 @@ RCFile::ReadRCFile() {
       if ( gameMode > GAME_21PTS || gameMode < GAME_5PTS )
 	gameMode = GAME_21PTS;
     } else if ( strncmp( buf, "soundmode=", 10 ) == 0 ) {
-      sndMode = buf[9]-'0';
+      sndMode = buf[10]-'0';
       if ( sndMode > SOUND_SDL || sndMode < SOUND_NONE )
 	sndMode = SOUND_NONE;
     }

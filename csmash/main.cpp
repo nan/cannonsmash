@@ -254,7 +254,30 @@ StartGame() {
 }
 
 void EventLoop() {
+#if defined(CHIYO)
+  parts::realizeobjects();
+#endif
+
   while ( PollEvent() );
+
+  Event::ClearObject();
+  BaseView::TheView()->QuitGame();
+  Sound::TheSound()->Clear();
+  
+  HitMark::m_textures[0] = 0;
+  HowtoView::m_textures[0] = 0;
+
+  theSocket = -1;
+  isComm = false;
+  
+  wins = 0;
+  mode = MODE_TITLE;
+  
+#if defined(CHIYO)
+  parts::unrealizeobjects();
+#endif
+
+  SDL_Quit();
 }
 
 bool PollEvent() {
@@ -266,43 +289,24 @@ bool PollEvent() {
     case SDL_KEYDOWN:
       Event::KeyboardFunc( event, 0, 0 );
       break;
+
     case SDL_KEYUP:
       Event::KeyUpFunc( event, 0, 0 );
       break;
+
     case SDL_MOUSEMOTION:
       Event::MotionFunc( event.motion.x, event.motion.y );
       break;
+
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
       Event::ButtonFunc( event.button.button, event.button.type, 
 			 event.motion.x, event.motion.y );
       break;
+
     case SDL_QUIT:
-      Event::ClearObject();
-      BaseView::TheView()->QuitGame();
-      Sound::TheSound()->Clear();
-
-      HitMark::m_textures[0] = 0;
-      HowtoView::m_textures[0] = 0;
-
-      theSocket = -1;
-      isComm = false;
-
-      wins = 0;
-      mode = MODE_TITLE;
-
-#if defined(CHIYO)
-      do {
-	  texture_parts *tex =
-	      reinterpret_cast<texture_parts*>(parts::getobject("face.tex"));
-	  if (tex) {
-	      tex->unrealize();
-	  }	      
-      } while (0);
-#endif
-
-      SDL_Quit();
       return false;
+
     case SDL_SYSWMEVENT:
       break;
     }

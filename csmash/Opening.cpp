@@ -80,10 +80,10 @@ Opening::Init() {
 
   HitMark::Init();
 
-  static char telop[][30] = {"images/ArctanX.ppm" };
+  static char *telop[] = {"images/ArctanX" };
 
   m_telop[0] = new MenuItem();
-  m_telop[0]->Init( 0, 0, 800, 600, &telop[0][0], NULL );
+  m_telop[0]->Init( 0, 0, 800, 600, telop[0], NULL );
 
   if ( theRC->gmode != GMODE_SIMPLE )
     theRC->isWireFrame = false;
