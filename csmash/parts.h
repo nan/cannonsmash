@@ -92,6 +92,7 @@ public:
     float* element_array() { return (float*)this; }
     const float* element_array() const { return (float*)this; }
 
+    color4f& operator *=(float d) { r *= d; g *= d; b *= d; return *this; }
     void glBind() const { glColor4fv(element_array()); }
 };
 

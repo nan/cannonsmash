@@ -690,16 +690,20 @@ void polyhedron_parts::render() const
 	    const polygon &face = poly.getPolygon(i);
 	    glBegin(face.glBeginSize());
 	    for (int j = 0; face.size > j; ++j) {
-		poly.cmap[face.c()].glBind();
 		glNormal3fv((float*)&face.rn(j));
 
 		if ( theRC->gmode == GMODE_TOON ) {
+		    color4f c = poly.cmap[face.c()];
+		    c *= 1.45f;
+		    c.glBind();
 #if ANIMELIGHT
 		    if (tex_animelight) {
 			float s = clamp(0.0f, (light*face.rn(j)+1)/2.0f, 1.0f);
 			glMultiTexCoord1fARB(GL_TEXTURE1_ARB, s);
 		    }
 #endif
+		} else {
+		    poly.cmap[face.c()].glBind();
 		}
 		glVertex3fv((float*)&face.rv(j));
 	    }

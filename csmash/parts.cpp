@@ -131,8 +131,8 @@ struct plane_t {
     inline short& operator [](int i) { return poly[i]; }
     inline int size() const { return (poly[3] < 0) ? 3 : 4; }
 };
-
 END_ANONYMOUS
+
 /***********************************************************************
  *	Class colormap
  ***********************************************************************/
