@@ -39,6 +39,7 @@ bool isLighting	= true;
 bool isFog	= true;
 bool isTexture	= true;
 bool isPolygon	= true;
+bool isSimple	= false;
 
 long wins	= 0;		// 勝ち抜き数
 long gameLevel  = LEVEL_NORMAL;	// 強さ
@@ -80,7 +81,7 @@ int main(int argc, char** argv) {
   bool fullScreen = false;
 
     int c;
-    while(EOF != (c = getopt(argc, argv, "schf"))) {
+    while(EOF != (c = getopt(argc, argv, "schfS"))) {
         switch (c) {
         case 'h':
 	    // brief help
@@ -101,6 +102,11 @@ int main(int argc, char** argv) {
 	case 'f':
 	    // Fullscreen mode
 	    fullScreen = true;
+	    break;
+	case 'S':
+	    // Simple mode
+	    isSimple = true;
+	    isTexture = false;
 	}
     }
 

@@ -36,8 +36,7 @@ extern bool isLighting;
 extern bool isFog;
 extern bool isTexture;
 extern bool isPolygon;
-
-extern bool isComm;
+extern bool isSimple;
 
 long BaseView::m_winWidth = WINXSIZE;
 long BaseView::m_winHeight = WINYSIZE;
@@ -189,7 +188,9 @@ BaseView::RedrawAll() {
     view = view->m_next;
   }
 
-  glEnable(GL_BLEND);
+  if ( !isSimple )
+    glEnable(GL_BLEND);
+
 //  glDisable(GL_CULL_FACE);
   m_fieldView->RedrawAlpha();
 
@@ -211,21 +212,23 @@ BaseView::RedrawAll() {
   glColor4f( 0.0, 0.0, 0.0, 1.0 );
 
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-  glEnable(GL_TEXTURE_2D);
+  if ( isTexture ) {
+    glEnable(GL_TEXTURE_2D);
 
-  glBindTexture(GL_TEXTURE_2D, m_title );
-  glBegin(GL_QUADS);
-  glTexCoord2f(0.0, 1.0);
-  glVertex2i( m_winWidth-256, 0 );
-  glTexCoord2f(1.0, 1.0);
-  glVertex2i( m_winWidth, 0 );
-  glTexCoord2f(1.0, 0.0);
-  glVertex2i( m_winWidth, 256 );
-  glTexCoord2f(0.0, 0.0);
-  glVertex2i( m_winWidth-256, 256 );
-  glEnd();
+    glBindTexture(GL_TEXTURE_2D, m_title );
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0, 1.0);
+    glVertex2i( m_winWidth-256, 0 );
+    glTexCoord2f(1.0, 1.0);
+    glVertex2i( m_winWidth, 0 );
+    glTexCoord2f(1.0, 0.0);
+    glVertex2i( m_winWidth, 256 );
+    glTexCoord2f(0.0, 0.0);
+    glVertex2i( m_winWidth-256, 256 );
+    glEnd();
 
-  glDisable(GL_TEXTURE_2D);
+    glDisable(GL_TEXTURE_2D);
+  }
 
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();

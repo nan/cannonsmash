@@ -18,6 +18,8 @@
 
 #include "ttinc.h"
 
+extern bool isTexture;
+
 GLuint HitMark::m_textures[2] = {0, 0};
 
 HitMark::HitMark() {
@@ -128,6 +130,9 @@ HitMark::Redraw() {
 
 bool
 HitMark::RedrawAlpha() {
+  if ( !isTexture )
+    return true;
+
   glDisable(GL_DEPTH_TEST);
   glDepthMask(0);
   

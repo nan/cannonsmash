@@ -26,6 +26,7 @@ extern long mode;
 extern Control* theControl;
 
 extern bool isLighting;
+extern bool isTexture;
 
 GLuint BallView::m_number[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -184,7 +185,8 @@ BallView::RedrawAlpha() {
     glPushMatrix();
     glTranslatef( -TABLEWIDTH/2-0.3, 0, TABLEHEIGHT );
 
-    glEnable(GL_TEXTURE_2D);
+    if ( isTexture )
+      glEnable(GL_TEXTURE_2D);
     glColor3f( 0.0, 0.0, 0.0 );
 
     if ( ((PlayGame *)theControl)->GetScore(thePlayer) < 10 ) {

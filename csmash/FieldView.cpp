@@ -24,6 +24,7 @@
 
 extern bool isLighting;
 extern bool isTexture;
+extern bool isSimple;
 
 // x --- x座標軸はネットの底辺とその延長. x=0は, センターラインを含み
 //       台に垂直な平面. 
@@ -102,104 +103,106 @@ FieldView::Redraw() {
   if ( isTexture )
     glEnable(GL_TEXTURE_2D);
 
-  glCallList( m_offset );
+  if ( !isSimple ) {
+    glCallList( m_offset );
 
-  glColor4f(0.8, 0.8, 0.8, 0.0);
+    glColor4f(0.8, 0.8, 0.8, 0.0);
 
-  glBindTexture( GL_TEXTURE_2D, m_wall[0] );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-  glBegin(GL_QUADS);			// 壁の描画
-    glNormal3f( 1.0, 0.0, 0.0 );
-    glTexCoord2f(0.0, 1.0); glVertex3f( -AREAXSIZE,  AREAYSIZE, 0.0 );
-    glTexCoord2f(1.0, 1.0); glVertex3f( -AREAXSIZE, -AREAYSIZE, 0.0 );
-    glTexCoord2f(1.0, 0.0); glVertex3f( -AREAXSIZE, -AREAYSIZE, AREAZSIZE);
-    glTexCoord2f(0.0, 0.0); glVertex3f( -AREAXSIZE,  AREAYSIZE, AREAZSIZE);
-  glEnd();
-
-  glBindTexture( GL_TEXTURE_2D, m_wall[1] );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-  glBegin(GL_QUADS);
-    glNormal3f( 0.0, 1.0, 0.0 );
-    glTexCoord2f(0.0, 1.0); glVertex3f( -AREAXSIZE, -AREAYSIZE, 0.0 );
-    glTexCoord2f(1.0, 1.0); glVertex3f(  AREAXSIZE, -AREAYSIZE, 0.0 );
-    glTexCoord2f(1.0, 0.0); glVertex3f(  AREAXSIZE, -AREAYSIZE, AREAZSIZE);
-    glTexCoord2f(0.0, 0.0); glVertex3f( -AREAXSIZE, -AREAYSIZE, AREAZSIZE);
-  glEnd();
-
-  glBindTexture( GL_TEXTURE_2D, m_wall[2] );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-  glBegin(GL_QUADS);
-    glNormal3f( -1.0, 0.0, 0.0 );
-    glTexCoord2f(0.0, 1.0); glVertex3f(  AREAXSIZE, -AREAYSIZE, 0.0 );
-    glTexCoord2f(1.0, 1.0); glVertex3f(  AREAXSIZE,  AREAYSIZE, 0.0 );
-    glTexCoord2f(1.0, 0.0); glVertex3f(  AREAXSIZE,  AREAYSIZE, AREAZSIZE);
-    glTexCoord2f(0.0, 0.0); glVertex3f(  AREAXSIZE, -AREAYSIZE, AREAZSIZE);
-  glEnd();
-
-  glBindTexture( GL_TEXTURE_2D, m_wall[3] );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-  glBegin(GL_QUADS);
-    glNormal3f( 0.0, -1.0, 0.0 );
-    glTexCoord2f(0.0, 1.0); glVertex3f(  AREAXSIZE, AREAYSIZE, 0.0 );
-    glTexCoord2f(1.0, 1.0); glVertex3f( -AREAXSIZE, AREAYSIZE, 0.0 );
-    glTexCoord2f(1.0, 0.0); glVertex3f( -AREAXSIZE, AREAYSIZE, AREAZSIZE);
-    glTexCoord2f(0.0, 0.0); glVertex3f(  AREAXSIZE, AREAYSIZE, AREAZSIZE);
-  glEnd();
-
-  if ( isTexture )
-    glDisable(GL_TEXTURE_2D);
-
-  glColor4f(0.1, 0.1, 0.1, 0.0);
-  glBegin(GL_QUADS);			// 天井の描画
-    glNormal3f( 0.0, 0.0, -1.0 );
-    glVertex3f(  AREAXSIZE*2,  AREAYSIZE*2, AREAZSIZE);
-    glVertex3f( -AREAXSIZE*2,  AREAYSIZE*2, AREAZSIZE);
-    glVertex3f( -AREAXSIZE*2, -AREAYSIZE*2, AREAZSIZE);
-    glVertex3f(  AREAXSIZE*2, -AREAYSIZE*2, AREAZSIZE);
-  glEnd();
-
-  if ( isLighting ) {
-    glColor4f(0.0, 0.2, 0.0, 0.0);
-    static GLfloat mat_board[] = { 0.0, 0.2, 0.0, 0.0 };
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_board);
-
-    glBegin(GL_QUADS);			// 仕切り板の描画
+    glBindTexture( GL_TEXTURE_2D, m_wall[0] );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glBegin(GL_QUADS);			// 壁の描画
       glNormal3f( 1.0, 0.0, 0.0 );
-      glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, 0.0 );
-      glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, 0.0 );
-      glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
-      glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
-
-      glNormal3f( -1.0, 0.0, 0.0 );
-      glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, 0.0 );
-      glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, 0.0 );
-      glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
-      glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
-
-      glNormal3f( 0.0, -1.0, 0.0 );
-      glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, 0.0 );
-      glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, 0.0 );
-      glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
-      glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
-
-      glNormal3f( 0.0, 1.0, 0.0 );
-      glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, 0.0 );
-      glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, 0.0 );
-      glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
-      glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
+      glTexCoord2f(0.0, 1.0); glVertex3f( -AREAXSIZE,  AREAYSIZE, 0.0 );
+      glTexCoord2f(1.0, 1.0); glVertex3f( -AREAXSIZE, -AREAYSIZE, 0.0 );
+      glTexCoord2f(1.0, 0.0); glVertex3f( -AREAXSIZE, -AREAYSIZE, AREAZSIZE);
+      glTexCoord2f(0.0, 0.0); glVertex3f( -AREAXSIZE,  AREAYSIZE, AREAZSIZE);
     glEnd();
+
+    glBindTexture( GL_TEXTURE_2D, m_wall[1] );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glBegin(GL_QUADS);
+      glNormal3f( 0.0, 1.0, 0.0 );
+      glTexCoord2f(0.0, 1.0); glVertex3f( -AREAXSIZE, -AREAYSIZE, 0.0 );
+      glTexCoord2f(1.0, 1.0); glVertex3f(  AREAXSIZE, -AREAYSIZE, 0.0 );
+      glTexCoord2f(1.0, 0.0); glVertex3f(  AREAXSIZE, -AREAYSIZE, AREAZSIZE);
+      glTexCoord2f(0.0, 0.0); glVertex3f( -AREAXSIZE, -AREAYSIZE, AREAZSIZE);
+    glEnd();
+
+    glBindTexture( GL_TEXTURE_2D, m_wall[2] );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glBegin(GL_QUADS);
+      glNormal3f( -1.0, 0.0, 0.0 );
+      glTexCoord2f(0.0, 1.0); glVertex3f(  AREAXSIZE, -AREAYSIZE, 0.0 );
+      glTexCoord2f(1.0, 1.0); glVertex3f(  AREAXSIZE,  AREAYSIZE, 0.0 );
+      glTexCoord2f(1.0, 0.0); glVertex3f(  AREAXSIZE,  AREAYSIZE, AREAZSIZE);
+      glTexCoord2f(0.0, 0.0); glVertex3f(  AREAXSIZE, -AREAYSIZE, AREAZSIZE);
+    glEnd();
+
+    glBindTexture( GL_TEXTURE_2D, m_wall[3] );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glBegin(GL_QUADS);
+      glNormal3f( 0.0, -1.0, 0.0 );
+      glTexCoord2f(0.0, 1.0); glVertex3f(  AREAXSIZE, AREAYSIZE, 0.0 );
+      glTexCoord2f(1.0, 1.0); glVertex3f( -AREAXSIZE, AREAYSIZE, 0.0 );
+      glTexCoord2f(1.0, 0.0); glVertex3f( -AREAXSIZE, AREAYSIZE, AREAZSIZE);
+      glTexCoord2f(0.0, 0.0); glVertex3f(  AREAXSIZE, AREAYSIZE, AREAZSIZE);
+    glEnd();
+
+    if ( isTexture )
+      glDisable(GL_TEXTURE_2D);
+
+    glColor4f(0.1, 0.1, 0.1, 0.0);
+    glBegin(GL_QUADS);			// 天井の描画
+      glNormal3f( 0.0, 0.0, -1.0 );
+      glVertex3f(  AREAXSIZE*2,  AREAYSIZE*2, AREAZSIZE);
+      glVertex3f( -AREAXSIZE*2,  AREAYSIZE*2, AREAZSIZE);
+      glVertex3f( -AREAXSIZE*2, -AREAYSIZE*2, AREAZSIZE);
+      glVertex3f(  AREAXSIZE*2, -AREAYSIZE*2, AREAZSIZE);
+    glEnd();
+
+    if ( isLighting ) {
+      glColor4f(0.0, 0.2, 0.0, 0.0);
+      static GLfloat mat_board[] = { 0.0, 0.2, 0.0, 0.0 };
+      glMaterialfv(GL_FRONT, GL_SPECULAR, mat_board);
+
+      glBegin(GL_QUADS);			// 仕切り板の描画
+        glNormal3f( 1.0, 0.0, 0.0 );
+	glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, 0.0 );
+	glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, 0.0 );
+	glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
+	glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
+
+	glNormal3f( -1.0, 0.0, 0.0 );
+	glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, 0.0 );
+	glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, 0.0 );
+	glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
+	glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
+
+	glNormal3f( 0.0, -1.0, 0.0 );
+	glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, 0.0 );
+	glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, 0.0 );
+	glVertex3f(  AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
+	glVertex3f( -AREAXSIZE/2,  AREAYSIZE/2, TABLEHEIGHT );
+
+	glNormal3f( 0.0, 1.0, 0.0 );
+	glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, 0.0 );
+	glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, 0.0 );
+	glVertex3f( -AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
+	glVertex3f(  AREAXSIZE/2, -AREAYSIZE/2, TABLEHEIGHT );
+      glEnd();
+    }
   }
 
   glColor4f(0.4, 0.4, 0.4, 0.0);

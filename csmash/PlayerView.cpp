@@ -213,7 +213,6 @@ PlayerView::SubRedraw() {
     if (m_player == thePlayer) {
       motion->renderWire(swing);
     }
-
 //    glDisable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
