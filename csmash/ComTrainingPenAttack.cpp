@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -176,7 +176,7 @@ ComTrainingPenAttack::HitBall() {
 
       level = 1.0 -
 	1.0/((double)((Training *)Control::TheControl())->GetTrainingCount()/10.0+1.5);
-      theBall.TargetToV( -TABLEWIDTH/5*2*m_side, TABLELENGTH/5*2*m_side,
+      theBall.TargetToV( -TABLEWIDTH/5*m_side, TABLELENGTH/16*4*m_side,
 			 level, m_spin, vx, vy, vz, 0.1, 20.0 );
 
       theBall.Hit( vx, vy, vz, m_spin, this );
