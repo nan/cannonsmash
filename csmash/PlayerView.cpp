@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -55,6 +55,8 @@ PlayerView::PlayerView() {
   m_Fcut    = m_Bcut    = NULL;
   m_Fpeck   = m_Bpeck   = NULL;
   m_Fsmash  = m_Bsmash  = NULL;
+
+  m_xdiff = m_ydiff = m_zdiff = 0.0;
 }
 
 PlayerView::~PlayerView() {
@@ -391,28 +393,79 @@ PlayerView::DrawPlayer() {
     return;
   }
 
+  float xdiff = 0.0, ydiff = 0.0, zdiff = 0.0;
+
+  if ( m_player->GetSwing() > 10 && m_player->GetSwing() < 20 ) {
+    Ball *tmpBall;
+
+    tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
+			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
+			theBall.GetSpin(), theBall.GetStatus() );
+
+    for ( int i = m_player->GetSwing() ; i < 20 ; i++ )
+      tmpBall->Move();
+
+    if ( ((tmpBall->GetStatus() == 3 && m_player->GetSide() == 1) ||
+	  (tmpBall->GetStatus() == 1 && m_player->GetSide() == -1)) ) {
+      if ( m_player->GetSwingSide() )
+	xdiff = theBall.GetX() - (m_player->GetX() + m_player->GetSide()*0.3);
+      else
+	xdiff = theBall.GetX() - (m_player->GetX() - m_player->GetSide()*0.3);
+
+      ydiff = (theBall.GetY() - m_player->GetY())*m_player->GetSide();
+
+      zdiff = theBall.GetZ() - 0.85;	/* temporary */
+    }
+
+    if ( xdiff > 0.3 )
+      xdiff = 0.3;
+    if ( xdiff < -0.3 )
+      xdiff = -0.3;
+    if ( ydiff > 0.3 )
+      ydiff = 0.3;
+    if ( ydiff < -0.3 )
+      ydiff = -0.3;
+  }
+
+  if ( m_player->GetSwing() >= 30 ) {
+    m_xdiff *= 0.95;
+    m_ydiff *= 0.95;
+    m_zdiff *= 0.95;
+  } else {
+    m_xdiff = xdiff;
+    m_ydiff = ydiff;
+    m_zdiff = zdiff;
+  }
+
   glPushMatrix();
     glTranslatef( m_player->GetX()-0.3F*m_player->GetSide(),
 		  m_player->GetY(), 0 );
+
+    if ( m_player->GetX() > -TABLEWIDTH/2 &&
+	 m_player->GetX() < TABLEWIDTH/2 &&
+	 m_player->GetY()*m_player->GetSide() > -TABLELENGTH/2 ) {
+      glTranslatef( 0,-TABLELENGTH/2*m_player->GetSide()-m_player->GetY(), 0 );
+      m_ydiff += fabs(-TABLELENGTH/2*m_player->GetSide()-m_player->GetY());
+    }
 
     glRotatef( -atan2( m_player->GetTargetX()-m_player->GetX(),
 		       m_player->GetTargetY()-m_player->GetY() )*180/3.141592F,
 	       0.0F, 0.0F, 1.0F );
 
     if ( theRC->gmode == GMODE_SIMPLE )
-      motion->renderWire(swing);
+      motion->renderWire(swing, m_xdiff, m_ydiff, m_zdiff);
     else {
       if (Control::TheControl()->GetComPlayer() == m_player) {
-	motion->render(swing);
+	motion->render(swing, m_xdiff, m_ydiff, m_zdiff);
       }
       if (Control::TheControl()->GetThePlayer() == m_player) {
 	if ( theRC->isWireFrame )
-	  motion->renderWire(swing);
+	  motion->renderWire(swing, m_xdiff, m_ydiff, m_zdiff);
 	else {
 	  glEnable(GL_CULL_FACE);
 	  glDisable(GL_DEPTH_TEST);
 	  glDepthMask(0);
-	  motion->render(swing);
+	  motion->render(swing, m_xdiff, m_ydiff, m_zdiff);
 	  glDepthMask(1);
 	  glEnable(GL_DEPTH_TEST);
 	  glDisable(GL_CULL_FACE);

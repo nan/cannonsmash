@@ -244,10 +244,10 @@ public:
     partsmotion(const char *basename);
     virtual ~partsmotion();
 
-    virtual bool render(int frame);
-    virtual bool render(double frame);
-    virtual bool renderWire(int frame);
-    virtual bool renderWire(double frame);
+    virtual bool render(int frame, float xdiff, float ydiff, float zdiff);
+    virtual bool render(double frame, float xdiff, float ydiff, float zdiff);
+    virtual bool renderWire(int frame, float xdiff, float ydiff, float zdiff);
+    virtual bool renderWire(double frame, float xdiff, float ydiff, float zdiff);
 };
 
 /* __END__END__ */

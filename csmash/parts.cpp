@@ -51,6 +51,38 @@
 
 #define RENDEREDGE 0
 
+#define LSHOULDERORIGINX	-0.2
+#define LSHOULDERORIGINY	0.0
+#define LSHOULDERORIGINZ	1.30
+#define RSHOULDERORIGINX	0.2
+#define RSHOULDERORIGINY	0.0
+#define RSHOULDERORIGINZ	1.30
+
+#define NECKORIGINX	0.0
+#define NECKORIGINY	0.0
+#define NECKORIGINZ	1.30
+#define WAISTORIGINX	0.0
+#define WAISTORIGINY	-0.1
+#define WAISTORIGINZ	0.77
+
+#define RHIPORIGINX	0.1
+#define RHIPORIGINY	-0.1
+#define RHIPORIGINZ	0.77
+#define LHIPORIGINX	-0.1
+#define LHIPORIGINY	-0.1
+#define LHIPORIGINZ	0.77
+#define RFOOTORIGINX	0.25
+#define RFOOTORIGINY	0
+#define RFOOTORIGINZ	0
+#define LFOOTORIGINX	-0.25
+#define LFOOTORIGINY	0
+#define LFOOTORIGINZ	0
+
+const float thighLength = 0.462;
+const float shinLength = 0.366;
+const float footSize = 0.15;
+const float bodylength = 0.539;
+
 vector4F Affine2Quaternion(affine4F aff);
 affine4F Quaternion2Affine(vector4F v, vector4F p);
 
@@ -114,7 +146,7 @@ bool colormap::load(const char *file)
 	int g = atoi(strtok(NULL, delim));
 	int b = atoi(strtok(NULL, delim));
 	token = strtok(NULL, delim);
-	int a = (token && '#' != *token) ? atoi(token) : 255;
+	int a = (token && '#' != *token) ? atoi(token) : 127;
 
 	if (0 > num) {
 	    fill(color_t(r, g, b, a));
@@ -158,16 +190,16 @@ polyhedron::polyhedron(const char* filename)
 		exit(5);
 	    }
 	    vector3F v;
-	    v[0] = strtod(strtok(NULL, delim), NULL);
-	    v[1] = strtod(strtok(NULL, delim), NULL);
-	    v[2] = strtod(strtok(NULL, delim), NULL);
+	    v[0] = (float)strtod(strtok(NULL, delim), NULL);
+	    v[1] = (float)strtod(strtok(NULL, delim), NULL);
+	    v[2] = (float)strtod(strtok(NULL, delim), NULL);
 	    vertex[numPoints] = v;
 	    vector3F t(0);
 	    token = strtok(NULL, delim);
 	    if (token) {
 		textureexists = true;
-		t[0] = strtod(token, NULL);
-		t[1] = 1-strtod(strtok(NULL, delim), NULL);
+		t[0] = (float)strtod(token, NULL);
+		t[1] = 1-(float)strtod(strtok(NULL, delim), NULL);
 	    }
 	    st[numPoints] = t;
 
@@ -447,7 +479,7 @@ affineanim::affineanim(const char *filename)
 	    for (int i = 0; 4 > i; i++) {
 		for (int j = 0; 3 > j; j++) {
 		    token = strtok(NULL, delim);
-		    if (token) t[i][j] = strtod(token, NULL);
+		    if (token) t[i][j] = (float)strtod(token, NULL);
 		}
 	    }
 	    if (mat.capacity() <= numFrames) {
@@ -508,6 +540,246 @@ affinemotion::write(const char *basename)
     }
 }
 
+
+void legIK( vector3F hip, vector3F &knee, vector3F &heel, vector3F toe, 
+	    float thighLength, float shinLength, float footSize ) {
+
+  vector3F _hip, _knee, _heel, _toe;
+
+  /* hip が原点に来るよう平行移動 */
+  _hip  = hip - hip;
+  _toe  = toe - hip;
+
+  /* toe が yz 平面上に来るようy軸周りで回転 */
+  float rot1;
+  if ( _toe[2] == 0.0 )
+    rot1 = 0;
+  else
+    rot1 = -atan2( _toe[0], _toe[2] );
+
+  /* 回転計算 */
+  _toe = _toe*rotateY( rot1 );
+  if ( _toe[1] < 0.0 ) {
+    _toe[1] = -_toe[1];
+    rot1 += 3.141592653589793238462;
+  }
+
+  //printf( "rot1: %f %f %f %f\n", rot1, _toe[0], _toe[1], _toe[2] );
+
+  if ( thighLength+shinLength > hypot( _toe[1]-footSize, _toe[2] ) ) {
+    /* 踵を地面に下ろし, 膝を曲げた状態 */
+    /* かかとの位置を確定 */
+    _heel[0] = 0;
+    _heel[1] = _toe[1] - footSize;
+    _heel[2] = _toe[2];
+
+    /* かかとがz軸上に来るようx軸周りで回転 */
+    float rot2;
+    if ( _heel[2] == 0.0 )
+      rot2 = 0;
+    else
+      rot2 = atan2( _heel[1], _heel[2] );
+
+    /* 結果は自明なので, 回転計算は行わない */
+    /* _toe を回転させていないことに注意!!  */
+    vector3F _heel2;
+
+    //_heel2 = _heel*rotateX( rot2 );
+    //printf( "rot2: %f %f %f %f\n", rot2, _heel2[0], _heel2[1], _heel2[2] );
+
+    _heel2[0] = 0;
+    _heel2[1] = 0;
+    _heel2[2] = hypot( _heel[1], _heel[2] );
+
+    //printf( "rot2: %f %f %f %f\n", rot2, _heel2[0], _heel2[1], _heel2[2] );
+
+    /* 公式より, 膝の位置を求める */
+    _knee[2] = (thighLength*thighLength-shinLength*shinLength+
+		_heel2[2]*_heel2[2]) / (2*_heel2[2]);
+    _knee[0] = 0;
+    if ( thighLength*thighLength - _knee[2]*_knee[2] < 0 )
+      _knee[1] = 0.0;
+    else
+      _knee[1] = sqrt(thighLength*thighLength - _knee[2]*_knee[2]);
+
+    //printf( "_knee: %f %f %f\n", _knee[0], _knee[1], _knee[2] );
+
+    /* rot2 の回転を戻す */
+    _knee = _knee*rotateX( -rot2 );
+
+    //printf( "_knee: %f %f %f\n", _knee[0], _knee[1], _knee[2] );
+
+    /* rot1 の回転を戻す */
+    _knee = _knee*rotateY( -rot1 );
+    _heel = _heel*rotateY( -rot1 );
+  } else {
+    /* 踵を上げ, 膝を伸ばした状態 */
+    /* 爪先がz軸上に来るようx軸周りで回転 */
+    float rot2;
+
+    if ( _toe[2] == 0.0 )
+      rot2 = 0;
+    else
+      rot2 = atan2( _toe[1], _toe[2] );
+
+    /* 結果は自明なので, 回転計算は行わない */
+    vector3F _toe2;
+
+    //_toe2 = _heel*rotateX( rot2 );
+    //printf( "rot2: %f %f %f %f\n", rot2, _toe2[0], _toe2[1], _toe2[2] );
+
+    _toe2[0] = 0;
+    _toe2[1] = 0;
+    _toe2[2] = hypot( _toe[1], _toe[2] );
+
+    //printf( "rot2: %f %f %f %f\n", rot2, _toe2[0], _toe2[1], _toe2[2] );
+
+    /* 公式より, 踵の位置を求める */
+    _heel[2] = ((thighLength+shinLength)*(thighLength+shinLength)
+		-footSize*footSize+_toe2[2]*_toe2[2]) / (2*_toe2[2]);
+    _heel[0] = 0;
+    if ( (thighLength+shinLength)*(thighLength+shinLength)
+	 -_heel[2]*_heel[2] < 0 )
+      _heel[1] = 0.0;
+    else
+      _heel[1] = sqrt((thighLength+shinLength)*(thighLength+shinLength)
+		      - _heel[2]*_heel[2]);
+
+    //printf( "_knee: %f %f %f\n", _knee[0], _knee[1], _knee[2] );
+
+    _knee[0] = 0;
+    _knee[1] = _heel[1]*thighLength/(thighLength+shinLength);
+    _knee[2] = _heel[2]*thighLength/(thighLength+shinLength);
+
+    /* rot2 の回転を戻す */
+    _knee = _knee*rotateX( -rot2 );
+
+    //printf( "_knee: %f %f %f\n", _knee[0], _knee[1], _knee[2] );
+
+    /* rot1 の回転を戻す */
+    _knee = _knee*rotateY( -rot1 );
+    _heel = _heel*rotateY( -rot1 );
+  }
+
+  /* hip の位置を戻す */
+  _knee = _knee + hip;
+  _heel = _heel + hip;
+
+  /* 結果確定 */
+  knee = _knee;
+  heel = _heel;
+
+  //printf( "knee: %f %f %f\n", knee[0], knee[1], knee[2] );
+  //printf( "heel: %f %f %f\n", heel[0], heel[1], heel[2] );
+}
+
+void
+drawleg( float xdiff, float ydiff, float zdiff ) {
+    vector3F hip, knee, heel, toe;
+
+    hip[0] = RHIPORIGINX+xdiff;
+    hip[1] = RHIPORIGINY+ydiff;
+    hip[2] = RHIPORIGINZ+zdiff;
+    toe[0] = RFOOTORIGINX;
+    toe[1] = RFOOTORIGINY;
+    toe[2] = RFOOTORIGINZ;
+
+    legIK( hip, knee, heel, toe,
+	   thighLength, shinLength, footSize );
+
+    glLineWidth( 10.0 );
+    glBegin(GL_LINE_STRIP);
+        glVertex3fv((float*)&hip);
+        glVertex3fv((float*)&knee);
+        glVertex3fv((float*)&heel);
+        glVertex3fv((float*)&toe);
+    glEnd();
+
+    hip[0] = LHIPORIGINX+xdiff;
+    hip[1] = LHIPORIGINY+ydiff;
+    hip[2] = LHIPORIGINZ+zdiff;
+    toe[0] = LFOOTORIGINX;
+    toe[1] = LFOOTORIGINY;
+    toe[2] = LFOOTORIGINZ;
+
+    legIK( hip, knee, heel, toe,
+	   thighLength, shinLength, footSize );
+
+    glBegin(GL_LINE_STRIP);
+        glVertex3fv((float*)&hip);
+        glVertex3fv((float*)&knee);
+        glVertex3fv((float*)&heel);
+        glVertex3fv((float*)&toe);
+    glEnd();
+    glLineWidth( 1.0 );
+}
+
+
+void bodyIK( vector3F &neck, vector3F &waist, float bodyLength ) {
+  float legLength = thighLength+shinLength+footSize;
+
+  if ( hypot( neck[1]-waist[1], neck[2]-legLength ) > bodyLength ) {
+    /* 肩の位置を下げる */
+    neck[2] = legLength +
+      sqrt( bodyLength*bodyLength - (neck[1]-waist[1])*(neck[1]-waist[1]) );
+    waist[2] = legLength;
+
+    return;
+  }
+
+  waist[2] = neck[2] - sqrt( bodyLength*bodyLength -
+			     (waist[0]-neck[0])*(waist[0]-neck[0]) -
+			     (waist[1]-neck[1])*(waist[1]-neck[1]) );
+}
+
+float
+drawbody( float xdiff, float &ydiff, float &zdiff ) {
+  vector3F neck, waist;
+
+  neck[0]  = NECKORIGINX+xdiff;
+  neck[1]  = NECKORIGINY+ydiff;
+  neck[2]  = NECKORIGINZ+zdiff;
+  waist[0] = WAISTORIGINX+xdiff;
+  waist[1] = WAISTORIGINY;
+  waist[2] = WAISTORIGINZ;
+
+  if ( neck[1]-waist[1] > bodylength*0.8 )
+    neck[1] = waist[1]+bodylength*0.8;
+
+  ydiff = NECKORIGINY+ydiff - neck[1];
+
+  bodyIK( neck, waist, bodylength );
+
+  zdiff = NECKORIGINZ+zdiff - neck[2];
+
+  glLineWidth( 10.0 );
+  glBegin(GL_LINES);
+    glVertex3fv((float*)&neck);
+    glVertex3fv((float*)&waist);
+  glEnd();
+
+  vector3F Lwaist, Rwaist;
+  Lwaist = waist; Rwaist = waist;
+  Lwaist[0] -= 0.1; Rwaist[0] += 0.1;
+  glBegin(GL_LINES);
+    glVertex3fv((float*)&Lwaist);
+    glVertex3fv((float*)&Rwaist);
+  glEnd();
+
+  vector3F Lshoulder, Rshoulder;
+  Lshoulder = neck; Rshoulder = neck;
+  Lshoulder[0] -= 0.2; Rshoulder[0] += 0.2;
+  glBegin(GL_LINES);
+    glVertex3fv((float*)&Lshoulder);
+    glVertex3fv((float*)&Rshoulder);
+  glEnd();
+
+  glLineWidth( 1.0 );
+
+  return waist[2]-WAISTORIGINZ;
+}
+
+
 /***********************************************************************
  *	Class partsmotion
  ***********************************************************************/
@@ -543,7 +815,7 @@ partsmotion::~partsmotion()
     }
 }
     
-bool partsmotion::render(int frame)
+bool partsmotion::render(int frame, float xdiff, float ydiff, float zdiff)
 {
 #define c(R,G,B,A) { R/255.0F, G/255.0F, B/255.0F, A/255.0F}
     static GLfloat colors[][4] = {
@@ -565,7 +837,11 @@ bool partsmotion::render(int frame)
 #undef c
     GLfloat BLACK[4] = { 0,0,0,1 };
 
+    drawleg( xdiff, ydiff, zdiff );
+
     for (int i = 0; numParts > i; i++) {
+        if ( i == 1 || i == 2 || i == 9 || i == 10 || i == 11 || i == 17 || i == 18 || i == 19 )
+	    continue;
 	const polyhedron &ref = parts[i]->ref;
 	if (0 == ref.numPolygons) continue;
 	const affine4F &aff = parts[i]->anim[frame];
@@ -617,9 +893,13 @@ bool partsmotion::render(int frame)
     return true;
 }
 
-bool partsmotion::renderWire(int frame)
+bool partsmotion::renderWire(int frame, float xdiff, float ydiff, float zdiff)
 {
+    drawleg( xdiff, ydiff, zdiff );
+
     for (int i = 0; numParts > i; i++) {
+        if ( i == 1 || i == 2 || i == 9 || i == 10 || i == 11 || i == 17 || i == 18 || i == 19 )
+	    continue;
 	const polyhedron &ref = parts[i]->ref;
 	if (0 == ref.numPolygons) continue;
 	const affine4F &aff = parts[i]->anim[frame];
@@ -664,8 +944,9 @@ bool partsmotion::renderWire(int frame)
     return true;
 }
 
-bool partsmotion::render(double frame)
+bool partsmotion::render(double _frame, float xdiff, float ydiff, float zdiff)
 {
+    float frame = _frame;
 #define c(R,G,B,A) { R/255.0F, G/255.0F, B/255.0F, A/255.0F}
     static GLfloat colors[][4] = {
 //	{ 0.4F, 0.4F, 0.4F, 1.0F},	// C0 default
@@ -685,8 +966,22 @@ bool partsmotion::render(double frame)
     };
 #undef c
     GLfloat BLACK[4] = { 0,0,0,1 };
+    float zwaistdiff;
+    float _xdiff = xdiff, _ydiff = ydiff, _zdiff = zdiff;
+
+    zwaistdiff = drawbody( _xdiff, _ydiff, _zdiff );
+    drawleg( _xdiff, 0.0, zwaistdiff );
+
+    if ( zdiff > 0.0 ) {
+      //printf( "%f %f\n", _ydiff, _zdiff );
+      glTranslatef( xdiff, ydiff-_ydiff, zdiff-_zdiff );
+    }
+
+    /* ラケットを所定の位置から ( 0, _ydiff, _zdiff ) だけ移動する */
 
     for (int i = 0; numParts > i; i++) {
+        if ( i == 1 || i == 2 || i == 9 || i == 10 || i == 11 || i == 17 || i == 18 || i == 19 )
+	    continue;
 	const polyhedron &ref = parts[i]->ref;
 	if (0 == ref.numPolygons) continue;
 	const affine4F &aff1 = parts[i]->anim[frame];
@@ -761,9 +1056,15 @@ bool partsmotion::render(double frame)
     return true;
 }
 
-bool partsmotion::renderWire(double frame)
+bool partsmotion::renderWire(double _frame, float xdiff, float ydiff, float zdiff)
 {
+    float frame = _frame;
+
+    drawleg( xdiff, ydiff, zdiff );
+
     for (int i = 0; numParts > i; i++) {
+        if ( i == 1 || i == 2 || i == 9 || i == 10 || i == 11 || i == 17 || i == 18 || i == 19 )
+	    continue;
 	const polyhedron &ref = parts[i]->ref;
 	if (0 == ref.numPolygons) continue;
 	const affine4F &aff1 = parts[i]->anim[frame];
@@ -786,7 +1087,7 @@ bool partsmotion::renderWire(double frame)
 	p[0] = aff1[3][0]*(1-(frame-(int)frame))+aff2[3][0]*(frame-(int)frame);
 	p[1] = aff1[3][1]*(1-(frame-(int)frame))+aff2[3][1]*(frame-(int)frame);
 	p[2] = aff1[3][2]*(1-(frame-(int)frame))+aff2[3][2]*(frame-(int)frame);
-	p[3] = 1.0;
+	p[3] = 1.0F;
 
 	const affine4F &aff = Quaternion2Affine(q, p);
 
@@ -840,29 +1141,29 @@ Affine2Quaternion(affine4F aff) {
   t= aff[0][0] + aff[1][1] + aff[2][2] + 1.0f;
 
   if ( t > 0.0 ) {
-    s = 0.5/sqrt(t);
-    v[0] = 0.25/s;
+    s = 0.5F/sqrtF(t);
+    v[0] = 0.25F/s;
     v[1] = (aff[2][1] - aff[1][2])*s;
     v[2] = (aff[0][2] - aff[2][0])*s;
     v[3] = (aff[1][0] - aff[0][1])*s;
   } else if ( aff[0][0] >= aff[1][1] && aff[0][0] >= aff[2][2] ) {
-    s = sqrt(1.0 + aff[0][0] - aff[1][1] - aff[2][2])*2;
+    s = sqrtF(1.0 + aff[0][0] - aff[1][1] - aff[2][2])*2;
     v[0] = (aff[1][2] + aff[2][1])/s;
-    v[1] = 0.5/s;
+    v[1] = 0.5F/s;
     v[2] = (aff[0][1] + aff[1][0])/s;
     v[3] = (aff[0][2] + aff[2][0])/s;
   } else if ( aff[1][1] >= aff[0][0] && aff[1][1] >= aff[2][2] ) {
-    s = sqrt(1.0 + aff[1][1] - aff[0][0] - aff[2][2])*2;
+    s = sqrtF(1.0F + aff[1][1] - aff[0][0] - aff[2][2])*2;
     v[0] = (aff[0][2] + aff[2][0])/s;
     v[1] = (aff[0][1] + aff[1][0])/s;
-    v[2] = 0.5/s;
+    v[2] = 0.5F/s;
     v[3] = (aff[1][2] + aff[2][1])/s;
   } else {
-    s = sqrt(1.0 + aff[2][2] - aff[0][0] - aff[1][1])*2;
+    s = sqrtF(1.0F + aff[2][2] - aff[0][0] - aff[1][1])*2;
     v[0] = (aff[0][1] + aff[1][0])/s;
     v[1] = (aff[0][2] + aff[2][0])/s;
     v[2] = (aff[1][2] + aff[2][1])/s;
-    v[3] = 0.5/s;
+    v[3] = 0.5F/s;
   }
 
   return v;
@@ -873,24 +1174,24 @@ affine4F
 Quaternion2Affine(vector4F v, vector4F p) {
   affine4F ret;
 
-  ret[0][0] = 1.0 - 2*(v[2]*v[2] + v[3]*v[3]);
+  ret[0][0] = 1.0f - 2*(v[2]*v[2] + v[3]*v[3]);
   ret[0][1] =       2*(v[1]*v[2] - v[0]*v[3]);
   ret[0][2] =       2*(v[1]*v[3] + v[0]*v[2]);
   ret[1][0] =       2*(v[1]*v[2] + v[0]*v[3]);
-  ret[1][1] = 1.0 - 2*(v[1]*v[1] + v[3]*v[3]);
+  ret[1][1] = 1.0f - 2*(v[1]*v[1] + v[3]*v[3]);
   ret[1][2] =       2*(v[2]*v[3] - v[0]*v[1]);
   ret[2][0] =       2*(v[1]*v[3] - v[0]*v[2]);
   ret[2][1] =       2*(v[2]*v[3] + v[0]*v[1]);
-  ret[2][2] = 1.0 - 2*(v[1]*v[1] + v[2]*v[2]);
+  ret[2][2] = 1.0f - 2*(v[1]*v[1] + v[2]*v[2]);
 
   ret[3][0] = p[0];
   ret[3][1] = p[1];
   ret[3][2] = p[2];
   ret[3][3] = p[3];
 
-  ret[0][3] = 0.0;
-  ret[1][3] = 0.0;
-  ret[2][3] = 0.0;
+  ret[0][3] = 0.0f;
+  ret[1][3] = 0.0f;
+  ret[2][3] = 0.0f;
 
   return ret;
 }

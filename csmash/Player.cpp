@@ -415,6 +415,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   // Automatically move towards the ball
   // Only for human. 
+#if 0
   if ( (mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
 	mode == MODE_PRACTICE) && KeyHistory &&
        theRC->gameLevel != LEVEL_TSUBORISH ) {
@@ -456,6 +457,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
       delete tmpBall;
     }
   }
+#endif
 
 // move player
   if ( m_x+m_vx*TICK < -AREAXSIZE/2 ){
