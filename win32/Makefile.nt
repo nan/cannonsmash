@@ -1,15 +1,18 @@
 #
-# Makefile for gmake (It should run with Microsoft's nmake)
+# Makefile for win32
+# $Id$
 #
 ############################################################################
-.SUFFIXES: .exe .so .dll .a .lib .o .obj .cpp .cc .c .asm .s .y .h .l
+.SUFFIXES: .exe .so .dll .res .a .lib .o .obj .cpp .cc .c .asm .s .y .h .rc .l
 
 .c.obj:
-	$(CC) $(CFLAGS) $(Cpost) $<
+	$(CC) $(Cpre) $(CFLAGS) $(Cpost) $<
 .cpp.obj:
-	$(CXX) $(CXXFLAGS) $(CXXpost) $<
+	$(CXX) $(CXXpre) $(CXXFLAGS) $(CXXpost) $<
 .cc.obj:
-	$(CXX) $(CXXFLAGS) $(CXXpost) $<
+	$(CXX) $(CXXpre) $(CXXFLAGS) $(CXXpost) $<
+.rc.res:
+	$(RC) $(RCpre) $(RCFLAGS) $(RCpost) $<
 
 ############################################################################
 CC = cl -nologo -W3
@@ -19,10 +22,11 @@ Cpost = -c -Tc
 CXXpost = -c -Tp
 
 #CFLAGS = -MD -Ox -G6 -vms $(INCDIRS)
-CFLAGS = -MD -Ox -G6 -vms -DHAVE_LIBZ $(INCDIRS)
-#CFLAGS = -MD -Od -Zi -G6 -vms -DHAVE_LIBZ $(INCDIRS)
 
 CXXFLAGS=$(CFLAGS) -GX
+
+RC	= rc
+RCFLAGS	=
 
 O = obj
 A = lib
@@ -31,49 +35,26 @@ EXE = .exe
 AOUT = -Fe
 
 ############################################################################
+INCDIRS	= -I.
 
-INCDIRS = -I.
-LIBS =	win32/GetArgs.obj win32/getopt.obj win32/wsaerror.obj \
-	win32/wsainit.obj win32/csmash.res \
-	glut32.lib zlib.lib libjpeg.lib ws2_32.lib
+OBJS = GetArgs.obj wsaerror.obj getopt.obj wsainit.obj
 
-SRCS = \
-	Ball.cpp BallView.cpp BaseView.cpp Event.cpp HitMark.cpp \
-	Howto.cpp HowtoView.cpp LoadImage.cpp PenAttack.cpp \
-	PenDrive.cpp Player.cpp PlayerSelect.cpp PlayerSelectView.cpp \
-	ShakeCut.cpp Sound.cpp Title.cpp TitleView.cpp PlayerView.cpp \
-	View.cpp comPenAttack.cpp comPenDrive.cpp comPlayer.cpp \
-	comShakeCut.cpp ComTrainingPenAttack.cpp TrainingPenAttack.cpp \
-	MultiPlay.cpp TrainingPenDrive.cpp ComTrainingPenDrive.cpp \
-	TrainingSelect.cpp TrainingSelectView.cpp TrainingView.cpp \
-	FieldView.cpp SoloPlay.cpp PlayGame.cpp Control.cpp Training.cpp \
-	main.cpp z.cpp parts.cpp xerror.cpp
-
-OBJS = $(SRCS:.cpp=.obj)
-
-TARGET = csmash$(EXE)
+TARGET = $(OBJS) csmash.res
 
 ############################################################################
 all: $(TARGET)
+	touch all
 clean:
-	rm -f $(TARGET) *.$(O)
-	cd win32; $(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" clean
+	rm -f $(TARGET) *.$(O) *.res all
 distclean:
-	rm -f $(TARGET) *.$(O) *~ *.bak depend.nt
-	cd win32; $(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" distclean
+	rm -f $(TARGET) *.$(O) *.res *~ *.bak depend.nt all
 
 depend:
 	touch depend.nt
-	makedepend -fdepend.nt $(INCDIRS) -D_WIN32 -DHAVE_LIBZ $(SRCS)
+	makedepend -fdepend.nt $(INCDIRS) -D_WIN32 -DHAVE_LIBZ *.cpp
 	cat depend.nt | sed -e "s/.:\/.*\/VC98[^ ]*include\/[^ ]*//g" \
 	| grep -v ".*:[ ]*$$" > depend.new
 	mv depend.new depend.nt
-
-$(TARGET): $(OBJS) win32/all
-	$(CC) $(CFLAGS) $(AOUT)$@ $(OBJS) $(LIBS)
-
-win32/all:
-	cd win32; $(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" all
 
 #-include depend.nt
 ############################################################################
