@@ -183,9 +183,11 @@ PlayerView::SubRedraw() {
   // Target
   if ( Control::TheControl()->GetThePlayer() == m_player ) {
     DrawTarget();
+#if 0
     if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
 	 mode == MODE_PRACTICE )
       DrawMeter();
+#endif
   }
 
   return true;

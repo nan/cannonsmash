@@ -212,7 +212,8 @@ ShakeCut::HitBall() {
     theBall.TargetToV( targetX, targetY, level, m_spin, vx, vy, vz,
 		       0.1, maxVy );
 
-    if ( m_status < StatusBorder() )
+    if ((m_status-StatusBorder())*3/2000.0 <
+	fabs(fabs(m_x-theBall.GetX())-0.3))
       AddError( vx, vy, vz );
 
     // Reduce status
@@ -307,9 +308,9 @@ ShakeCut::CalcLevel( Ball *ball, double &diff, double &level, double &maxVy ) {
   GetModifiedTarget( targetX, targetY );
 
   if ( (m_y-ball->GetY())*m_side < 0 )
-    diff = fabs( m_y-ball->GetY() )*0.15;
+    diff = fabs( m_y-ball->GetY() )*0.1;
   else
-    diff = fabs( m_y-ball->GetY() )*0.3;
+    diff = fabs( m_y-ball->GetY() )*0.15;
 
   diff *= fabs(ball->GetSpin())+1;
 

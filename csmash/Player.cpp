@@ -1353,9 +1353,9 @@ Player::AddError( double &vx, double &vy, double &vz ) {
   radDiff = hypot( fabs(fabs(m_x-theBall.GetX())-0.3)/0.3, 
 		   fabs(m_y-theBall.GetY())/0.3 );
   radDiff = sqrt( radDiff );
-  radDiff *= (double)(200-m_status)/200*3.141592/18;
+  radDiff *= (double)(200-m_status)/200*3.141592/12;
 #else
-  radDiff = (double)(200-m_status)/200*3.141592/18;
+  radDiff = (double)(200-m_status)/200*3.141592/12;
 #endif
 
   v = sqrt(vx*vx+vy*vy+vz*vz);

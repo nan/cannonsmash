@@ -215,7 +215,8 @@ PenAttack::HitBall() {
     // If your target is near the edge of the table, much more status point
     // is necessary. 
 
-    if ( m_status < StatusBorder() )
+    if ((m_status-StatusBorder())*3/2000.0 <
+	fabs(fabs(m_x-theBall.GetX())-0.3))
       AddError( vx, vy, vz );
 
     // Reduce status
