@@ -291,7 +291,7 @@ private:
     void legIK( vector3F hip, vector3F &knee, vector3F &heel, vector3F toe, 
 		float thighLength, float shinLength, float footSize, 
 		bool isWireFrame );
-    float drawbody( vector3F neck, vector3F waist, bool isWireFrame );
+    void drawbody( vector3F neck, vector3F waist, bool isWireFrame );
 
     void renderparts( int partsNum, bool isWireFrame );
 };

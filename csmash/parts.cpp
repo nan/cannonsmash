@@ -845,7 +845,7 @@ float bodyIK( float &xdiff, float &ydiff, float &zdiff,
   return waist[2]-WAISTORIGINZ;
 }
 
-float
+void
 partsmotion::drawbody( vector3F neck, vector3F waist, 
 		       bool isWireFrame = false ) {
 
@@ -1211,7 +1211,7 @@ bool partsmotion::renderWire(double _frame, float xdiff, float ydiff, float zdif
 	  p[3] = 1.0F;
 	  aff = Quaternion2Affine((*qanim[0])[(int)frame], p);
 	  glMultMatrixf((float*)&aff);
-	  renderparts(0, false);				/* head */
+	  renderparts(0, true);					/* head */
 	glPopMatrix();
 	glPushMatrix();
 	  p[0] = qanim[4]->origin[0];
