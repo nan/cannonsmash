@@ -400,8 +400,9 @@ BaseView::EndGame() {
 
 void
 BaseView::QuitGame() {
-  if (fullScreen)
-    SDL_WM_ToggleFullScreen( m_baseSurface );
+  //if (fullScreen)
+  //SDL_WM_ToggleFullScreen( m_baseSurface );
+  SDL_FreeSurface( m_baseSurface );
 }
 
 void

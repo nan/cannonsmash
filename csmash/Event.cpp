@@ -673,6 +673,7 @@ QuitGame() {
   SDL_WM_GrabInput( SDL_GRAB_OFF );
 
   theView.QuitGame();
-  
+
+  SDL_Quit();
   exit(2);
 }
