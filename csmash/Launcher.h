@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of Launcher class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
@@ -16,6 +21,11 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+/**
+ * Launcher class is for initial dialog of this game. 
+ * This class only handles LauncherView, which manages almost all function
+ * of the initial dialog. 
+ */
 class Launcher {
 public:
   Launcher();

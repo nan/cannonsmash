@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of Launcher class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2001, 2002  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
@@ -22,12 +27,24 @@
 #include "LobbyClient.h"
 
 
+/**
+ * Default constructor. 
+ * Do nothing. 
+ */
 Launcher::Launcher() {
 }
 
+/**
+ * Destructor. 
+ * Do nothing. 
+ */
 Launcher::~Launcher() {
 }
 
+/**
+ * Initializer method. 
+ * This method creates LauncherView and initialize it. 
+ */
 void
 Launcher::Init() {
 #if 1

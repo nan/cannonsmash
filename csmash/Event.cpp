@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of Event class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -45,7 +50,7 @@ extern Ball theBall;
 extern long mode;
 
 extern void Timer( int value );
-struct timeb Event::m_lastTime = {0, 0, 0, 0};	// 直前にTimerEventが呼ばれたときの時刻
+struct timeb Event::m_lastTime = {0, 0, 0, 0};
 
 Event* Event::m_theEvent = NULL;
 
@@ -68,6 +73,10 @@ void CopyPlayerData( Player& dest, Player* src );
 
 void QuitGame();
 
+/**
+ * Default Constructor. 
+ * Initialize history buffer and m_External list. 
+ */
 Event::Event() {
   memset( &(m_KeyHistory[0]), 0, sizeof(SDL_keysym) );
   m_MouseXHistory[0] = BaseView::GetWinWidth()/2;
@@ -80,9 +89,18 @@ Event::Event() {
   m_mouseButton = 0;
 }
 
+/**
+ * Destructor. 
+ * Do nothing. 
+ */
 Event::~Event() {
 }
 
+/**
+ * Getter method of singleton Event object. 
+ * 
+ * @return returns singleton Event object. 
+ */
 Event*
 Event::TheEvent() {
   if ( !m_theEvent )
@@ -90,6 +108,12 @@ Event::TheEvent() {
   return m_theEvent;
 }
 
+/**
+ * Initializer method. 
+ * 
+ * Referring the game mode, this method creates initial Control object. 
+ * @return returns true if succeeds. 
+ */
 bool
 Event::Init() {
   if (isComm)
@@ -124,6 +148,15 @@ Event::Init() {
   return true;
 }
 
+/**
+ * Idle event handler. 
+ * 
+ * When event queue is empty, this method is called by PollEvent(). 
+ * First time when this method is called, this method cleans up backtrack
+ * buffer. Otherwise, this method calls Event::Move() method. After that, 
+ * this method redraws screen if necessary. 
+ * On network play, this method processes incoming messages, too. 
+ */
 void
 Event::IdleFunc() {
   struct timeb tb;
@@ -206,6 +239,14 @@ Event::IdleFunc() {
     BaseView::TheView()->RedrawAll();
 }
 
+/**
+ * Move all objects. 
+ * 
+ * This method calls Move() method of current Control object. 
+ * Then record current objects to history buffer and backtrack buffer. 
+ * 
+ * @return returns true if the screen should be redrawn. 
+ */
 bool
 Event::Move() {
   long preMode = mode;
@@ -221,6 +262,14 @@ Event::Move() {
   return reDraw;
 }
 
+/**
+ * Check whether game mode has changed or not. 
+ * This method compares the current game mode with parameter. 
+ * If game mode has changed, update Control object. 
+ * 
+ * @param preMode game mode which is compared with current one. 
+ * @return returns true if game mode has changed. 
+ */
 bool
 Event::IsModeChanged( long preMode ) {
   if ( mode != preMode ) {	// mode change
@@ -278,6 +327,12 @@ Event::IsModeChanged( long preMode ) {
   return false;
 }
 
+/**
+ * Record current objects to history buffer and backtrack buffer. 
+ * This method saves current theBall, thePlayer, comPlayer objects to 
+ * history buffer and backtrack buffer. Additionally, this method moves 
+ * mouse pointer. 
+ */
 void
 Event::Record() {
   long x, y;
@@ -426,6 +481,9 @@ Event::Record() {
   return;
 }
 
+/**
+ * Toggle fullscreen mode and window mode. 
+ */
 void HotKey_ToggleFullScreen(void)
 {
   SDL_Surface *screen = SDL_GetVideoSurface();
@@ -438,6 +496,16 @@ void HotKey_ToggleFullScreen(void)
   }
 }
 
+/**
+ * Keyboard event handler. 
+ * This method accepts keyboard event. If 'Q' is pressed, it quit the game. 
+ * If ESC is pressed, the game is paused. This method records key event to
+ * history buffer. 
+ * 
+ * @param key keyboard event
+ * @param x
+ * @param y
+ */
 void
 Event::KeyboardFunc( SDL_Event key, int x, int y ) {
   if ( (key.key.keysym.sym == SDLK_RETURN) &&
@@ -468,6 +536,9 @@ Event::KeyboardFunc( SDL_Event key, int x, int y ) {
   Event::TheEvent()->m_KeyHistory[Event::TheEvent()->m_Histptr] = key.key.keysym;
 }
 
+/**
+ * Keyup event handler. 
+ */
 void
 Event::KeyUpFunc( SDL_Event key, int x, int y ) {
   // 廃止してもよい
@@ -478,6 +549,14 @@ Event::KeyUpFunc( SDL_Event key, int x, int y ) {
 #endif
 }
 
+/**
+ * Mouse motion event handler. 
+ * When mouse moves, this method records location of the mouse pointer 
+ * to history buffer. 
+ * 
+ * @param x x-coordinate of the mouse pointer. 
+ * @param y y-coordinate of the mouse pointer. 
+ */
 void
 Event::MotionFunc( int x, int y ) {
   Event *e = Event::TheEvent();
@@ -485,6 +564,16 @@ Event::MotionFunc( int x, int y ) {
   e->m_MouseYHistory[e->m_Histptr] = y;
 }
 
+/**
+ * Mouse button event handler. 
+ * When mouse button status is changed, this method is called and this method
+ * records mouse button status to history buffer. 
+ * 
+ * @param button button ID (left, middle, right)
+ * @param state button status (pressed, released, etc. )
+ * @param x x-coordinate of the mouse pointer. 
+ * @param y y-coordinate of the mouse pointer. 
+ */
 void
 Event::ButtonFunc( int button, int state, int x, int y ) {
   Event *e = Event::TheEvent();
@@ -524,6 +613,12 @@ Event::ButtonFunc( int button, int state, int x, int y ) {
   e->m_MouseYHistory[e->m_Histptr] = y;
 }
 
+/**
+ * Copy method for Player object. 
+ * 
+ * @param dest contents of src is copied to this object. 
+ * @param src  Player object to be copied. 
+ */
 void
 CopyPlayerData( Player& dest, Player* src ) {
   if ( !src )
@@ -532,6 +627,16 @@ CopyPlayerData( Player& dest, Player* src ) {
   dest = *src;
 }
 
+/**
+ * Get new ExternalData object and add it to ExternalData list. 
+ * This method reads new ExternalData which comes from opponent machine.
+ * Then, Insert the ExternalData object to ExternalData list. ExternalData list
+ * should be sorted by timestamp. 
+ * 
+ * @param ext top of ExternalData list. 
+ * @param side m_side of player. 
+ * @return returns true if new ExternalData is added. 
+ */
 bool
 Event::GetExternalData( ExternalData *&ext, long side ) {
   ExternalData *extNow;
@@ -559,6 +664,12 @@ Event::GetExternalData( ExternalData *&ext, long side ) {
   return true;
 }
 
+/**
+ * Send player location and velocity data to the opponent machine. 
+ * 
+ * @param player Player object of which data should be sent to the opponent. 
+ * @return returns true if succeeds. 
+ */
 bool
 Event::SendPlayer( Player *player ) {
   char buf[256];
@@ -576,6 +687,11 @@ Event::SendPlayer( Player *player ) {
   return true;
 }
 
+/**
+ * Send ball location, velocity and spin to the opponent machine. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 Event::SendBall() {
   char buf[256];
@@ -593,6 +709,13 @@ Event::SendBall() {
   return true;
 }
 
+/**
+ * Send player and ball information to the opponent machine. 
+ * Calling this method is equivalent with calling SendPlayer() and SendBall(). 
+ * 
+ * @param player Player object of which data should be sent to the opponent. 
+ * @return returns true if succeeds. 
+ */
 bool
 Event::SendPlayerAndBall( Player *player ) {
   char buf[256];
@@ -615,6 +738,14 @@ Event::SendPlayerAndBall( Player *player ) {
   return true;
 }
 
+/**
+ * Backtrack to the specified time. 
+ * This method rollbacks theBall, thePlayer and comPlayer object to the 
+ * specified time. 
+ * 
+ * @param Histptr time to which objects should be rollbacked. 
+ * @return returns true if possible. 
+ */
 bool
 Event::BackTrack( long Histptr ) {
   theBall = m_BacktrackBuffer[Histptr].theBall;
@@ -632,6 +763,13 @@ Event::BackTrack( long Histptr ) {
   return true;
 }
 
+/**
+ * Apply ExternalData to this machine. 
+ * First, search for the oldest ExternalData. If its timestamp is older than
+ * now, rollback to the time of the oldest ExternalData. 
+ * Then, apply the ExternalData and roll-forward. 
+ * During roll-forwarding, other ExternalData are also applied. 
+*/
 void
 Event::ReadData() {
   // Caution!! exchanged with WaitForData()
@@ -755,6 +893,13 @@ Event::ReadData() {
   SDL_mutexV( networkMutex );
 }
 
+/**
+ * Read ExternalData from the opponent machine during player selection. 
+ * This method is called during player selection to handle ExternalData
+ * which comes from the opponent machine. This method read ExternalData, 
+ * and apply it (change the opponent player type, fix the opponent player
+ * type, etc. ). 
+ */
 void
 Event::ReadSelectData() {
   bool dum;
@@ -776,6 +921,9 @@ Event::ReadSelectData() {
   SDL_mutexV( networkMutex );
 }
 
+/**
+ * Clean up backtrack buffer and history buffer. 
+ */
 void
 Event::ClearBacktrack() {
   Ball aBall;
@@ -797,6 +945,11 @@ Event::ClearBacktrack() {
   }
 }
 
+/**
+ * Close everything and send quit message. 
+ * This method is called when the game player push 'Q' key. 
+ * This method closes everything and send SDL_QUIT message. 
+ */
 void
 QuitGame() {
 #ifdef LOGGING
@@ -822,6 +975,14 @@ QuitGame() {
   SDL_PushEvent( &e );
 }
 
+/**
+ * Move mouse pointer. 
+ * During playing or selecting player, this method moves mouse pointer toward
+ * the center of the screen. 
+ * 
+ * @param x x-coordinate of the mouse pointer. 
+ * @param y y-coordinate of the mouse pointer. 
+ */
 void
 Event::SetNextMousePointer( long &x, long &y ) {
   if ( mode == MODE_TITLE ) {
@@ -836,6 +997,12 @@ Event::SetNextMousePointer( long &x, long &y ) {
 }
 
 #ifdef LOGGING
+/**
+ * Get time adjusted with the opponent machine. 
+ * 
+ * @param sec second
+ * @param cnt cound (1/100 second)
+ */
 void
 Event::GetAdjustedTime( long &sec, long &cnt ) {
   if ( isComm )
@@ -851,6 +1018,9 @@ Event::GetAdjustedTime( long &sec, long &cnt ) {
   }
 }
 
+/**
+ * Output remaining backtrack buffer to the log file. 
+ */
 void
 Event::RemainingLog() {
   Logging::GetLogging()->Log( LOG_ACTBALL, "Quit Game\n" );
@@ -864,7 +1034,6 @@ Event::RemainingLog() {
     char buf[1024];
 
     if ( isComm )
-      //cnt += ((MultiPlay *)Control::TheControl())->GetTimeAdj();
       cnt += timeAdj;
     while ( cnt < 0 ) {
       sec--;
@@ -885,9 +1054,15 @@ Event::RemainingLog() {
     Logging::GetLogging()->Log( LOG_ACTBALL, buf );
   }
 }
-
 #endif
 
+/**
+ * Get new ExternalData object and add it to ExternalData list. 
+ * This method is equivalent with GetExternal( m_External, side );
+ * 
+ * @param side m_side of player. 
+ * @return returns true if new ExternalData is added. 
+ */
 bool
 Event::GetExternalData( long side ) {
   return GetExternalData( m_External, side );

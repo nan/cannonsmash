@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of LauncherView and related class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2001-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
@@ -32,7 +37,16 @@ LONG ModeNote::pParentWndProc = 0;
 HWND ModeNote::pChildHWnd = NULL;
 ModeNote *theInternetPlayView;
 
-// Copyed from gdkim-win32.c of GTK+-2.2. 
+/**
+ * Convert utf8 to ucs2. 
+ * This method is copied from gdkim-win32.c of GTK+-2.2. Take care. 
+ * 
+ * @param dest converted string [output]
+ * @param src  string to be converted
+ * @param src_len length of the src string
+ * @param dest_max max length of the dest string
+ * @return returns the length of the dest string. If conversion fails, it returns -1. 
+ */
 gint
 _gdk_utf8_to_ucs2 (wchar_t     *dest,
                    const gchar *src,
@@ -94,6 +108,18 @@ _gdk_utf8_to_ucs2 (wchar_t     *dest,
   return n;
 }
 
+/**
+ * Edit window message handler. 
+ * This method handles the event on text control in ModeNote area (hostname,
+ * username, message input area). 
+ * This method accepts WM_CHAR message and show the character to text edit. 
+ * 
+ * @param hwnd window handler of the dialog. 
+ * @param msg message ID of the event
+ * @param wparam wparam of the event
+ * @param lparam lparam of the event
+ * @return returns the result of CallWindowProc(). 
+ */
 LRESULT CALLBACK
 ModeNote::EditWindowProc( HWND hwnd, UINT msg,
 			  WPARAM wparam, LPARAM lparam) {
@@ -122,6 +148,17 @@ ModeNote::EditWindowProc( HWND hwnd, UINT msg,
   return ret;
 }
 
+/**
+ * Window message handler. 
+ * This method handles the event on the dialog. 
+ * This method accepts WM_SIZE message and resize the window. 
+ * 
+ * @param hwnd window handler of the dialog. 
+ * @param msg message ID of the event
+ * @param wparam wparam of the event
+ * @param lparam lparam of the event
+ * @return returns the result of CallWindowProc(). 
+ */
 LRESULT CALLBACK
 ModeNote::ParentWindowProc(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam) {
   if ( msg == WM_SIZE ) {
@@ -142,12 +179,26 @@ extern void StartGame();
 
 extern bool WriteRCFile();
 
+/**
+ * Default constructor. 
+ */
 LauncherHeader::LauncherHeader() {
 }
 
+/**
+ * Destructor. 
+ * Do nothing. 
+ */
 LauncherHeader::~LauncherHeader() {
 }
 
+/**
+ * Initialize LauncherHeader. 
+ * This method set up frames for radio buttons (fullscreen, graphics, sound
+ * and IPV6). 
+ * 
+ * @param box parent box of the LauncherHeader. 
+ */
 void
 LauncherHeader::Init( GtkBox *box ) {
   GtkWidget *frame;
@@ -164,6 +215,13 @@ LauncherHeader::Init( GtkBox *box ) {
 #endif
 }
 
+/**
+ * Setup method for fullscreen radio button area. 
+ * This method creates fullscreen toggle button area, button itself, and 
+ * set the default value and callback to the button. 
+ * 
+ * @return returns created frame of the fullscreen radio button area. 
+ */
 GtkWidget *
 LauncherHeader::FullScreenFrame() {
   GtkWidget *frame;
@@ -201,6 +259,13 @@ LauncherHeader::FullScreenFrame() {
   return frame;
 }
 
+/**
+ * Setup method for graphics radio button area. 
+ * This method creates graphics toggle button area, button itself, and 
+ * set the default value and callback to the button. 
+ * 
+ * @return returns created frame of the graphics radio button area. 
+ */
 GtkWidget *
 LauncherHeader::GraphicsFrame() {
   GtkWidget *frame;
@@ -247,6 +312,13 @@ LauncherHeader::GraphicsFrame() {
   return frame;
 }
 
+/**
+ * Setup method for sound radio button area. 
+ * This method creates sound toggle button area, button itself, and 
+ * set the default value and callback to the button. 
+ * 
+ * @return returns created frame of the sound radio button area. 
+ */
 GtkWidget *
 LauncherHeader::SoundFrame() {
   GtkWidget *frame;
@@ -285,6 +357,13 @@ LauncherHeader::SoundFrame() {
 }
 
 #ifdef ENABLE_IPV6
+/**
+ * Setup method for IP radio button area. 
+ * This method creates IP toggle button area, button itself, and 
+ * set the default value and callback to the button. 
+ * 
+ * @return returns created frame of the IP radio button area. 
+ */
 GtkWidget *
 LauncherHeader::ProtocolFrame() {
   GtkWidget *frame;
@@ -323,6 +402,14 @@ LauncherHeader::ProtocolFrame() {
 }
 #endif
 
+/**
+ * Change fullscreen mode. 
+ * This method is called when fullscreen radio button is clicked. 
+ * The clicked item becomes selected, and others becomes unselected. 
+ * 
+ * @param widget radio button widget
+ * @param data dumy data
+ */
 void
 LauncherHeader::ToggleFullScreen( GtkWidget *widget, gpointer data ) {
   GSList *list = gtk_radio_button_group( (GtkRadioButton *)widget );
@@ -335,6 +422,14 @@ LauncherHeader::ToggleFullScreen( GtkWidget *widget, gpointer data ) {
   }
 }
 
+/**
+ * Change sound mode. 
+ * This method is called when sound radio button is clicked. 
+ * The clicked item becomes selected, and others becomes unselected. 
+ * 
+ * @param widget radio button widget
+ * @param data dumy data
+ */
 void
 LauncherHeader::ToggleSound( GtkWidget *widget, gpointer data ) {
   GSList *list = gtk_radio_button_group( (GtkRadioButton *)widget );
@@ -348,6 +443,14 @@ LauncherHeader::ToggleSound( GtkWidget *widget, gpointer data ) {
 }
 
 #ifdef ENABLE_IPV6
+/**
+ * Change IP mode. 
+ * This method is called when IP radio button is clicked. 
+ * The clicked item becomes selected, and others becomes unselected. 
+ * 
+ * @param widget radio button widget
+ * @param data dumy data
+ */
 void
 LauncherHeader::ToggleProtocol( GtkWidget *widget, gpointer data ) {
   GSList *list = gtk_radio_button_group( (GtkRadioButton *)widget );
@@ -362,6 +465,14 @@ LauncherHeader::ToggleProtocol( GtkWidget *widget, gpointer data ) {
 #endif
 
 
+/**
+ * Change graphics mode. 
+ * This method is called when graphics radio button is clicked. 
+ * The clicked item becomes selected, and others becomes unselected. 
+ * 
+ * @param widget radio button widget
+ * @param data dumy data
+ */
 void
 LauncherHeader::Toggle( GtkWidget *widget, gpointer data ) {
   GSList *list = gtk_radio_button_group( (GtkRadioButton *)widget );
@@ -381,12 +492,27 @@ LauncherHeader::Toggle( GtkWidget *widget, gpointer data ) {
   }
 }
 
+/**
+ * Default constructor. 
+ */
 ModeNote::ModeNote() {
 }
 
+/**
+ * Destructor. 
+ * Do nothing. 
+ */
 ModeNote::~ModeNote() {
 }
 
+/**
+ * Initialize ModeNote area. 
+ * This method creates panels which are shown in ModeNote area (Solo, LAN, 
+ * Internet play). 
+ * For WIN32, this method creates win32 native edit control. 
+ * 
+ * @param box parent box object
+ */
 void
 ModeNote::Init( GtkBox *box ) {
   GtkWidget *notebook;
@@ -448,6 +574,14 @@ ModeNote::Init( GtkBox *box ) {
 #endif
 }
 
+/**
+ * Initialize panel for solo play. 
+ * This method is called by ModeNote::Init to initialize "Solo" panel
+ * of the ModeNote area. 
+ * This method creates button in the panel. 
+ * 
+ * @return returns the box of "Solo" panel. 
+ */
 GtkWidget *
 ModeNote::InitSoloPlayPanel() {
   GtkWidget *box;
@@ -468,6 +602,14 @@ ModeNote::InitSoloPlayPanel() {
   return box;
 }
 
+/**
+ * Initialize panel for LAN play. 
+ * This method is called by ModeNote::Init to initialize "LAN" panel
+ * of the ModeNote area. 
+ * This method creates button and edit control in the panel. 
+ * 
+ * @return returns the box of "LAN" panel. 
+ */
 GtkWidget *
 ModeNote::InitLANPlayPanel() {
   GtkWidget *box, *toggleBox, *editBox;
@@ -533,6 +675,14 @@ ModeNote::InitLANPlayPanel() {
   return box;
 }
 
+/**
+ * Initialize panel for Internel play. 
+ * This method is called by ModeNote::Init to initialize "Internet Play" panel
+ * of the ModeNote area. 
+ * This method creates button and edit control in the panel. 
+ * 
+ * @return returns the box of "Internet play" panel. 
+ */
 GtkWidget *
 ModeNote::InitInternetPlayPanel() {
   GtkWidget *box, *editBox;
@@ -580,6 +730,14 @@ ModeNote::InitInternetPlayPanel() {
   return box;
 }
 
+/**
+ * Changes client/server status. 
+ * This method is called when client/server radio button is clicked. 
+ * The clicked item becomes selected, and others becomes unselected. 
+ * 
+ * @param widget radio button widget
+ * @param data server name text edit widget
+ */
 void
 ModeNote::Toggle( GtkWidget *widget, gpointer data ) {
   GSList *list = gtk_radio_button_group( (GtkRadioButton *)widget );
@@ -593,6 +751,14 @@ ModeNote::Toggle( GtkWidget *widget, gpointer data ) {
   }
 }
 
+/**
+ * Open main game window to start game (Solo play). 
+ * This method is called when "Start game" is clicked. 
+ * This method opens main game window. 
+ * 
+ * @param widget button widget
+ * @param data dummy data
+ */
 void
 ModeNote::StartGame( GtkWidget *widget, gpointer data ) {
   if ( theRC->gmode == GMODE_2D )
@@ -600,6 +766,14 @@ ModeNote::StartGame( GtkWidget *widget, gpointer data ) {
   ::StartGame();
 }
 
+/**
+ * Open main game window to start game (LAN play). 
+ * This method is called when "Start game" is clicked. 
+ * This method opens main game window. 
+ * 
+ * @param widget button widget
+ * @param data text edit widget for server name
+ */
 void
 ModeNote::LANStartGame( GtkWidget *widget, gpointer data ) {
   if ( theRC->serverName[0] == 1 &&
@@ -614,6 +788,14 @@ ModeNote::LANStartGame( GtkWidget *widget, gpointer data ) {
   }
 }
 
+/**
+ * Open main game window to start game (Internet play). 
+ * This method is called when "Start game" is clicked. 
+ * This method opens main game window. 
+ * 
+ * @param widget button widget
+ * @param data text edit widget for user name
+ */
 void
 ModeNote::InternetStartGame( GtkWidget *widget, gpointer data ) {
   LobbyClient *lb;
@@ -632,19 +814,29 @@ ModeNote::InternetStartGame( GtkWidget *widget, gpointer data ) {
 }
 
 
+/**
+ * Default constructor. 
+ */
 LauncherView::LauncherView() {
 }
 
+/**
+ * Destructor. 
+ */
 LauncherView::~LauncherView() {
 }
 
+/**
+ * Initializer method. 
+ * This method initialize gtk, create dialog, and set up widgets. 
+ */
 void
 LauncherView::Init() {
   GtkWidget *label;
 
   GtkWidget *allbox, *mainbox, *quitBox;
 
-  /* ½é´ü²½ */
+  /* Initialize gtk */
   gtk_init( (int *)NULL, (char ***)NULL );
   /*
   style = gtk_widget_get_default_style();
@@ -710,6 +902,14 @@ LauncherView::Init() {
   gtk_main();
 }
 
+/**
+ * Destroy method of launcher dialog. 
+ * This method is called when the initial dialog is destroyed. 
+ * This method saves settings to the file and exit. 
+ * 
+ * @param widget dialog widget
+ * @param data modenote area
+ */
 void
 LauncherView::Destroy(GtkWidget *widget, gpointer data) {
   ModeNote *note = ((LauncherView *)data)->m_note;
@@ -730,6 +930,9 @@ LauncherView::Destroy(GtkWidget *widget, gpointer data) {
   gtk_exit(2);
 }
 
+/**
+ * Show connection failed dialog. 
+ */
 void
 LauncherView::ConnectionFailedDialog() {
   GtkWidget *dialog, *label, *button;

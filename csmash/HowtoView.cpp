@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of HowtoView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
@@ -26,12 +31,27 @@ extern RCFile *theRC;
 
 GLuint HowtoView::m_textures[4] = {0, 0, 0, 0};
 
+/**
+ * Default constructor. 
+ * Do nothing. 
+ */
 HowtoView::HowtoView() {
 }
 
+/**
+ * Destructor. 
+ * Do nothing. 
+ */
 HowtoView::~HowtoView() {
 }
 
+/**
+ * Initializer method. 
+ * This method loads all textures for tutorial. 
+ * 
+ * @param howto Howto object of which HowtoView is attached to. 
+ * @return returns true if succeeds. 
+ */
 bool
 HowtoView::Init( Howto *howto ) {
   ImageData image;
@@ -114,11 +134,20 @@ HowtoView::Init( Howto *howto ) {
   return true;
 }
 
+/**
+ * Redraw objects. 
+ * Do nothing. 
+ */
 bool
 HowtoView::Redraw() {
   return true;
 }
 
+/**
+ * Redraw transparent objects. 
+ * Referring m_mode and m_count of Howto, this method shows textures for
+ * tutorial. 
+ */
 bool
 HowtoView::RedrawAlpha() {
   glPushMatrix();

@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of Howto class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2001, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -21,6 +26,11 @@
 #include "Control.h"
 #include "HowtoView.h"
 
+/**
+ * Controller class for showing howto message. 
+ * Howto is created when the game player selects to see tutorial. 
+ * During tutorial, Howto works as controller class. 
+ */
 class Howto : public Control {
 public:
   Howto();
@@ -34,26 +44,26 @@ public:
 		     long *MouseYHistory, unsigned long *MouseBHistory,
 		     int Histptr );
 
-  long GetMode() {return m_mode;}
-  long GetCount() {return m_count;}
+  long GetMode() {return m_mode;}	///< Returns m_mode. 
+  long GetCount() {return m_count;}	///< Returns m_count. 
 
-  long GetMouseX() {return m_mouseX;}
-  long GetMouseY() {return m_mouseY;}
-  long GetMouseB() {return m_mouseB;}
+  long GetMouseX() {return m_mouseX;}	///< Returns m_mouseX. 
+  long GetMouseY() {return m_mouseY;}	///< Returns m_mouseY. 
+  long GetMouseB() {return m_mouseB;}	///< Returns m_mouseB. 
 
   virtual bool LookAt( vector3d &srcX, vector3d &destX );
 
-  virtual bool IsPlaying() { return false; };
+  virtual bool IsPlaying() { return false; }	///< Always returns false. 
 
-  virtual View *GetView() { return m_View; };
+  virtual View *GetView() { return m_View; }	///< Returns m_View. 
 protected:
-  HowtoView *m_View;
-  long m_mode;
-  long m_count;
+  HowtoView *m_View;	///< HowtoView object related with Howto. 
+  long m_mode;		///< indicates what type of tutorial is shown now. 
+  long m_count;		///< duration of time from m_mode has changed. 
 
-  long m_mouseX;
-  long m_mouseY;
-  long m_mouseB;
+  long m_mouseX;	///< x-coordinate of the mouse shown in tutorial. 
+  long m_mouseY;	///< y-coordinate of the mouse shown in tutorial. 
+  long m_mouseB;	///< button status of the mouse shown in tutorial. 
 
   bool IsMove();
 };

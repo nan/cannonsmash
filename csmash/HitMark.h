@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of HitMark class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -25,6 +30,16 @@
 typedef Vector<3, double> vector3d;
 typedef Vector<2, double> vector2d;
 
+/**
+ * Hit mark manager class. 
+ * This class is used to show hit mark. Although HitMark is a subclass
+ * of View class, HitMark is independent, not attached to model class. 
+ * And an instance of HitMark is generated dynamically when the player
+ * hit the ball. After the instance is created, it is attached to the 
+ * list of View classes. Then, for 50msec, HitMark shows hit mark. 
+ * After that, Redraw method of HitMark returns false, and BaseView class
+ * deletes the instance of HitMark. 
+ */
 class HitMark : public View {
 public:
   HitMark();
@@ -35,14 +50,14 @@ public:
   virtual bool Redraw();
   virtual bool RedrawAlpha();
 
-  static GLuint       m_textures[2];
+  static GLuint       m_textures[2];	///< texture handler. 
 private:
-  vector3d m_x;
-  vector3d m_v;
-  long m_swingError;
+  vector3d m_x;				///< location of the hit mark. 
+  vector3d m_v;				///< velocity of the hit mark. 
+  long m_swingError;			///< indicates which type of hit mark should be shown. 
 
-  struct timeb startTime;
-  long m_time;
+  struct timeb startTime;		///< time when the instance is created. 
+  long m_time;				///< duration of the time from the instance is created. 
 };
 
 #endif	// _HitMark

@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of FieldView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
@@ -22,6 +27,11 @@
 #include "View.h"
 #include <GL/gl.h>
 
+/**
+ * View class which draws field. 
+ * This class draws field (floor, wall, table, etc.) when
+ * Redraw() and RedrawAlpha() are called. 
+ */
 class FieldView : public View {
 public:
   FieldView();
@@ -31,11 +41,11 @@ public:
   virtual bool Redraw();
   virtual bool RedrawAlpha();
 
-  GLuint       m_offset;
-  GLuint       m_floor;
+  GLuint       m_offset;	///< glList ID to draw basic field. 
+  GLuint       m_floor;		///< floor texture ID. 
   //GLuint       m_title;
-  GLuint       m_wall[4];
-  GLuint       m_tutorial[4];
+  GLuint       m_wall[4];	///< wall texture ID. 
+  GLuint       m_tutorial[4];	///< tutorial texture ID. 
 };
 
 #endif	// _FieldView

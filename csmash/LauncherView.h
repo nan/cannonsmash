@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of LauncherView and related classes. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
 //
@@ -18,7 +23,10 @@
 
 #include <gtk/gtk.h>
 
-// Upper half of initial window
+/**
+ * LauncherHeader class manages upper half (toggle button of fullscreen, 
+ * sound and graphics settings) of the initial dialog. 
+ */
 class LauncherHeader {
 public:
   LauncherHeader();
@@ -43,6 +51,10 @@ protected:
 
 
 // Lower half of initial window
+/**
+ * ModeNote class manages lower half (panel for solo play, LAN play and
+ * the internet play) of the initial dialog. 
+ */
 class ModeNote {
 public:
   ModeNote();
@@ -50,8 +62,8 @@ public:
 
   void Init( GtkBox *box );
 
-  GtkWidget *m_serverName;
-  GtkWidget *m_lobbyEdit[2];
+  GtkWidget *m_serverName;		///< Server name input area. (For LAN)
+  GtkWidget *m_lobbyEdit[2];		///< Name and message input area (For internet). 
 protected:
   GtkWidget * InitSoloPlayPanel();
   GtkWidget * InitLANPlayPanel();
@@ -66,12 +78,15 @@ protected:
   static LRESULT CALLBACK EditWindowProc( HWND hwnd, UINT msg,
 					  WPARAM wparam, LPARAM lparam);
   static LRESULT CALLBACK ParentWindowProc(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam);
-  static LONG pEditWndProc;
-  static LONG pParentWndProc;
-  static HWND pChildHWnd;
+  static LONG pEditWndProc;		///< Edit window message handler. 
+  static LONG pParentWndProc;		///< Parent window message handler. 
+  static HWND pChildHWnd;		///< Child window handler. 
 #endif
 };
 
+/**
+ * LauncherView is a view class for the initial dialog. 
+ */
 class LauncherView {
 public:
   LauncherView();
@@ -83,12 +98,12 @@ public:
   static void ConnectionFailedDialog();
 
 #ifdef WIN32
-  static HWND hWnd;
+  static HWND hWnd;		///< Window handler of the initial dialog. 
 #endif
 protected:
-  GtkWidget *m_window;		// main window
-  LauncherHeader *m_header;	// upper area
-  ModeNote *m_note;		// mode notebook(solo, LAN, Internet)
+  GtkWidget *m_window;		///< main window control
+  LauncherHeader *m_header;	///< upper area manager
+  ModeNote *m_note;		///< lower area manager
 
-  GtkWidget *m_quit;		// quit button
+  GtkWidget *m_quit;		///< quit button control
 };

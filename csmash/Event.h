@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of Event class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
 //
@@ -22,18 +27,30 @@
 #include "Ball.h"
 #include "Player.h"
 
+/**
+ * Data structure to hold backtrack information. 
+ * Backtrack is stored into backtrack buffer for each TICK. 
+ * On network play, if backtrack is necessary, backtrack buffer is referred
+ * to rollback. 
+ */
 struct Backtrack {
-  long sec;
-  char count;
-  Ball theBall;
-  Player thePlayer;
-  Player comPlayer;
-  long score1;
-  long score2;
+  long sec;		///< Second of which this backtrack information is recorded. 
+  char count;		///< TICK count in the second speficied at sec. 
+  Ball theBall;		///< Copy of theBall object of the TICK. 
+  Player thePlayer;	///< Copy of thePlayer object of the TICK. 
+  Player comPlayer;	///< Copy of comPlayer object of the TICK. 
+  long score1;		///< Score of thePlayer side of the TICK. 
+  long score2;		///< Score of comPlayer side of the TICK. 
 };
 
 class ExternalData;
 
+/**
+ * Event handler class. 
+ * This class handles user event, network event and timer event. 
+ * Handling the event, this class changes the game status and notify the
+ * change to some classes. 
+ */
 class Event {
 public:
   ~Event();
@@ -48,22 +65,25 @@ public:
   static void MotionFunc( int x, int y );
   static void ButtonFunc( int button, int state, int x, int y );
 
-  bool SendSwing( Player *player );
   bool SendPlayer( Player *player );
   bool SendBall();
   bool SendPlayerAndBall( Player *player );
 
   bool BackTrack( long Histptr );
 
-  static struct timeb m_lastTime;
+  static struct timeb m_lastTime;	///< Time when IdleFunc is called previously. 
 
-  long m_mouseButton;					// For skip replay
+  long m_mouseButton;			///< Mouse button status holder. This is for skip replay. 
 
 #ifdef LOGGING
   static void GetAdjustedTime( long &sec, long &cnt );
   void RemainingLog();
 #endif
 
+  /**
+   * Check whether backtracking is enabled or not. 
+   * @return returns true if backtracking is enabled. 
+   */
   bool IsBackTracking() { return m_backtrack; };
 
   bool GetExternalData( ExternalData *&ext, long side );
@@ -75,28 +95,29 @@ protected:
   void ReadData();
   void ReadSelectData();
 
-  void PlayInit( long player, long com );
-  void DemoInit();
-  void SelectInit();
-  void TrainingInit( long player, long com );
-  void TrainingSelectInit();
-
   static void ClearBacktrack();
 
-  SDL_keysym m_KeyHistory[MAX_HISTORY];		// History of key input
-  long m_MouseXHistory[MAX_HISTORY];		// History of mouse move
-  long m_MouseYHistory[MAX_HISTORY];		// History of mouse move
-  unsigned long m_MouseBHistory[MAX_HISTORY];	// History of mouse button
-  int  m_Histptr;
+  SDL_keysym m_KeyHistory[MAX_HISTORY];		///< History of key input
+  long m_MouseXHistory[MAX_HISTORY];		///< History of mouse move
+  long m_MouseYHistory[MAX_HISTORY];		///< History of mouse move
+  unsigned long m_MouseBHistory[MAX_HISTORY];	///< History of mouse button
+  int  m_Histptr;				///< Current point of the history buffers
 
+  /**
+   * List of opponent action data. 
+   * This is used on network play only. 
+   */
   ExternalData *m_External;
+  /**
+   * Array of Backtrack data. 
+   */
   struct Backtrack m_BacktrackBuffer[MAX_HISTORY];
-  bool m_backtrack;		// Now backtracking or not
+  bool m_backtrack;				///< backtracking is enabled or not. 
 
   void SetNextMousePointer( long &x, long &y );
 private:
   Event();
-  static Event* m_theEvent;
+  static Event* m_theEvent;			///< Pointer to the singleton Event object. 
 };
 
 #endif	// _Event_

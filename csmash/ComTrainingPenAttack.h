@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of ComTrainingPenAttack class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -20,6 +25,10 @@
 #define _ComTrainingPenAttack_
 #include "comPenAttack.h"
 
+/**
+ * ComTrainingPenAttack class is a Player class of pen attack type player. 
+ * This player is the opponent player in training mode. 
+ */
 class ComTrainingPenAttack : public ComPenAttack {
 public:
   ComTrainingPenAttack();

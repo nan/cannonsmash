@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of ImageData class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
@@ -30,11 +35,24 @@ extern "C" {
 #include "z.h"
 #endif
 
+/**
+ * Default constructor. 
+ * Initialize member variable to 0. 
+ */
 ImageData::ImageData() {
   m_image = NULL;
   m_width = m_height = m_bytes = 0;
 }
 
+/**
+ * Constructor. 
+ * Specify image width, height and depth. 
+ * Size of the image becomes width*height*depth bytes. 
+ * 
+ * @param width width of the image. 
+ * @param height height of the image. 
+ * @param bytes depth of the image. 
+ */
 ImageData::ImageData( long width, long height, long bytes) {
   m_image = new GLubyte[width*height*bytes];
 
@@ -45,30 +63,61 @@ ImageData::ImageData( long width, long height, long bytes) {
   }
 }
 
+/**
+ * Destructor. 
+ * Delete image data. 
+ */
 ImageData::~ImageData() {
   if ( m_image )
     delete m_image;
 }
 
+/**
+ * Get a pixel color. 
+ * 
+ * @param x x coordinates of the pixel
+ * @param y y coordinates of the pixel
+ * @param bytes bytes of the pixel. 
+ * 
+ * @return returns the pixel color. If x, y, bytes exceeds the width, height, bytes of the image, returns 0. 
+ */
 GLubyte
-ImageData::GetPixel( long width, long height, long bytes ) {
-  if ( width > m_width || width < 0 || height > m_height || height < 0 ||
+ImageData::GetPixel( long x, long y, long bytes ) {
+  if ( x > m_width || x < 0 || y > m_height || y < 0 ||
        bytes > m_bytes || bytes < 0 )
     return 0;
 
-  return m_image[height*m_width*m_bytes + width*m_bytes + bytes];
+  return m_image[y*m_width*m_bytes + x*m_bytes + bytes];
 }
 
+/**
+ * Change pixel color. 
+ * 
+ * @param x x coordinates of the pixel
+ * @param y y coordinates of the pixel
+ * @param bytes bytes of the pixel. 
+ * @param val color of the pixel. 
+ * 
+ * @return returns true if succeeds. If x, y, bytes exceeds the width, height, bytes of the image, returns false. 
+ */
 bool
-ImageData::SetPixel( long width, long height, long bytes , GLubyte val ) {
-  if ( width > m_width || width < 0 || height > m_height || height < 0 ||
+ImageData::SetPixel( long x, long y, long bytes , GLubyte val ) {
+  if ( x > m_width || x < 0 || y > m_height || y < 0 ||
        bytes > m_bytes || bytes < 0 )
     return false;
 
-  m_image[height*m_width*m_bytes + width*m_bytes + bytes] = val;
+  m_image[y*m_width*m_bytes + x*m_bytes + bytes] = val;
   return true;
 }
 
+/**
+ * Load PPM image. 
+ * This method loads image from the specified PPM file or gzipped PPM file. 
+ * This method supports P2, P4, P5, P6 PPM file. 
+ * 
+ * @param filename PPM file name
+ * @return returns true if succeeds. 
+ */
 bool
 ImageData::LoadPPM(const char* filename ) {
   int i, j;
@@ -187,6 +236,13 @@ ImageData::LoadPPM(const char* filename ) {
 }
 
 #ifdef HAVE_LIBZ
+/**
+ * Get a word from file. 
+ * This method reads a word from the file. 
+ * 
+ * @param fp file pointer of the input file. Input file can be gzipped. 
+ * @return returns a word. 
+ */
 char*
 getWord( gzFile fp ) {
   static char buf[256];
@@ -215,6 +271,13 @@ getWord( gzFile fp ) {
   return ptr2;
 }
 #else
+/**
+ * Get a word from file. 
+ * This method reads a word from the file. 
+ * 
+ * @param fp file pointer of the input file. 
+ * @return returns a word. 
+ */
 char*
 getWord( FILE *fp ) {
   static char buf[256];
@@ -244,6 +307,13 @@ getWord( FILE *fp ) {
 }
 #endif
 
+/**
+ * Load JPEG image. 
+ * This method loads image from the specified JPEG file. 
+ * 
+ * @param filename JPEG file name
+ * @return returns true if succeeds. 
+ */
 bool ImageData::LoadJPG(const char *filename)
 {
   SDL_Surface *img = SDL_GL_LoadTexture((char *)filename);
@@ -259,6 +329,13 @@ bool ImageData::LoadJPG(const char *filename)
   return true;
 }
 
+/**
+ * Check file extention. 
+ * 
+ * @param filename filename to be tested. 
+ * @param ext extension name
+ * @return returns true if extension of the filename matches ext. 
+ */
 inline bool extmatch(const char *filename, const char *ext)
 {
     int lf = strlen(filename);
@@ -266,6 +343,14 @@ inline bool extmatch(const char *filename, const char *ext)
     return 0 == strcmp(&filename[lf-le], ext);
 }
 
+/**
+ * Load image file. 
+ * This method checks the extension of the file name to find the image type, 
+ * and load the image. 
+ * 
+ * @param filename image file name
+ * @return returns true if succeeds. 
+ */
 bool ImageData::LoadFile(const char *filename)
 {
     if      (extmatch(filename, ".jpg")) {
@@ -281,6 +366,13 @@ bool ImageData::LoadFile(const char *filename)
 }
 
 // Copyed from testgl.c of SDL source code
+/**
+ * Load image file and set it to texture. 
+ * This method is copyed from testgl.c of SDL source code. 
+ * 
+ * @param filename image file name
+ * @return returns SDL_Surface object of texture. return NULL if failed. 
+ */
 SDL_Surface* SDL_GL_LoadTexture(char *filename)
 {
   SDL_Surface *image, *jpg;

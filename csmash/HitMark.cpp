@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of HitMark class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2002, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -25,13 +30,26 @@ extern RCFile *theRC;
 
 GLuint HitMark::m_textures[2] = {0, 0};
 
+/**
+ * Default Constructor. 
+ * Initialize member variable. 
+ */
 HitMark::HitMark() : m_x(0.0), m_v(0.0) {
   m_swingError = SWING_PERFECT;
 }
 
+/**
+ * Destructor. 
+ * Do nothing. 
+ */
 HitMark::~HitMark() {
 }
 
+/**
+ * Initializer method. 
+ * Load texture image and initialize texture. 
+ * @return returns true if succeeds. 
+ */
 bool
 HitMark::Init() {
   ImageData errorImage[2];
@@ -77,6 +95,16 @@ HitMark::Init() {
   return true;
 }
 
+/**
+ * Show hit mark. 
+ * This method is called when the player hit the ball. 
+ * This method sets the location and velocity of hit mark. 
+ * 
+ * @param x location of hit mark. 
+ * @param v velocity of hit mark. 
+ * @param swingError type of hit mark. 
+ * @return returns true if succeeds. 
+ */
 bool
 HitMark::Hit( const vector3d x, const vector3d v, long swingError ) {
   m_x = x;
@@ -100,6 +128,12 @@ HitMark::Hit( const vector3d x, const vector3d v, long swingError ) {
   return true;
 }
 
+/**
+ * Redraw hit mark object. 
+ * This method only calculate the age of this object. 
+ * 
+ * @return returns false if 50msec has passed and hit mark should be vanished. Ohterwise returns true. 
+ */
 bool
 HitMark::Redraw() {
   struct timeb now;
@@ -132,6 +166,11 @@ HitMark::Redraw() {
   return true;
 }
 
+/**
+ * Redraw hit mark object. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 HitMark::RedrawAlpha() {
   if ( !theRC->isTexture )

@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of Control class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -27,6 +32,12 @@ typedef Vector<2, double> vector2d;
 class View;
 class Player;
 
+/**
+ * Base class of controller class. 
+ * When game mode is changed, a subclass of Control class is created. 
+ * The Control class manages all other classes to control the progress 
+ * of the game. 
+ */
 class Control {
 public:
   virtual ~Control();
@@ -43,15 +54,29 @@ public:
 
   static void ClearControl();
 
+  /**
+   * Getter method of singleton Control object. 
+   * @return returns singleton control object. If Control is not created, returns null. 
+   */
   static Control *TheControl() { return m_theControl; };
+
+  /**
+   * Getter method of Player object which is controlled by the game player. 
+   * @return returns Player object. If Player is not created, returns null. 
+   */
   static Player* GetThePlayer() { return m_thePlayer; };
+
+  /**
+   * Getter method of Player object which is controlled by CPU or opponent. 
+   * @return returns Player object. If Player is not created, returns null. 
+   */
   static Player* GetComPlayer() { return m_comPlayer; };
 protected:
   Control();
-  static Control *m_theControl;
+  static Control *m_theControl;	///< Singleton Control object. 
 
-  static Player* m_thePlayer;
-  static Player* m_comPlayer;
+  static Player* m_thePlayer;	///< Singleton Player object which is controlled by the game player. 
+  static Player* m_comPlayer;	///< Singleton Player object which is not controlled by the game player. 
 };
 
 #endif	// _Control_

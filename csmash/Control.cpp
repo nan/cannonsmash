@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of Control class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
@@ -31,13 +36,22 @@ Control *Control::m_theControl = NULL;
 Player* Control::m_thePlayer = NULL;
 Player* Control::m_comPlayer = NULL;
 
+/**
+ * Default constructor. 
+ */
 Control::Control() {
 }
 
+/**
+ * Destructor. 
+ */
 Control::~Control() {
   m_theControl = NULL;
 }
 
+/**
+ * Clean up all singletons (m_theControl, m_thePlayer, m_comPlayer). 
+ */
 void
 Control::ClearControl() {
   if ( m_thePlayer && wins == 0 ) {

@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of TrainingPenAttack class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2003, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -26,13 +31,42 @@
 
 extern Ball   theBall;
 
+/**
+ * Default constructor. 
+ */
 ComTrainingPenAttack::ComTrainingPenAttack() : ComPenAttack() {
 }
 
+/**
+ * Constructor. 
+ * Set player type and side. 
+ * 
+ * @param side side of the player. 
+ */
 ComTrainingPenAttack::ComTrainingPenAttack(long side) :
   ComPenAttack(side) {
 }
 
+/**
+ * Constructor which specifies almost all member variables. 
+ * 
+ * @param playerType player type (pen attack, etc. )
+ * @param side side (1 or -1)
+ * @param x location of the player
+ * @param v velocity of the player
+ * @param status status of the player (0 - 200)
+ * @param swing swing status of the player (0-50)
+ * @param swingType type of swing (smash, cut, etc. )
+ * @param swingSide side of swing (forehand or backhand)
+ * @param afterSwing afterswing stop penalty
+ * @param swingError valuation of the swing (good, bad, miss, etc. )
+ * @param target location of the target
+ * @param eye location of the camera
+ * @param pow power to hit the ball
+ * @param spin spin to hit the ball
+ * @param stamina stamina (not used currently)
+ * @param statusMax max of the status
+ */
 ComTrainingPenAttack::ComTrainingPenAttack( long playerType, long side,
 					    const vector3d x,const vector3d v,
 					    long status, long swing, 
@@ -47,9 +81,18 @@ ComTrainingPenAttack::ComTrainingPenAttack( long playerType, long side,
 		eye, pow, spin, stamina, statusMax ) {
 }
 
+/**
+ * Destructor. 
+ * Do nothing. 
+ */
 ComTrainingPenAttack::~ComTrainingPenAttack() {
 }
 
+/**
+ * Decide the movement of this player object. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 ComTrainingPenAttack::Think() {
   double hitTX, hitTY;	// estimation time until ball reaches _hitX, _hitY
@@ -156,6 +199,13 @@ ComTrainingPenAttack::Think() {
   return true;
 }
 
+/**
+ * Hit the ball with racket. 
+ * Referring the relative location of player and the ball, this method
+ * decides the velocity and spin of the ball. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 ComTrainingPenAttack::HitBall() {
   vector3d v;
@@ -188,9 +238,14 @@ ComTrainingPenAttack::HitBall() {
   return true;
 }
 
-// Calc hit point
-// (1) If the ball haven't bound, calc bound point
-// (2) Calc hit point from current ball location or bound location
+/**
+ * Calc the point of hitting ball. 
+ * If the ball haven't bound, calc bound point. 
+ * Then, calc hit point from current ball location or bound location. 
+ * 
+ * @param hitX point of hitting [out]. 
+ * @return returns true if succeeds. 
+ */
 bool
 ComTrainingPenAttack::Hitarea( vector2d &hitX ) {
   Ball *tmpBall;

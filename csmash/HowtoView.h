@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of HowtoView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
@@ -23,6 +28,9 @@
 
 class Howto;
 
+/**
+ * View class for Howto. 
+ */
 class HowtoView : public View {
 public:
   HowtoView();
@@ -35,12 +43,11 @@ public:
 
   static GLuint m_textures[4];
 protected:
-  Howto       *m_howto;
-  GLuint       m_offset;
-  ImageData    m_mouse[4];
-  ImageData    m_howtoText[8];
-  ImageData    m_arrow[4];
-  GLuint       m_keyboard[1];
+  Howto       *m_howto;			///< Reference to Howto object. 
+  ImageData    m_mouse[4];		///< Mouse texture handler. 
+  ImageData    m_howtoText[8];		///< Explanation text texture handler. 
+  ImageData    m_arrow[4];		///< Arrow mark texture handler. 
+  GLuint       m_keyboard[1];		///< Keyboard texture handler.  
 };
 
 #endif	// _HowtoView_

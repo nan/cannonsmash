@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of FieldView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
@@ -25,12 +30,25 @@
 
 extern RCFile *theRC;
 
+/**
+ * Default constructor. 
+ */
 FieldView::FieldView() {
 }
 
+/**
+ * Destructor. Do nothing. 
+ */
 FieldView::~FieldView() {
 }
 
+/**
+ * Initializer method. 
+ * This method should be called only once just after FieldView is created. 
+ * This method loads field textures to initialize texture handler. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 FieldView::Init() {
   int i;
@@ -136,6 +154,12 @@ FieldView::Init() {
   return true;
 }
 
+/**
+ * Redraw field items. 
+ * This method is called from BaseView::Redraw. 
+ * This method draws floor, walls, table leg, etc. 
+ * @return returns true if succeeds. 
+ */
 bool
 FieldView::Redraw() {
   if ( theRC->isTexture )
@@ -411,7 +435,12 @@ FieldView::Redraw() {
   return true;
 }
 
-// Draw transparent object
+/**
+ * Redraw transparent field items. 
+ * This method is called from BaseView::RedrawAlpha. 
+ * This method draws table, net, etc. 
+ * @return returns true if succeeds. 
+ */
 bool
 FieldView::RedrawAlpha() {
   glColor4f(0.0F, 0.0F, 0.3F, 0.7F);

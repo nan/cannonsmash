@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of Howto class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -30,6 +35,10 @@ extern long mode;
 
 extern Ball theBall;
 
+/**
+ * Default constructor. 
+ * initialize member variable. 
+ */
 Howto::Howto() {
   m_View = NULL;
   m_mode = 0;
@@ -40,6 +49,10 @@ Howto::Howto() {
   m_mouseB = 0;
 }
 
+/**
+ * Destructor. 
+ * Detatch m_View and delete it. 
+ */
 Howto::~Howto() {
   if ( m_View ){
     BaseView::TheView()->RemoveView( m_View );
@@ -47,6 +60,12 @@ Howto::~Howto() {
   }
 }
 
+/**
+ * Initialize member variables. 
+ * Create HowtoView, Player objects and initialize them. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 Howto::Init() {
   m_View = (HowtoView *)View::CreateView( VIEW_HOWTO );
@@ -63,6 +82,11 @@ Howto::Init() {
   return true;
 }
 
+/**
+ * Create Howto and initialize it. 
+ * This method clean up existing Control object and related object, then
+ * create Howto object and initialize it. 
+ */
 void
 Howto::Create() {
   Control::ClearControl();
@@ -71,6 +95,20 @@ Howto::Create() {
   m_theControl->Init();
 }
 
+/**
+ * Move objects managed by Howto. 
+ * This method calls Move method of  theBall, thePlayer, comPlayer
+ * to move them. And referring the duration of the time, this method
+ * changes m_mode and m_count. Additionally, this method manages the
+ * location and status of the mouse shown in the left bottom of the screen. 
+ * 
+ * @param KeyHistory history of keyboard input
+ * @param MouseXHistory history of mouse cursor move
+ * @param MouseYHistory history of mouse cursor move
+ * @param MouseBHistory history of mouse button push/release
+ * @param Histptr current position of histories described above. 
+ * @return returns true if it is neccesary to redraw. 
+ */
 bool
 Howto::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 	     long *MouseYHistory, unsigned long *MouseBHistory,
@@ -290,6 +328,13 @@ Howto::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   return true;
 }
 
+/**
+ * Initialize the location and direction of the camera. 
+ * 
+ * @param srcX location of the camera
+ * @param destX direction of the camera
+ * @return returns true if succeeds. 
+ */
 bool
 Howto::LookAt( vector3d &srcX, vector3d &destX ) {
   srcX = m_thePlayer->GetX() + m_thePlayer->GetEye();
@@ -315,7 +360,12 @@ Howto::LookAt( vector3d &srcX, vector3d &destX ) {
   return true;
 }
 
-/* Decide weather ball and player should be moved or not. */
+/**
+ * Check wheather ball and player should be moved or not. 
+ * This method is used for slow motion, etc. 
+ * 
+ * @return returns false if objects should not be moved. 
+ */
 bool
 Howto::IsMove() {
   switch ( m_mode ) {

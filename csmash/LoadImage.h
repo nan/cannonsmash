@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of ImageData class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
 //
@@ -19,29 +24,33 @@
 #ifndef _LoadImage_
 #define _LoadImage_
 
+/**
+ * ImageData class is a utility class for loading PPM, JPG, getting and
+ * modifying the image. 
+ */
 class ImageData {
 public:
   ImageData();
   ImageData( long width, long height, long bytes );
   virtual ~ImageData();
 
-  GLubyte *GetImage() {return m_image;}
+  GLubyte *GetImage() {return m_image;}	///< Get image data
 
-  long GetWidth()  {return m_width;}
-  long GetHeight() {return m_height;}
-  long GetBytes()  {return m_bytes;}
-  GLubyte GetPixel( long width, long height, long bytes );
-  bool SetPixel( long width, long height, long bytes, GLubyte val );
+  long GetWidth()  {return m_width;}	///< Get image width
+  long GetHeight() {return m_height;}	///< Get image height
+  long GetBytes()  {return m_bytes;}	///< Get image depth
+  GLubyte GetPixel( long x, long y, long bytes );
+  bool SetPixel( long x, long y, long bytes, GLubyte val );
 
   bool LoadFile(const char *filename);
   bool LoadPPM(const char* filename );
   bool LoadJPG(const char* filename);
 
 protected:
-  GLubyte *m_image;
-  long m_width;
-  long m_height;
-  long m_bytes;
+  GLubyte *m_image;			///< image data
+  long m_width;				///< image width
+  long m_height;			///< image height
+  long m_bytes;				///< image depth
 };
 
 #ifdef HAVE_LIBZ
