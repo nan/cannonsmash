@@ -333,6 +333,9 @@ Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
   //if ( player == comPlayer && mode == MODE_MULTIPLAY ) {
   //  return true;
   //}
+  if ( player == comPlayer && mode == MODE_MULTIPLAY ) {
+    printf( "Hit : %f %f %f %f %f %f %f\n", m_x, m_y, m_z, vx, vy, vz, spin );
+  }
 
   m_spin = spin;
 

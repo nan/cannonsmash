@@ -839,8 +839,14 @@ ExternalBVData::Apply( Player *targetPlayer, bool &fThePlayer,
   printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n", theBall.GetX(),
 	  theBall.GetY(), theBall.GetZ(),
 	  theBall.GetVX(), theBall.GetVY(), theBall.GetVZ() );
-#endif
+
   fflush(0);
+#else
+  printf( "BV: x=%f y=%f z=%f vx=%f vy=%f vz=%f\n", theBall.GetX(),
+	  theBall.GetY(), theBall.GetZ(),
+	  theBall.GetVX(), theBall.GetVY(), theBall.GetVZ() );
+#endif
+
   return true;
 }
 
