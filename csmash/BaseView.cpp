@@ -64,13 +64,16 @@ BaseView::~BaseView() {
 bool
 BaseView::Init() {
 // Windowの生成, 初期化
-  m_baseSurface = SDL_SetVideoMode( m_winWidth, m_winHeight, 0, SDL_OPENGL );
+  if ( fullScreen )
+    m_baseSurface = SDL_SetVideoMode( m_winWidth, m_winHeight, 0,
+				      SDL_OPENGL|SDL_FULLSCREEN );
+  else
+    m_baseSurface = SDL_SetVideoMode( m_winWidth, m_winHeight, 0, SDL_OPENGL );
 
-  m_baseSurface = SDL_SetVideoMode( m_winWidth, m_winHeight, 0, SDL_OPENGL );
   SDL_WM_SetCaption( "CannonSmash", NULL );
 
-  if (fullScreen)
-    SDL_WM_ToggleFullScreen( m_baseSurface );
+  //if (fullScreen)
+  //SDL_WM_ToggleFullScreen( m_baseSurface );
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
