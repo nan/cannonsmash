@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -94,8 +94,8 @@ PracticeSelectView::Redraw() {
       if ( ((PracticeSelect *)m_playerSelect)->GetOpponentSelected() < 100 ) {
 	if ( theRC->gmode != GMODE_SIMPLE )
 	  glEnable(GL_TEXTURE_2D);
-	glTranslatef( 0.01F*100,
-		      -1.0F+0.01F*((PracticeSelect *)m_playerSelect)->GetOpponentSelected(), 1.4F );
+	glTranslatef( 1.0F,
+		      -1.0F+0.01F*((PracticeSelect *)m_playerSelect)->GetOpponentSelected(), 1.0F );
 	glRotatef( ((PracticeSelect *)m_playerSelect)->GetOpponentSelected()*360.0F/100,
 		   0.0F, 0.0F, 1.0F );
       } else {
