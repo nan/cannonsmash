@@ -20,7 +20,7 @@ Cpost = -c -Tc
 CXXpost = -c -Tp
 
 CFLAGS = -MD -Ox -G6 -vms $(DFLAGS) $(INCDIRS)
-#CFLAGS = -MD -Od -Zi -G6 -vms $(DFLAGS) $(INCDIRS)
+#CFLAGS = -MD -Od -Zi -G6 -vms $(DFLAGS) $(INCDIRS) -DWIN32CONSOLE
 
 CXXFLAGS=$(CFLAGS) -GX
 
@@ -33,13 +33,14 @@ EXE = .exe
 AOUT = -Fe
 
 ############################################################################
-DFLAGS = -DHAVE_LIBZ -DHAVE_LIBSDL_MIXER #-DWIN32CONSOLE
+DFLAGS = -DHAVE_LIBZ -DHAVE_LIBSDL_MIXER
 INCDIRS = -I. -I./glib/ -I./gdk/
 
 LIBS =	win32/GetArgs.obj win32/getopt.obj win32/wsaerror.obj \
 	win32/wsainit.obj win32/csmash.res \
 	SDL.lib SDL_mixer.lib opengl32.lib glu32.lib zlib.lib \
-	libjpeg.lib ws2_32.lib gtk/gtk-1.3.lib glib/glib-1.3.lib
+	libjpeg.lib ws2_32.lib gtk/gtk-1.3.lib glib/glib-1.3.lib \
+	winmm.lib
 
 SRCS = \
 	Ball.cpp BallView.cpp BaseView.cpp Event.cpp HitMark.cpp \
