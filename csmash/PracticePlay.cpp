@@ -17,15 +17,14 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
+#include "Event.h"
 #include "PracticePlay.h"
 #include "Player.h"
 #include "Ball.h"
-#include "Event.h"
 
 extern Player* thePlayer;
 extern Player* comPlayer;
 extern Ball theBall;
-extern Event theEvent;
 extern long mode;
 
 extern void QuitGame();
@@ -36,14 +35,12 @@ PracticePlay::PracticePlay() : SoloPlay() {
 PracticePlay::~PracticePlay() {
 }
 
-PracticePlay*
+void
 PracticePlay::Create( long player, long com ) {
-  PracticePlay *newPracticePlay;
-
   Event::ClearObject();
 
-  newPracticePlay = new PracticePlay();
-  newPracticePlay->Init();
+  m_theControl = new PracticePlay();
+  m_theControl->Init();
 
   thePlayer = Player::Create( player, 1, 0 );
   comPlayer = Player::Create( com, -1, 1 );
@@ -54,8 +51,6 @@ PracticePlay::Create( long player, long com ) {
   // Move it to view?
   SDL_ShowCursor(0);
   SDL_WM_GrabInput( SDL_GRAB_ON );
-
-  return newPracticePlay;
 }
 
 void

@@ -21,15 +21,7 @@
 #include "Title.h"
 #include "MenuItem.h"
 #include "LoadImage.h"
-#include "Sound.h"
 #include "BaseView.h"
-
-extern long gameLevel;
-extern long gameMode;
-
-extern Sound theSound;
-
-extern bool isWireFrame;
 
 TitleView::TitleView() {
   m_View = NULL;

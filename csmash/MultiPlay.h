@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -110,7 +110,7 @@ public:
 
   virtual bool Init();
 
-  static MultiPlay* Create( long player, long com );
+  static void Create( long player, long com );
 
   virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,
@@ -126,10 +126,16 @@ public:
 
   virtual void EndGame();
 
+  long GetTimeAdj() { return m_timeAdj; };
+
+  void StartServer();
+  void StartClient();
 protected:
   //bool m_smash;
   //long m_smashCount;
   //long m_smashPtr;
+
+  long m_timeAdj;
 };
 
 #endif	// _MultiPlayer_

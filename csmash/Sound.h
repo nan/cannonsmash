@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,8 +26,9 @@ struct buffer {
 
 class Sound {
 public:
-  Sound();
   virtual ~Sound();
+
+  static Sound* TheSound();
 
   virtual bool Init( long sndMode );
   virtual void Clear();
@@ -52,6 +53,9 @@ public:
 #endif
 
   long m_soundMode;
+private:
+  Sound();
+  static Sound *m_theSound;
 };
 
 #endif // _Sound_

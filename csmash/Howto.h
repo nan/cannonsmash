@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ public:
 
   bool Init();
 
-  static Howto* Create();
+  static void Create();
 
   virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,

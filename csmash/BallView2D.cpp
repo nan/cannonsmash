@@ -29,9 +29,6 @@ extern Ball   theBall;
 extern Player* thePlayer;
 extern Player *comPlayer;
 extern long mode;
-extern BaseView* theView;
-
-extern Control* theControl;
 
 extern bool RenderRect( double x1, double y1, double z1, 
 			double x2, double y2, double z2, 
@@ -60,8 +57,9 @@ BallView2D::Redraw() {
 		theBall.GetZ()+BALL_R/2, 
 		&rect );
 
-    SDL_FillRect( theView->GetSurface(), &rect, 
-		  SDL_MapRGB( theView->GetSurface()->format, 255, 144, 47 ) );
+    SDL_FillRect( BaseView::TheView()->GetSurface(), &rect, 
+		  SDL_MapRGB( BaseView::TheView()->GetSurface()->format,
+			      255, 144, 47 ) );
 
     // Draw the ball shadow
     if ( theBall.GetY() > -TABLELENGTH/2 && theBall.GetY() < TABLELENGTH/2 ){
@@ -69,13 +67,13 @@ BallView2D::Redraw() {
 		 theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2, TABLEHEIGHT,
 		 &rect );
 
-      SDL_FillRect( theView->GetSurface(), &rect, 0 );
+      SDL_FillRect( BaseView::TheView()->GetSurface(), &rect, 0 );
     } else {
       RenderRect(theBall.GetX()-BALL_R/2, theBall.GetY()-BALL_R/2, 0.0,
 		 theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2, 0.0,
 		 &rect );
 
-      SDL_FillRect( theView->GetSurface(), &rect, 0 );
+      SDL_FillRect( BaseView::TheView()->GetSurface(), &rect, 0 );
     }
   }
 
@@ -107,8 +105,8 @@ BallView2D::GetDamageRect() {
 
     if ( rect.x != _rect.x || rect.y != _rect.y ||
 	 rect.w != _rect.w || rect.h != _rect.h ) {
-      ((BaseView2D *)theView)->AddUpdateRect( &rect );
-      ((BaseView2D *)theView)->AddUpdateRect( &_rect );
+      ((BaseView2D *)BaseView::TheView())->AddUpdateRect( &rect );
+      ((BaseView2D *)BaseView::TheView())->AddUpdateRect( &_rect );
       rect = _rect;
     }
 
@@ -124,8 +122,8 @@ BallView2D::GetDamageRect() {
 
     if ( rectShadow.x != _rectShadow.x || rectShadow.y != _rectShadow.y ||
 	 rectShadow.w != _rectShadow.w || rectShadow.h != _rectShadow.h ) {
-      ((BaseView2D *)theView)->AddUpdateRect( &rectShadow );
-      ((BaseView2D *)theView)->AddUpdateRect( &_rectShadow );
+      ((BaseView2D *)BaseView::TheView())->AddUpdateRect( &rectShadow );
+      ((BaseView2D *)BaseView::TheView())->AddUpdateRect( &_rectShadow );
       rectShadow = _rectShadow;
     }
   }

@@ -37,7 +37,6 @@ typedef int socklen_t;		/* mimic Penguin's typedef */
 
 extern RCFile *theRC;
 
-extern short csmash_port;
 extern bool isComm;
 extern long mode;
 
@@ -74,8 +73,7 @@ LobbyClient::Init( char *nick, char *message ) {
   char buf[1024];
 
   // open listening port
-  socklen_t fromlen;
-  struct sockaddr_in saddr, faddr;
+  struct sockaddr_in saddr;
 
   if ( listenSocket == 0 ) {
     if ( (listenSocket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
@@ -89,7 +87,7 @@ LobbyClient::Init( char *nick, char *message ) {
 
     saddr.sin_addr.s_addr = htonl(INADDR_ANY);
     saddr.sin_family = AF_INET;
-    saddr.sin_port = htons(csmash_port);
+    saddr.sin_port = htons(theRC->csmash_port);
     if ( bind( listenSocket, (struct sockaddr *)&saddr, sizeof(saddr) ) < 0 ) {
       xerror("%s(%d) bind", __FILE__, __LINE__);
       gtk_main_quit();
@@ -141,7 +139,7 @@ LobbyClient::Init( char *nick, char *message ) {
   send( m_socket, &ver, 1, 0 );
 
   // Send port number(Must be changed, too)
-  SendLong( m_socket, csmash_port );
+  SendLong( m_socket, theRC->csmash_port );
 
   // send nick
   strncpy( buf, nick, 32 );
@@ -403,7 +401,7 @@ LobbyClient::ReadUI() {
   m_player = new PlayerInfo[m_playerNum];
 
   // Analyse data
-  int i, j;
+  int i;
   for ( i = 0 ; i < m_playerNum ; i++ ) {
     if ( buffer[len] )
       m_player[i].m_canBeServer = true;
@@ -489,11 +487,11 @@ LobbyClient::ReadOI() {
   // get port number
   long tmpPort;
   ReadLong( &(buffer[4]), tmpPort );
-  csmash_port = tmpPort;
+  theRC->csmash_port = tmpPort;
 
   // At now, Ignore server or client. 
 
-  //printf( "%s %d\n", serverName, csmash_port );
+  //printf( "%s %d\n", serverName, theRC->csmash_port );
 }
 
 

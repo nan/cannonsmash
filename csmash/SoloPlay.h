@@ -27,7 +27,7 @@ public:
 
   virtual bool Init();
 
-  static SoloPlay* Create( long player, long com );
+  static void Create( long player, long com );
 
   virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,

@@ -22,8 +22,6 @@
 #include "BaseView2D.h"
 #include "Player.h"
 
-extern BaseView *theView;
-
 extern long mode;
 
 PlayerView2D::PlayerView2D() {
@@ -65,11 +63,12 @@ PlayerView2D::RedrawAlpha() {
 
 bool
 PlayerView2D::SubRedraw() {
-  SDL_Rect srcRect, destRect;
+  SDL_Rect destRect;
   if ( m_player->GetY() > -3.5 ) {
     GetDrawRect( &destRect );
 
-    SDL_BlitSurface(m_playerBMP, NULL, theView->GetSurface(), &destRect);
+    SDL_BlitSurface(m_playerBMP, NULL, BaseView::TheView()->GetSurface(),
+		    &destRect);
   }
 
   return true;
@@ -84,11 +83,11 @@ PlayerView2D::GetDamageRect() {
 
     if ( m_damageRect.x != _rect.x || m_damageRect.y != _rect.y ||
 	 m_damageRect.w != _rect.w || m_damageRect.h != _rect.h ) {
-      ((BaseView2D *)theView)->AddUpdateRect( &m_damageRect );
+      ((BaseView2D *)BaseView::TheView())->AddUpdateRect( &m_damageRect );
 
       m_damageRect = _rect;
 
-      ((BaseView2D *)theView)->AddUpdateRect( &m_damageRect );
+      ((BaseView2D *)BaseView::TheView())->AddUpdateRect( &m_damageRect );
     }
   }
 

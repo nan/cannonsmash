@@ -37,18 +37,11 @@ int LoadData( void *dum );
 
 Ball theBall;
 
-Sound theSound;
-
-BaseView *theView;
 Player *thePlayer = NULL;
 Player *comPlayer = NULL;
-Event theEvent;
 
-short csmash_port = CSMASH_PORT;
 int theSocket = -1;
 bool isComm = false;		// Network Play?
-
-long timeAdj = 0;
 
 bool isLighting	= true;
 bool isPolygon	= true;
@@ -56,8 +49,6 @@ bool isPolygon	= true;
 bool isWaiting = false;		// waiting for opponent player on the internet
 
 long wins	= 0;
-
-Control*      theControl = NULL;
 
 RCFile *theRC = RCFile::GetRCFile();
 
@@ -129,8 +120,8 @@ int main(int argc, char** argv) {
 	    break;
 	case 'p':
 	    // set the csmash_port
-	    csmash_port = (short)atoi(optarg);
-	    if (0 == csmash_port) csmash_port = CSMASH_PORT;
+	    theRC->csmash_port = (short)atoi(optarg);
+	    if (0 == theRC->csmash_port) theRC->csmash_port = CSMASH_PORT;
 	    break;
 	case 'f':
 	    // Fullscreen mode
@@ -247,10 +238,9 @@ StartGame() {
     mode = MODE_TITLE;
   }
 
-  theSound.Init( sndMode );
-  theView = BaseView::Create();
-  theView->Init();
-  theEvent.Init();
+  Sound::TheSound()->Init( sndMode );
+  BaseView::TheView()->Init();
+  Event::TheEvent()->Init();
 
 #ifdef LOGGING
   if ( isComm ) {
@@ -287,8 +277,8 @@ bool PollEvent() {
       break;
     case SDL_QUIT:
       Event::ClearObject();
-      theView->QuitGame();
-      theSound.Clear();
+      BaseView::TheView()->QuitGame();
+      Sound::TheSound()->Clear();
 
       HitMark::m_textures[0] = 0;
       HowtoView::m_textures[0] = 0;

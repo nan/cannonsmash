@@ -25,7 +25,6 @@ extern Ball   theBall;
 extern Player *thePlayer;
 extern Player *comPlayer;
 
-extern Event theEvent;
 extern long mode;
 extern long isComm;
 
@@ -104,7 +103,7 @@ PenDrive::Swing( long spin ) {
   delete tmpBall;
 
   if ( thePlayer == this && mode == MODE_MULTIPLAY )
-    theEvent.SendSwing( this );
+    Event::TheEvent()->SendSwing( this );
 
   return true;
 }
@@ -149,7 +148,7 @@ PenDrive::StartSwing( long spin ) { // Argument is valid only on serve
       m_swingSide = true;
 
       if ( thePlayer == this && mode == MODE_MULTIPLAY )
-	theEvent.SendSwing( this );
+	Event::TheEvent()->SendSwing( this );
     } else {
       if ( (m_x-tmpBall->GetX())*m_side > 0 )
 	m_swingSide = false;

@@ -21,7 +21,6 @@
 #include "BaseView2D.h"
 #include "Player.h"
 #include "Control.h"
-#include "Event.h"
 #include "Ball.h"
 #include "LoadImage.h"
 #include "PlayGame.h"
@@ -30,11 +29,7 @@
 extern Player* thePlayer;
 extern Player* comPlayer;
 extern long mode;
-extern Control*      theControl;
 
-extern Event theEvent;
-
-extern BaseView* theView;
 extern Ball theBall;
 
 extern bool isLighting;
@@ -84,7 +79,7 @@ BaseView2D::Init() {
 
 void
 BaseView2D::DisplayFunc() {
-  theView->RedrawAll();
+  BaseView::TheView()->RedrawAll();
 }
 
 bool
@@ -99,8 +94,8 @@ BaseView2D::RedrawAll() {
   if ( comPlayer )
     comPlayer->GetView()->GetDamageRect();
   theBall.GetView()->GetDamageRect();
-  if ( theControl->GetView() )
-    theControl->GetView()->GetDamageRect();
+  if ( Control::TheControl()->GetView() )
+    Control::TheControl()->GetView()->GetDamageRect();
 
   rect.x = m_updateX1;
   rect.y = m_updateY1;
@@ -123,9 +118,9 @@ BaseView2D::RedrawAll() {
     thePlayer->GetView()->RedrawAlpha();
   theBall.GetView()->Redraw();
 
-  if ( theControl->GetView() ) {
-    theControl->GetView()->Redraw();
-    theControl->GetView()->RedrawAlpha();
+  if ( Control::TheControl()->GetView() ) {
+    Control::TheControl()->GetView()->Redraw();
+    Control::TheControl()->GetView()->RedrawAlpha();
   }
 
   // 再描画領域のみ描画する
@@ -171,12 +166,13 @@ BaseView2D::EndGame() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  printf( "EndGame %d : %d\n", ((PlayGame *)theControl)->GetScore(thePlayer), 
-    ((PlayGame *)theControl)->GetScore(comPlayer) );
+  printf( "EndGame %d : %d\n",
+	  ((PlayGame *)Control::TheControl())->GetScore(thePlayer), 
+	  ((PlayGame *)Control::TheControl())->GetScore(comPlayer) );
 
-  if ( theControl->IsPlaying() && 
-       ((PlayGame *)theControl)->GetScore(thePlayer) >
-       ((PlayGame *)theControl)->GetScore(comPlayer) ) {
+  if ( Control::TheControl()->IsPlaying() && 
+       ((PlayGame *)Control::TheControl())->GetScore(thePlayer) >
+       ((PlayGame *)Control::TheControl())->GetScore(comPlayer) ) {
 #ifndef HAVE_LIBZ
     if ( (fp = fopen(&file[0][0], "r")) == NULL )
       return;

@@ -25,7 +25,7 @@ public:
   PracticePlay();
   virtual ~PracticePlay();
 
-  static PracticePlay* Create( long player, long com );
+  static void Create( long player, long com );
 
   virtual void EndGame();
 protected:

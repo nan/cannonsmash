@@ -24,8 +24,9 @@
 #endif
 
 extern long mode;
-extern Sound theSound;
 extern SDL_mutex *loadMutex;
+
+Sound* Sound::m_theSound = NULL;
 
 Sound::Sound() {
 #ifdef HAVE_LIBSDL_MIXER
@@ -50,6 +51,14 @@ Sound::~Sound() {
 
   Mix_CloseAudio();
 #endif
+}
+
+Sound*
+Sound::TheSound() {
+  if ( Sound::m_theSound )
+    return Sound::m_theSound;
+  else
+    return (Sound::m_theSound = new Sound());
 }
 
 bool
@@ -93,9 +102,6 @@ Sound::Clear() {
 /*
 bool
 Sound::Play( char *sndData, long size ) {
-  if ( mode != MODE_MULTIPLAY ) {
-  }
-
   return true;
 }
 */
@@ -114,12 +120,9 @@ Sound::GetSoundMode() {
   return m_soundMode;
 }
 
-// Unnessesary?
 bool
 Sound::SetSoundMode( long mode ) {
-  if ( mode == m_soundMode )
-    return true;
-
+  m_soundMode = mode;
   return true;
 }
 

@@ -20,7 +20,6 @@
 #include "Title.h"
 #include "BaseView.h"
 #include "BaseView2D.h"
-#include "Sound.h"
 #include "Player.h"
 #include "Ball.h"
 #include "TitleView.h"
@@ -31,10 +30,7 @@
 
 extern RCFile *theRC;
 
-extern BaseView* theView;
 extern long mode;
-
-extern Sound theSound;
 
 extern void QuitGame();
 
@@ -59,7 +55,7 @@ Title::~Title() {
   }
 
   if ( m_View ){
-    theView->RemoveView( m_View );
+    BaseView::TheView()->RemoveView( m_View );
     delete m_View;
   }
 }
@@ -73,7 +69,7 @@ Title::Init() {
 
   m_View->Init( this );
 
-  theView->AddView( m_View );
+  BaseView::TheView()->AddView( m_View );
 
   thePlayer = Player::Create( RAND(3), 1, 1 );
   comPlayer = Player::Create( RAND(3), -1, 1 );
@@ -86,20 +82,16 @@ Title::Init() {
   return true;
 }
 
-Title*
+void
 Title::Create() {
-  Title *newTitle;
-
   Event::ClearObject();
 
-  newTitle = new Title();
-  newTitle->Init();
+  m_theControl = new Title();
+  m_theControl->Init();
 
   // Move it to view?
   SDL_ShowCursor(1);
   SDL_WM_GrabInput( SDL_GRAB_OFF );
-
-  return newTitle;
 }
 
 bool
@@ -304,7 +296,7 @@ Title::CreateMenu( long menuMajorNum ) {
 				   "images/ModeSelect"
 				    };
 
-  int i, j;
+  int i, j = 0;
 
   if ( m_menuItem[0] ) {
     for ( i = 0 ; i < 16 ; i++ ) {

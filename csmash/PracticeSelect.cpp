@@ -25,15 +25,11 @@
 //#include "PracticeSelectView2D.h"
 #include "Event.h"
 
-extern BaseView* theView;
 extern long mode;
 
 extern bool isComm;
-extern long gmode;
 
 extern Player *thePlayer;
-
-extern Sound theSound;
 
 extern long wins;
 
@@ -49,7 +45,7 @@ PracticeSelect::~PracticeSelect() {
 bool
 PracticeSelect::Init() {
 #if 0
-  if ( gmode == GMODE_2D )
+  if ( GetRCFile()->gmode == GMODE_2D )
     m_View = new PracticeSelectView2D();
   else
     m_View = new PracticeSelectView();
@@ -59,23 +55,19 @@ PracticeSelect::Init() {
 
   m_View->Init( this );
 
-  theView->AddView( m_View );
+  BaseView::TheView()->AddView( m_View );
 
   return true;
 }
 
-PracticeSelect*
+void
 PracticeSelect::Create() {
-  PracticeSelect *newPracticeSelect;
-
   Event::ClearObject();
 
-  newPracticeSelect = new PracticeSelect();
-  newPracticeSelect->Init();
+  m_theControl = new PracticeSelect();
+  m_theControl->Init();
 
   SDL_ShowCursor(0);
-
-  return newPracticeSelect;
 }
 
 bool
@@ -113,7 +105,7 @@ PracticeSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     nothing = 0;
     if ( *selected == 0 ) {
       *selected = 1;
-      theSound.Play( SOUND_CLICK );
+      Sound::TheSound()->Play( SOUND_CLICK );
     } else if ( *selected > 100 ) {
       *selected = 500;
       return true;
@@ -153,7 +145,7 @@ PracticeSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( (*rotate)/(360/PLAYERS) != nextRotate/(360/PLAYERS) ) {
       *rotate = (nextRotate+360/PLAYERS/2)/(360/PLAYERS)*(360/PLAYERS);
       lastRotate = 0;
-      theSound.Play( SOUND_CLICK );
+      Sound::TheSound()->Play( SOUND_CLICK );
     } else
       *rotate = nextRotate;
   }

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,18 +35,15 @@
 
 extern RCFile *theRC;
 
-extern BaseView* theView;
 extern Ball theBall;
 extern Player* thePlayer;
 extern Player* comPlayer;
-extern Event theEvent;
-extern Control*      theControl;
 extern long mode;
-
-extern long timeAdj;
 
 extern void Timer( int value );
 struct timeb Event::m_lastTime = {0, 0, 0, 0};	// 直前にTimerEventが呼ばれたときの時刻
+
+Event* Event::m_theEvent = NULL;
 
 extern int theSocket;
 
@@ -85,23 +82,30 @@ Event::Event() {
 Event::~Event() {
 }
 
+Event*
+Event::TheEvent() {
+  if ( !m_theEvent )
+    m_theEvent = new Event();
+  return m_theEvent;
+}
+
 bool
 Event::Init() {
   switch ( mode ){
   case MODE_SOLOPLAY:
-    theControl = SoloPlay::Create( 0, RAND(2) );
+    SoloPlay::Create( 0, RAND(2) );
     break;
   case MODE_MULTIPLAY:
-    theControl = MultiPlay::Create( 0, RAND(2) );
+    MultiPlay::Create( 0, RAND(2) );
     break;
   case MODE_SELECT:
-    theControl = PlayerSelect::Create();
+    PlayerSelect::Create();
     break;
   case MODE_TITLE:
-    theControl = Title::Create();
+    Title::Create();
     break;
   case MODE_OPENING:
-    theControl = Opening::Create();
+    Opening::Create();
     break;
   }
 
@@ -157,11 +161,11 @@ Event::IdleFunc() {
   _perfCount++;
 
   for ( int i = 0 ; i < diffcount ; i++ ) {
-    reDraw |= theEvent.Move();
+    reDraw |= Event::TheEvent()->Move();
 //    printf( "sec=%d count=%d status=%d\nx=%f y=%f z=%f spin = %f\n",
 //	    m_lastTime.time, m_lastTime.millitm/10, theBall.GetStatus(),
 //	    theBall.GetX(), theBall.GetY(), theBall.GetZ(), theBall.GetSpin() );
-    theEvent.Record();
+    Event::TheEvent()->Record();
 
     m_lastTime.millitm += 10;
     if ( m_lastTime.millitm > 1000 ) {
@@ -175,17 +179,17 @@ Event::IdleFunc() {
 
   if ( mode == MODE_MULTIPLAY ) {
     long preMode = mode;
-    theEvent.ReadData();
-    theEvent.IsModeChanged( preMode );
+    Event::TheEvent()->ReadData();
+    Event::TheEvent()->IsModeChanged( preMode );
   }
 
   if ( mode != MODE_OPENING && mode != MODE_TITLE &&
        SDL_WM_GrabInput( SDL_GRAB_QUERY ) == SDL_GRAB_ON )
-    SDL_WarpMouse((unsigned short)theEvent.m_MouseXHistory[theEvent.m_Histptr],
-		  (unsigned short)theEvent.m_MouseYHistory[theEvent.m_Histptr] );
+    SDL_WarpMouse((unsigned short)Event::TheEvent()->m_MouseXHistory[Event::TheEvent()->m_Histptr],
+		  (unsigned short)Event::TheEvent()->m_MouseYHistory[Event::TheEvent()->m_Histptr] );
 
   if ( reDraw )
-    theView->RedrawAll();
+    BaseView::TheView()->RedrawAll();
 }
 
 bool
@@ -193,8 +197,9 @@ Event::Move() {
   long preMode = mode;
   bool reDraw = false;
 
-  reDraw |= theControl->Move( m_KeyHistory, m_MouseXHistory,
-			      m_MouseYHistory, m_MouseBHistory, m_Histptr );
+  reDraw |= Control::TheControl()->Move( m_KeyHistory, m_MouseXHistory,
+					 m_MouseYHistory, m_MouseBHistory,
+					 m_Histptr );
 
   return reDraw | IsModeChanged( preMode );
 }
@@ -206,41 +211,41 @@ Event::IsModeChanged( long preMode ) {
 
     switch ( mode ) {
     case MODE_SOLOPLAY:
-      p = ((PlayerSelect *)theControl)->GetPlayerNum();
-      q = ((PlayerSelect *)theControl)->GetOpponentNum();
+      p = ((PlayerSelect *)Control::TheControl())->GetPlayerNum();
+      q = ((PlayerSelect *)Control::TheControl())->GetOpponentNum();
 
-      theControl = SoloPlay::Create( p, q );
+      SoloPlay::Create( p, q );
       break;
     case MODE_MULTIPLAY:
-      p = ((PlayerSelect *)theControl)->GetPlayerNum();
-      theControl = MultiPlay::Create( p, 0 );
+      p = ((PlayerSelect *)Control::TheControl())->GetPlayerNum();
+      MultiPlay::Create( p, 0 );
       break;
     case MODE_SELECT:
-      theControl = PlayerSelect::Create();
+      PlayerSelect::Create();
       break;
     case MODE_TITLE:
-      theControl = Title::Create();
+      Title::Create();
       break;
     case MODE_OPENING:
-      theControl = Opening::Create();
+      Opening::Create();
       break;
     case MODE_HOWTO:
-      theControl = Howto::Create();
+      Howto::Create();
       break;
     case MODE_TRAININGSELECT:
-      theControl = TrainingSelect::Create();
+      TrainingSelect::Create();
       break;
     case MODE_TRAINING:
-      p = ((PlayerSelect *)theControl)->GetPlayerNum();
-      theControl = Training::Create( p, p );
+      p = ((PlayerSelect *)Control::TheControl())->GetPlayerNum();
+      Training::Create( p, p );
       break;
     case MODE_PRACTICESELECT:
-      theControl = PracticeSelect::Create();
+      PracticeSelect::Create();
       break;
     case MODE_PRACTICE:
-      p = ((PlayerSelect *)theControl)->GetPlayerNum();
-      q = ((PlayerSelect *)theControl)->GetOpponentNum();
-      theControl = PracticePlay::Create( p, q );
+      p = ((PlayerSelect *)Control::TheControl())->GetPlayerNum();
+      q = ((PlayerSelect *)Control::TheControl())->GetOpponentNum();
+      PracticePlay::Create( p, q );
       break;
     }
 
@@ -270,8 +275,9 @@ Event::Record() {
 
 #if 0
   long sec = m_BacktrackBuffer[m_Histptr].sec;
-  long cnt = m_BacktrackBuffer[m_Histptr].count+timeAdj;
-
+  long cnt = m_BacktrackBuffer[m_Histptr].count;
+  if ( isComm )
+    cnt += ((MultiPlay *)Control::TheControl())->GetTimeAdj();
   while ( cnt < 0 ) {
     sec--;
     cnt += 100;
@@ -285,8 +291,9 @@ Event::Record() {
 	  m_BacktrackBuffer[m_Histptr].theBall.GetStatus() );
 #endif
 
-  if ( (mode == MODE_SOLOPLAY || mode == MODE_PRACTICE) && theControl &&
-       ((SoloPlay *)theControl)->GetSmashPtr() >= 0 )
+  if ( (mode == MODE_SOLOPLAY || mode == MODE_PRACTICE) &&
+       Control::TheControl() &&
+       ((SoloPlay *)Control::TheControl())->GetSmashPtr() >= 0 )
     return;
 
   m_KeyHistory[m_Histptr] = 0;
@@ -320,9 +327,9 @@ Event::Record() {
   if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
        mode == MODE_PRACTICE ) {
     m_BacktrackBuffer[m_Histptr].score1 =
-      ((PlayGame *)theControl)->GetScore(1);
+      ((PlayGame *)Control::TheControl())->GetScore(1);
     m_BacktrackBuffer[m_Histptr].score2 =
-      ((PlayGame *)theControl)->GetScore(-1);
+      ((PlayGame *)Control::TheControl())->GetScore(-1);
 #if 0
     if ( mode == MODE_MULTIPLAY ) {
       printf( "Hptr = %d x=%f y=%f vx=%f vy=%f vz=%f\n", m_Histptr, 
@@ -362,7 +369,7 @@ Event::KeyboardFunc( SDL_Event key, int x, int y ) {
     } else
       QuitGame();
   }
-  theEvent.m_KeyHistory[theEvent.m_Histptr] = key.key.keysym.unicode;
+  Event::TheEvent()->m_KeyHistory[Event::TheEvent()->m_Histptr] = key.key.keysym.unicode;
 }
 
 void
@@ -377,8 +384,8 @@ Event::KeyUpFunc( SDL_Event key, int x, int y ) {
 
 void
 Event::MotionFunc( int x, int y ) {
-  theEvent.m_MouseXHistory[theEvent.m_Histptr] = x;
-  theEvent.m_MouseYHistory[theEvent.m_Histptr] = y;
+  Event::TheEvent()->m_MouseXHistory[Event::TheEvent()->m_Histptr] = x;
+  Event::TheEvent()->m_MouseYHistory[Event::TheEvent()->m_Histptr] = y;
 }
 
 void
@@ -386,37 +393,37 @@ Event::ButtonFunc( int button, int state, int x, int y ) {
   if ( state == SDL_MOUSEBUTTONDOWN ) {
     switch ( button ) {
     case 1:
-      theEvent.m_MouseBHistory[theEvent.m_Histptr] |= BUTTON_LEFT;
-      theEvent.m_mouseButton |= BUTTON_LEFT;
+      Event::TheEvent()->m_MouseBHistory[Event::TheEvent()->m_Histptr] |= BUTTON_LEFT;
+      Event::TheEvent()->m_mouseButton |= BUTTON_LEFT;
       break;
     case 2:
-      theEvent.m_MouseBHistory[theEvent.m_Histptr] |= BUTTON_MIDDLE;
-      theEvent.m_mouseButton |= BUTTON_MIDDLE;
+      Event::TheEvent()->m_MouseBHistory[Event::TheEvent()->m_Histptr] |= BUTTON_MIDDLE;
+      Event::TheEvent()->m_mouseButton |= BUTTON_MIDDLE;
       break;
     case 3:
-      theEvent.m_MouseBHistory[theEvent.m_Histptr] |= BUTTON_RIGHT;
-      theEvent.m_mouseButton |= BUTTON_RIGHT;
+      Event::TheEvent()->m_MouseBHistory[Event::TheEvent()->m_Histptr] |= BUTTON_RIGHT;
+      Event::TheEvent()->m_mouseButton |= BUTTON_RIGHT;
       break;
     }
   } else {
     switch ( button ) {
     case 1:
-      theEvent.m_MouseBHistory[theEvent.m_Histptr] &= ~BUTTON_LEFT;
-      theEvent.m_mouseButton &= ~BUTTON_LEFT;
+      Event::TheEvent()->m_MouseBHistory[Event::TheEvent()->m_Histptr] &= ~BUTTON_LEFT;
+      Event::TheEvent()->m_mouseButton &= ~BUTTON_LEFT;
       break;
     case 2:
-      theEvent.m_MouseBHistory[theEvent.m_Histptr] &= ~BUTTON_MIDDLE;
-      theEvent.m_mouseButton &= ~BUTTON_MIDDLE;
+      Event::TheEvent()->m_MouseBHistory[Event::TheEvent()->m_Histptr] &= ~BUTTON_MIDDLE;
+      Event::TheEvent()->m_mouseButton &= ~BUTTON_MIDDLE;
       break;
     case 3:
-      theEvent.m_MouseBHistory[theEvent.m_Histptr] &= ~BUTTON_RIGHT;
-      theEvent.m_mouseButton &= ~BUTTON_RIGHT;
+      Event::TheEvent()->m_MouseBHistory[Event::TheEvent()->m_Histptr] &= ~BUTTON_RIGHT;
+      Event::TheEvent()->m_mouseButton &= ~BUTTON_RIGHT;
       break;
     }
   }
 
-  theEvent.m_MouseXHistory[theEvent.m_Histptr] = x;
-  theEvent.m_MouseYHistory[theEvent.m_Histptr] = y;
+  Event::TheEvent()->m_MouseXHistory[Event::TheEvent()->m_Histptr] = x;
+  Event::TheEvent()->m_MouseYHistory[Event::TheEvent()->m_Histptr] = y;
 }
 
 void
@@ -462,13 +469,13 @@ Event::SendSwing( Player *player ) {
     return false;
 
   strncpy( buf, "PS", 2 );
-  ((MultiPlay *)theControl)->SendTime( &(buf[2]) );
+  ((MultiPlay *)Control::TheControl())->SendTime( &(buf[2]) );
 
   player->SendSwing( &(buf[7]) );
 
   // Player 位置情報も送信する
   strncpy( &(buf[31]), "PV", 2 );
-  ((MultiPlay *)theControl)->SendTime( &(buf[33]) );
+  ((MultiPlay *)Control::TheControl())->SendTime( &(buf[33]) );
 
   player->SendLocation( &(buf[38]) );
 
@@ -484,7 +491,7 @@ Event::SendPlayer( Player *player ) {
     return false;
 
   strncpy( buf, "PV", 2 );
-  ((MultiPlay *)theControl)->SendTime( &(buf[2]) );
+  ((MultiPlay *)Control::TheControl())->SendTime( &(buf[2]) );
 
   player->SendLocation( &(buf[7]) );
 
@@ -501,7 +508,7 @@ Event::SendBall() {
     return false;
 
   strncpy( buf, "BV", 2 );
-  ((MultiPlay *)theControl)->SendTime( &(buf[2]) );
+  ((MultiPlay *)Control::TheControl())->SendTime( &(buf[2]) );
 
   theBall.Send( &(buf[7]) );
 
@@ -518,12 +525,12 @@ Event::SendPlayerAndBall( Player *player ) {
     return false;
 
   strncpy( buf, "PV", 2 );
-  ((MultiPlay *)theControl)->SendTime( &(buf[2]) );
+  ((MultiPlay *)Control::TheControl())->SendTime( &(buf[2]) );
 
   player->SendLocation( &(buf[7]) );
 
   strncpy( &(buf[55]), "BV", 2 );
-  ((MultiPlay *)theControl)->SendTime( &(buf[57]) );
+  ((MultiPlay *)Control::TheControl())->SendTime( &(buf[57]) );
 
   theBall.Send( &(buf[62]) );
 
@@ -547,13 +554,12 @@ Event::ClearObject() {
     delete comPlayer;
     comPlayer = NULL;
   }
-  if ( theControl ) {
-    if ( theControl->IsPlaying() ) {
-      score1 = ((PlayGame *)theControl)->GetScore(1);
-      score2 = ((PlayGame *)theControl)->GetScore(-1);
+  if ( Control::TheControl() ) {
+    if ( Control::TheControl()->IsPlaying() ) {
+      score1 = ((PlayGame *)Control::TheControl())->GetScore(1);
+      score2 = ((PlayGame *)Control::TheControl())->GetScore(-1);
     }
-    delete theControl;
-    theControl = NULL;
+    delete Control::TheControl();
   }
 }
 
@@ -565,7 +571,7 @@ Event::BackTrack( long Histptr ) {
 
   if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
        mode == MODE_PRACTICE) {
-    ((PlayGame *)theControl)->ChangeScore( m_BacktrackBuffer[Histptr].score1,
+    ((PlayGame *)Control::TheControl())->ChangeScore( m_BacktrackBuffer[Histptr].score1,
 					   m_BacktrackBuffer[Histptr].score2 );
   }
 
@@ -596,7 +602,7 @@ Event::ReadData() {
 
   while (1) {
     FD_ZERO( &rdfds );
-    FD_SET( theSocket, &rdfds );
+    FD_SET( (unsigned int)theSocket, &rdfds );
 
     to.tv_sec = to.tv_usec = 0;
 
@@ -623,7 +629,7 @@ Event::ReadData() {
 #endif
 
   // externalDataの先頭までbacktrackする
-  long btCount;
+  long btCount = 0;
   ExternalData *externalOld;
   long btHistptr;
   while ( !(m_External->isNull()) ) {	// 古すぎる情報を捨てる
@@ -720,7 +726,7 @@ Event::ReadData() {
 
       if (!fTheBall) {
 	theBall = m_BacktrackBuffer[m_Histptr].theBall;
-	((PlayGame *)theControl)->
+	((PlayGame *)Control::TheControl())->
 	  ChangeScore( m_BacktrackBuffer[m_Histptr].score1,
 		       m_BacktrackBuffer[m_Histptr].score2 );
       }
@@ -736,17 +742,17 @@ Event::ReadData() {
 void
 Event::ClearBacktrack() {
   for ( int i = 0 ; i < MAX_HISTORY ; i++ ) {
-    theEvent.m_MouseXHistory[i] = 0;
-    theEvent.m_MouseYHistory[i] = 0;
-    theEvent.m_MouseBHistory[i] = 0;
-    theEvent.m_BacktrackBuffer[i].sec = m_lastTime.time;
-    theEvent.m_BacktrackBuffer[i].count = m_lastTime.millitm/10;
-    theEvent.m_BacktrackBuffer[i].theBall = theBall;
-    CopyPlayerData( theEvent.m_BacktrackBuffer[i].thePlayer, thePlayer );
-    CopyPlayerData( theEvent.m_BacktrackBuffer[i].comPlayer, comPlayer );
+    Event::TheEvent()->m_MouseXHistory[i] = 0;
+    Event::TheEvent()->m_MouseYHistory[i] = 0;
+    Event::TheEvent()->m_MouseBHistory[i] = 0;
+    Event::TheEvent()->m_BacktrackBuffer[i].sec = m_lastTime.time;
+    Event::TheEvent()->m_BacktrackBuffer[i].count = m_lastTime.millitm/10;
+    Event::TheEvent()->m_BacktrackBuffer[i].theBall = theBall;
+    CopyPlayerData( Event::TheEvent()->m_BacktrackBuffer[i].thePlayer, thePlayer );
+    CopyPlayerData( Event::TheEvent()->m_BacktrackBuffer[i].comPlayer, comPlayer );
 
-    theEvent.m_BacktrackBuffer[i].score1 = 0;
-    theEvent.m_BacktrackBuffer[i].score2 = 0;
+    Event::TheEvent()->m_BacktrackBuffer[i].score1 = 0;
+    Event::TheEvent()->m_BacktrackBuffer[i].score2 = 0;
   }
 }
 
@@ -755,7 +761,7 @@ QuitGame() {
   printf( "Avg = %f\n", (double)perfs/_perfCount );
   if (_backTrackCount) printf( "BackTrack = %f\n", backTracks/_backTrackCount);
 
-  theEvent.m_lastTime.time = 0;
+  Event::TheEvent()->m_lastTime.time = 0;
   _perfCount = 0;
   perfs = 0;
   backTracks = 0;

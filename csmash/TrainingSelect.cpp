@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,12 +24,9 @@
 #include "TrainingSelectView.h"
 #include "Event.h"
 
-extern BaseView* theView;
 extern long mode;
 
 extern Player *thePlayer;
-
-extern Sound theSound;
 
 extern long wins;
 
@@ -41,23 +38,19 @@ TrainingSelect::Init() {
   m_View = new TrainingSelectView();
   m_View->Init( this );
 
-  theView->AddView( m_View );
+  BaseView::TheView()->AddView( m_View );
 
   return true;
 }
 
-TrainingSelect*
+void
 TrainingSelect::Create() {
-  TrainingSelect *newTrainingSelect;
-
   Event::ClearObject();
 
-  newTrainingSelect = new TrainingSelect();
-  newTrainingSelect->Init();
+  m_theControl = new TrainingSelect();
+  m_theControl->Init();
 
   SDL_ShowCursor(0);
-
-  return newTrainingSelect;
 }
 
 bool
@@ -91,7 +84,7 @@ TrainingSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     nothing = 0;
     if ( m_selected == 0 ) {
       m_selected = 1;
-      theSound.Play( SOUND_CLICK );
+      Sound::TheSound()->Play( SOUND_CLICK );
     } else if ( m_selected > 100 ) {
       mode = MODE_TRAINING;
       return true;
@@ -130,7 +123,7 @@ TrainingSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
       m_rotate = (nextRotate+360/TRAININGPLAYERS/2)/(360/TRAININGPLAYERS)*
 	(360/TRAININGPLAYERS);
       lastRotate = 0;
-      theSound.Play( SOUND_CLICK );
+      Sound::TheSound()->Play( SOUND_CLICK );
     } else
       m_rotate = nextRotate;
   }

@@ -29,10 +29,7 @@
 
 #include <signal.h>
 
-extern BaseView* theView;
 extern long mode;
-
-extern Sound theSound;
 
 extern void Keyboard( unsigned char key, int x, int y );
 extern void KeyUp( unsigned char key, int x, int y );
@@ -54,7 +51,7 @@ Opening::Opening() {
 
 Opening::~Opening() {
   if ( m_View ){
-    theView->RemoveView( m_View );
+    BaseView::TheView()->RemoveView( m_View );
     delete m_View;
   }
 
@@ -70,7 +67,7 @@ Opening::Init() {
   m_View = new OpeningView();
   m_View->Init( this );
 
-  theView->AddView( m_View );
+  BaseView::TheView()->AddView( m_View );
 
   thePlayer = Player::Create( 1, 1, 0 );
   comPlayer = Player::Create( 2, -1, 0 );
@@ -91,21 +88,17 @@ Opening::Init() {
   if ( theRC->gmode != GMODE_SIMPLE )
     theRC->isWireFrame = false;
 
-  theSound.InitBGM( OPENINGFILENAME );
+  Sound::TheSound()->InitBGM( OPENINGFILENAME );
 
   return true;
 }
 
-Opening*
+void
 Opening::Create() {
-  Opening *newOpening;
-
   Event::ClearObject();
 
-  newOpening = new Opening();
-  newOpening->Init();
-
-  return newOpening;
+  m_theControl = new Opening();
+  m_theControl->Init();
 }
 
 bool
@@ -1231,7 +1224,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
 #endif
 
   if ( m_count == 0 )
-    theSound.PlayBGM();
+    Sound::TheSound()->PlayBGM();
 
   m_count++;
 
@@ -1240,7 +1233,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     mode = MODE_TITLE;
     if ( theRC->gmode != GMODE_SIMPLE )
       theRC->isWireFrame = true;
-    theSound.StopBGM();
+    Sound::TheSound()->StopBGM();
   }
 
   return true;

@@ -22,17 +22,15 @@
 #include "LoadImage.h"
 #include "BaseView2D.h"
 
-extern BaseView *theView;
 extern long wins;
 
 extern bool isComm;
-extern bool isTexture;
 
 PlayerSelectView2D::PlayerSelectView2D() {
 }
 
 PlayerSelectView2D::~PlayerSelectView2D() {
-  ((BaseView2D *)theView)->AddUpdateRect( NULL );
+  ((BaseView2D *)BaseView::TheView())->AddUpdateRect( NULL );
 }
 
 bool
@@ -46,7 +44,7 @@ PlayerSelectView2D::Init( PlayerSelect *playerSelect ) {
     m_playerBMP[i] = SDL_LoadBMP( pname[i] );
   }
 
-  ((BaseView2D *)theView)->AddUpdateRect( NULL );
+  ((BaseView2D *)BaseView::TheView())->AddUpdateRect( NULL );
 
   return true;
 }
@@ -77,7 +75,8 @@ PlayerSelectView2D::Redraw() {
 	rect.w = m_playerBMP[i]->w;
 	rect.h = m_playerBMP[i]->h;
 
-	SDL_BlitSurface(m_playerBMP[i], NULL, theView->GetSurface(), &rect);
+	SDL_BlitSurface(m_playerBMP[i], NULL,
+			BaseView::TheView()->GetSurface(), &rect);
       }
     }
   } else {
@@ -88,7 +87,8 @@ PlayerSelectView2D::Redraw() {
 	rect.w = m_playerBMP[i]->w;
 	rect.h = m_playerBMP[i]->h;
 
-	SDL_BlitSurface(m_playerBMP[i], NULL, theView->GetSurface(), &rect);
+	SDL_BlitSurface(m_playerBMP[i], NULL,
+			BaseView::TheView()->GetSurface(), &rect);
       }
     }
   }
@@ -103,7 +103,7 @@ PlayerSelectView2D::Redraw() {
       rect.h = m_playerBMP[(player+wins+1)%PLAYERS]->h;
 
       SDL_BlitSurface(m_playerBMP[(player+wins+1)%PLAYERS], NULL,
-		      theView->GetSurface(), &rect);
+		      BaseView::TheView()->GetSurface(), &rect);
     }
   }
 
@@ -119,7 +119,7 @@ bool
 PlayerSelectView2D::GetDamageRect() {
   static SDL_Rect rect = {0, 0, 0, 0};
 
-  ((BaseView2D *)theView)->AddUpdateRect( &rect );
+  ((BaseView2D *)BaseView::TheView())->AddUpdateRect( &rect );
 
   if ( m_playerSelect->GetSelected() > 0 ) {
     if ( m_playerSelect->GetSelected() < 100 ) {
@@ -140,7 +140,7 @@ PlayerSelectView2D::GetDamageRect() {
     rect.h = m_playerBMP[0]->h;
   }
 
-  ((BaseView2D *)theView)->AddUpdateRect( &rect );
+  ((BaseView2D *)BaseView::TheView())->AddUpdateRect( &rect );
 
   if ( !isComm ) {
     if ( m_playerSelect->GetSelected() > 100 ) {
@@ -151,7 +151,7 @@ PlayerSelectView2D::GetDamageRect() {
     }
   }
 
-  ((BaseView2D *)theView)->AddUpdateRect( &rect );
+  ((BaseView2D *)BaseView::TheView())->AddUpdateRect( &rect );
 
   return true;
 }

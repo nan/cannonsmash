@@ -21,8 +21,6 @@
 #include "BaseView.h"
 #include "BaseView2D.h"
 
-extern BaseView *theView;
-
 extern bool
 RenderRect( double x1, double y1, double z1, 
 	    double x2, double y2, double z2, 
@@ -72,7 +70,7 @@ FieldView2D::Redraw() {
   dest.y = 0;
   dest.w = m_field->w;
   dest.h = m_field->h;
-  SDL_BlitSurface(m_field, NULL, theView->GetSurface(), &dest);
+  SDL_BlitSurface(m_field, NULL, BaseView::TheView()->GetSurface(), &dest);
 
   return true;
 }
@@ -86,7 +84,7 @@ FieldView2D::RedrawAlpha() {
   dest.y = 0;
   dest.w = m_table->w;
   dest.h = m_table->h;
-  SDL_BlitSurface(m_table, NULL, theView->GetSurface(), &dest);
+  SDL_BlitSurface(m_table, NULL, BaseView::TheView()->GetSurface(), &dest);
 
   return true;
 }

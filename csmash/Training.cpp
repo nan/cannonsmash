@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,8 +24,6 @@
 #include "Ball.h"
 #include "Event.h"
 
-extern BaseView* theView;
-
 extern Player* thePlayer;
 extern Player* comPlayer;
 extern Ball theBall;
@@ -39,7 +37,7 @@ Training::Training() {
 
 Training::~Training() {
   if ( m_View ){
-    theView->RemoveView( m_View );
+    BaseView::TheView()->RemoveView( m_View );
     delete m_View;
   }
 }
@@ -49,19 +47,17 @@ Training::Init() {
   m_View = new TrainingView();
   m_View->Init( this );
 
-  theView->AddView( m_View );
+  BaseView::TheView()->AddView( m_View );
 
   return true;
 }
 
-Training*
+void
 Training::Create( long player, long com ) {
-  Training *newTraining;
-
   Event::ClearObject();
 
-  newTraining = new Training();
-  newTraining->Init();
+  m_theControl = new Training();
+  m_theControl->Init();
 
   thePlayer = Player::Create( player, 1, 2 );
   comPlayer = Player::Create( com, -1, 3 );
@@ -72,8 +68,6 @@ Training::Create( long player, long com ) {
   // Move it to view?
   SDL_ShowCursor(0);
   SDL_WM_GrabInput( SDL_GRAB_ON );
-
-  return newTraining;
 }
 
 bool

@@ -21,7 +21,6 @@
 #include "BaseView2D.h"
 #include "Player.h"
 #include "Control.h"
-#include "Event.h"
 #include "BaseView.h"
 #include "Ball.h"
 #include "LoadImage.h"
@@ -33,11 +32,7 @@ extern RCFile *theRC;
 extern Player* thePlayer;
 extern Player* comPlayer;
 extern long mode;
-extern Control*      theControl;
 
-extern Event theEvent;
-
-extern BaseView* theView;
 extern Ball theBall;
 
 extern bool isLighting;
@@ -46,6 +41,8 @@ extern bool isPolygon;
 long BaseView::m_winWidth = WINXSIZE;
 long BaseView::m_winHeight = WINYSIZE;
 
+BaseView* BaseView::m_theView = NULL;
+
 // x --- x axis is the bottom line of the net. The plane x=0 represents
 //       the vertical plain which includes center line. 
 // y --- y axis is the center line. The plane y=0 includes the net. 
@@ -53,11 +50,16 @@ long BaseView::m_winHeight = WINYSIZE;
 //       the table. The plane z=0 is the floor. 
 
 BaseView *
-BaseView::Create() {
+BaseView::TheView() {
+  if ( BaseView::m_theView )
+    return BaseView::m_theView;
+
   if ( theRC->gmode == GMODE_2D )
-    return new BaseView2D();
+    BaseView::m_theView = new BaseView2D();
   else
-    return new BaseView();
+    BaseView::m_theView = new BaseView();
+
+  return BaseView::m_theView;
 }
 
 BaseView::BaseView() {
@@ -95,7 +97,6 @@ BaseView::Init() {
   //GLfloat light_position[] = { 1.0F, 1.0F, 1.0F, 0.0F };
   GLfloat light_intensity_amb[] = { 0.6F, 0.6F, 0.6F, 1.0F };
   GLfloat light_intensity_dif[] = { 1.0F, 1.0F, 1.0F, 1.0F };
-  GLfloat light_intensity_none[] = { 0.0F, 0.0F, 0.0F, 0.0F };
 
   if ( theRC->gmode != GMODE_SIMPLE ) {
     glShadeModel (GL_SMOOTH);
@@ -169,7 +170,7 @@ BaseView::Init() {
 
 void
 BaseView::DisplayFunc() {
-  theView->RedrawAll();
+  BaseView::TheView()->RedrawAll();
 }
 
 bool
@@ -301,7 +302,7 @@ BaseView::SetLookAt() {
     destY = m_centerY;
   destZ = m_centerZ;
 
-  theControl->LookAt( srcX, srcY, srcZ, destX, destY, destZ );
+  Control::TheControl()->LookAt( srcX, srcY, srcZ, destX, destY, destZ );
 
   gluLookAt( srcX, srcY, srcZ, destX, destY, destZ, 0.0F, 0.0F, 0.5F );
   /* 視点, 視線設定. 視点x, y, z, 視点(視線ベクトルの通る点)x, y, z, 
@@ -357,12 +358,13 @@ BaseView::EndGame() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  printf( "EndGame %d : %d\n", ((PlayGame *)theControl)->GetScore(thePlayer), 
-    ((PlayGame *)theControl)->GetScore(comPlayer) );
+  printf( "EndGame %d : %d\n",
+	  ((PlayGame *)Control::TheControl())->GetScore(thePlayer), 
+	  ((PlayGame *)Control::TheControl())->GetScore(comPlayer) );
 
-  if ( theControl->IsPlaying() && 
-       ((PlayGame *)theControl)->GetScore(thePlayer) >
-       ((PlayGame *)theControl)->GetScore(comPlayer) ) {
+  if ( Control::TheControl()->IsPlaying() && 
+       ((PlayGame *)Control::TheControl())->GetScore(thePlayer) >
+       ((PlayGame *)Control::TheControl())->GetScore(comPlayer) ) {
 #ifndef HAVE_LIBZ
     if ( (fp = fopen(&file[0][0], "r")) == NULL )
       return;

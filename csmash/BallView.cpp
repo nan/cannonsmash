@@ -32,8 +32,6 @@ extern Player* thePlayer;
 extern Player *comPlayer;
 extern long mode;
 
-extern Control* theControl;
-
 extern bool isLighting;
 
 GLuint BallView::m_number[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -212,8 +210,8 @@ BallView::RedrawAlpha() {
       glEnable(GL_TEXTURE_2D);
       glColor3f( 0.0F, 0.0F, 0.0F );
 
-      score1 = ((PlayGame *)theControl)->GetScore(1);
-      score2 = ((PlayGame *)theControl)->GetScore(-1);
+      score1 = ((PlayGame *)Control::TheControl())->GetScore(1);
+      score2 = ((PlayGame *)Control::TheControl())->GetScore(-1);
 
       if ( score1 < 10 ) {
 	glBindTexture(GL_TEXTURE_2D, m_number[score1] );

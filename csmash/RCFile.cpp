@@ -32,6 +32,9 @@ RCFile::RCFile() {
   serverName[0] = '\0';
   nickname[0] = '\0';
   message[0] = '\0';
+
+  csmash_port = CSMASH_PORT;
+
 }
 
 RCFile*

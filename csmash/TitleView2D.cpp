@@ -21,21 +21,14 @@
 #include "Title.h"
 #include "MenuItem.h"
 #include "LoadImage.h"
-#include "Sound.h"
 #include "BaseView2D.h"
-
-extern long gameLevel;
-extern long gameMode;
-
-extern Sound theSound;
-extern BaseView *theView;
 
 TitleView2D::TitleView2D() {
   m_View = NULL;
 }
 
 TitleView2D::~TitleView2D() {
-  ((BaseView2D *)theView)->AddUpdateRect( NULL );
+  ((BaseView2D *)BaseView::TheView())->AddUpdateRect( NULL );
 }
 
 bool
@@ -77,7 +70,7 @@ TitleView2D::Init( Title *title ) {
 
   m_title = title;
 
-  ((BaseView2D *)theView)->AddUpdateRect( NULL );
+  ((BaseView2D *)BaseView::TheView())->AddUpdateRect( NULL );
 
   return true;
 }
@@ -107,7 +100,8 @@ TitleView2D::RedrawAlpha() {
     rect.w = m_triangleBMP->w;
     rect.h = m_triangleBMP->h;
 
-    SDL_BlitSurface(m_triangleBMP, NULL, theView->GetSurface(), &rect);
+    SDL_BlitSurface(m_triangleBMP, NULL, BaseView::TheView()->GetSurface(),
+		    &rect);
     break;
   case MENU_CONFIG:
     // Title
@@ -117,14 +111,16 @@ TitleView2D::RedrawAlpha() {
       rect.w = m_triangleBMP->w;
       rect.h = m_triangleBMP->h;
 
-      SDL_BlitSurface(m_triangleBMP, NULL, theView->GetSurface(), &rect);
+      SDL_BlitSurface(m_triangleBMP, NULL, BaseView::TheView()->GetSurface(),
+		      &rect);
     } else {
       rect.x = m_title->GetSelected()->GetX()-40;
       rect.y = m_title->GetSelected()->GetY();
       rect.w = m_triangleBMP->w;
       rect.h = m_triangleBMP->h;
 
-      SDL_BlitSurface(m_triangleBMP, NULL, theView->GetSurface(), &rect);
+      SDL_BlitSurface(m_triangleBMP, NULL, BaseView::TheView()->GetSurface(),
+		      &rect);
     }
     break;
   }
@@ -147,12 +143,12 @@ TitleView2D::GetDamageRect() {
 	 rect.y != m_title->GetSelected()->GetY() ||
 	 rect.w != m_triangleBMP->w ||
 	 rect.h != m_triangleBMP->h ) {
-      ((BaseView2D *)theView)->AddUpdateRect( &rect );
+      ((BaseView2D *)BaseView::TheView())->AddUpdateRect( &rect );
       rect.x = m_title->GetSelected()->GetX()-80;
       rect.y = m_title->GetSelected()->GetY();
       rect.w = 480;
       rect.h = 70;
-      ((BaseView2D *)theView)->AddUpdateRect( &rect );
+      ((BaseView2D *)BaseView::TheView())->AddUpdateRect( &rect );
     }
     break;
   case MENU_CONFIG:
@@ -162,24 +158,24 @@ TitleView2D::GetDamageRect() {
 	   rect.y != m_title->GetSelected()->GetY() ||
 	   rect.w != m_triangleBMP->w ||
 	   rect.h != m_triangleBMP->h ) {
-	((BaseView2D *)theView)->AddUpdateRect( &rect );
+	((BaseView2D *)BaseView::TheView())->AddUpdateRect( &rect );
 	rect.x = m_title->GetSelected()->GetX()-80;
 	rect.y = m_title->GetSelected()->GetY();
 	rect.w = 280;
 	rect.h = 70;
-	((BaseView2D *)theView)->AddUpdateRect( &rect );
+	((BaseView2D *)BaseView::TheView())->AddUpdateRect( &rect );
       }
     } else {
       if ( rect.x != m_title->GetSelected()->GetX()-40 ||
 	   rect.y != m_title->GetSelected()->GetY() ||
 	   rect.w != m_triangleBMP->w ||
 	   rect.h != m_triangleBMP->h ) {
-	((BaseView2D *)theView)->AddUpdateRect( &rect );
+	((BaseView2D *)BaseView::TheView())->AddUpdateRect( &rect );
 	rect.x = m_title->GetSelected()->GetX()-40;
 	rect.y = m_title->GetSelected()->GetY();
 	rect.w = 240;
 	rect.h = 70;
-	((BaseView2D *)theView)->AddUpdateRect( &rect );
+	((BaseView2D *)BaseView::TheView())->AddUpdateRect( &rect );
       }
     }
     break;

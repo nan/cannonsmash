@@ -43,12 +43,9 @@
 extern RCFile *theRC;
 
 extern Ball   theBall;
-extern BaseView* theView;
-extern Control *theControl;
 
 extern Player *thePlayer;
 extern Player *comPlayer;
-extern Event theEvent;
 
 extern long mode;
 
@@ -186,7 +183,7 @@ Player::Player( long playerType, long side, double x, double y, double z,
 
 Player::~Player() {
   if ( m_View ){
-    theView->RemoveView( m_View );
+    BaseView::TheView()->RemoveView( m_View );
     delete m_View;
   }
 }
@@ -285,7 +282,7 @@ Player::Init() {
 
   m_View->Init( this );
 
-  theView->AddView( m_View );
+  BaseView::TheView()->AddView( m_View );
 
   if ( theRC->gmode != GMODE_2D )
     HitMark::Init();
@@ -414,7 +411,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 		theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(), 
 		GetSwingError() );
 
-      theView->AddView( hit );
+      BaseView::TheView()->AddView( hit );
     }
     m_spin = 0.0;
   }
@@ -512,8 +509,8 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
     m_y += m_vy*TICK;
 
 // Go back to the endline before serve
-  if ( theControl->IsPlaying() && theBall.GetStatus() == 8 &&
-       ((PlayGame *)theControl)->GetService() == GetSide() ) {
+  if ( Control::TheControl()->IsPlaying() && theBall.GetStatus() == 8 &&
+       ((PlayGame *)Control::TheControl())->GetService() == GetSide() ) {
     if ( m_side > 0 && m_y > -TABLELENGTH/2 )
       m_y = -TABLELENGTH/2;
     else if ( m_side < 0 && m_y < TABLELENGTH/2 )
@@ -564,7 +561,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( m_lastSendCount >= 100 ||
 	 fabs(m_lastSendVX-m_vx) >= 0.25 ||
 	 fabs(m_lastSendVY-m_vy) >= 0.25 || fabs(m_lastSendVZ-m_vz) >= 0.25 ) {
-      theEvent.SendPlayer( this );
+      Event::TheEvent()->SendPlayer( this );
     }
   }
 
@@ -710,7 +707,7 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
 
   if ( (mouse & BUTTON_RIGHT) && !(lastmouse & BUTTON_RIGHT) ){
     if ( theBall.GetStatus() == 8 &&
-	 ((PlayGame *)theControl)->GetService() == GetSide() ) {
+	 ((PlayGame *)Control::TheControl())->GetService() == GetSide() ) {
       theBall.Toss( this, 3 );
       StartSwing( 3 );
     } else {
@@ -720,7 +717,7 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
   }
   else if ( (mouse & BUTTON_MIDDLE) && !(lastmouse & BUTTON_MIDDLE) ){
     if ( theBall.GetStatus() == 8 &&
-	 ((PlayGame *)theControl)->GetService() == GetSide() ) {
+	 ((PlayGame *)Control::TheControl())->GetService() == GetSide() ) {
       theBall.Toss( this, 2 );
       StartSwing( 2 );
     } else {
@@ -730,7 +727,7 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
   }
   else if ( (mouse & BUTTON_LEFT) && !(lastmouse & BUTTON_LEFT) ){
     if ( theBall.GetStatus() == 8 &&
-	 ((PlayGame *)theControl)->GetService() == GetSide() ) {
+	 ((PlayGame *)Control::TheControl())->GetService() == GetSide() ) {
       theBall.Toss( this, 1 );
       StartSwing( 1 );
     } else {

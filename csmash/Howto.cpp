@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,8 +26,6 @@
 #include "ShakeCut.h"
 #include "Event.h"
 
-extern BaseView* theView;
-
 extern long mode;
 
 extern Player* thePlayer;
@@ -47,7 +45,7 @@ Howto::Howto() {
 
 Howto::~Howto() {
   if ( m_View ){
-    theView->RemoveView( m_View );
+    BaseView::TheView()->RemoveView( m_View );
     delete m_View;
   }
 }
@@ -57,7 +55,7 @@ Howto::Init() {
   m_View = new HowtoView();
   m_View->Init( this );
 
-  theView->AddView( m_View );
+  BaseView::TheView()->AddView( m_View );
 
   thePlayer = new PenAttack(1);
   comPlayer = new ShakeCut(-1);
@@ -68,16 +66,12 @@ Howto::Init() {
   return true;
 }
 
-Howto*
+void
 Howto::Create() {
-  Howto *newHowto;
-
   Event::ClearObject();
 
-  newHowto = new Howto();
-  newHowto->Init();
-
-  return newHowto;
+  m_theControl = new Howto();
+  m_theControl->Init();
 }
 
 bool

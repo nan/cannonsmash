@@ -26,8 +26,6 @@
 
 extern RCFile *theRC;
 
-extern Control *theControl;
-
 extern Ball   theBall;
 extern Player *thePlayer;
 extern Player *comPlayer;
@@ -145,8 +143,8 @@ ComPenAttack::Think() {
 
   // Toss
   if ( theBall.GetStatus() == 8 &&
-       ( (theControl->IsPlaying() &&
-	  ((PlayGame *)theControl)->GetService() == GetSide()) ||
+       ( (Control::TheControl()->IsPlaying() &&
+	  ((PlayGame *)Control::TheControl())->GetService() == GetSide()) ||
 	 GetSide() == 1 ) &&
        fabs(m_vx) < 0.1 && fabs(m_vy) < 0.1 &&
        fabs(m_x+m_side*0.3-_hitX) < 0.1 && fabs(m_y-_hitY) < 0.1 &&
@@ -263,8 +261,8 @@ ComPenAttack::Hitarea( double &hitX, double &hitY ) {
       hitY = maxY;
     }
   } else if ( theBall.GetStatus() == 8 ) {
-    if ( (theControl->IsPlaying() &&
-	  ((PlayGame *)theControl)->GetService() == GetSide()) ||
+    if ( (Control::TheControl()->IsPlaying() &&
+	  ((PlayGame *)Control::TheControl())->GetService() == GetSide()) ||
 	 GetSide() == 1 ) {
       if ( RAND(2) )
 	hitX = m_targetX;

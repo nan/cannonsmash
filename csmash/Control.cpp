@@ -19,8 +19,11 @@
 #include "ttinc.h"
 #include "Control.h"
 
+Control *Control::m_theControl = NULL;
+
 Control::Control() {
 }
 
 Control::~Control() {
+  m_theControl = NULL;
 }

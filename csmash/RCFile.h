@@ -36,6 +36,8 @@ public:
   char nickname[32];
   char message[64];
 
+  short csmash_port;
+
   bool ReadRCFile();
   bool WriteRCFile();
 

@@ -27,7 +27,6 @@ extern RCFile *theRC;
 
 extern Player* thePlayer;
 extern Player* comPlayer;
-extern BaseView* theView;
 extern Ball theBall;
 
 extern long mode;
@@ -42,7 +41,7 @@ PlayGame::PlayGame() {
 
 PlayGame::~PlayGame() {
   if ( m_View ){
-    theView->RemoveView( m_View );
+    BaseView::TheView()->RemoveView( m_View );
     delete m_View;
   }
 }

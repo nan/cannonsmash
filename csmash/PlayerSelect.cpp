@@ -28,14 +28,11 @@
 
 extern RCFile *theRC;
 
-extern BaseView* theView;
 extern long mode;
 
 extern bool isComm;
 
 extern Player *thePlayer;
-
-extern Sound theSound;
 
 extern long wins;
 
@@ -47,7 +44,7 @@ PlayerSelect::PlayerSelect() {
 
 PlayerSelect::~PlayerSelect() {
   if ( m_View ){
-    theView->RemoveView( m_View );
+    BaseView::TheView()->RemoveView( m_View );
     delete m_View;
   }
 }
@@ -61,23 +58,19 @@ PlayerSelect::Init() {
 
   m_View->Init( this );
 
-  theView->AddView( m_View );
+  BaseView::TheView()->AddView( m_View );
 
   return true;
 }
 
-PlayerSelect*
+void
 PlayerSelect::Create() {
-  PlayerSelect *newPlayerSelect;
-
   Event::ClearObject();
 
-  newPlayerSelect = new PlayerSelect();
-  newPlayerSelect->Init();
+  m_theControl = new PlayerSelect();
+  m_theControl->Init();
 
   SDL_ShowCursor(0);
-
-  return newPlayerSelect;
 }
 
 bool
@@ -114,7 +107,7 @@ PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     nothing = 0;
     if ( m_selected == 0 ) {
       m_selected = 1;
-      theSound.Play( SOUND_CLICK );
+      Sound::TheSound()->Play( SOUND_CLICK );
     } else if ( m_selected > 100 ) {
       if (isComm)
 	mode = MODE_MULTIPLAY;
@@ -157,7 +150,7 @@ PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( m_rotate/(360/PLAYERS) != nextRotate/(360/PLAYERS) ) {
       m_rotate = (nextRotate+360/PLAYERS/2)/(360/PLAYERS)*(360/PLAYERS);
       lastRotate = 0;
-      theSound.Play( SOUND_CLICK );
+      Sound::TheSound()->Play( SOUND_CLICK );
     } else
       m_rotate = nextRotate;
   }

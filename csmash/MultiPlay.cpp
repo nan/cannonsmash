@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -50,17 +50,13 @@ extern long mode;
 extern Ball theBall;
 extern Player *thePlayer;
 extern Player *comPlayer;
-extern BaseView* theView;
 
 extern RCFile *theRC;
 
-extern long timeAdj;
-
-extern short csmash_port;
 extern int theSocket;
 bool endian;
 
-int listenSocket = 0;
+unsigned int listenSocket = 0;
 
 extern void QuitGame();
 
@@ -314,7 +310,7 @@ AcceptClient() {
 
     saddr.sin_addr.s_addr = htonl(INADDR_ANY);
     saddr.sin_family = AF_INET;
-    saddr.sin_port = htons(csmash_port);
+    saddr.sin_port = htons(theRC->csmash_port);
     if ( bind( listenSocket, (struct sockaddr *)&saddr, sizeof(saddr) ) < 0 ) {
       xerror("%s(%d) bind", __FILE__, __LINE__);
       exit(1);
@@ -326,7 +322,7 @@ AcceptClient() {
     }
   }
 
-  int sb;
+  unsigned int sb;
   struct sockaddr_in sba;
   if (0 > (sb = socket(PF_INET, SOCK_DGRAM, 0))) {
     xerror("%s(%d) socket", __FILE__, __LINE__);
@@ -334,7 +330,7 @@ AcceptClient() {
   }
   sba.sin_addr.s_addr = INADDR_ANY;
   sba.sin_family = AF_INET;
-  sba.sin_port = htons(csmash_port);
+  sba.sin_port = htons(theRC->csmash_port);
   if (0 > bind(sb, (struct sockaddr*)&sba, sizeof(sba))) {
     xerror("%s(%d) bind", __FILE__, __LINE__);
     exit(1);
@@ -401,7 +397,7 @@ AcceptClient() {
 }
 
 void
-StartServer() {
+MultiPlay::StartServer() {
   int i, j;
   char buf[256];
   long len;
@@ -426,7 +422,7 @@ StartServer() {
     tb1.millitm = tv.tv_usec/1000;
 #endif
 
-    SendTime( theSocket, &tb1 );
+    ::SendTime( theSocket, &tb1 );
     ReadTime( theSocket, &tb3 );
 
 #ifdef WIN32
@@ -449,7 +445,6 @@ StartServer() {
     }
     tb1.millitm = mtm;
 
-    //timeAdj += (tb3.time-tb1.time)*1000 + tb3.millitm-tb1.millitm;
     adjLog[i] = (tb3.time-tb1.time)*1000 + tb3.millitm-tb1.millitm;
   }
 
@@ -473,14 +468,14 @@ StartServer() {
   printf( "\n" );
 
   // Use 8 medium value
-  timeAdj = 0;
+  m_timeAdj = 0;
   for ( i = 4 ; i < 12 ; i++ ) {
-    timeAdj += adjLog[i];
+    m_timeAdj += adjLog[i];
   }
 
-  timeAdj /= 80;	/* 8*10 */
+  m_timeAdj /= 80;	/* 8*10 */
 
-  printf( "%d\n", timeAdj );
+  printf( "%d\n", m_timeAdj );
 
   // Read Ball Data
   if ( recv( theSocket, buf, 2, 0 ) != 2 ) {
@@ -525,7 +520,7 @@ StartServer() {
 }
 
 void
-StartClient() {
+MultiPlay::StartClient() {
   char buf[128];
 
   struct sockaddr_in saddr;
@@ -534,7 +529,7 @@ StartClient() {
   if (1 == theRC->serverName[0]) { // Broadcast mode
     struct sockaddr_in sba;
     memset(&sba, 0, sizeof(sba));
-    int sb;
+    unsigned int sb;
     if (0 > (sb = socket(PF_INET, SOCK_DGRAM, 0))) {
       xerror("%s(%d) socket", __FILE__, __LINE__);
       exit(1);
@@ -557,7 +552,7 @@ StartClient() {
       memset(&sba, 0, sizeof(sba));
       sba.sin_family = AF_INET;
       sba.sin_addr.s_addr = INADDR_BROADCAST;
-      sba.sin_port = htons(csmash_port);
+      sba.sin_port = htons(theRC->csmash_port);
 
       sendto(sb, buf, 0, 0, (sockaddr*)&sba, sizeof(sba));
       fd_set fd;
@@ -591,7 +586,7 @@ StartClient() {
 
   printf("server is %s\n", inet_ntoa(saddr.sin_addr));
   saddr.sin_family = AF_INET;
-  saddr.sin_port = htons(csmash_port);
+  saddr.sin_port = htons(theRC->csmash_port);
 
   // connect
   if ( (theSocket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
@@ -635,7 +630,7 @@ StartClient() {
     tb.millitm = tv.tv_usec/1000;
 #endif
 
-    SendTime( theSocket, &tb );
+    ::SendTime( theSocket, &tb );
   }
 
   // Send Ball Data
@@ -659,6 +654,7 @@ StartClient() {
 }
 
 MultiPlay::MultiPlay() {
+  m_timeAdj = 0;
 }
 
 MultiPlay::~MultiPlay() {
@@ -673,20 +669,19 @@ MultiPlay::Init() {
 
   m_View->Init( this );
 
-  theView->AddView( m_View );
+  BaseView::TheView()->AddView( m_View );
 
   return true;
 }
 
-MultiPlay*
+void
 MultiPlay::Create( long player, long com ) {
-  MultiPlay *newMultiPlay;
   long side;
 
   Event::ClearObject();
 
-  newMultiPlay = new MultiPlay();
-  newMultiPlay->Init();
+  m_theControl = new MultiPlay();
+  m_theControl->Init();
 
   if ( !(theRC->serverName[0]) )
     side = 1;		// server side
@@ -698,9 +693,9 @@ MultiPlay::Create( long player, long com ) {
   }
 
   if ( side == 1 ) {
-    StartServer();
+    ((MultiPlay *)m_theControl)->StartServer();
   } else {
-    StartClient();
+    ((MultiPlay *)m_theControl)->StartClient();
   }
 
   thePlayer->Init();
@@ -711,8 +706,6 @@ MultiPlay::Create( long player, long com ) {
 
   theRC->gameLevel = LEVEL_HARD;
   theRC->gameMode = GAME_21PTS;
-
-  return newMultiPlay;
 }
 
 bool
@@ -788,7 +781,7 @@ MultiPlay::SendTime( char *buf ) {
   sec = Event::m_lastTime.time;
   count = Event::m_lastTime.millitm/10;
 
-  count += timeAdj;
+  count += m_timeAdj;
 
   while ( count >= 100 ) {
     count -= 100;
@@ -846,7 +839,7 @@ ExternalData::ReadTime( int sd, long *sec, char *count ) {
   memcpy( count, &buf[4], 1 );
 
   ctmp = *count;
-  ctmp -= timeAdj;
+  ctmp -= ((MultiPlay *)Control::TheControl())->GetTimeAdj();
 
   while ( ctmp >= 100 ) {
     ctmp -= 100;

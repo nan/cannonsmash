@@ -74,8 +74,6 @@ PlayGameView::Redraw() {
 
 bool
 PlayGameView::RedrawAlpha() {
-  View *view;
-
   glColor4f( 1.0, 1.0, 1.0, 0.0 );
 
   if ( SDL_WM_GrabInput( SDL_GRAB_QUERY ) == SDL_GRAB_OFF ) {
@@ -90,8 +88,7 @@ PlayGameView::RedrawAlpha() {
 
     glDepthMask(0);
 
-    glRasterPos2i( (GLfloat)BaseView::GetWinWidth()/2-128,
-		   (GLfloat)BaseView::GetWinHeight()/2 );
+    glRasterPos2i( BaseView::GetWinWidth()/2-128, BaseView::GetWinHeight()/2 );
     glBitmap( 256, 150, 0.0F, 0.0F, 0.0F, 0, m_image );
 
     glDepthMask(1);

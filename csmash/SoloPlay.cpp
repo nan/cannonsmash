@@ -29,8 +29,6 @@ extern RCFile *theRC;
 extern Player* thePlayer;
 extern Player* comPlayer;
 extern Ball theBall;
-extern BaseView* theView;
-extern Event theEvent;
 extern long mode;
 
 //extern void CopyPlayerData( struct PlayerData& dest, Player* src );
@@ -52,20 +50,18 @@ SoloPlay::Init() {
 
     m_View->Init( this );
 
-    theView->AddView( m_View );
+    BaseView::TheView()->AddView( m_View );
   }
 
   return true;
 }
 
-SoloPlay*
+void
 SoloPlay::Create( long player, long com ) {
-  SoloPlay *newSoloPlay;
-
   Event::ClearObject();
 
-  newSoloPlay = new SoloPlay();
-  newSoloPlay->Init();
+  m_theControl = new SoloPlay();
+  m_theControl->Init();
 
   thePlayer = Player::Create( player, 1, 0 );
   comPlayer = Player::Create( com, -1, 1 );
@@ -76,8 +72,6 @@ SoloPlay::Create( long player, long com ) {
   // Move it to view?
   SDL_ShowCursor(0);
   SDL_WM_GrabInput( SDL_GRAB_ON );
-
-  return newSoloPlay;
 }
 
 bool
@@ -103,7 +97,7 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
   if ( m_smashPtr >= 0 ) {	// Smash replay
     // If mouse button is pressed, stop replay
     // (Unless it is the last 1 second). 
-    if ( theEvent.m_mouseButton && m_smashCount < 1 ) {
+    if ( Event::TheEvent()->m_mouseButton && m_smashCount < 1 ) {
       Histptr = m_smashPtr;
       SmashEffect( false, Histptr );
       m_smashCount = 0;
@@ -119,7 +113,7 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
       Histptr--;
       if ( Histptr < 0 )
 	Histptr = MAX_HISTORY-1;
-      theEvent.BackTrack(Histptr);
+      Event::TheEvent()->BackTrack(Histptr);
       return true;
     }
 
@@ -139,7 +133,7 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
 				 MouseYHistory, MouseBHistory, Histptr );
       reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
 
-      theEvent.BackTrack(Histptr);
+      Event::TheEvent()->BackTrack(Histptr);
     }
 
     return true;
@@ -225,7 +219,7 @@ SoloPlay::SmashEffect( bool start, long histPtr ) {
     score2 = m_Score2;
 
     for ( int i = 0 ; i < MAX_HISTORY ; i++ ) {
-      theEvent.BackTrack( histPtr );
+      Event::TheEvent()->BackTrack( histPtr );
       if ( theBall.GetStatus() == 2 )
 	break;
 
@@ -234,7 +228,7 @@ SoloPlay::SmashEffect( bool start, long histPtr ) {
 	histPtr = MAX_HISTORY-1;
     }
 
-    theEvent.BackTrack( histPtr );
+    Event::TheEvent()->BackTrack( histPtr );
   } else {
     thePlayer->Reset( &p1 );
     comPlayer->Reset( &p2 );

@@ -25,10 +25,9 @@
 
 class BaseView {
 public:
-  BaseView();
   virtual ~BaseView();
 
-  static BaseView *Create();
+  static BaseView *TheView();
 
   virtual bool Init();
 
@@ -48,6 +47,8 @@ public:
 
   virtual SDL_Surface *GetSurface() { return m_baseSurface; };
 protected:
+  BaseView();
+
   double         m_centerX;
   double         m_centerY;
   double         m_centerZ;
@@ -65,6 +66,9 @@ protected:
   SDL_Surface	*m_baseSurface;
 
   virtual void SetLookAt();
+
+private:
+  static BaseView* m_theView;
 };
 
 #endif // _BaseView

@@ -22,8 +22,6 @@
 #include "LoadImage.h"
 #include "BaseView.h"
 
-extern BaseView* theView;
-
 MenuItemView2D::MenuItemView2D() {
   m_image = NULL;
 }
@@ -65,9 +63,11 @@ MenuItemView2D::RedrawAlpha() {
   rect.h = m_imageBMP->h;
 
   if ( m_menuItem->GetSelected() )
-    SDL_BlitSurface(m_selectedImageBMP, NULL, theView->GetSurface(), &rect);
+    SDL_BlitSurface(m_selectedImageBMP, NULL,
+		    BaseView::TheView()->GetSurface(), &rect);
   else
-    SDL_BlitSurface(m_imageBMP, NULL, theView->GetSurface(), &rect);
+    SDL_BlitSurface(m_imageBMP, NULL,
+		    BaseView::TheView()->GetSurface(), &rect);
 
   return true;
 }

@@ -29,7 +29,7 @@ public:
 
   virtual bool Init();
 
-  static PlayerSelect* Create();
+  static void Create();
 
   virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -36,8 +36,9 @@ class ExternalData;
 
 class Event {
 public:
-  Event();
   ~Event();
+
+  static Event* TheEvent();
 
   bool Init();
 
@@ -84,6 +85,9 @@ protected:
   ExternalData *m_External;
   struct Backtrack m_BacktrackBuffer[MAX_HISTORY];
   bool m_backtrack;		// Now backtracking or not
+private:
+  Event();
+  static Event* m_theEvent;
 };
 
 #endif	// _Event_

@@ -24,7 +24,6 @@
 extern Ball   theBall;
 extern Player *thePlayer;
 
-extern Event theEvent;
 extern long mode;
 
 ShakeCut::ShakeCut() {
@@ -102,7 +101,7 @@ ShakeCut::Swing( long spin ) {
   delete tmpBall;
 
   if ( thePlayer == this && mode == MODE_MULTIPLAY )
-    theEvent.SendSwing( this );
+    Event::TheEvent()->SendSwing( this );
 
   return true;
 }
@@ -147,7 +146,7 @@ ShakeCut::StartSwing( long spin ) {
       m_swingSide = true;
 
       if ( thePlayer == this && mode == MODE_MULTIPLAY )
-	theEvent.SendSwing( this );
+	Event::TheEvent()->SendSwing( this );
     } else {
       if ( (m_x-tmpBall->GetX())*m_side > 0 )
 	m_swingSide = false;
