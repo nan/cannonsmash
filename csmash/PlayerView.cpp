@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -252,7 +252,7 @@ PlayerView::SubRedraw() {
   glPopMatrix();
 
   // Target
-  glColor4f( 0.5F, 0.0F, 0.0F, 1.0F );
+  glColor4f( 1.0F, 0.0F, 0.0F, 0.5F );
 
   static GLfloat mat_default[] = { 0.0F, 0.0F, 0.0F, 1.0F };
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_default);
@@ -274,7 +274,7 @@ PlayerView::SubRedraw() {
     targetX = thePlayer->GetTargetX();
     targetY = thePlayer->GetTargetY();
 
-    glColor4f( 1.0F, 0.0F, 0.0F, 0.0F );
+    glColor4f( 1.0F, 0.0F, 0.0F, 1.0F );
     glBegin(GL_POLYGON);
       glNormal3f( 0.0F, 1.0F, 0.0F );
       glVertex3f( targetX-0.08F, targetY, TABLEHEIGHT+1.7320508F*0.08F );
@@ -285,7 +285,7 @@ PlayerView::SubRedraw() {
     // Hit point
     static long count = 0;
 
-    glColor4f(0.5F, 0.0F, 0.0F, 1.0F );
+    glColor4f(1.0F, 0.0F, 0.0F, 0.5F );
     glPushMatrix();
       glTranslatef( thePlayer->GetX()+0.3F, thePlayer->GetY(), 1.0F );
       glRotatef( count, 0.0F, 0.0F, 1.0F );
