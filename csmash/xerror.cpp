@@ -41,7 +41,8 @@
 #include <string.h>
 
 #ifdef WIN32
-#ifndef __CYGWIN__
+#if defined (__CYGWIN__) || defined(__MINGW32__)
+#else
 #include <iostream>
 #include "win32/wsaerror.h"
 #endif
@@ -50,7 +51,8 @@
 void do_xerror(const char *string, va_list va)
 {
 #ifdef WIN32
-#ifndef __CYGWIN__
+#if defined (__CYGWIN__) || defined(__MINGW32__)
+#else
     DWORD err = WSAGetLastError();
     WSASetLastError(0);
     if (0 != err) {
