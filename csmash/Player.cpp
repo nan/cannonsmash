@@ -515,43 +515,6 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
   }
 
 // 入力の反映
-#if 0
-  switch ( KeyHistory[Histptr] ){
-  case '1':  case 'q':  case 'a':  case 'z':
-    m_targetX = -TABLEWIDTH/2*0.9*GetSide();
-    break;
-  case '2':  case 'w':  case 's':  case 'x':
-    m_targetX = -TABLEWIDTH/2*0.7*GetSide();
-    break;
-  case '3':  case 'e':  case 'd':  case 'c':
-    m_targetX = -TABLEWIDTH/2*0.5*GetSide();
-    break;
-  case '4':  case 'r':  case 'f':  case 'v':
-    m_targetX = -TABLEWIDTH/2*0.3*GetSide();
-    break;
-  case '5':  case 't':  case 'g':  case 'b':
-    m_targetX = -TABLEWIDTH/2*0.1*GetSide();
-    break;
-  case '6':  case 'y':  case 'h':  case 'n':
-    m_targetX = 0;
-    break;
-  case '7':  case 'u':  case 'j':  case 'm':
-    m_targetX = TABLEWIDTH/2*0.1*GetSide();
-    break;
-  case '8':  case 'i':  case 'k':  case ',':
-    m_targetX = TABLEWIDTH/2*0.3*GetSide();
-    break;
-  case '9':  case 'o':  case 'l':  case '.':
-    m_targetX = TABLEWIDTH/2*0.5*GetSide();
-    break;
-  case '0':  case 'p':  case ';':  case '/':
-    m_targetX = TABLEWIDTH/2*0.7*GetSide();
-    break;
-  case '-':  case '@':  case ':':  case '\\':  case '^':  case '[':  case ']':
-    m_targetX = TABLEWIDTH/2*0.9*GetSide();
-    break;
-  }
-#else
   switch ( KeyHistory[Histptr] ){
   case '1':  case 'q':  case 'a':  case 'z':
   case '2':  case 'w':  case 's':  case 'x':
@@ -598,7 +561,6 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
     m_targetX = TABLEWIDTH/2*0.9*GetSide();
     break;
   }
-#endif
 
   switch ( KeyHistory[Histptr] ){
   case '1':  case '2':  case '3':  case '4':  case '5':  case '6':

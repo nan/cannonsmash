@@ -39,6 +39,8 @@ public:
 		     int Histptr );
 
   virtual bool GetModifiedTarget( double &targetX, double &targetY );
+
+  virtual void CalcLevel( Ball *ball, double &diff, double &level, double &maxVy );
 protected:
   virtual bool Swing( long spin );
   virtual bool StartSwing( long spin );

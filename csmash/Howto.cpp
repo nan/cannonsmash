@@ -194,7 +194,7 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     break;
   case 3:	// 打球1
     if ( m_count == 0 ) {
-      thePlayer->m_targetX = 0.0;
+      thePlayer->m_targetX = TABLEWIDTH/2*0.3;
       thePlayer->m_targetY = TABLELENGTH/16*5;
       comPlayer->m_y = TABLELENGTH/2+0.7;
       m_mouseX = 0;
@@ -202,7 +202,7 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
       m_mouseB = 0;
     } else if ( m_count == 50 ) {
       theBall.Toss( thePlayer, 1 );
-      thePlayer->StartSwing( 1 );
+      thePlayer->StartSwing( 3 );
       m_mouseB = 1;
     } else if ( m_count > 50 && m_count < 100 ) {
       m_mouseB = 1;

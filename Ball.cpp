@@ -192,6 +192,7 @@ Ball::Move() {
     tableT = TICK*100;
 
   if ( netT < tableT ){	// ネットに接触
+    m_vx *= 0.5;
     m_vy = -m_vy*0.2;
     m_y = m_vy*(TICK-netT);
   }

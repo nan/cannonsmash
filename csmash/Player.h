@@ -119,6 +119,8 @@ public:
   virtual bool SendAll( int sd );
 
   virtual bool GetModifiedTarget( double &targetX, double &targetY ) = 0;
+
+  virtual void CalcLevel( Ball *ball, double &diff, double &level, double &maxVy ) = 0;
 protected:
   long m_playerType;	// Playerの種類
 

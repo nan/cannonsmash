@@ -153,9 +153,11 @@ PlayerView::SubRedraw() {
 
   glPushMatrix();
   if ( isPolygon )
-    glTranslatef( m_player->GetX(), m_player->GetY(), 0 );
+    glTranslatef( m_player->GetX()-0.3*m_player->GetSide(),
+		  m_player->GetY(), 0 );
   else
-    glTranslatef( m_player->GetX(), m_player->GetY(), m_player->GetZ() );
+    glTranslatef( m_player->GetX()-0.3*m_player->GetSide(),
+		  m_player->GetY(), m_player->GetZ() );
 
   glRotatef( -atan2( m_player->GetTargetX()-m_player->GetX(),
 		     m_player->GetTargetY()-m_player->GetY() )*180.0/3.141592, 
@@ -311,8 +313,6 @@ PlayerView::SubRedraw() {
   }
 
   if ( m_player == thePlayer ) {
-    double rad, Xdiff, Ydiff;
-
     double targetX, targetY;
     if ( theBall.GetStatus() == 2 || theBall.GetStatus() == 3 )
       m_player->GetModifiedTarget( targetX, targetY );
@@ -321,14 +321,10 @@ PlayerView::SubRedraw() {
       targetY = m_player->GetTargetY();
     }
 
-    Xdiff = TABLEWIDTH/4*(220-m_player->GetStatus())/220;
-    Ydiff = TABLELENGTH/8*(220-m_player->GetStatus())/220;
-    glBegin(GL_POLYGON);
-      for ( rad = 0.0 ; rad < 3.141592*2 ; rad += 3.141592/8.0 )
-	glVertex3f( targetX+Xdiff*cos(rad),
-		    targetY+Ydiff*sin(rad),
-		    TABLEHEIGHT+0.01 );
-    glEnd();
+    double diff;
+
+    diff = (double)(220-m_player->GetStatus())/220*3.141592/18;
+    DrawTargetCircle( diff );
 
     targetX = thePlayer->GetTargetX();
     targetY = thePlayer->GetTargetY();
@@ -340,9 +336,137 @@ PlayerView::SubRedraw() {
       glVertex3f( targetX+0.08, targetY, TABLEHEIGHT+1.7320508*0.08 );
       glVertex3f( targetX, targetY, TABLEHEIGHT );
     glEnd();
+
+    // 自分の打球位置
+    static long count = 0;
+
+    glColor4f(0.5, 0.0, 0.0, 1.0);
+    glPushMatrix();
+      glTranslatef( thePlayer->GetX()+0.3, thePlayer->GetY(), 1.0 );
+      glRotatef( count, 0.0, 0.0, 1.0 );
+      glBegin(GL_POLYGON);
+        glVertex3f( -0.1, -0.01, 0.0 );
+        glVertex3f( -0.1,  0.01, 0.0 );
+        glVertex3f(  0.1,  0.01, 0.0 );
+        glVertex3f(  0.1, -0.01, 0.0 );
+      glEnd();
+      glBegin(GL_POLYGON);
+        glVertex3f( -0.01, -0.1, 0.0 );
+        glVertex3f( -0.01,  0.1, 0.0 );
+        glVertex3f(  0.01,  0.1, 0.0 );
+        glVertex3f(  0.01, -0.1, 0.0 );
+      glEnd();
+    glPopMatrix();
+
+    glPushMatrix();
+      glTranslatef( thePlayer->GetX()-0.3, thePlayer->GetY(), 1.0 );
+      glRotatef( count, 0.0, 0.0, 1.0 );
+      glBegin(GL_POLYGON);
+        glVertex3f( -0.1, -0.01, 0.0 );
+        glVertex3f( -0.1,  0.01, 0.0 );
+        glVertex3f(  0.1,  0.01, 0.0 );
+        glVertex3f(  0.1, -0.01, 0.0 );
+      glEnd();
+      glBegin(GL_POLYGON);
+        glVertex3f( -0.01, -0.1, 0.0 );
+        glVertex3f( -0.01,  0.1, 0.0 );
+        glVertex3f(  0.01,  0.1, 0.0 );
+        glVertex3f(  0.01, -0.1, 0.0 );
+      glEnd();
+    glPopMatrix();
+    count++;
   }
 
   glDepthMask(1);
 
   return true;
+}
+
+void
+PlayerView::DrawTargetCircle( double diff ) {
+  Ball *tmpBall;
+  double vx, vy, vz;
+  double rad;
+  static double ballHeight = 1.4;
+
+  // 自Playerの手元に仮想的なBallを生成する
+  if ( theBall.GetStatus() == 2 || theBall.GetStatus() == 3 || 
+       theBall.GetStatus() == 5 ) {
+    ballHeight = theBall.GetZ();
+    tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
+			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
+			theBall.GetSpin(), theBall.GetStatus() );
+
+    while ( tmpBall->GetStatus() >= 0 && tmpBall->GetY() > m_player->GetY() )
+      tmpBall->Move();
+
+    if ( tmpBall->GetStatus() < 0 )
+      tmpBall->Warp( m_player->GetX()+0.3, m_player->GetY(), ballHeight, 
+		     0.0, 0.0, 0.0, 0.0, 3 );
+  } else {
+    tmpBall = new Ball( m_player->GetX()+0.3, m_player->GetY(), ballHeight, 
+			0.0, 0.0, 0.0, 0.0, 3 );
+  }
+
+  // ボールを打ったときの初速を計算する
+  double dum, level, maxVy;
+
+  m_player->CalcLevel( tmpBall, dum, level, maxVy );
+  tmpBall->TargetToV( m_player->GetTargetX(), m_player->GetTargetY(), 
+		      level, m_player->GetSpin(), vx, vy, vz, 0.1, maxVy );
+
+  // 初速に誤差分を加え, 落下地点を計算
+  double v, v1x, v1y, v1z;
+  double n1x, n1y, n1z, n2x, n2y, n2z;
+  double bx = tmpBall->GetX(), by = tmpBall->GetY(), bz = tmpBall->GetZ();
+  double polygon1[64][3], polygon2[64][3];
+  int polyNum1 = 0, polyNum2 = 0;
+  int i;
+
+  v = sqrt(vx*vx+vy*vy+vz*vz);
+  n1x = vy/hypot(vx, vy) * v*tan(diff);
+  n1y = -vx/hypot(vx, vy) * v*tan(diff);
+  n1z = 0;
+  n2x = vx*vz/(v*hypot(vx, vy)) * v*tan(diff);
+  n2y = vy*vz/(v*hypot(vx, vy)) * v*tan(diff);
+  n2z = (vx*vx+vy*vy)/(v*hypot(vx, vy)) * v*tan(diff);
+
+  for ( rad = 0.0 ; rad < 3.141592*2 ; rad += 3.141592/32.0 ) {
+    v1x = vx+n1x*cos(rad)+n2x*sin(rad);
+    v1y = vy+n1y*cos(rad)+n2y*sin(rad);
+    v1z = vz+n1z*cos(rad)+n2z*sin(rad);
+
+    tmpBall->Warp( bx, by, bz, 
+		   v1x, v1y, v1z, m_player->GetSpin(), 0 );
+
+    while ( tmpBall->GetZ() > TABLEHEIGHT &&
+	    tmpBall->GetZ()+tmpBall->GetVZ()*TICK > TABLEHEIGHT &&
+	    tmpBall->GetVY() > 0.0 &&	// ネットに当たったとき
+	    tmpBall->GetStatus() == 0 )
+      tmpBall->Move();
+
+    if ( tmpBall->GetY() > 0.0 ) {
+      polygon1[polyNum1][0] = tmpBall->GetX();
+      polygon1[polyNum1][1] = tmpBall->GetY();
+      polygon1[polyNum1][2] = TABLEHEIGHT+0.01;
+      polyNum1++;
+    } else {
+      polygon2[polyNum2][0] = tmpBall->GetX();
+      polygon2[polyNum2][1] = tmpBall->GetY();
+      polygon2[polyNum2][2] = tmpBall->GetZ();
+      polyNum2++;
+    }
+  }
+
+  glBegin(GL_POLYGON);
+    for ( i = 0 ; i < polyNum1 ; i++ )
+      glVertex3f( polygon1[i][0], polygon1[i][1], polygon1[i][2] );
+  glEnd();
+
+  glBegin(GL_POLYGON);
+    for ( i = 0 ; i < polyNum2 ; i++ )
+      glVertex3f( polygon2[i][0], polygon2[i][1], polygon2[i][2] );
+  glEnd();
+
+  delete tmpBall;
 }

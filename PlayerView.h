@@ -33,6 +33,7 @@ public:
   virtual bool Redraw();
   virtual bool RedrawAlpha();
 
+  void DrawTargetCircle( double diff );
 private:
   Player  *m_player;	// Model
 
