@@ -1,5 +1,6 @@
 #
 # Makefile for gmake (It should run with Microsoft's nmake)
+# $Id$
 #
 ############################################################################
 .SUFFIXES: .exe .so .dll .a .lib .o .obj .cpp .cc .c .asm .s .y .h .l
@@ -34,15 +35,8 @@ AOUT = -Fe
 
 INCDIRS = -I.
 LIBS =	win32/GetArgs.obj win32/getopt.obj win32/wsaerror.obj \
-	win32/wsainit.obj \
+	win32/wsainit.obj win32/csmash.res \
 	glut32.lib zlib.lib libjpeg.lib ws2_32.lib
-
-HDRS = \
-	Ball.h BallView.h BaseView.h Event.h HitMark.h Howto.h HowtoView.h \
-	LoadImage.h PenAttack.h PenDrive.h Player.h PlayerSelect.h \
-	PlayerSelectView.h PlayerView.h ShakeCut.h Sound.h Title.h \
-	TitleView.h View.h comPenAttack.h comPenDrive.h comPlayer.h \
-	comShakeCut.h ttinc.h z.h
 
 SRCS = \
 	Ball.cpp BallView.cpp BaseView.cpp Event.cpp HitMark.cpp \
@@ -51,11 +45,11 @@ SRCS = \
 	ShakeCut.cpp Sound.cpp Title.cpp TitleView.cpp PlayerView.cpp \
 	View.cpp comPenAttack.cpp comPenDrive.cpp comPlayer.cpp \
 	comShakeCut.cpp ComTrainingPenAttack.cpp TrainingPenAttack.cpp \
-	MultiPlayer.cpp TrainingPenDrive.cpp ComTrainingPenDrive.cpp \
-	TrainingSelect.cpp TrainingSelectView.cpp \
+	MultiPlay.cpp TrainingPenDrive.cpp ComTrainingPenDrive.cpp \
+	TrainingSelect.cpp TrainingSelectView.cpp TrainingView.cpp \
+	FieldView.cpp SoloPlay.cpp PlayGame.cpp Control.cpp Training.cpp \
 	main.cpp z.cpp parts.cpp xerror.cpp
 
-#	PlayerView.cpp Normal.cpp
 OBJS = $(SRCS:.cpp=.obj)
 
 TARGET = csmash$(EXE)
