@@ -46,7 +46,7 @@ Logging::Init() {
 			    "act_ball.log", "act_thePlayer.log", 
 			    "act_comPlayer.log", "act_misc.log" };
 
-  for ( int i = 0 ; i < 7 ; i++ ) {
+  for ( int i = 0 ; i < 8 ; i++ ) {
     if ( (m_fp[i] = fopen( fname[i], "w" )) == 0 )
       return false;
   }
