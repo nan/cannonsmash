@@ -123,12 +123,14 @@ int main(int argc, char** argv) {
     textdomain (PACKAGE);
 #endif
 
+#if 0
 #if (GTK_MAJOR_VERSION == 1) && (GTK_MINOR_VERSION >= 3)
     ic = iconv_open("UTF-8", _("UTF-8"));
     if ( ic == (iconv_t)-1 ) {
       perror( _("iconv_open failed\n") );
       exit(1);
     }
+#endif
 #endif
 
     int c;
