@@ -31,12 +31,14 @@
 
 class TitleView;
 
-class Title {
+class Title : public Control {
 public:
   Title();
   virtual ~Title();
 
-  bool Init();
+  virtual bool Init();
+
+  static Title* Create();
 
   virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,
@@ -46,6 +48,9 @@ public:
   long GetSelectMode();
   long GetCount();
   long GetMenuNum( long major, long minor=0 );
+
+  virtual bool LookAt( double &srcX, double &srcY, double &srcZ,
+		       double &destX, double &destY, double &destZ );
 protected:
   TitleView *m_View;
   long m_selected;	// 選択された : m_selected > 0

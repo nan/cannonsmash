@@ -238,7 +238,6 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	      int Histptr ) {
   static double  lastSendX = 0,  lastSendY = 0,  lastSendZ = 0;
   static double lastSendVX = 0, lastSendVY = 0, lastSendVZ = 0;
-  static bool toggle = false;
 
 // swing
   if ( m_swing > 0 ){
@@ -264,7 +263,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   double vx1, vy1, vz1;
   double vxt, vyt, vzt;
   double vx2, vy2, vz2;
-  double vx, vy, vl;
+  double vl;
   double p, q;
   double sinP, cosP;
 
@@ -286,7 +285,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   vxt = theBall.GetX()-x;
   vyt = theBall.GetY()-y;
-  if ( theBall.GetStatus() == 6 )
+  if ( theBall.GetStatus() == 6 || theBall.GetStatus() == 7 )
     vzt = TABLEHEIGHT + 0.15-z;
   else
     vzt = theBall.GetZ()-z;
@@ -296,7 +295,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   vzt /= vl;
 
   if ( (cosP = vx1*vxt+vy1*vyt+vz1*vzt) < cos(3.141592/180.0*15) &&
-       theBall.GetY()*m_side < y ) {
+       fabs(theBall.GetY()) > fabs(y) ) {
     sinP = sqrt(1-cosP*cosP);
     p = cos(3.141592/180.0*15) - sin(3.141592/180.0*15)*cosP/sinP;
     q = sin(3.141592/180.0*15)/sinP;

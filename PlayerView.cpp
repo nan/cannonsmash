@@ -22,6 +22,8 @@
 extern bool isPolygon;
 extern bool isLighting;
 
+#undef HAVE_LIBPTHREAD
+
 #if HAVE_LIBPTHREAD
 extern pthread_mutex_t loadMutex;
 #endif

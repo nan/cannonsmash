@@ -23,7 +23,7 @@ extern Player *thePlayer;
 extern Player *comPlayer;
 
 extern long    gameLevel;
-extern long    trainingCount;
+//extern long    trainingCount;
 
 ComTrainingPenAttack::ComTrainingPenAttack() : ComPenAttack() {
 }
@@ -61,12 +61,6 @@ ComTrainingPenAttack::Think() {
     Hitarea( _hitX, _hitY );
 
     _prevBallstatus = theBall.GetStatus();
-
-    if ( theBall.GetStatus() == 8 ) {
-      if ( theBall.m_count > trainingCount )
-	trainingCount = theBall.m_count;
-      theBall.m_count = 0;
-    }
   }
 
   if ( theBall.GetVX() != 0.0 )
@@ -167,7 +161,6 @@ ComTrainingPenAttack::Think() {
 bool
 ComTrainingPenAttack::HitBall() {
   double vx, vy, vz;
-  double diff;
   double level;
 
 // サーブ
@@ -180,7 +173,8 @@ ComTrainingPenAttack::HitBall() {
 	  (m_side ==-1 && theBall.GetStatus() == 1)) ) {
       theBall.m_count++;
 
-      level = 1.0 - 1.0/((double)theBall.m_count/10.0+1.5);
+      level = 1.0 -
+	1.0/((double)theBall.m_count/10.0+1.5);
       theBall.TargetToV( -TABLEWIDTH/5*2*m_side, TABLELENGTH/5*2*m_side,
 			 level, m_spin, vx, vy, vz, 0.1, 20.0 );
 

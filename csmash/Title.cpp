@@ -33,6 +33,8 @@ extern Sound theSound;
 extern void Keyboard( unsigned char key, int x, int y );
 extern void KeyUp( unsigned char key, int x, int y );
 
+extern Player* thePlayer;
+extern Player* comPlayer;
 extern Ball theBall;
 
 Title::Title() {
@@ -56,13 +58,38 @@ Title::Init() {
 
   theView.AddView( m_View );
 
+  thePlayer = Player::Create( RAND(3), 1, 1 );
+  comPlayer = Player::Create( RAND(3), -1, 1 );
+
+  thePlayer->Init();
+  comPlayer->Init();
+
   return true;
+}
+
+Title*
+Title::Create() {
+  Title *newTitle;
+
+  Event::ClearObject();
+
+  newTitle = new Title();
+  newTitle->Init();
+
+  // View, か?
+  glutSetCursor( GLUT_CURSOR_INHERIT );
+
+  return newTitle;
 }
 
 bool
 Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
 		    long *MouseYHistory, unsigned long *MouseBHistory,
 		    int Histptr ) {
+  theBall.Move();
+  thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
+  comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+
   switch ( m_selectMode ) {
   case MENU_MAIN:
     m_selected = MouseYHistory[Histptr]*GetMenuNum( MENU_MAIN )/winHeight;
@@ -191,4 +218,14 @@ Title::GetMenuNum( long major, long minor ) {
   }
 
   return -1;
+}
+
+bool
+Title::LookAt( double &srcX, double &srcY, double &srcZ,
+	       double &destX, double &destY, double &destZ ) {
+  srcX = TABLELENGTH*2*cos(GetCount()*3.14159265/720.0);
+  srcY = TABLELENGTH*2*sin(GetCount()*3.14159265/720.0) + TABLELENGTH/2;
+  srcZ = TABLEHEIGHT*4;
+
+  return true;
 }

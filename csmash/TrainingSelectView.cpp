@@ -22,13 +22,10 @@ extern long winWidth;
 extern long winHeight;
 extern long wins;
 
-extern bool isComm;
-
 TrainingSelectView::TrainingSelectView() : PlayerSelectView() {
 }
 
 TrainingSelectView::~TrainingSelectView() {
-  int i = 0;
 }
 
 bool
@@ -116,26 +113,6 @@ TrainingSelectView::Redraw() {
     glTexCoord2f(1.0, 1.0); glVertex3f( 0.60, 0.0, -0.84);
     glEnd();
     glPopMatrix();
-
-    if ( !isComm ) {
-      if ( m_playerSelect->GetSelected() > 100 ) {
-	glPushMatrix();
-	if ( m_playerSelect->GetSelected() < 150 )
-	  glTranslatef( 0.02*(m_playerSelect->GetSelected()-100),
-			18.5-0.4*(m_playerSelect->GetSelected()-100), 1.4 );
-	else
-	  glTranslatef( 0.01*100, -1.5+0.01*100, 1.4 );
-
-	glBindTexture(GL_TEXTURE_2D, m_textures[(player+wins+1)%TRAININGPLAYERS] );
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0, 1.0); glVertex3f(-0.60, 0.0, -0.84);
-	glTexCoord2f(0.0, 0.0); glVertex3f(-0.60, 0.0,  0.84);
-	glTexCoord2f(1.0, 0.0); glVertex3f( 0.60, 0.0,  0.84);
-	glTexCoord2f(1.0, 1.0); glVertex3f( 0.60, 0.0, -0.84);
-	glEnd();
-	glPopMatrix();
-      }
-    }
   } else {
     for ( i = 0 ; i < TRAININGPLAYERS ; i++ ){
       glPushMatrix();

@@ -23,7 +23,7 @@ extern Player *thePlayer;
 extern Player *comPlayer;
 
 extern long    gameLevel;
-extern long    trainingCount;
+//extern long    trainingCount;
 
 ComTrainingPenDrive::ComTrainingPenDrive() : ComPenDrive() {
 }
@@ -61,12 +61,6 @@ ComTrainingPenDrive::Think() {
     Hitarea( _hitX, _hitY );
 
     _prevBallstatus = theBall.GetStatus();
-
-    if ( theBall.GetStatus() == 8 ) {
-      if ( theBall.m_count > trainingCount )
-	trainingCount = theBall.m_count;
-      theBall.m_count = 0;
-    }
   }
 
   if ( theBall.GetVX() != 0.0 )
@@ -175,7 +169,6 @@ ComTrainingPenDrive::Think() {
 bool
 ComTrainingPenDrive::HitBall() {
   double vx, vy, vz;
-  double diff;
   double level;
 
 // サーブ

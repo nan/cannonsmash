@@ -69,8 +69,6 @@ public:
   bool Send( int sd );
 
   long m_count;		// Training用カウンタ
-
-  bool m_smash;		// スマッシュしたか
 protected:
   double m_x;		// ballの位置
   double m_y;

@@ -71,8 +71,6 @@ TrainingPenDrive::Move( unsigned long *KeyHistory, long *MouseXHistory,
 bool
 TrainingPenDrive::HitBall() {
   double vx, vy, vz;
-  double diff;
-  double level;
 
 // サーブ
   if ( ( (m_side == 1 && theBall.GetStatus() == 6) ||

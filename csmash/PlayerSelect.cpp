@@ -53,6 +53,20 @@ PlayerSelect::Init() {
   return true;
 }
 
+PlayerSelect*
+PlayerSelect::Create() {
+  PlayerSelect *newPlayerSelect;
+
+  Event::ClearObject();
+
+  newPlayerSelect = new PlayerSelect();
+  newPlayerSelect->Init();
+
+  glutSetCursor( GLUT_CURSOR_NONE );
+
+  return newPlayerSelect;
+}
+
 bool
 PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
 		    long *MouseYHistory, unsigned long *MouseBHistory,
@@ -128,7 +142,8 @@ PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   if ( nothing > 1000 && !isComm ) {
     nothing = 0;
-    mode = MODE_DEMO;
+    //mode = MODE_DEMO;
+    mode = MODE_TITLE;
   }
 
   return true;
@@ -140,6 +155,24 @@ PlayerSelect::GetRotate() {
 }
 
 long
+PlayerSelect::GetPlayerNum() {
+  if ( GetRotate() < 0 )
+    return (360+(GetRotate()%360))/(360/PLAYERS);
+  else
+    return (GetRotate()%360)/(360/PLAYERS);
+}
+
+long
 PlayerSelect::GetSelected() {
   return m_selected;
+}
+
+bool
+PlayerSelect::LookAt( double &srcX, double &srcY, double &srcZ,
+		      double &destX, double &destY, double &destZ ) {
+  srcX = 0.0;
+  srcY = -TABLELENGTH-1.2;
+  srcZ = 1.4;
+
+  return true;
 }

@@ -83,7 +83,6 @@
 #define MODE_HOWTO  (5)		// How to Play
 #define MODE_TRAININGSELECT (6)	// Training Select
 #define MODE_TRAINING (7)	// Training
-#define MODE_SMASH  (8)		// Smash Effect
 
 // サウンド
 #define SOUND_RACKET (0)
@@ -152,6 +151,7 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 #include "Ball.h"
 #include "Event.h"
 #include "View.h"
+#include "Control.h"
 #include "BaseView.h"
 #include "BallView.h"
 #include "Player.h"
@@ -173,12 +173,15 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 #include "PlayerSelectView.h"
 #include "TrainingSelect.h"
 #include "TrainingSelectView.h"
+#include "SoloPlay.h"
+#include "MultiPlay.h"
 #include "Title.h"
 #include "TitleView.h"
 #include "Howto.h"
 #include "HowtoView.h"
+#include "Training.h"
+#include "TrainingView.h"
 #include "Sound.h"
-#include "MultiPlayer.h"
 
 void xerror(const char *str, ...);
 

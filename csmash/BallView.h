@@ -27,8 +27,7 @@ public:
 
   virtual bool Redraw();
   virtual bool RedrawAlpha();
-private:
-  static GLuint m_max;
+
   static GLuint m_number[10];
 };
 

@@ -21,12 +21,14 @@
 
 class HowtoView;
 
-class Howto {
+class Howto : public Control {
 public:
   Howto();
   virtual ~Howto();
 
   bool Init();
+
+  static Howto* Create();
 
   virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,
@@ -39,8 +41,8 @@ public:
   long GetMouseY() {return m_mouseY;}
   long GetMouseB() {return m_mouseB;}
 
-  bool LookAt( double &x, double &y, double &z );
-  bool IsMove();
+  virtual bool LookAt( double &srcX, double &srcY, double &srcZ,
+		       double &destX, double &destY, double &destZ );
 protected:
   HowtoView *m_View;
   long m_mode;
@@ -49,6 +51,8 @@ protected:
   long m_mouseX;
   long m_mouseY;
   long m_mouseB;
+
+  bool IsMove();
 };
 
 #endif	// _Howto_

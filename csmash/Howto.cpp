@@ -51,13 +51,36 @@ Howto::Init() {
 
   theView.AddView( m_View );
 
+  thePlayer = new PenAttack(1);
+  comPlayer = new ShakeCut(-1);
+
+  thePlayer->Init();
+  comPlayer->Init();
+
   return true;
+}
+
+Howto*
+Howto::Create() {
+  Howto *newHowto;
+
+  Event::ClearObject();
+
+  newHowto = new Howto();
+  newHowto->Init();
+
+  return newHowto;
 }
 
 bool
 Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	     long *MouseYHistory, unsigned long *MouseBHistory,
 	     int Histptr ) {
+  if ( IsMove() ) {
+    theBall.Move();
+    thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
+    comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+  }
 
   if ( KeyHistory[Histptr] == 27 ) {	// ESC
     mode = MODE_TITLE;
@@ -242,25 +265,26 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
 }
 
 bool
-Howto::LookAt( double &x, double &y, double &z ) {
-  x = thePlayer->GetX() + thePlayer->GetEyeX();
-  y = thePlayer->GetY() + thePlayer->GetEyeY();
-  z = thePlayer->GetZ() + thePlayer->GetEyeZ();
+Howto::LookAt( double &srcX, double &srcY, double &srcZ,
+	       double &destX, double &destY, double &destZ ) {
+  srcX = thePlayer->GetX() + thePlayer->GetEyeX();
+  srcY = thePlayer->GetY() + thePlayer->GetEyeY();
+  srcZ = thePlayer->GetZ() + thePlayer->GetEyeZ();
 
   switch ( m_mode ) {
   case 2:
     if ( m_count < 100 ) {
-      x *= (double)(100-m_count)/100;
-      y += (TABLELENGTH/3 - y)*(double)(m_count)/100;
-      z += (double)(m_count)*2.0/100;
+      srcX *= (double)(100-m_count)/100;
+      srcY += (TABLELENGTH/3 - srcY)*(double)(m_count)/100;
+      srcZ += (double)(m_count)*2.0/100;
     } else if ( m_count < 1000 ) {
-      x = 0.0;
-      y = TABLELENGTH/3;
-      z += 2.0;
+      srcX = 0.0;
+      srcY = TABLELENGTH/3;
+      srcZ += 2.0;
     } else if ( m_count < 1100 ) {
-      x *= (double)(m_count-1000)/100;
-      y += (TABLELENGTH/3 - y)*(double)(100-(m_count-1000))/100;
-      z += (double)(100-(m_count-1000))*2.0/100;
+      srcX *= (double)(m_count-1000)/100;
+      srcY += (TABLELENGTH/3 - srcY)*(double)(100-(m_count-1000))/100;
+      srcZ += (double)(100-(m_count-1000))*2.0/100;
     }
     break;
   }

@@ -23,19 +23,25 @@
 
 class PlayerSelectView;
 
-class PlayerSelect {
+class PlayerSelect : public Control {
 public:
   PlayerSelect();
   virtual ~PlayerSelect();
 
   virtual bool Init();
 
+  static PlayerSelect* Create();
+
   virtual bool Move( unsigned long *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,
 		     int Histptr );
 
   long GetRotate();
+  long GetPlayerNum();
   long GetSelected();
+
+  virtual bool LookAt( double &srcX, double &srcY, double &srcZ,
+		       double &destX, double &destY, double &destZ );
 protected:
   PlayerSelectView *m_View;
   long m_rotate;	// 表示画面の回転角度

@@ -28,7 +28,6 @@ extern long mode;
 extern Sound theSound;
 
 extern int theSocket;
-extern bool isComm;
 
 extern long gameMode;
 extern long wins;
@@ -39,8 +38,6 @@ Ball::Ball() {
   m_Score1 = m_Score2 = 0;
 
   m_View = NULL;
-
-  m_smash = false;
 }
 
 Ball::Ball( double x, double y, double z, double vx, double vy, double vz,
@@ -58,8 +55,6 @@ Ball::Ball( double x, double y, double z, double vx, double vy, double vz,
   m_View = NULL;
 
   m_count = 0;
-
-  m_smash = false;
 }
 
 Ball::~Ball() {
@@ -186,7 +181,6 @@ Ball::Move() {
     m_vz = 0.0;
 
     m_status = 8;
-    m_smash = false;
 
     if ( IsGameEnd() == true ){
       theView.EndGame();
@@ -254,10 +248,6 @@ Ball::Move() {
       switch( m_status ) {
       case 0:
 	m_status = 1;
-	if ( &theBall == this && sqrt(m_vy*m_vy+m_vz*m_vz) > 8.0 ) {
-	  m_smash = true;
-	} else
-	  m_smash = false;
 	break;
       case 5:
 	m_status = 2;
@@ -355,11 +345,6 @@ Ball::Move() {
   m_vy += -PHY*m_vy*TICK;
   m_vz += -PHY*m_vz*TICK;
 
-  if ( mode == MODE_PLAY && m_smash && GetStatus() < 0 && !isComm ) {
-    mode = MODE_SMASH;
-    m_smash = false;
-  }
-
   return true;
 }
 
@@ -386,7 +371,6 @@ Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
     m_status = 0;
   else if ( m_status == 1 ) {
     m_status = 2;
-    m_smash = false;
   }
 
   m_vx = vx;
@@ -581,7 +565,7 @@ Ball::TargetToVS( double targetX, double targetY, double level, double spin,
 
 void
 Ball::EndGame() {
-  if ( mode == MODE_DEMO || mode == MODE_TITLE || mode == MODE_HOWTO ) {
+  if ( /*mode == MODE_DEMO ||*/ mode == MODE_TITLE || mode == MODE_HOWTO ) {
     mode = MODE_TITLE;
   } else {
     // 再初期化する
@@ -602,7 +586,7 @@ Ball::EndGame() {
 
 void
 Ball::ChangeScore() {
-  if ( mode == MODE_PLAY || mode == MODE_DEMO || mode == MODE_TITLE ){
+  if ( mode == MODE_PLAY || /*mode == MODE_DEMO ||*/ mode == MODE_TITLE ){
     if ( m_status == 0 || m_status == 3 || m_status == 4 || m_status == 6 ) {
       if ( thePlayer->GetSide() > 0 )
 	m_Score2++;

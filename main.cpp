@@ -51,13 +51,12 @@ long wins	= 0;		// 勝ち抜き数
 long gameLevel  = LEVEL_NORMAL;	// 強さ
 long gameMode   = GAME_21PTS;	// ゲームの長さ
 
-PlayerSelect* theSelect = NULL;
-Title*        theTitle  = NULL;
-Howto*        theHowto  = NULL;
+Control*      theControl = NULL;
 
 long mode = MODE_TITLE;
 
-long trainingCount = 0;
+//long trainingCount = 0;
+#undef HAVE_LIBPTHREAD
 
 #if HAVE_LIBPTHREAD
 pthread_mutex_t loadMutex = PTHREAD_MUTEX_INITIALIZER;

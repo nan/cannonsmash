@@ -21,8 +21,6 @@
 extern BaseView theView;
 extern long mode;
 
-extern bool isComm;
-
 extern Player *thePlayer;
 
 extern long winWidth;
@@ -43,6 +41,20 @@ TrainingSelect::Init() {
   return true;
 }
 
+TrainingSelect*
+TrainingSelect::Create() {
+  TrainingSelect *newTrainingSelect;
+
+  Event::ClearObject();
+
+  newTrainingSelect = new TrainingSelect();
+  newTrainingSelect->Init();
+
+  glutSetCursor( GLUT_CURSOR_NONE );
+
+  return newTrainingSelect;
+}
+
 bool
 TrainingSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
 		    long *MouseYHistory, unsigned long *MouseBHistory,
@@ -57,7 +69,7 @@ TrainingSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     return true;
   }
 
-  if ( KeyHistory[Histptr] == 27 && !isComm ) {	// ESC
+  if ( KeyHistory[Histptr] == 27 ) {	// ESC
     mode = MODE_TITLE;
     return true;
   }
@@ -117,9 +129,10 @@ TrainingSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
       m_rotate = nextRotate;
   }
 
-  if ( nothing > 1000 && !isComm ) {
+  if ( nothing > 1000 ) {
     nothing = 0;
-    mode = MODE_DEMO;
+    //mode = MODE_DEMO;
+    mode = MODE_TITLE;
   }
 
   return true;

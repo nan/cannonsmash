@@ -70,30 +70,25 @@ public:
   bool SendPlayer( int sd, Player *player );
   bool SendBall( int sd );
 
-  void SmashEffect( bool start );
+  static void ClearObject();
 
-  long m_smashCount;
+  bool BackTrack( long Histptr );
 protected:
   bool Move();
   void Record();
+  void ReadData();
 
   void PlayInit( long player, long com );
   void DemoInit();
   void SelectInit();
-  void TitleInit();
-  void HowtoInit();
   void TrainingInit( long player, long com );
   void TrainingSelectInit();
-
-  void ClearObject();
 
   unsigned long m_KeyHistory[MAX_HISTORY];		// キー入力履歴
   long m_MouseXHistory[MAX_HISTORY];			// マウス履歴
   long m_MouseYHistory[MAX_HISTORY];			// マウス履歴
   unsigned long m_MouseBHistory[MAX_HISTORY];		// マウスボタン履歴
   int  m_Histptr;
-
-  long m_smashPtr;
 
   struct ExternalData *m_External;
   struct Backtrack m_BacktrackBuffer[MAX_HISTORY];

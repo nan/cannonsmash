@@ -25,11 +25,9 @@
 extern Player* thePlayer;
 extern Player* comPlayer;
 extern long mode;
-extern Title*  theTitle;
-extern Howto*  theHowto;
-extern Event theEvent;
+extern Control*      theControl;
 
-extern void SelectInit();
+extern Event theEvent;
 
 extern BaseView theView;
 extern Ball theBall;
@@ -40,6 +38,8 @@ extern bool isTexture;
 extern bool isPolygon;
 extern long winWidth;
 extern long winHeight;
+
+extern bool isComm;
 
 // x --- x座標軸はネットの底辺とその延長. x=0は, センターラインを含み
 //       台に垂直な平面. 
@@ -212,13 +212,6 @@ BaseView::RedrawAll() {
   glColor4f(0.4, 0.2, 0.0, 0.0);
 //  glEnable(GL_CULL_FACE);
 
-  // ここに置くべきではないよなぁ...
-  //bool flag = false;
-  //if ( mode == MODE_PLAY && theBall.m_smash && theBall.GetStatus() < 0 ) {
-  //  theEvent.SmashEffect(-theBall.GetStatus());
-  //  flag = true;
-  //}
-
   glDisable(GL_BLEND);
   Redraw();
 
@@ -254,9 +247,6 @@ BaseView::RedrawAll() {
     view->RedrawAlpha();
     view = view->m_next;
   }
-
-  //if (flag)
-  //  theEvent.SmashEffect(-1);
 
   // タイトル
   glPushMatrix();
@@ -625,103 +615,32 @@ BaseView::SetViewPosition() {
 // 視線をボールの動きに合わせて滑らかに移動させる
 void
 BaseView::SetLookAt() {
-  double x, y, z;
-  double tx, ty, tz;
-  double vx1, vy1, vz1;
-  double vxt, vyt, vzt;
-  double vx2, vy2, vz2;
-  double vx, vy, vl;
-  double p, q;
-  double sinP, cosP;
+  double srcX, srcY, srcZ;
+  double destX, destY, destZ;
 
-  x = y = z = 0.0;
-  tx = m_centerX;
+  srcX = srcY = srcZ = 0.0;
+  destX = m_centerX;
   if (thePlayer)
-    ty = m_centerY*thePlayer->GetSide();
+    destY = m_centerY*thePlayer->GetSide();
   else
-    ty = m_centerY;
-  tz = m_centerZ;
+    destY = m_centerY;
+  destZ = m_centerZ;
 
   switch ( mode ){
   case MODE_PLAY:
-    if (thePlayer) {
-      x = thePlayer->GetX() + thePlayer->GetEyeX();
-      y = thePlayer->GetY() + thePlayer->GetEyeY();
-      z = thePlayer->GetZ() + thePlayer->GetEyeZ();
-      tx = thePlayer->GetLookAtX();
-      ty = thePlayer->GetLookAtY();
-      tz = thePlayer->GetLookAtZ();
-    }
-    break;
-  case MODE_DEMO:
+  /*case MODE_DEMO:*/
   case MODE_TRAINING:
-    if (thePlayer) {
-      x = thePlayer->GetX() + thePlayer->GetEyeX();
-      y = thePlayer->GetY() + thePlayer->GetEyeY();
-      z = thePlayer->GetZ() + thePlayer->GetEyeZ();
-      tx = thePlayer->GetLookAtX();
-      ty = thePlayer->GetLookAtY();
-      tz = thePlayer->GetLookAtZ();
-    }
-    break;
   case MODE_SELECT:
   case MODE_TRAININGSELECT:
-    x = 0.0;
-    y = -TABLELENGTH-1.2;
-    z = 1.4;
-    break;
   case MODE_TITLE:
-    x = TABLELENGTH*2*cos( theTitle->GetCount()*3.14159265/720.0 )+m_centerX;
-    y = TABLELENGTH*2*sin( theTitle->GetCount()*3.14159265/720.0 )+m_centerY;
-    z = TABLEHEIGHT*4;
-    break;
   case MODE_HOWTO:
-    theHowto->LookAt( x, y, z );
+    theControl->LookAt( srcX, srcY, srcZ, destX, destY, destZ );
     break;
-  case MODE_SMASH:
-    if (thePlayer) {
-      switch (theEvent.m_smashCount) {
-      case 0:
-	x = 0;
-	y = TABLELENGTH*thePlayer->GetSide();
-	z = 1.6;
-
-	tx = 0;
-	ty = -TABLELENGTH/2*thePlayer->GetSide();
-	tz = TABLEHEIGHT;
-	break;
-      case 1:
-	x = -TABLEWIDTH;
-	y = 0;
-	z = 1.6;
-
-	tx = theBall.GetX();
-	ty = theBall.GetY();
-	tz = theBall.GetZ();
-	break;
-      case 2:
-	x = thePlayer->GetX() + thePlayer->GetEyeX();
-	y = thePlayer->GetY() + thePlayer->GetEyeY();
-	z = thePlayer->GetZ() + thePlayer->GetEyeZ();
-	tx = thePlayer->GetLookAtX();
-	ty = thePlayer->GetLookAtY();
-	tz = thePlayer->GetLookAtZ();
-	break;
-      default:
-	printf( "%d\n", theBall.m_count );
-      }
-    }
   }
 
-  if ( thePlayer ) {
-    //gluLookAt( x, y, z, m_centerX, m_centerY*thePlayer->GetSide(), m_centerZ,
-    //0.0, 0.0, 0.5 );
-    gluLookAt( x, y, z, tx, ty, tz, 0.0, 0.0, 0.5 );
-      /* 視点, 視線設定. 視点x, y, z, 視点(視線ベクトルの通る点)x, y, z, 
-	 上向きベクトル(画面上の上に向かうベクトル)x, y, z */
-  } else {
-    gluLookAt( x, y, z, m_centerX, m_centerY, m_centerZ, 0.0, 0.0, 0.5 );
-  }
+  gluLookAt( srcX, srcY, srcZ, destX, destY, destZ, 0.0, 0.0, 0.5 );
+  /* 視点, 視線設定. 視点x, y, z, 視点(視線ベクトルの通る点)x, y, z, 
+     上向きベクトル(画面上の上に向かうベクトル)x, y, z */
 }
 
 bool
