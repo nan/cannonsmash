@@ -426,7 +426,7 @@ ModeNote::InitInternetPlayPanel() {
   gtk_table_attach( GTK_TABLE(editBox), label, 0, 1, 0, 1,
 		    GTK_FILL, GTK_EXPAND, 0, 0 );
   gtk_widget_show (label);
-  m_lobbyEdit[0] = gtk_entry_new ();
+  m_lobbyEdit[0] = gtk_entry_new();
   gtk_table_attach( GTK_TABLE(editBox), m_lobbyEdit[0], 1, 2, 0, 1,
 		    GTK_FILL, GTK_EXPAND, 0, 0 );
   gtk_widget_show (m_lobbyEdit[0]);
@@ -436,7 +436,7 @@ ModeNote::InitInternetPlayPanel() {
   gtk_table_attach( GTK_TABLE(editBox), label, 0, 1, 1, 2,
 		    GTK_FILL, GTK_EXPAND, 0, 0 );
   gtk_widget_show (label);
-  m_lobbyEdit[1] = gtk_entry_new ();
+  m_lobbyEdit[1] = gtk_entry_new();
   gtk_table_attach( GTK_TABLE(editBox), m_lobbyEdit[1], 1, 2, 1, 2,
 		    GTK_FILL, GTK_EXPAND, 0, 0 );
   gtk_widget_show (m_lobbyEdit[1]);
