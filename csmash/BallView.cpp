@@ -97,8 +97,8 @@ BallView::Redraw() {
   glPushMatrix();
     glTranslatef( (float)theBall.GetX(), (float)theBall.GetY(), (float)theBall.GetZ() );
 
-    gluQuadricDrawStyle( m_quad, GLU_FILL );
-    gluQuadricNormals( m_quad, GLU_SMOOTH );
+    gluQuadricDrawStyle( m_quad, (GLenum)GLU_FILL );
+    gluQuadricNormals( m_quad, (GLenum)GLU_SMOOTH );
     gluSphere( m_quad, BALL_R, 12, 12 );
   glPopMatrix();
 
@@ -158,8 +158,8 @@ BallView::Redraw() {
 	glPushMatrix();
 	glTranslatef( (float)tmpBall->GetX(), (float)tmpBall->GetY(), (float)tmpBall->GetZ() );
 
-	gluQuadricDrawStyle( m_quad, GLU_FILL );
-	gluQuadricNormals( m_quad, GLU_SMOOTH );
+	gluQuadricDrawStyle( m_quad, (GLenum)GLU_FILL );
+	gluQuadricNormals( m_quad, (GLenum)GLU_SMOOTH );
 	gluSphere( m_quad, BALL_R/2, 3, 3 );
 
 	glPopMatrix();
@@ -170,8 +170,8 @@ BallView::Redraw() {
 	glPushMatrix();
 	glTranslatef( (float)tmpBall->GetX(), (float)tmpBall->GetY(), (float)tmpBall->GetZ() );
 
-	gluQuadricDrawStyle( m_quad, GLU_FILL );
-	gluQuadricNormals( m_quad, GLU_SMOOTH );
+	gluQuadricDrawStyle( m_quad, (GLenum)GLU_FILL );
+	gluQuadricNormals( m_quad, (GLenum)GLU_SMOOTH );
 	gluSphere( m_quad, BALL_R/4, 3, 3 );
 
 	glPopMatrix();

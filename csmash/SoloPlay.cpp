@@ -26,6 +26,7 @@ extern Player* thePlayer;
 extern Player* comPlayer;
 extern Ball theBall;
 extern Event theEvent;
+extern long mode;
 
 //extern void CopyPlayerData( struct PlayerData& dest, Player* src );
 extern void CopyPlayerData( Player& dest, Player* src );
@@ -73,6 +74,11 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
   bool reDraw = false;
   long prevStatus = theBall.GetStatus();
   static long delayCounter = 0;
+
+  if ( KeyHistory[Histptr] == 'Q' ) {
+    mode = MODE_TITLE;
+    return true;
+  }
 
   if ( KeyHistory[Histptr] == SDLK_ESCAPE ) {
     if ( SDL_WM_GrabInput( SDL_GRAB_QUERY ) == SDL_GRAB_ON )

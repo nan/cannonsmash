@@ -86,7 +86,8 @@ PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     return true;
   }
 
-  if ( KeyHistory[Histptr] == SDLK_ESCAPE && !isComm ) {
+  if ( (KeyHistory[Histptr] == SDLK_ESCAPE ||
+	KeyHistory[Histptr] == 'Q') && !isComm ) {
     mode = MODE_TITLE;
     return true;
   }

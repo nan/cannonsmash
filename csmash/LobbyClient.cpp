@@ -50,6 +50,10 @@ extern void QuitGame();
 extern int listenSocket;
 extern int one;
 
+// dirty... used by "QP"
+long score1 = 0;
+long score2 = 0;
+
 LobbyClient::LobbyClient() {
   m_playerNum = 0;
   m_timeout = 0;
@@ -269,8 +273,8 @@ LobbyClient::PollServerMessage( gpointer data ) {
 	len = 8;
 	SendLong( lobby->m_socket, len );
 
-	SendLong( lobby->m_socket, len );	// Temp
-	SendLong( lobby->m_socket, len );
+	SendLong( lobby->m_socket, score1 );	// Temp
+	SendLong( lobby->m_socket, score2 );
       } else if ( !strncmp( buf, "DP", 2 ) ) {
 	gtk_widget_set_sensitive (lobby->m_connectButton, true);
 	gtk_widget_set_sensitive (lobby->m_warmUpButton, true);

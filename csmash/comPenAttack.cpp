@@ -192,9 +192,6 @@ ComPenAttack::Think() {
 	return true;
       }
 
-      printf( "tmpBallY: %f tmpPlayer: %f\n", tmpBallY, tmpY );
-      printf( "tmpBallY: %f tmpPlayer: %f\n",
-	      tmpBall->GetY(), tmpY+m_vy*0.01 );
       _hitX = tmpBallX;
       _hitY = tmpBallY;
 

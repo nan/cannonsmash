@@ -19,6 +19,11 @@
 #ifndef _Sound_
 #define _Sound_
 
+struct buffer {
+  unsigned char const *start;
+  unsigned long length;
+};
+
 class Sound {
 public:
   Sound();
@@ -37,11 +42,8 @@ public:
   long PlayBGM();
   long SkipBGM();
 
-private:
-#ifdef WIN32
   // For BGM
   char *m_bgmSound;
-#endif
 
 #ifdef HAVE_LIBSDL_MIXER
   Mix_Chunk *m_sound[16];

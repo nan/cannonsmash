@@ -214,6 +214,8 @@ void
 StartGame() {
   if ( isSimple )
     isTexture = false;
+  else
+    isTexture = true;
 
 #ifdef HAVE_LIBSDL_MIXER
   sndMode = SOUND_SDL;
@@ -230,7 +232,7 @@ StartGame() {
   sndMode = SOUND_NONE;
 #endif
 
-  if ( mode == MODE_OPENING && (access( SOUND_OPENING, F_OK ) != 0) ) {
+  if ( mode == MODE_OPENING && (access( OPENINGFILENAME, F_OK ) != 0) ) {
     mode = MODE_TITLE;
   }
 

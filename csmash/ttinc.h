@@ -89,11 +89,12 @@
 #define SOUND_RACKET (0)
 #define SOUND_TABLE  (1)
 #define SOUND_CLICK  (2)
+#define SOUND_OPENING (3)
 
 #ifdef WIN32
-#define SOUND_OPENING "danslatristesse2-48.wav"
+#define OPENINGFILENAME "danslatristesse2-48.wav"
 #else
-#define SOUND_OPENING "danslatristesse2-48.mp3"
+#define OPENINGFILENAME "danslatristesse2-48.mp3"
 #endif
 
 // Communication

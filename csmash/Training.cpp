@@ -29,6 +29,7 @@ extern BaseView theView;
 extern Player* thePlayer;
 extern Player* comPlayer;
 extern Ball theBall;
+extern long mode;
 
 Training::Training() {
   m_View = NULL;
@@ -81,6 +82,11 @@ Training::Move( unsigned long *KeyHistory, long *MouseXHistory,
 		int Histptr ) {
   bool reDraw = false;
   long ballStatus = theBall.GetStatus();
+
+  if ( KeyHistory[Histptr] == 'Q' ) {
+    mode = MODE_TITLE;
+    return true;
+  }
 
   theBall.Move();
   reDraw |= thePlayer->Move( KeyHistory, MouseXHistory,

@@ -74,7 +74,8 @@ TrainingSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     return true;
   }
 
-  if ( KeyHistory[Histptr] == SDLK_ESCAPE ) {
+  if ( KeyHistory[Histptr] == SDLK_ESCAPE ||
+       KeyHistory[Histptr] == 'Q' ) {
     mode = MODE_TITLE;
     return true;
   }

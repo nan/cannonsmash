@@ -19,16 +19,25 @@
 #include "ttinc.h"
 #include "Sound.h"
 
-#ifdef HAVE_LIBESD
-#include <esd.h>
-#include <sys/ioctl.h>
-#include <sys/soundcard.h>
+#ifdef HAVE_LIBMAD
+# include <sys/mman.h>
+extern "C"{
+#include <mad.h>
+};
+struct mad_pcm {
+  unsigned int samplerate;		/* sampling frequency (Hz) */
+  unsigned short channels;		/* number of channels */
+  unsigned short length;		/* number of samples per channel */
+  mad_fixed_t samples[2][1152];	/* PCM output samples */
+};
 #endif
+
 #ifdef WIN32
 #include <io.h>
 #endif
 
 extern long mode;
+extern Sound theSound;
 
 Sound::Sound() {
 #ifdef HAVE_LIBSDL_MIXER
@@ -117,34 +126,131 @@ Sound::SetSoundMode( long mode ) {
   return true;
 }
 
+
+// From here, copied from minimad.c
+#ifdef HAVE_LIBMAD
+static
+enum mad_flow input(void *data,
+		    struct mad_stream *stream)
+{
+  struct buffer *buffer = (struct buffer *)data;
+
+  if (!buffer->length)
+    return MAD_FLOW_STOP;
+
+  mad_stream_buffer(stream, buffer->start, buffer->length);
+
+  buffer->length = 0;
+
+  return MAD_FLOW_CONTINUE;
+}
+
+/* utility to scale and round samples to 16 bits */
+
+static inline
+signed int scale(mad_fixed_t sample)
+{
+  /* round */
+  sample += (1L << (MAD_F_FRACBITS - 16));
+
+  /* clip */
+  if (sample >= MAD_F_ONE)
+    sample = MAD_F_ONE - 1;
+  else if (sample < -MAD_F_ONE)
+    sample = -MAD_F_ONE;
+
+  /* quantize */
+  return sample >> (MAD_F_FRACBITS + 1 - 16);
+}
+
+/* 3. called to process output */
+
+static
+enum mad_flow output(void *data,
+		     struct mad_header const *header,
+		     struct mad_pcm *pcm)
+{
+  unsigned int nchannels, nsamples;
+  mad_fixed_t const *left_ch, *right_ch;
+
+  static int i=44;
+
+  /* pcm->samplerate contains the sampling frequency */
+
+  nchannels = pcm->channels;
+  nsamples  = pcm->length;
+  left_ch   = pcm->samples[0];
+  right_ch  = pcm->samples[1];
+
+  if ( i > 32*1024*1024-4 )
+    return MAD_FLOW_CONTINUE;
+
+  while (nsamples--) {
+    signed int sample;
+
+    /* output sample(s) in 16-bit signed little-endian PCM */
+
+    sample = scale(*left_ch++);
+    theSound.m_bgmSound[i++] = (sample >> 0) & 0xff;
+    theSound.m_bgmSound[i++] = (sample >> 8) & 0xff;
+
+    if (nchannels == 2) {
+      sample = scale(*right_ch++);
+      theSound.m_bgmSound[i++] = (sample >> 0) & 0xff;
+      theSound.m_bgmSound[i++] = (sample >> 8) & 0xff;
+    }
+  }
+
+  return MAD_FLOW_CONTINUE;
+}
+#endif
+
 long
 Sound::InitBGM( char *filename ) {
-#if 0
-#ifdef HAVE_LIBESD
-  int filedes[2];
-  long pid;
+#ifdef HAVE_LIBMAD
+  static char wavHeader[] = { 0x52, 0x49, 0x46, 0x46, 0x24, 0xbc, 0x5d, 0x01,
+			      0x57, 0x41, 0x56, 0x45, 0x66, 0x6d, 0x74, 0x20,
+			      0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x00,
+			      0x44, 0xac, 0x00, 0x00, 0x10, 0xb1, 0x02, 0x00,
+			      0x04, 0x00, 0x10, 0x00, 0x64, 0x61, 0x74, 0x61,
+			      0x00, 0xbc, 0x5d, 0x01 };
+  int fd;
+  void *mp3;
 
-  pipe( filedes );
-  if ( (pid = fork()) == 0 ) {
-    dup2( filedes[1], 1 );
-    execl( "/usr/bin/mpg123", "mpg123", "-q", "-s", filename, NULL );
-    return -1;
-  }
-  m_bgminfd = filedes[0];
-  m_bgmoutfd = esd_play_stream( ESD_BITS16|ESD_STEREO|ESD_SAMPLE, 44100, NULL,
-				NULL );
+  fd = open( OPENINGFILENAME, O_RDONLY );
+  mp3 = malloc( 779656 );
+  read( fd, mp3, 779656 );
 
-  return pid;
+  m_bgmSound = (char *)malloc( 32*1024*1024 );
+  memcpy( m_bgmSound, wavHeader, 44 );
+
+  struct buffer buffer;
+  struct mad_decoder decoder;
+
+  buffer.start  = (unsigned char *)mp3;
+  buffer.length = 779656;
+
+  mad_decoder_init(&decoder, &buffer,
+		   input, 0, 0, output, 0, 0);
+
+  mad_decoder_run(&decoder, MAD_DECODER_MODE_SYNC);
+  mad_decoder_finish(&decoder);
+#ifdef HAVE_LIBSDL_MIXER
+  m_sound[SOUND_OPENING] =
+    //Mix_LoadWAV( "danslatristesse2-48.wav" );
+    Mix_LoadWAV_RW( SDL_RWFromMem( m_bgmSound, 32*1024*1024 ), 1);
+  if ( m_sound[SOUND_OPENING] == 0 )
+    printf( "%s\n", SDL_GetError() );
+#endif
 #endif
 
 #ifdef WIN32
   int fd;
 
-  fd = open( SOUND_OPENING, O_RDONLY );
+  fd = open( OPENINGFILENAME, O_RDONLY );
   m_bgmSound = (char *)GlobalAlloc( GMEM_SHARE, 4*1024*1024 );
   read( fd, m_bgmSound, 4*1024*1024 );
   close( fd );
-#endif
 #endif
 
   return 0;
@@ -153,36 +259,22 @@ Sound::InitBGM( char *filename ) {
 // It is better to move it to other thread
 long
 Sound::PlayBGM() {
-#if 0
+#ifdef HAVE_LIBMAD
 #ifdef WIN32
   char *data;
 
   data = (char *)GlobalLock( m_bgmSound );
   PlaySound( data, NULL, SND_MEMORY|SND_ASYNC ); 
   GlobalUnlock( m_bgmSound );
-#elif defined(HAVE_LIBESD)
-  switch ( m_soundMode ) {
-  case SOUND_ESD:
-    char buf[44100*2+2];
-    static long bytes = 0;
-
-    fd_set rdfds;
-    struct timeval to;
-
-    FD_ZERO( &rdfds );
-    FD_SET( m_bgminfd, &rdfds );
-    to.tv_sec = to.tv_usec = 0;
-
-    if ( select( m_bgminfd+1, &rdfds, NULL, NULL, &to ) > 0 &&
-	 FD_ISSET( m_bgminfd, &rdfds ) ) {
-      bytes = read( m_bgminfd, buf, 44100*2*2 );
-      if ( bytes > 0 ) {
-	write( m_bgmoutfd, buf, bytes );
-	return bytes;
-      }
-    }
-  }
+#elif defined(HAVE_LIBSDL_MIXER)
+  Mix_PlayChannel( 1, m_sound[SOUND_OPENING], 0 );
 #endif
+#elif defined(WIN32)
+  char *data;
+
+  data = (char *)GlobalLock( m_bgmSound );
+  PlaySound( data, NULL, SND_MEMORY|SND_ASYNC ); 
+  GlobalUnlock( m_bgmSound );
 #endif
 
   return 0;
@@ -190,28 +282,7 @@ Sound::PlayBGM() {
 
 long
 Sound::SkipBGM() {
-#if 0
-#ifdef HAVE_LIBESD
-  switch ( m_soundMode ) {
-  case SOUND_ESD:
-    char buf[4410*2+2];
-
-    long bytes = 0;
-
-    fd_set rdfds;
-    struct timeval to;
-
-    FD_ZERO( &rdfds );
-    FD_SET( m_bgminfd, &rdfds );
-    to.tv_sec = to.tv_usec = 0;
-
-    if ( select( m_bgminfd+1, &rdfds, NULL, NULL, &to ) > 0 &&
-	 FD_ISSET( m_bgminfd, &rdfds ) ) {
-      bytes = read( m_bgminfd, buf, 4410*2*2 );
-      return bytes;
-    }
-  }
-#endif
+#ifdef HAVE_LIBMAD
 #endif
 
   return 0;

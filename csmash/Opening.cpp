@@ -86,14 +86,7 @@ Opening::Init() {
   HitMark::Init();
 #endif
 
-#if 0
-#ifdef HAVE_LIBESD
-  m_pid = theSound.InitBGM( SOUND_OPENING );
-#endif
-#ifdef WIN32
-  theSound.InitBGM( SOUND_OPENING );
-#endif
-#endif
+  theSound.InitBGM( OPENINGFILENAME );
 
   return true;
 }
@@ -1039,24 +1032,10 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     }
   }
 
-#if 0
-#ifdef WIN32
   if ( m_count == 0 )
     theSound.PlayBGM();
-#endif
 
   m_count++;
-
-#ifdef HAVE_LIBESD
-  //while ( m_count >= (m_bgmCount+441*2*2)/(441*2*2) )
-  if ( m_count >= (m_bgmCount+441*2*2)/(441*2*2) )
-    m_bgmCount += theSound.SkipBGM();
-
-  if ( m_count >= m_bgmCount/(441*2*2) )
-    m_bgmCount += theSound.PlayBGM();
-
-#endif
-#endif
 
   if ( KeyHistory[Histptr] == SDLK_ESCAPE || MouseBHistory[Histptr] ) {
     mode = MODE_TITLE;

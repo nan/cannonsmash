@@ -55,6 +55,9 @@ extern long wins;
 
 extern bool isComm;
 
+extern long score1;
+extern long score2;
+
 long _perfCount;
 long perfs;
 
@@ -331,17 +334,22 @@ Event::KeyboardFunc( SDL_Event key, int x, int y ) {
     return;
   }
   if ( key.key.keysym.unicode == 'Q' ) {
-    QuitGame();
+    if ( mode == MODE_SOLOPLAY || mode == MODE_SELECT || mode == MODE_HOWTO ||
+	 mode == MODE_TRAININGSELECT || mode == MODE_TRAINING ) {
+    } else
+      QuitGame();
   }
-  theEvent.m_KeyHistory[theEvent.m_Histptr] = key.key.keysym.sym;
+  theEvent.m_KeyHistory[theEvent.m_Histptr] = key.key.keysym.unicode;
 }
 
 void
 Event::KeyUpFunc( SDL_Event key, int x, int y ) {
   // 廃止してもよい
+#if 0
   if ( key.key.keysym.unicode == 'Q' ) {
     QuitGame();
   }
+#endif
 }
 
 void
@@ -517,6 +525,10 @@ Event::ClearObject() {
     comPlayer = NULL;
   }
   if ( theControl ) {
+    if ( theControl->IsPlaying() ) {
+      score1 = ((PlayGame *)theControl)->GetScore(1);
+      score2 = ((PlayGame *)theControl)->GetScore(-1);
+    }
     delete theControl;
     theControl = NULL;
   }
