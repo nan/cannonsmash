@@ -233,11 +233,13 @@ bool
 Sound::Play( long soundID ) {
   if ( mode != MODE_MULTIPLAY ) {
 #ifdef WIN32
-    char *data;
+    if ( mode != MODE_OPENING ) {
+      char *data;
 
-    data = (char *)GlobalLock( m_sound[soundID] );
-    PlaySound( data, NULL, SND_MEMORY|SND_ASYNC ); 
-    GlobalUnlock( m_sound[soundID] );
+      data = (char *)GlobalLock( m_sound[soundID] );
+      PlaySound( data, NULL, SND_MEMORY|SND_ASYNC ); 
+      GlobalUnlock( m_sound[soundID] );
+    }
 #elif defined(HAVE_LIBESD)
     switch ( m_soundMode ) {
     case SOUND_ESD:
