@@ -17,6 +17,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
+#include <netinet/tcp.h>
 
 #if defined(_WIN32) || defined(__FreeBSD__)
 
@@ -41,6 +42,8 @@ extern int theSocket;
 bool endian;
 
 extern void QuitGame();
+
+int one=1;
 
 // endianÊÑ´¹
 double
@@ -249,6 +252,8 @@ AcceptClient() {
     exit(1);
   }
 
+  setsockopt( sock, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(int) );
+
   saddr.sin_addr.s_addr = htonl(INADDR_ANY);
   saddr.sin_family = AF_INET;
   saddr.sin_port = htons(csmash_port);
@@ -326,6 +331,7 @@ AcceptClient() {
 
   fromlen = sizeof(faddr);
   theSocket = accept( sock, (struct sockaddr *)&faddr, &fromlen );
+  setsockopt( theSocket, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(int) );
 
   if (0 > theSocket) {
     xerror("%s(%d) accept", __FILE__, __LINE__);
@@ -434,6 +440,8 @@ StartClient() {
       xerror("%s(%d) socket", __FILE__, __LINE__);
       exit(1);
     }
+    setsockopt( sb, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(int) );
+
     int one = 1;
     setsockopt(sb, SOL_SOCKET, SO_BROADCAST, (char*)&one, sizeof(one));
     sba.sin_family = AF_INET;
@@ -491,6 +499,9 @@ StartClient() {
     xerror("%s(%d) socket", __FILE__, __LINE__);
     exit(1);
   }
+
+  setsockopt( theSocket, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(int) );
+
   if ( connect( theSocket, (struct sockaddr *)&saddr, sizeof(saddr) ) ) {
     xerror("%s(%d) connect", __FILE__, __LINE__);
     exit(1);
