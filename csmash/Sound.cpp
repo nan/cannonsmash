@@ -28,10 +28,6 @@
 #include <io.h>
 #endif
 
-#if HAVE_LIBPTHREAD
-pthread_mutex_t bgmMutex = PTHREAD_MUTEX_INITIALIZER;
-#endif
-
 extern long mode;
 
 Sound::Sound() {
