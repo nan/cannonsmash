@@ -37,12 +37,10 @@ public:
   bool Play( long soundID );
 
   long GetSoundMode();
-  bool SetSoundMode( long mode );
 
   long InitBGM( char *filename );
   long PlayBGM();
   long StopBGM();
-  long SkipBGM();
 
   // For BGM
   char *m_bgmSound;

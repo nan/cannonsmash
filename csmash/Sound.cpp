@@ -63,6 +63,11 @@ Sound::TheSound() {
 
 bool
 Sound::Init( long sndMode ) {
+  m_soundMode = sndMode;
+
+  if ( m_soundMode == SOUND_NONE )
+    return true;
+
 #ifdef HAVE_LIBSDL_MIXER
 #ifdef WIN32
   if ( Mix_OpenAudio( 44100, AUDIO_S16SYS, 2, 4096 ) < 0 ) {
@@ -103,15 +108,11 @@ Sound::Clear() {
 #endif
 }
 
-/*
-bool
-Sound::Play( char *sndData, long size ) {
-  return true;
-}
-*/
-
 bool
 Sound::Play( long soundID ) {
+  if ( m_soundMode == SOUND_NONE )
+    return true;
+
 #ifdef HAVE_LIBSDL_MIXER
   Mix_PlayChannel( 0, m_sound[soundID], 0 );
 #endif
@@ -124,14 +125,11 @@ Sound::GetSoundMode() {
   return m_soundMode;
 }
 
-bool
-Sound::SetSoundMode( long mode ) {
-  m_soundMode = mode;
-  return true;
-}
-
 long
 Sound::InitBGM( char *filename ) {
+  if ( m_soundMode == SOUND_NONE )
+    return true;
+
 #ifdef HAVE_LIBSDL_MIXER
   m_opening = Mix_LoadMUS( OPENINGFILENAME );
 
@@ -145,6 +143,9 @@ Sound::InitBGM( char *filename ) {
 // It is better to move it to other thread
 long
 Sound::PlayBGM() {
+  if ( m_soundMode == SOUND_NONE )
+    return true;
+
 #ifdef HAVE_LIBSDL_MIXER
   Mix_PlayMusic( m_opening, 1 );
 #endif
@@ -154,16 +155,11 @@ Sound::PlayBGM() {
 
 long
 Sound::StopBGM() {
+  if ( m_soundMode == SOUND_NONE )
+    return true;
+
 #ifdef HAVE_LIBSDL_MIXER
   Mix_FadeOutMusic( 2000 );
-#endif
-
-  return 0;
-}
-
-long
-Sound::SkipBGM() {
-#ifdef HAVE_LIBSDL_MIXER
 #endif
 
   return 0;

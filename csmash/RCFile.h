@@ -31,6 +31,7 @@ public:
   long gmode;
   long gameLevel;
   long gameMode;
+  long sndMode;
 
   char serverName[256];
   char nickname[32];

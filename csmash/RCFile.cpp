@@ -28,6 +28,7 @@ RCFile::RCFile() {
   gmode = GMODE_FULL;
   gameLevel = LEVEL_EASY;
   gameMode = GAME_21PTS;
+  sndMode = SOUND_SDL;
 
   serverName[0] = '\0';
   nickname[0] = '\0';
@@ -95,6 +96,10 @@ RCFile::ReadRCFile() {
       gameMode = buf[9]-'0';
       if ( gameMode > GAME_21PTS || gameMode < GAME_5PTS )
 	gameMode = GAME_21PTS;
+    } else if ( strncmp( buf, "soundmode=", 10 ) == 0 ) {
+      sndMode = buf[9]-'0';
+      if ( sndMode > SOUND_SDL || sndMode < SOUND_NONE )
+	sndMode = SOUND_NONE;
     }
   }
 
@@ -124,6 +129,7 @@ RCFile::WriteRCFile() {
   fprintf( fp, "wireframe=%d\n", isWireFrame ? 1 : 0 );
   fprintf( fp, "gamelevel=%d\n", gameLevel );
   fprintf( fp, "gamemode=%d\n", gameMode );
+  fprintf( fp, "soundmode=%d\n", sndMode );
 
   fclose( fp );
 
