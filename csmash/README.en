@@ -85,4 +85,10 @@ try this option.
 Ex.
 # csmash -S
 
+(3) OSS sound mode '-O'
+Play sound by OSS. On Windows, this option is disabled. 
+
+Ex.
+#csmash -O
+
 Enjoy!
