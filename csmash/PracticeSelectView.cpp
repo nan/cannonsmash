@@ -46,20 +46,19 @@ PracticeSelectView::Redraw() {
     if ( m_playerSelect->GetSelected() < 100 ) {
       if ( gmode != GMODE_SIMPLE )
 	glEnable(GL_TEXTURE_2D);
-      glTranslatef( -0.01F*m_playerSelect->GetSelected(),
-		    -1.0F+0.01F*m_playerSelect->GetSelected(), 1.4F );
+      glTranslatef( -1.0, -1.0F+0.01F*m_playerSelect->GetSelected(), 1.0F );
       glRotatef( m_playerSelect->GetSelected()*360.0F/100, 0.0F, 0.0F, 1.0F );
     } else {
       glEnable(GL_TEXTURE_2D);
-      glTranslatef( -0.01F*100, -1.0F+0.01F*100, 1.4F );
+      glTranslatef( -0.01F*100, -1.0F+0.01F*100, 1.0F );
     }
 
     glBindTexture(GL_TEXTURE_2D, m_textures[player] );
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0F, 1.0F); glVertex3f(-0.30F, 0.0F, -0.42F);
-    glTexCoord2f(0.0F, 0.0F); glVertex3f(-0.30F, 0.0F,  0.42F);
-    glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.30F, 0.0F,  0.42F);
-    glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.30F, 0.0F, -0.42F);
+    glTexCoord2f(0.0F, 1.0F); glVertex3f(-0.40F, 0.0F, -0.56F);
+    glTexCoord2f(0.0F, 0.0F); glVertex3f(-0.40F, 0.0F,  0.56F);
+    glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.40F, 0.0F,  0.56F);
+    glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.40F, 0.0F, -0.56F);
     glEnd();
     glPopMatrix();
   } else {
@@ -69,14 +68,15 @@ PracticeSelectView::Redraw() {
 
     for ( i = 0 ; i < PLAYERS ; i++ ){
       glPushMatrix();
+        glTranslatef( -1.0, -0.0, 0.0 );
         glRotatef( m_playerSelect->GetRotate()-i*360.0F/PLAYERS,
 		   0.0F, 0.0F, 1.0F );
 	glBindTexture(GL_TEXTURE_2D, m_textures[i] );
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.0F, 1.0F); glVertex3f(-0.30F, -1.0F, 1.4F-0.42F);
-	glTexCoord2f(0.0F, 0.0F); glVertex3f(-0.30F, -1.0F, 1.4F+0.42F);
-	glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.30F, -1.0F, 1.4F+0.42F);
-	glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.30F, -1.0F, 1.4F-0.42F);
+	glTexCoord2f(0.0F, 1.0F); glVertex3f(-0.40F, -1.0F, 1.0F-0.56F);
+	glTexCoord2f(0.0F, 0.0F); glVertex3f(-0.40F, -1.0F, 1.0F+0.56F);
+	glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.40F, -1.0F, 1.0F+0.56F);
+	glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.40F, -1.0F, 1.0F-0.56F);
 	glEnd();
       glPopMatrix();
     }
@@ -94,21 +94,21 @@ PracticeSelectView::Redraw() {
       if ( ((PracticeSelect *)m_playerSelect)->GetOpponentSelected() < 100 ) {
 	if ( gmode != GMODE_SIMPLE )
 	  glEnable(GL_TEXTURE_2D);
-	glTranslatef( 0.01F*((PracticeSelect *)m_playerSelect)->GetOpponentSelected(),
+	glTranslatef( 0.01F*100,
 		      -1.0F+0.01F*((PracticeSelect *)m_playerSelect)->GetOpponentSelected(), 1.4F );
 	glRotatef( ((PracticeSelect *)m_playerSelect)->GetOpponentSelected()*360.0F/100,
 		   0.0F, 0.0F, 1.0F );
       } else {
 	glEnable(GL_TEXTURE_2D);
-	glTranslatef( 0.01F*100, -1.0F+0.01F*100, 1.4F );
+	glTranslatef( 0.01F*100, -1.0F+0.01F*100, 1.0F );
       }
 
       glBindTexture(GL_TEXTURE_2D, m_textures[player] );
       glBegin(GL_QUADS);
-      glTexCoord2f(0.0F, 1.0F); glVertex3f(-0.30F, 0.0F, -0.42F);
-      glTexCoord2f(0.0F, 0.0F); glVertex3f(-0.30F, 0.0F,  0.42F);
-      glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.30F, 0.0F,  0.42F);
-      glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.30F, 0.0F, -0.42F);
+      glTexCoord2f(0.0F, 1.0F); glVertex3f(-0.40F, 0.0F, -0.56F);
+      glTexCoord2f(0.0F, 0.0F); glVertex3f(-0.40F, 0.0F,  0.56F);
+      glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.40F, 0.0F,  0.56F);
+      glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.40F, 0.0F, -0.56F);
       glEnd();
       glPopMatrix();
     } else {
@@ -118,14 +118,15 @@ PracticeSelectView::Redraw() {
 
       for ( i = 0 ; i < PLAYERS ; i++ ){
 	glPushMatrix();
+          glTranslatef( 1.0, -0.0, 0.0 );
           glRotatef( ((PracticeSelect *)m_playerSelect)->GetOpponentRotate()-i*360.0F/PLAYERS,
 		     0.0F, 0.0F, 1.0F );
 	  glBindTexture(GL_TEXTURE_2D, m_textures[i] );
 	  glBegin(GL_QUADS);
-	  glTexCoord2f(0.0F, 1.0F); glVertex3f(-0.30F, -1.0F, 1.4F-0.42F);
-	  glTexCoord2f(0.0F, 0.0F); glVertex3f(-0.30F, -1.0F, 1.4F+0.42F);
-	  glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.30F, -1.0F, 1.4F+0.42F);
-	  glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.30F, -1.0F, 1.4F-0.42F);
+	  glTexCoord2f(0.0F, 1.0F); glVertex3f(-0.40F, -1.0F, 1.0F-0.56F);
+	  glTexCoord2f(0.0F, 0.0F); glVertex3f(-0.40F, -1.0F, 1.0F+0.56F);
+	  glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.40F, -1.0F, 1.0F+0.56F);
+	  glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.40F, -1.0F, 1.0F-0.56F);
 	  glEnd();
 	glPopMatrix();
       }

@@ -32,6 +32,7 @@ PlayerSelectView2D::PlayerSelectView2D() {
 }
 
 PlayerSelectView2D::~PlayerSelectView2D() {
+  ((BaseView2D *)theView)->AddUpdateRect( NULL );
 }
 
 bool
@@ -44,6 +45,8 @@ PlayerSelectView2D::Init( PlayerSelect *playerSelect ) {
   for ( int i = 0 ; i < PLAYERS ; i++ ) {
     m_playerBMP[i] = SDL_LoadBMP( pname[i] );
   }
+
+  ((BaseView2D *)theView)->AddUpdateRect( NULL );
 
   return true;
 }

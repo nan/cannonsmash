@@ -231,6 +231,14 @@ BaseView2D::QuitGame() {
 
 bool
 BaseView2D::AddUpdateRect( SDL_Rect *r ) {
+  if ( !r ) {
+    m_updateX1 = m_updateY1 = 0;
+    m_updateX2 = BaseView::GetWinWidth()-1;
+    m_updateY2 = BaseView::GetWinHeight()-1;
+
+    return true;
+  }
+
   if ( m_updateX2 == 0 && m_updateY2 == 0 ) {
     m_updateX1 = r->x;
     m_updateY1 = r->y;

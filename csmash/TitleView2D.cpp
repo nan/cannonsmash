@@ -35,6 +35,7 @@ TitleView2D::TitleView2D() {
 }
 
 TitleView2D::~TitleView2D() {
+  ((BaseView2D *)theView)->AddUpdateRect( NULL );
 }
 
 bool
@@ -75,6 +76,8 @@ TitleView2D::Init( Title *title ) {
   SDL_SetColorKey( m_triangleBMP, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0 );
 
   m_title = title;
+
+  ((BaseView2D *)theView)->AddUpdateRect( NULL );
 
   return true;
 }
@@ -147,8 +150,8 @@ TitleView2D::GetDamageRect() {
       ((BaseView2D *)theView)->AddUpdateRect( &rect );
       rect.x = m_title->GetSelected()->GetX()-80;
       rect.y = m_title->GetSelected()->GetY();
-      rect.w = m_triangleBMP->w;
-      rect.h = m_triangleBMP->h;
+      rect.w = 480;
+      rect.h = 70;
       ((BaseView2D *)theView)->AddUpdateRect( &rect );
     }
     break;
@@ -162,8 +165,8 @@ TitleView2D::GetDamageRect() {
 	((BaseView2D *)theView)->AddUpdateRect( &rect );
 	rect.x = m_title->GetSelected()->GetX()-80;
 	rect.y = m_title->GetSelected()->GetY();
-	rect.w = m_triangleBMP->w;
-	rect.h = m_triangleBMP->h;
+	rect.w = 280;
+	rect.h = 70;
 	((BaseView2D *)theView)->AddUpdateRect( &rect );
       }
     } else {
@@ -174,8 +177,8 @@ TitleView2D::GetDamageRect() {
 	((BaseView2D *)theView)->AddUpdateRect( &rect );
 	rect.x = m_title->GetSelected()->GetX()-40;
 	rect.y = m_title->GetSelected()->GetY();
-	rect.w = m_triangleBMP->w;
-	rect.h = m_triangleBMP->h;
+	rect.w = 240;
+	rect.h = 70;
 	((BaseView2D *)theView)->AddUpdateRect( &rect );
       }
     }

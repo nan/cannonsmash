@@ -45,19 +45,11 @@ BallView2D::~BallView2D() {
 
 bool
 BallView2D::Init() {
-  static char num[][20] = {"images/zero.ppm", "images/one.ppm",
-			   "images/two.ppm", "images/three.ppm",
-			   "images/four.ppm", "images/five.ppm",
-			   "images/six.ppm", "images/seven.ppm",
-			   "images/eight.ppm", "images/nine.ppm"};
-
   return true;
 }
  
 bool
 BallView2D::Redraw() {
-  double rad;
-  Ball* tmpBall;
   static SDL_Rect rect = {0, 0, 0, 0};
 
   // Draw the Ball itself
@@ -78,6 +70,12 @@ BallView2D::Redraw() {
 		 &rect );
 
       SDL_FillRect( theView->GetSurface(), &rect, 0 );
+    } else {
+      RenderRect(theBall.GetX()-BALL_R/2, theBall.GetY()-BALL_R/2, 0.0,
+		 theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2, 0.0,
+		 &rect );
+
+      SDL_FillRect( theView->GetSurface(), &rect, 0 );
     }
   }
 
@@ -95,7 +93,6 @@ BallView2D::RedrawAlpha() {
 
 bool
 BallView2D::GetDamageRect() {
-  double rad;
   static SDL_Rect rect = {0, 0, 0, 0}, rectShadow = {0, 0, 0, 0};
 
   // Draw the Ball itself
@@ -115,9 +112,15 @@ BallView2D::GetDamageRect() {
       rect = _rect;
     }
 
-    RenderRect( theBall.GetX()-BALL_R/2, theBall.GetY()-BALL_R/2, TABLEHEIGHT, 
-		theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2, TABLEHEIGHT, 
-		&_rectShadow );
+    if ( theBall.GetY() > -TABLELENGTH/2 && theBall.GetY() < TABLELENGTH/2 ){
+      RenderRect(theBall.GetX()-BALL_R/2, theBall.GetY()-BALL_R/2, TABLEHEIGHT,
+		 theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2, TABLEHEIGHT,
+		 &_rectShadow );
+    } else {
+      RenderRect(theBall.GetX()-BALL_R/2, theBall.GetY()-BALL_R/2, 0.0,
+		 theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2, 0.0,
+		 &_rectShadow );
+    }
 
     if ( rectShadow.x != _rectShadow.x || rectShadow.y != _rectShadow.y ||
 	 rectShadow.w != _rectShadow.w || rectShadow.h != _rectShadow.h ) {

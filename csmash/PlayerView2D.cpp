@@ -36,9 +36,12 @@ PlayerView2D::~PlayerView2D() {
 
 bool
 PlayerView2D::Init( Player *player ) {
+  static char pname[][30] = {"images/PenAttack.bmp", "images/ShakeCut.bmp",
+			     "images/PenDrive.bmp"};
+
   m_player = player;
 
-  m_playerBMP = SDL_LoadBMP( "images/PenAttack.bmp" );
+  m_playerBMP = SDL_LoadBMP( pname[m_player->GetPlayerType()-1] );
   SDL_SetColorKey( m_playerBMP, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0 );
 
   return true;
