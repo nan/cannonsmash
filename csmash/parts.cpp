@@ -458,13 +458,13 @@ bool partsmotion::render(int frame)
 	glPushMatrix();
 	glMultMatrixf((float*)&aff);
 	for (int j = 0; ref.numPolygons > j; j++) {
-	    glColor3fv(colors[ref.cindex[j]]);
 	    int size = ref.polsize(j);
 	    if (3 == size) {
 		glBegin(GL_TRIANGLES);
 	    } else {
 		glBegin(GL_QUADS);
 	    }
+	    glColor4fv(colors[ref.cindex[j]]);
 	    for (int k = 0; size > k; k++) {
 		glNormal3fv((float*)&ref.normals[j][k]);
 		glVertex3fv((float*)&ref.points[ref.polygons[j][k]]);
