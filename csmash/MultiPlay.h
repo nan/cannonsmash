@@ -160,4 +160,10 @@ public:
   static int WaitForData( void * );
 };
 
+class RobotMultiPlay : public MultiPlay {
+  virtual bool Move( SDL_keysym *KeyHistory, long *MouseXHistory,
+		     long *MouseYHistory, unsigned long *MouseBHistory,
+		     int Histptr );
+};
+
 #endif	// _MultiPlay_

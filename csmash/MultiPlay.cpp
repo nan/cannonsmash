@@ -75,7 +75,6 @@ MultiPlay::StartServer() {
  */
 void
 MultiPlay::StartClient() {
-  //Event::TheEvent()->SendBall();
 }
 
 /**
@@ -133,7 +132,12 @@ MultiPlay::Create( long player, long com ) {
 
   Control::ClearControl();
 
-  m_theControl = new MultiPlay();
+  if (robot) {
+    m_theControl = new RobotMultiPlay();
+  } else {
+    m_theControl = new MultiPlay();
+  }
+
   m_theControl->Init();
 
   theBall.Warp( vector3d(0.0), vector3d(0.0), vector2d(0.0), -1000 );
@@ -282,6 +286,21 @@ MultiPlay::WaitForData( void *dum ) {
 
   return 0;
 }
+
+
+bool
+RobotMultiPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
+		      long *MouseYHistory, unsigned long *MouseBHistory,
+		      int Histptr ) {
+  bool reDraw = false;
+
+  theBall.Move();
+  reDraw |= m_thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
+  reDraw |= m_comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+
+  return reDraw;
+}
+
 
 
 /**
