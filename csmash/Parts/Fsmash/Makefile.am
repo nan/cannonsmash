@@ -22,8 +22,13 @@ pkgdata_src = Fsmash-Larm.affine Fsmash-Larm01.dat \
 		Fsmash-chest.affine Fsmash-chest01.dat \
 		Fsmash-head.affine Fsmash-head01.dat \
 		Fsmash-hip.affine Fsmash-hip01.dat \
-		Fsmash-racket.affine Fsmash-racket01.dat
+		Fsmash-racket.affine Fsmash-racket01.dat \
+		Fsmash-center.affine Fsmash-center01.dat \
+		Fsmash-chest.quaternion Fsmash-head.quaternion \
+		Fsmash-Lshoulder.quaternion Fsmash-Lelbow.quaternion \
+		Fsmash-Rshoulder.quaternion Fsmash-Relbow.quaternion \
+		Fsmash-Rhand.quaternion Fsmash-hip.quaternion
 
 pkgdata_DATA = $(pkgdata_src)
 
-EXTRA_DIST = $(wildcard *.affine) $(wildcard *.dat)
+EXTRA_DIST = $(wildcard *.affine) $(wildcard *.dat) $(wildcard *.quaternion)

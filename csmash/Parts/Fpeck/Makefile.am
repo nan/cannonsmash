@@ -23,8 +23,13 @@ pkgdata_src = Fpeck-Lankle.affine Fpeck-Lankle01.dat \
 		Fpeck-chest.affine Fpeck-chest01.dat \
 		Fpeck-head.affine Fpeck-head01.dat \
 		Fpeck-hip.affine Fpeck-hip01.dat \
-		Fpeck-racket.affine Fpeck-racket01.dat
+		Fpeck-racket.affine Fpeck-racket01.dat \
+		Fpeck-center.affine Fpeck-center01.dat \
+		Fpeck-chest.quaternion Fpeck-head.quaternion \
+		Fpeck-Lshoulder.quaternion Fpeck-Lelbow.quaternion \
+		Fpeck-Rshoulder.quaternion Fpeck-Relbow.quaternion \
+		Fpeck-Rhand.quaternion Fpeck-hip.quaternion
 
 pkgdata_DATA = $(pkgdata_src)
 
-EXTRA_DIST = $(wildcard *.affine) $(wildcard *.dat)
+EXTRA_DIST = $(wildcard *.affine) $(wildcard *.dat) $(wildcard *.quaternion)

@@ -23,8 +23,13 @@ pkgdata_src = Bcut-Lankle.affine Bcut-Lankle01.dat \
 		Bcut-chest.affine Bcut-chest01.dat \
 		Bcut-head.affine Bcut-head01.dat \
 		Bcut-hip.affine Bcut-hip01.dat \
-		Bcut-racket.affine Bcut-racket01.dat 
+		Bcut-racket.affine Bcut-racket01.dat \
+		Bcut-center.affine Bcut-center01.dat \
+		Bcut-chest.quaternion Bcut-head.quaternion \
+		Bcut-Lshoulder.quaternion Bcut-Lelbow.quaternion \
+		Bcut-Rshoulder.quaternion Bcut-Relbow.quaternion \
+		Bcut-Rhand.quaternion Bcut-hip.quaternion
 
 pkgdata_DATA = $(pkgdata_src)
 
-EXTRA_DIST = $(wildcard *.affine) $(wildcard *.dat)
+EXTRA_DIST = $(wildcard *.affine) $(wildcard *.dat) $(wildcard *.quaternion)

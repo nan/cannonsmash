@@ -23,8 +23,13 @@ pkgdata_src = Fnormal-Lankle.affine Fnormal-Lankle01.dat \
 		Fnormal-chest.affine Fnormal-chest01.dat \
 		Fnormal-head.affine Fnormal-head01.dat \
 		Fnormal-hip.affine Fnormal-hip01.dat \
-		Fnormal-racket.affine Fnormal-racket01.dat
+		Fnormal-racket.affine Fnormal-racket01.dat \
+		Fnormal-center.affine Fnormal-center01.dat \
+		Fnormal-chest.quaternion Fnormal-head.quaternion \
+		Fnormal-Lshoulder.quaternion Fnormal-Lelbow.quaternion \
+		Fnormal-Rshoulder.quaternion Fnormal-Relbow.quaternion \
+		Fnormal-Rhand.quaternion Fnormal-hip.quaternion
 
 pkgdata_DATA = $(pkgdata_src)
 
-EXTRA_DIST = $(wildcard *.affine) $(wildcard *.dat)
+EXTRA_DIST = $(wildcard *.affine) $(wildcard *.dat) $(wildcard *.quaternion)

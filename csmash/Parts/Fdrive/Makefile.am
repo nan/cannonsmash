@@ -23,8 +23,13 @@ pkgdata_src = Fdrive-Lankle.affine Fdrive-Lankle01.dat \
 		Fdrive-chest.affine Fdrive-chest01.dat \
 		Fdrive-head.affine Fdrive-head01.dat \
 		Fdrive-hip.affine Fdrive-hip01.dat \
-		Fdrive-racket.affine Fdrive-racket01.dat
+		Fdrive-racket.affine Fdrive-racket01.dat \
+		Fdrive-center.affine Fdrive-center01.dat \
+		Fdrive-chest.quaternion Fdrive-head.quaternion \
+		Fdrive-Lshoulder.quaternion Fdrive-Lelbow.quaternion \
+		Fdrive-Rshoulder.quaternion Fdrive-Relbow.quaternion \
+		Fdrive-Rhand.quaternion Fdrive-hip.quaternion
 
 pkgdata_DATA = $(pkgdata_src)
 
-EXTRA_DIST = $(wildcard *.affine) $(wildcard *.dat)
+EXTRA_DIST = $(wildcard *.affine) $(wildcard *.dat) $(wildcard *.quaternion)
