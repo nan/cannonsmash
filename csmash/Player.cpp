@@ -1231,10 +1231,12 @@ Player::AddError( vector3d &v ) {
   vector3d n1, n2;
   double radDiff, radRand;
 
-#if 0
-  radDiff = hypot( fabs(fabs(m_x-theBall.GetX())-0.3)/0.3, 
-		   fabs(m_y-theBall.GetY())/0.3 );
-  radDiff = sqrt( radDiff );
+#if 1
+  double xDiff = (fabs(m_x[0]-theBall.GetX()[0])-0.3)/0.3;
+  double yDiff = (m_x[1]-theBall.GetX()[1])/0.3;
+  radDiff = hypot( xDiff*(1+fabs(theBall.GetSpin()[0])), 
+		   yDiff*(1+fabs(theBall.GetSpin()[1])) );
+  //radDiff = sqrt( radDiff );
   radDiff *= (double)(200-m_status)/200*3.141592/12;
 #else
   radDiff = (double)(200-m_status)/200*3.141592/12;
