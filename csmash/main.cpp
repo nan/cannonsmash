@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
 #endif
 
     int c;
-    while(EOF != (c = getopt(argc, argv, "scphfSO"))) {
+    while(EOF != (c = getopt(argc, argv, "schfSOp:"))) {
         switch (c) {
         case 'h':
 	    // brief help
