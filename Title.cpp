@@ -84,16 +84,66 @@ bool
 Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
 		    long *MouseYHistory, unsigned long *MouseBHistory,
 		    int Histptr ) {
+  long last = Histptr-1;
+  if ( last < 0 )
+    last = MAX_HISTORY-1;
+
   theBall.Move();
   thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
   comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
 
   switch ( m_selectMode ) {
   case MENU_MAIN:
-    m_selected = MouseYHistory[Histptr]*GetMenuNum( MENU_MAIN )/
-      BaseView::GetWinHeight();
+    // キー入力対応
+    if ( KeyHistory[Histptr] != KeyHistory[last] ) {
+      switch ( KeyHistory[Histptr] ) {
+      case '8':
+	m_selected--;
+	break;
+      case '2':
+	m_selected++;
+	break;
+      }
+      MouseYHistory[Histptr] = m_selected*BaseView::GetWinHeight()/
+	GetMenuNum(MENU_MAIN);
+    } else {
+      m_selected = MouseYHistory[Histptr]*GetMenuNum( MENU_MAIN )/
+	BaseView::GetWinHeight();
+    }
     break;
   case MENU_CONFIG:
+    // キー入力対応
+    if ( KeyHistory[Histptr] != KeyHistory[last] ) {
+      switch ( KeyHistory[Histptr] ) {
+      case '8':
+	if ( MouseXHistory[Histptr] < BaseView::GetWinWidth()/2 ) {
+	  MouseYHistory[Histptr] -= (BaseView::GetWinHeight()-100)/
+		       GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL );
+	} else {
+	  MouseYHistory[Histptr] -= (BaseView::GetWinHeight()-100)/
+	  (GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )
+	 +GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER ));
+	}
+	break;
+      case '6':
+	MouseXHistory[Histptr] = BaseView::GetWinWidth()/4*3;
+	break;
+      case '4':
+	MouseXHistory[Histptr] = BaseView::GetWinWidth()/4;
+	break;
+      case '2':
+	if ( MouseXHistory[Histptr] < BaseView::GetWinWidth()/2 ) {
+	  MouseYHistory[Histptr] += (BaseView::GetWinHeight()-100)/
+		       GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL );
+	} else {
+	  MouseYHistory[Histptr] += (BaseView::GetWinHeight()-100)/
+	  (GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )
+	 +GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER ));
+	}
+	break;
+      }
+    }
+
     if ( MouseXHistory[Histptr] < BaseView::GetWinWidth()/2 ) {
       m_selected = MouseYHistory[Histptr]*
 	GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )/
@@ -107,8 +157,8 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	(BaseView::GetWinHeight()-100)
 	+GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL );
       if ( m_selected >= GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )+
-	                 GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )+
-	                 GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER ) )
+	   GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )+
+	   GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER ) )
 	m_selected = GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )+
 	  GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )+
 	  GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER )-1;
@@ -130,11 +180,9 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
       m_selected = GetMenuNum( MENU_MAIN )-1;
   }
 
-  long last = Histptr-1;
-  if ( last < 0 )
-    last = MAX_HISTORY-1;
-  if ( (MouseBHistory[Histptr]&BUTTON_LEFT) && 
-       !(MouseBHistory[last]&BUTTON_LEFT) ) {
+  if ( ((MouseBHistory[Histptr]&BUTTON_LEFT) && 
+       !(MouseBHistory[last]&BUTTON_LEFT)) ||
+       (KeyHistory[Histptr] == 13 && KeyHistory[last] != 13) ) {
     switch ( m_selectMode ) {
     case MENU_MAIN:
       switch ( m_selected ) {

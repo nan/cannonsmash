@@ -482,9 +482,14 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
     lastSendZ += lastSendVZ*TICK;
 
     if ( lastSendCount >= 100 ||
+#if 0	// この戦略はまずいのではないか
 	 fabs(lastSendX-m_x) >= 0.1   || fabs(lastSendY-m_y) >= 0.1 ||
 	 fabs(lastSendZ-m_z) >= 0.1   || fabs(lastSendVX-m_vx) >= 1.0 ||
 	 fabs(lastSendVY-m_vy) >= 1.0 || fabs(lastSendVZ-m_vz) >= 1.0 ) {
+#else
+	 fabs(lastSendVX-m_vx) >= 0.25 ||
+	 fabs(lastSendVY-m_vy) >= 0.25 || fabs(lastSendVZ-m_vz) >= 0.25 ) {
+#endif
       if ( theEvent.SendPlayer( this ) ) {
 	lastSendCount = 0;
 

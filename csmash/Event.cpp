@@ -164,7 +164,7 @@ Event::IdleFunc() {
   if ( mode == MODE_MULTIPLAY )
     theEvent.ReadData();
 
-  if ( mode != MODE_TITLE && mode != MODE_OPENING )
+  if ( mode != MODE_OPENING )
     glutWarpPointer( theEvent.m_MouseXHistory[theEvent.m_Histptr],
 		     theEvent.m_MouseYHistory[theEvent.m_Histptr] );
 
@@ -273,9 +273,11 @@ Event::Record() {
     m_BacktrackBuffer[m_Histptr].score2 =
       ((PlayGame *)theControl)->GetScore( comPlayer );
 
-    printf( "Hptr = %d x=%f y=%f vx=%f vy=%f vz=%f\n", m_Histptr, 
-	    comPlayer->GetX(), comPlayer->GetY(),
-	    comPlayer->GetVX(), comPlayer->GetVY(), comPlayer->GetVZ() );
+    if ( mode == MODE_MULTIPLAY ) {
+      printf( "Hptr = %d x=%f y=%f vx=%f vy=%f vz=%f\n", m_Histptr, 
+	      comPlayer->GetX(), comPlayer->GetY(),
+	      comPlayer->GetVX(), comPlayer->GetVY(), comPlayer->GetVZ() );
+    }
   }
 
   return;
@@ -557,8 +559,12 @@ Event::ReadData() {
 	  break;
       }
 
-      if (!fTheBall)
+      if (!fTheBall) {
 	theBall = m_BacktrackBuffer[m_Histptr].theBall;
+	((PlayGame *)theControl)->
+	  ChangeScore( m_BacktrackBuffer[m_Histptr].score1,
+		       m_BacktrackBuffer[m_Histptr].score2 );
+      }
       if (!fThePlayer)
 	thePlayer->Reset( &m_BacktrackBuffer[m_Histptr].thePlayer );
       if (!fComPlayer)
