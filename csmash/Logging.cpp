@@ -34,9 +34,7 @@ Logging::~Logging() {
 Logging*
 Logging::GetLogging() {
   if ( !Logging::m_logging )
-    return false;
-
-  Logging::m_logging = new Logging();
+    Logging::m_logging = new Logging();
 
   return Logging::m_logging;
 }
