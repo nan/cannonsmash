@@ -41,6 +41,8 @@ MultiPlayerSelect::MultiPlayerSelect() {
   m_rotate = 0; m_opponentRotate = 0;
   m_View = NULL;
   m_selected = 0; m_opponentSelected = 0;
+
+  m_lastRotate = m_lastOpponentRotate = 0;
 }
 
 MultiPlayerSelect::~MultiPlayerSelect() {
@@ -74,8 +76,6 @@ bool
 MultiPlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
 			 long *MouseYHistory, unsigned long *MouseBHistory,
 			 int Histptr ) {
-  static long lastRotate = 0;
-
   if ( m_selected > 500 && m_opponentSelected > 500 ) {
     mode = MODE_MULTIPLAY;
     return true;
@@ -91,43 +91,60 @@ MultiPlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     }
   }
 
-  if ( m_opponentSelected > 0 )
-    m_opponentSelected++;
-
   if ( m_selected > 0 ) {
     m_selected++;
-    return true;
+  } else {
+    if ( m_lastRotate == 0 ) {
+      if ( MouseXHistory[Histptr] - BaseView::GetWinWidth()/2 > 10 ) {
+	m_lastRotate = 2;
+	SendPT(0);
+      } else if ( MouseXHistory[Histptr] - BaseView::GetWinWidth()/2 < -10 ) {
+	m_lastRotate = -2;
+	SendPT(0);
+      }
+
+      if ( m_lastRotate != 0 ) {
+	m_rotate += m_lastRotate;
+	if ( m_rotate < 0 )
+	  m_rotate += 360;
+	else
+	  m_rotate %= 360;
+      }
+    } else {
+      long nextRotate = m_rotate + m_lastRotate;
+
+      if ( nextRotate < 0 )
+	nextRotate += 360;
+      else
+	nextRotate %= 360;
+
+      if ( (m_rotate)/(360/PLAYERS) != nextRotate/(360/PLAYERS) ) {
+	m_rotate = (nextRotate+360/PLAYERS/2)/(360/PLAYERS)*(360/PLAYERS);
+	m_lastRotate = 0;
+	Sound::TheSound()->Play( SOUND_CLICK, 0, 0 );
+	SendPT(0);
+      } else
+	m_rotate = nextRotate;
+    }
   }
 
-  if ( lastRotate == 0 ) {
-    if ( MouseXHistory[Histptr] - BaseView::GetWinWidth()/2 > 10 ) {
-      lastRotate = 2;
-    } else if ( MouseXHistory[Histptr] - BaseView::GetWinWidth()/2 < -10 ) {
-      lastRotate = -2;
-    }
-
-    if ( lastRotate != 0 ) {
-      m_rotate += lastRotate;
-      if ( m_rotate < 0 )
-	m_rotate += 360;
-      else
-	m_rotate %= 360;
-    }
+  if ( m_opponentSelected > 0 ) {
+    m_opponentSelected++;
   } else {
-    long nextRotate = m_rotate + lastRotate;
+    if ( m_lastOpponentRotate != 0 ) {
+      long nextRotate = m_opponentRotate + m_lastOpponentRotate;
 
-    if ( nextRotate < 0 )
-      nextRotate += 360;
-    else
-      nextRotate %= 360;
+      if ( nextRotate < 0 )
+	nextRotate += 360;
+      else
+	nextRotate %= 360;
 
-    if ( (m_rotate)/(360/PLAYERS) != nextRotate/(360/PLAYERS) ) {
-      m_rotate = (nextRotate+360/PLAYERS/2)/(360/PLAYERS)*(360/PLAYERS);
-      lastRotate = 0;
-      Sound::TheSound()->Play( SOUND_CLICK, 0, 0 );
-      SendPT(0);
-    } else
-      m_rotate = nextRotate;
+      if ( (m_opponentRotate)/(360/PLAYERS) != nextRotate/(360/PLAYERS) ) {
+	m_opponentRotate = (nextRotate+360/PLAYERS/2)/(360/PLAYERS)*(360/PLAYERS);
+	m_lastOpponentRotate = 0;
+      } else
+	m_opponentRotate = nextRotate;
+    }
   }
 
   return true;
@@ -171,11 +188,14 @@ MultiPlayerSelect::Connect( void *dum ) {
 
 void
 MultiPlayerSelect::ReadPT( char *data ) {
-  long type;
+  long rotate;
 
   // get player type
-  ReadLong( &(data[1]), type );
-  m_opponentRotate = type*(360/PLAYERS);
+  ReadLong( &(data[1]), rotate );
+
+  if ( rotate%(360/PLAYERS) != 0 )
+    m_lastOpponentRotate = rotate-m_opponentRotate;
+  m_opponentRotate = rotate;
 
   if ( data[0] != 0 )
     m_opponentSelected = 1;
@@ -183,13 +203,13 @@ MultiPlayerSelect::ReadPT( char *data ) {
 
 void
 MultiPlayerSelect::SendPT( char fixed ) {
-  long type;
+  long rotate;
 
   if ( theSocket < 0 )
     return;
 
   send( theSocket, "PT", 2, 0 );
   send( theSocket, &fixed, 1, 0 );
-  type = GetPlayerNum();
-  SendLong( theSocket, type );
+  rotate = GetRotate();
+  SendLong( theSocket, rotate );
 }

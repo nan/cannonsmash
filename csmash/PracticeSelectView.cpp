@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002, 2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -84,52 +84,57 @@ PracticeSelectView::Redraw() {
 
   glDisable(GL_TEXTURE_2D);
 
-  if ( m_playerSelect->GetSelected() >= 100 ) {
-    if ( ((PracticeSelect *)m_playerSelect)->GetOpponentSelected() > 0 ) {
-      int player;
+  long selected = ((PracticeSelect *)m_playerSelect)->GetOpponentSelected();
 
-      player = ((PracticeSelect *)m_playerSelect)->GetOpponentNum();
+  if ( selected > 0 ) {
+    int player;
 
-      glPushMatrix();
-      if ( ((PracticeSelect *)m_playerSelect)->GetOpponentSelected() < 100 ) {
-	if ( theRC->gmode != GMODE_SIMPLE )
-	  glEnable(GL_TEXTURE_2D);
-	glTranslatef( 1.0F,
-		      -1.0F+0.01F*((PracticeSelect *)m_playerSelect)->GetOpponentSelected(), 1.0F );
-	glRotatef( ((PracticeSelect *)m_playerSelect)->GetOpponentSelected()*360.0F/100,
-		   0.0F, 0.0F, 1.0F );
-      } else {
+    player = ((PracticeSelect *)m_playerSelect)->GetOpponentNum();
+
+    glPushMatrix();
+    if ( selected < 100 ) {
+      if ( theRC->gmode != GMODE_SIMPLE )
 	glEnable(GL_TEXTURE_2D);
-	glTranslatef( 0.01F*100, -1.0F+0.01F*100, 1.0F );
-      }
-
-      glBindTexture(GL_TEXTURE_2D, m_textures[player] );
-      glBegin(GL_QUADS);
-      glTexCoord2f(0.0F, 1.0F); glVertex3f(-0.40F, 0.0F, -0.56F);
-      glTexCoord2f(0.0F, 0.0F); glVertex3f(-0.40F, 0.0F,  0.56F);
-      glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.40F, 0.0F,  0.56F);
-      glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.40F, 0.0F, -0.56F);
-      glEnd();
-      glPopMatrix();
+      glTranslatef( 1.0F, -1.0F+0.01F*selected, 1.0F );
+      glRotatef( selected*360.0F/100, 0.0F, 0.0F, 1.0F );
     } else {
-      if ( theRC->gmode != GMODE_SIMPLE ||
-	   (((PracticeSelect *)m_playerSelect)->GetOpponentRotate()%360)%(360/PLAYERS) == 0 )
-	glEnable(GL_TEXTURE_2D);
+      glEnable(GL_TEXTURE_2D);
+      glTranslatef( 0.01F*100, -1.0F+0.01F*100, 1.0F );
+    }
 
-      for ( i = 0 ; i < PLAYERS ; i++ ){
-	glPushMatrix();
-          glTranslatef( 1.0, -0.0, 0.0 );
-          glRotatef( ((PracticeSelect *)m_playerSelect)->GetOpponentRotate()-i*360.0F/PLAYERS,
-		     0.0F, 0.0F, 1.0F );
-	  glBindTexture(GL_TEXTURE_2D, m_textures[i] );
-	  glBegin(GL_QUADS);
+    glBindTexture(GL_TEXTURE_2D, m_textures[player] );
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0F, 1.0F); glVertex3f(-0.40F, 0.0F, -0.56F);
+    glTexCoord2f(0.0F, 0.0F); glVertex3f(-0.40F, 0.0F,  0.56F);
+    glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.40F, 0.0F,  0.56F);
+    glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.40F, 0.0F, -0.56F);
+    glEnd();
+    glPopMatrix();
+  } else {
+    long rotate = ((PracticeSelect *)m_playerSelect)->GetOpponentRotate();
+
+    if ( theRC->gmode != GMODE_SIMPLE || (rotate%360)%(360/PLAYERS) == 0 )
+      glEnable(GL_TEXTURE_2D);
+
+    for ( i = 0 ; i < PLAYERS ; i++ ){
+      glPushMatrix();
+        glTranslatef( 1.0, -0.0, 0.0 );
+	glRotatef( rotate-i*360.0F/PLAYERS, 0.0F, 0.0F, 1.0F );
+	glBindTexture(GL_TEXTURE_2D, m_textures[i] );
+	glBegin(GL_QUADS);
+        if ( m_playerSelect->GetSelected() < 100 ) {
+	  glTexCoord2f(0.0F, 1.0F); glVertex3f(-0.40F, -0.5F, 1.0F-0.56F);
+	  glTexCoord2f(0.0F, 0.0F); glVertex3f(-0.40F, -0.5F, 1.0F+0.56F);
+	  glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.40F, -0.5F, 1.0F+0.56F);
+	  glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.40F, -0.5F, 1.0F-0.56F);
+	} else {
 	  glTexCoord2f(0.0F, 1.0F); glVertex3f(-0.40F, -1.0F, 1.0F-0.56F);
 	  glTexCoord2f(0.0F, 0.0F); glVertex3f(-0.40F, -1.0F, 1.0F+0.56F);
 	  glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.40F, -1.0F, 1.0F+0.56F);
 	  glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.40F, -1.0F, 1.0F-0.56F);
-	  glEnd();
-	glPopMatrix();
-      }
+	}
+	glEnd();
+      glPopMatrix();
     }
   }
 

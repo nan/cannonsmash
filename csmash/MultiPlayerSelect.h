@@ -47,6 +47,10 @@ public:
 protected:
   long m_opponentRotate;	// Rotation of players
   long m_opponentSelected;	// Selected : m_selected > 0
+
+
+  long m_lastRotate;
+  long m_lastOpponentRotate;
 };
 
 #endif	// _MultiPlayerSelect_
