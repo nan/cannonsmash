@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -244,7 +244,6 @@ Sound::PlayBlocking( int channel, Mix_Chunk *chunk ) {
 
   return true;
 }
-#endif
 
 void
 Sound::PlayFinishHandler( int channel ) {
@@ -260,6 +259,7 @@ Sound::PlayFinishHandler( int channel ) {
     Sound::TheSound()->m_queuehead++;
   }
 }
+#endif
 
 long
 Sound::GetSoundMode() {
