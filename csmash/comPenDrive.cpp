@@ -53,7 +53,7 @@ ComPenDrive::~ComPenDrive() {
 }
 
 bool
-ComPenDrive::Move( unsigned long *KeyHistory, long *MouseXHistory,
+ComPenDrive::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		 long *MouseYHistory, unsigned long *MouseBHistory,
 		 int Histptr ) {
   PenDrive::Move( KeyHistory, MouseXHistory, MouseYHistory, MouseBHistory,
