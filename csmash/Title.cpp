@@ -338,7 +338,7 @@ Title::CreateMenu( long menuMajorNum ) {
 	GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE );
       m_menuItem[j]->Init( 500, 190-i*60, 200, 35, &configMenu[j][0], this );
     }
-    m_menuItem[j+1]->Init( 300, 20, 400, 70, &menu[4][0], this );
+    m_menuItem[j+1]->Init( 300, 20, 400, 70, &menu[5][0], this );
 
     m_menuItem[gameLevel]->SetSelected( true );
 
@@ -370,9 +370,10 @@ Title::SetSelected( long selected ) {
     m_menuItem[selected]->SetSelected( true );
     break;
   case MENU_CONFIG:
+    /*
     if ( selected == 3 )
       return m_selected;
-
+    */
     break;
   }
 

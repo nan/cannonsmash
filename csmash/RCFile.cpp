@@ -75,7 +75,7 @@ ReadRCFile() {
 	isWireFrame = false;
     } else if ( strncmp( buf, "gamelevel=", 10 ) == 0 ) {
       gameLevel = buf[10]-'0';
-      if ( gameLevel > LEVEL_HARD || gameLevel < LEVEL_EASY )
+      if ( gameLevel > LEVEL_TSUBORISH || gameLevel < LEVEL_EASY )
 	gameLevel = LEVEL_EASY;
     } else if ( strncmp( buf, "gamemode=", 9 ) == 0 ) {
       gameMode = buf[9]-'0';

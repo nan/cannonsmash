@@ -303,8 +303,6 @@ bool PollEvent() {
       isComm = false;
 
       wins = 0;
-      gameLevel = LEVEL_EASY;
-      gameMode = GAME_21PTS;
       mode = MODE_TITLE;
 
       SDL_Quit();

@@ -96,7 +96,7 @@ GtkWidget *
 LauncherHeader::GraphicsFrame() {
   GtkWidget *frame;
   GtkWidget *box;
-  GtkWidget *button;
+  GtkWidget *twoDButton, *simpleButton, *normalButton;
   GSList *list;
 
   frame = gtk_frame_new( "Graphics" );
@@ -104,34 +104,35 @@ LauncherHeader::GraphicsFrame() {
   box = gtk_hbox_new( FALSE, 10 );
   gtk_container_border_width (GTK_CONTAINER (box), 5);
 
-  button = gtk_radio_button_new_with_label ( (GSList *)NULL, "2D");
-  list = gtk_radio_button_group( GTK_RADIO_BUTTON(button) );
-  gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
-  if ( gmode == GMODE_2D )
-    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(button), TRUE );
-  gtk_widget_show (button);
+  twoDButton = gtk_radio_button_new_with_label ( (GSList *)NULL, "2D");
+  list = gtk_radio_button_group( GTK_RADIO_BUTTON(twoDButton) );
+  gtk_box_pack_start( GTK_BOX(box), twoDButton, FALSE, FALSE, 10 );
+  gtk_widget_show (twoDButton);
+  if ( gmode == GMODE_2D ) {
+    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(twoDButton), TRUE );
+  }
 
-  gtk_signal_connect (GTK_OBJECT (button), "clicked",
+  simpleButton = gtk_radio_button_new_with_label ( list, "Simple");
+  list = gtk_radio_button_group( GTK_RADIO_BUTTON(simpleButton) );
+  gtk_box_pack_start( GTK_BOX(box), simpleButton, FALSE, FALSE, 10 );
+  gtk_widget_show (simpleButton);
+  if ( gmode == GMODE_SIMPLE ) {
+    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(simpleButton), TRUE );
+  }
+
+  normalButton = gtk_radio_button_new_with_label (list, "Normal");
+  list = gtk_radio_button_group( GTK_RADIO_BUTTON(normalButton) );
+  gtk_box_pack_start( GTK_BOX(box), normalButton, FALSE, FALSE, 10 );
+  gtk_widget_show (normalButton);
+  if ( gmode == GMODE_FULL ) {
+    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(normalButton), TRUE );
+  }
+
+  gtk_signal_connect (GTK_OBJECT (twoDButton), "clicked",
 		      GTK_SIGNAL_FUNC (LauncherHeader::Toggle), &gmode);
-
-  button = gtk_radio_button_new_with_label ( list, "Simple");
-  list = gtk_radio_button_group( GTK_RADIO_BUTTON(button) );
-  gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
-  if ( gmode == GMODE_SIMPLE )
-    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(button), TRUE );
-  gtk_widget_show (button);
-
-  gtk_signal_connect (GTK_OBJECT (button), "clicked",
+  gtk_signal_connect (GTK_OBJECT (simpleButton), "clicked",
 		      GTK_SIGNAL_FUNC (LauncherHeader::Toggle), &gmode);
-
-  button = gtk_radio_button_new_with_label (list, "Normal");
-  list = gtk_radio_button_group( GTK_RADIO_BUTTON(button) );
-  gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
-  if ( gmode == GMODE_FULL )
-    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(button), TRUE );
-  gtk_widget_show (button);
-
-  gtk_signal_connect (GTK_OBJECT (button), "clicked",
+  gtk_signal_connect (GTK_OBJECT (normalButton), "clicked",
 		      GTK_SIGNAL_FUNC (LauncherHeader::Toggle), &gmode);
 
   gtk_widget_show (box);
@@ -162,7 +163,8 @@ LauncherHeader::Toggle( GtkWidget *widget, gpointer data ) {
   } else if ( gtk_toggle_button_get_active
 	      ( (GtkToggleButton *)g_slist_nth_data( list, 1 ) ) ) {
     gmode = GMODE_SIMPLE;
-  } else {
+  } else if ( gtk_toggle_button_get_active
+	      ( (GtkToggleButton *)g_slist_nth_data( list, 2 ) ) ) {
     gmode = GMODE_2D;
   }
 }
