@@ -815,7 +815,7 @@ ExternalPTData::Read( long sock ) {
 
   long len = 0;
   while (1) {
-    if ( (len+=recv( sock, data+len, 4-len, 0 )) == 4 )
+    if ( (len+=recv( sock, data+len, 5-len, 0 )) == 5 )
       break;
   }
 

@@ -91,13 +91,13 @@ MultiPlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     }
   }
 
+  if ( m_opponentSelected > 0 )
+    m_opponentSelected++;
+
   if ( m_selected > 0 ) {
     m_selected++;
     return true;
   }
-
-  if ( m_opponentSelected > 0 )
-    m_opponentSelected++;
 
   if ( lastRotate == 0 ) {
     if ( MouseXHistory[Histptr] - BaseView::GetWinWidth()/2 > 10 ) {
@@ -158,6 +158,11 @@ MultiPlayerSelect::Connect( void *dum ) {
     ConnectToServer();
     ClientAdjustClock();
   }
+
+  if ( ((MultiPlayerSelect *)m_theControl)->m_selected > 0 )
+    ((MultiPlayerSelect *)m_theControl)->SendPT(1);
+  else
+    ((MultiPlayerSelect *)m_theControl)->SendPT(0);
 
   SDL_CreateThread( MultiPlay::WaitForData, NULL );
 
