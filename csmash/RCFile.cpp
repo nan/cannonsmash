@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
+// Copyright (C) 2001, 2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -23,9 +23,9 @@ RCFile* RCFile::m_rcFile = NULL;
 
 RCFile::RCFile() {
   isTexture = true;
-  isWireFrame = true;
   fullScreen = false;
   gmode = GMODE_FULL;
+  myModel = MODEL_TRANSPARENT;
   gameLevel = LEVEL_EASY;
   gameMode = GAME_21PTS;
   sndMode = SOUND_SDL;
@@ -80,16 +80,15 @@ RCFile::ReadRCFile() {
       else if ( (p = strchr( nickname, '\n' )) )
 	*p = '\0';
     } else if ( strncmp( buf, "message=", 8 ) == 0 ) {
-      strncpy( message , &buf[8], 64 );
+      strncpy( message, &buf[8], 64 );
       if ( (p = strchr( message, '\r' )) )
 	*p = '\0';
       else if ( (p = strchr( message, '\n' )) )
 	*p = '\0';
-    } else if ( strncmp( buf, "wireframe=", 10 ) == 0 ) {
-      if ( buf[10] == '1' )
-	isWireFrame = true;
-      else
-	isWireFrame = false;
+    } else if ( strncmp( buf, "mymodel=", 8 ) == 0 ) {
+      myModel = buf[8]-'0';
+      if ( myModel > MODEL_ARMONLY || myModel < MODEL_TRANSPARENT )
+	myModel = MODEL_TRANSPARENT;
     } else if ( strncmp( buf, "gamelevel=", 10 ) == 0 ) {
       gameLevel = buf[10]-'0';
       if ( gameLevel > LEVEL_TSUBORISH || gameLevel < LEVEL_EASY )
@@ -132,7 +131,7 @@ RCFile::WriteRCFile() {
   fprintf( fp, "nickname=%s\n", nickname );
   fprintf( fp, "message=%s\n", message );
 
-  fprintf( fp, "wireframe=%d\n", isWireFrame ? 1 : 0 );
+  fprintf( fp, "mymodel=%d\n", myModel );
   fprintf( fp, "gamelevel=%d\n", gameLevel );
   fprintf( fp, "gamemode=%d\n", gameMode );
   fprintf( fp, "soundmode=%d\n", sndMode );

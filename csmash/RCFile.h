@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
+// Copyright (C) 2001, 2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,8 +26,8 @@ public:
   static RCFile *GetRCFile();
 
   bool isTexture;
-  bool isWireFrame;
   bool fullScreen;
+  long myModel;
   long gmode;
   long gameLevel;
   long gameMode;

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001, 2002  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
+// Copyright (C) 2000-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -214,11 +214,8 @@ Title::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       else if ( m_selected < GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )+
 		GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )+
 		GetMenuNum( MENU_CONFIG, MENU_CONFIG_PLAYER ) ) {
-	if ( m_selected-GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )
-	     -GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE ) == 0 )
-	  theRC->isWireFrame = true;
-	else
-	  theRC->isWireFrame = false;
+	theRC->myModel = m_selected-GetMenuNum(MENU_CONFIG, MENU_CONFIG_LEVEL)
+	  -GetMenuNum(MENU_CONFIG, MENU_CONFIG_MODE);
       } else if ( m_selected == GetMenuNum( MENU_CONFIG, MENU_ALL )-1 )
 	m_selectMode = MENU_MAIN;
     }
@@ -255,13 +252,13 @@ Title::GetMenuNum( long major, long minor ) {
   case MENU_CONFIG:
     switch ( minor ) {
     case MENU_ALL:
-      return 10;
+      return 11;
     case MENU_CONFIG_LEVEL:
       return 4;
     case MENU_CONFIG_MODE:
       return 3;
     case MENU_CONFIG_PLAYER:
-      return 2;
+      return 3;
     }
   }
 
@@ -287,7 +284,8 @@ Title::CreateMenu( long menuMajorNum ) {
 				  "images/Hard", "images/Tsuborish", 
 				  "images/5point", "images/11point",
 				  "images/21point",
-				  "images/WireFrame", "images/Transparent" };
+				  "images/Transparent", "images/WireFrame", 
+				  "images/ArmOnly" };
 
   int i, j = 0;
 
@@ -327,14 +325,9 @@ Title::CreateMenu( long menuMajorNum ) {
     m_menuItem[GetMenuNum(MENU_CONFIG, MENU_CONFIG_LEVEL)+theRC->gameMode]
       ->SetSelected( true );
 
-    if ( theRC->isWireFrame )
-      m_menuItem[GetMenuNum(MENU_CONFIG, MENU_CONFIG_LEVEL)+
-		GetMenuNum(MENU_CONFIG, MENU_CONFIG_MODE)]
-	->SetSelected( true );
-    else
-      m_menuItem[GetMenuNum(MENU_CONFIG, MENU_CONFIG_LEVEL)+
-		GetMenuNum(MENU_CONFIG, MENU_CONFIG_MODE)+1]
-	->SetSelected( true );
+    m_menuItem[GetMenuNum(MENU_CONFIG, MENU_CONFIG_LEVEL)+
+	      GetMenuNum(MENU_CONFIG, MENU_CONFIG_MODE)+theRC->myModel]
+      ->SetSelected( true );
 
     break;
   }

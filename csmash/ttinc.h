@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2003  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
+// Copyright (C) 2000-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -88,6 +88,11 @@
 
 #define MAX_HISTORY (1024)
 
+// Self Model mode
+#define MODEL_TRANSPARENT   (0)
+#define MODEL_WIREFRAME     (1)
+#define MODEL_ARMONLY       (2)
+
 // Graphics mode
 #define GMODE_FULL          (0)
 #define GMODE_SIMPLE        (1)
@@ -111,6 +116,8 @@
 #define SOUND_TABLE  (1)
 #define SOUND_CLICK  (2)
 #define SOUND_OPENING (3)
+#define SOUND_LOVEALL (4)
+#define SOUND_ALL (5)
 
 // protocol
 #define IPv4 (0)

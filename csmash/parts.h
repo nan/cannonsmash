@@ -307,6 +307,7 @@ public:
     virtual bool render(double frame, float xdiff, float ydiff, float zdiff);
     virtual bool renderWire(int frame, float xdiff, float ydiff, float zdiff);
     virtual bool renderWire(double frame, float xdiff, float ydiff, float zdiff);
+    virtual bool renderArmOnly(double frame, float xdiff, float ydiff, float zdiff);
 
 private:
     void drawleg( float xdiff, float ydiff, float zdiff, bool isWireFrame );

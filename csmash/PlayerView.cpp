@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2003  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
+// Copyright (C) 2000-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -164,7 +164,8 @@ PlayerView::RedrawAlpha() {
   static GLfloat mat_black[] = { 0.0F, 0.0F, 0.0F, 1.0F };
 
   if ( Control::TheControl()->GetThePlayer() == m_player ) {
-    if ( theRC->isWireFrame ) {
+    if ( theRC->myModel == MODEL_WIREFRAME ||
+	 theRC->myModel == MODEL_ARMONLY ) {
       glColor4f( 1.0F, 1.0F, 1.0F, 1.0F );
     } else {
       glColor4f( 0.05F, 0.05F, 0.05F, 1.0F );
@@ -308,7 +309,7 @@ PlayerView::DrawTargetCircle( double diff ) {
   delete tmpBall;
 }
 
-// BallView $B$H$+$V$k(B. 
+// BallView ¤È¤«¤Ö¤ë. 
 double
 PlayerView::GetHitpointY() {
   Ball* tmpBall;
@@ -443,34 +444,26 @@ PlayerView::DrawPlayer() {
   }
 
   glPushMatrix();
-#if 1
     glTranslatef( m_player->GetX()-0.3F*m_player->GetSide(),
 		  m_player->GetY(), 0 );
-
-    /*
-    if ( m_player->GetX() > -TABLEWIDTH/2 &&
-	 m_player->GetX() < TABLEWIDTH/2 &&
-	 m_player->GetY()*m_player->GetSide() > -TABLELENGTH/2 ) {
-      glTranslatef( 0,-TABLELENGTH/2*m_player->GetSide()-m_player->GetY(), 0 );
-      m_ydiff += fabs(-TABLELENGTH/2*m_player->GetSide()-m_player->GetY());
-    }
-    */
 
     glRotatef( -atan2( m_player->GetTargetX()-m_player->GetX(),
 		       m_player->GetTargetY()-m_player->GetY() )*180/3.141592F,
 	       0.0F, 0.0F, 1.0F );
-#endif
 
-    if ( theRC->gmode == GMODE_SIMPLE )
-      motion->renderWire(swing, m_xdiff, m_ydiff, m_zdiff);
-    else {
+    if ( theRC->gmode == GMODE_SIMPLE ) {
+      if ( Control::TheControl()->GetThePlayer() == m_player &&
+	   theRC->myModel == MODEL_ARMONLY )
+	motion->renderArmOnly(swing, m_xdiff, m_ydiff, m_zdiff);
+      else
+	motion->renderWire(swing, m_xdiff, m_ydiff, m_zdiff);
+    } else {
       if (Control::TheControl()->GetComPlayer() == m_player) {
 	motion->render(swing, m_xdiff, m_ydiff, m_zdiff);
       }
       if (Control::TheControl()->GetThePlayer() == m_player) {
-	if ( theRC->isWireFrame )
-	  motion->renderWire(swing, m_xdiff, m_ydiff, m_zdiff);
-	else {
+	switch ( theRC->myModel ) {
+	case MODEL_TRANSPARENT:
 	  glEnable(GL_CULL_FACE);
 	  glDisable(GL_DEPTH_TEST);
 	  glDepthMask(0);
@@ -478,6 +471,13 @@ PlayerView::DrawPlayer() {
 	  glDepthMask(1);
 	  glEnable(GL_DEPTH_TEST);
 	  glDisable(GL_CULL_FACE);
+	  break;
+	case MODEL_WIREFRAME:
+	  motion->renderWire(swing, m_xdiff, m_ydiff, m_zdiff);
+	  break;
+	case MODEL_ARMONLY:
+	  motion->renderArmOnly(swing, m_xdiff, m_ydiff, m_zdiff);
+	  break;
 	}
       }
     }

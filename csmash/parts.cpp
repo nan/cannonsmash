@@ -611,19 +611,19 @@ partsmotion::legIK( vector3F hip, vector3F &knee, vector3F &heel, vector3F toe,
   vector3F _heel2, _toe2;
 
   glPushMatrix();
-  /* hip $B$,86E@$KMh$k$h$&J?9T0\F0(B */
+  /* hip ¤¬¸¶ÅÀ¤ËÍè¤ë¤è¤¦Ê¿¹Ô°ÜÆ° */
   glTranslatef(hip[0], hip[1], hip[2]);
   _hip  = hip - hip;
   _toe  = toe - hip;
 
-  /* toe $B$,(B yz $BJ?LL>e$KMh$k$h$&(By$B<4<~$j$G2sE>(B */
+  /* toe ¤¬ yz Ê¿ÌÌ¾å¤ËÍè¤ë¤è¤¦y¼´¼þ¤ê¤Ç²óÅ¾ */
   float rot1, rot2, rot3;
   if ( _toe[2] == 0.0 )
     rot1 = 0;
   else
     rot1 = -atan2( _toe[0], _toe[2] );
 
-  /* $B2sE>7W;;(B */
+  /* ²óÅ¾·×»» */
   glRotatef( -rot1*180.0F/3.14159265, 0.0, 1.0, 0.0 );
   _toe = _toe*rotateY( rot1 );
   if ( _toe[1] < 0.0 ) {
@@ -634,19 +634,19 @@ partsmotion::legIK( vector3F hip, vector3F &knee, vector3F &heel, vector3F toe,
   //printf( "rot1: %f %f %f %f\n", rot1, _toe[0], _toe[1], _toe[2] );
 
   if ( thighLength+shinLength > hypot( _toe[1]-footSize, _toe[2] ) ) {
-    /* $Bl{$rCOLL$K2<$m$7(B, $BI($r6J$2$?>uBV(B */
-    /* $B$+$+$H$N0LCV$r3NDj(B */
+    /* ìû¤òÃÏÌÌ¤Ë²¼¤í¤·, É¨¤ò¶Ê¤²¤¿¾õÂÖ */
+    /* ¤«¤«¤È¤Î°ÌÃÖ¤ò³ÎÄê */
     _heel[0] = 0;
     _heel[1] = _toe[1] - footSize;
     _heel[2] = _toe[2];
 
-    /* $B$+$+$H$,(Bz$B<4>e$KMh$k$h$&(Bx$B<4<~$j$G2sE>(B */
+    /* ¤«¤«¤È¤¬z¼´¾å¤ËÍè¤ë¤è¤¦x¼´¼þ¤ê¤Ç²óÅ¾ */
     if ( _heel[2] == 0.0 )
       rot2 = 0;
     else
       rot2 = atan2( _heel[1], _heel[2] );
 
-    /* $B7k2L$O<+L@$J$N$G(B, $B2sE>7W;;$O9T$o$J$$(B */
+    /* ·ë²Ì¤Ï¼«ÌÀ¤Ê¤Î¤Ç, ²óÅ¾·×»»¤Ï¹Ô¤ï¤Ê¤¤ */
     glRotatef( -rot2*180.0F/3.14159265, 1.0, 0.0, 0.0 );
 
     //_heel2 = _heel*rotateX( rot2 );
@@ -658,7 +658,7 @@ partsmotion::legIK( vector3F hip, vector3F &knee, vector3F &heel, vector3F toe,
 
     //printf( "rot2: %f %f %f %f\n", rot2, _heel2[0], _heel2[1], _heel2[2] );
 
-    /* $B8x<0$h$j(B, $BI($N0LCV$r5a$a$k(B */
+    /* ¸ø¼°¤è¤ê, É¨¤Î°ÌÃÖ¤òµá¤á¤ë */
     _knee[2] = (thighLength*thighLength-shinLength*shinLength+
 		_heel2[2]*_heel2[2]) / (2*_heel2[2]);
     _knee[0] = 0;
@@ -669,14 +669,14 @@ partsmotion::legIK( vector3F hip, vector3F &knee, vector3F &heel, vector3F toe,
 
     //printf( "_knee: %f %f %f\n", _knee[0], _knee[1], _knee[2] );
   } else {
-    /* $Bl{$r>e$2(B, $BI($r?-$P$7$?>uBV(B */
-    /* $BD^@h$,(Bz$B<4>e$KMh$k$h$&(Bx$B<4<~$j$G2sE>(B */
+    /* ìû¤ò¾å¤², É¨¤ò¿­¤Ð¤·¤¿¾õÂÖ */
+    /* ÄÞÀè¤¬z¼´¾å¤ËÍè¤ë¤è¤¦x¼´¼þ¤ê¤Ç²óÅ¾ */
     if ( _toe[2] == 0.0 )
       rot2 = 0;
     else
       rot2 = atan2( _toe[1], _toe[2] );
 
-    /* $B7k2L$O<+L@$J$N$G(B, $B2sE>7W;;$O9T$o$J$$(B */
+    /* ·ë²Ì¤Ï¼«ÌÀ¤Ê¤Î¤Ç, ²óÅ¾·×»»¤Ï¹Ô¤ï¤Ê¤¤ */
     glRotatef( -rot2*180.0F/3.14159265, 1.0, 0.0, 0.0 );
 
     //_toe2 = _heel*rotateX( rot2 );
@@ -688,7 +688,7 @@ partsmotion::legIK( vector3F hip, vector3F &knee, vector3F &heel, vector3F toe,
 
     //printf( "rot2: %f %f %f %f\n", rot2, _toe2[0], _toe2[1], _toe2[2] );
 
-    /* $B8x<0$h$j(B, $Bl{$N0LCV$r5a$a$k(B */
+    /* ¸ø¼°¤è¤ê, ìû¤Î°ÌÃÖ¤òµá¤á¤ë */
     _heel2[2] = ((thighLength+shinLength)*(thighLength+shinLength)
 		-footSize*footSize+_toe2[2]*_toe2[2]) / (2*_toe2[2]);
     _heel2[0] = 0;
@@ -706,9 +706,9 @@ partsmotion::legIK( vector3F hip, vector3F &knee, vector3F &heel, vector3F toe,
     _knee[2] = _heel2[2]*thighLength/(thighLength+shinLength);
   }
 
-  /* $B0J2<(B, $BIA2h(B */
+  /* °Ê²¼, ÉÁ²è */
 
-  /* $BI($,(Bz$B<4>e$KMh$k$h$&(Bx$B<4<~$j$G2sE>(B */
+  /* É¨¤¬z¼´¾å¤ËÍè¤ë¤è¤¦x¼´¼þ¤ê¤Ç²óÅ¾ */
   if ( _knee[2] == 0.0 )
     rot3 = 0;
   else
@@ -724,13 +724,13 @@ partsmotion::legIK( vector3F hip, vector3F &knee, vector3F &heel, vector3F toe,
 
   renderparts(17, isWireFrame);
 
-  /* $BI($,86E@$KMh$k$h$&J?9T0\F0(B */
+  /* É¨¤¬¸¶ÅÀ¤ËÍè¤ë¤è¤¦Ê¿¹Ô°ÜÆ° */
   glTranslatef(_knee[0], _knee[1], _knee[2]);
   _heel2 -= _knee;
   _toe2 -= _knee;
   _knee -= _knee;
 
-  /* $Bl{$,(Bz$B<4>e$KMh$k$h$&(Bx$B<4<~$j$G2sE>(B */
+  /* ìû¤¬z¼´¾å¤ËÍè¤ë¤è¤¦x¼´¼þ¤ê¤Ç²óÅ¾ */
   float rot4;
   if ( _heel2[2] == 0.0 )
     rot4 = 0;
@@ -744,12 +744,12 @@ partsmotion::legIK( vector3F hip, vector3F &knee, vector3F &heel, vector3F toe,
 
   renderparts(18, isWireFrame);
 
-  /* $Bl{$,86E@$KMh$k$h$&J?9T0\F0(B */
+  /* ìû¤¬¸¶ÅÀ¤ËÍè¤ë¤è¤¦Ê¿¹Ô°ÜÆ° */
   glTranslatef(_heel2[0], _heel2[1], _heel2[2]);
   _toe2 -= _heel2;
   _heel2 -= _heel2;
 
-  /* $BD^@h$,(Bz$B<4>e$KMh$k$h$&(Bx$B<4<~$j$G2sE>(B */
+  /* ÄÞÀè¤¬z¼´¾å¤ËÍè¤ë¤è¤¦x¼´¼þ¤ê¤Ç²óÅ¾ */
   float rot5;
   if ( _toe2[2] == 0.0 )
     rot5 = 0;
@@ -813,7 +813,7 @@ float bodyIK( float &xdiff, float &ydiff, float &zdiff,
   ydiff = NECKORIGINY+ydiff - neck[1];
 
   if ( hypot( neck[1]-waist[1], neck[2]-legLength ) > bodylength ) {
-    /* $B8*$N0LCV$r2<$2$k(B */
+    /* ¸ª¤Î°ÌÃÖ¤ò²¼¤²¤ë */
     neck[2] = legLength +
       sqrt( bodylength*bodylength - (neck[1]-waist[1])*(neck[1]-waist[1]) );
     waist[2] = legLength;
@@ -1035,8 +1035,6 @@ bool partsmotion::renderWire(double _frame, float xdiff, float ydiff, float zdif
 
     glTranslatef( xdiff, ydiff-_ydiff, zdiff-_zdiff );
 
-    /* $B%i%1%C%H$r=jDj$N0LCV$+$i(B ( 0, _ydiff, _zdiff ) $B$@$10\F0$9$k(B */
-
     vector4F p;
 
     affine4F aff;
@@ -1131,6 +1129,71 @@ bool partsmotion::renderWire(double _frame, float xdiff, float ydiff, float zdif
 	glTranslatef( 0.0, 0.159459, -1.010000 );
 	drawleg( _xdiff, 0.0, zwaistdiff, true );
 
+      glPopMatrix();
+    glPopMatrix();
+
+    return true;
+}
+
+bool partsmotion::renderArmOnly(double _frame, float xdiff, float ydiff, float zdiff)
+{
+    float frame = _frame;
+    float zwaistdiff;
+    float _xdiff = xdiff, _ydiff = ydiff, _zdiff = zdiff;
+    vector3F neck, waist;
+
+    zwaistdiff = bodyIK( _xdiff, _ydiff, _zdiff, neck, waist );
+
+    glTranslatef( xdiff, ydiff-_ydiff, zdiff-_zdiff );
+
+    vector4F p;
+
+    affine4F aff;
+    vector4F pdum, qdum;
+
+    pdum[0] = pdum[1] = pdum[2] = 0;
+    pdum[3] = 1.0F;
+
+    qdum[0] = 1.0F;
+    qdum[1] = qdum[2] = qdum[3] = 0;
+
+    glPushMatrix();
+      aff = (*origin)[(int)frame];
+      glMultMatrixf((float*)&aff);
+
+      glPushMatrix();
+	p[0] = qanim[1]->origin[0];
+	p[1] = qanim[1]->origin[1];
+	p[2] = qanim[1]->origin[2];
+	p[3] = 1.0F;
+	aff = Quaternion2Affine((*qanim[1])[frame], p);
+	glMultMatrixf((float*)&aff);
+	glPushMatrix();
+	  p[0] = qanim[4]->origin[0];
+	  p[1] = qanim[4]->origin[1];
+	  p[2] = qanim[4]->origin[2];
+	  p[3] = 1.0F;
+	  aff = Quaternion2Affine((*qanim[4])[frame], p);
+	  glMultMatrixf((float*)&aff);
+
+	  p[0] = qanim[6]->origin[0];
+	  p[1] = qanim[6]->origin[1];
+	  p[2] = qanim[6]->origin[2];
+	  p[3] = 1.0F;
+	  aff = Quaternion2Affine((*qanim[6])[frame], p);
+	  glMultMatrixf((float*)&aff);
+	  renderparts(6, true);					/* Relbow */
+	  renderparts(7, true);					/* Rforearm */
+
+	  p[0] = qanim[8]->origin[0];
+	  p[1] = qanim[8]->origin[1];
+	  p[2] = qanim[8]->origin[2];
+	  p[3] = 1.0F;
+	  aff = Quaternion2Affine((*qanim[8])[frame], p);
+	  glMultMatrixf((float*)&aff);
+	  renderparts(8, true);					/* Rhand */
+	  renderparts(3, true);					/* racket */
+	glPopMatrix();
       glPopMatrix();
     glPopMatrix();
 
