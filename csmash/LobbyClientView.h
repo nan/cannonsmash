@@ -42,7 +42,7 @@ protected:
 			 GdkEventButton *event, gpointer data );
   static void Connect( GtkWidget *widget, gpointer data );
   static void WarmUp( GtkWidget *widget, gpointer data );
-  static void KeyPress( GtkWidget *widget, GdkEventKey *event, gpointer data );
+  static gboolean KeyPress( GtkWidget *widget, GdkEventKey *event, gpointer data );
   static void SwitchChatPage( GtkNotebook *notebook, GtkNotebookPage *page,
 			      gint page_num, gpointer data );
   static void Quit( GtkWidget *widget, gpointer data );
