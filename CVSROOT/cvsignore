@@ -1,0 +1,27 @@
+# cvsignore
+
+# UN*X object files
+*.o
+*.a
+*.so
+
+# MS object files
+*.obj
+*.dll
+*.exp
+*.exe
+*.res
+
+# MSVS files
+*.aps
+*.plg
+*.pch
+*.pdb
+*.idb
+*.ilk
+*.sbr
+*.bsc
+
+# backup files
+*.bak
+*~

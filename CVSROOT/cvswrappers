@@ -21,3 +21,36 @@
 #  and value is a single-quote delimited value.
 # For example:
 #*.gif -k 'b'
+
+# Object files
+*.exe	-k 'b'
+*.dll	-k 'b'
+*.so	-k 'b'
+*.lib	-k 'b'
+*.a	-k 'b'
+
+# Image files
+*.bmp	-k 'b'
+*.pnm	-k 'b'
+*.ppm	-k 'b'
+*.pgm	-k 'b'
+*.jpg	-k 'b'
+*.jpeg	-k 'b'
+*.tif	-k 'b'
+*.tiff	-k 'b'
+*.gif	-k 'b'
+*.png	-k 'b'
+
+# Audio files
+*.wav	-k 'b'
+*.mp2	-k 'b'
+*.mp3	-k 'b'
+*.ogg	-k 'b'
+*.wma	-k 'b'
+*.vqf	-k 'b'
+
+# Movie files
+*.mpg	-k 'b'
+*.avi	-k 'b'
+*.qt	-k 'b'
+*.wmv	-k 'b'
