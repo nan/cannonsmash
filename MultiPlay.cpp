@@ -343,6 +343,7 @@ StartServer() {
 
   AcceptClient();
 
+#if 0
   // タイマ調整
   for ( i = 0 ; i < 100 ; i++ ) {
 #ifndef WIN32
@@ -389,6 +390,9 @@ StartServer() {
   timeAdj /= 1000;	/* 100*10 */
 
   printf( "%d\n", timeAdj );
+#else
+  timeAdj = 0;
+#endif
 
   // Ball Dataの読み込み
   if ( recv( theSocket, buf, 2, 0 ) != 2 ) {
@@ -492,6 +496,7 @@ StartClient() {
     exit(1);
   }
 
+#if 0
   // タイマ調整
   struct timeb tb;
 #ifndef WIN32
@@ -513,6 +518,7 @@ StartClient() {
 
     SendTime( theSocket, &tb );
   }
+#endif
 
   // Ball Dataの送信
   send( theSocket, "BI", 2, 0 );
