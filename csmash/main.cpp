@@ -65,19 +65,6 @@ SDL_mutex *loadMutex;
 
 extern void QuitGame();
 
-void HotKey_ToggleFullScreen(void)
-{
-  SDL_Surface *screen = SDL_GetVideoSurface();
-  if ( SDL_WM_ToggleFullScreen(screen) ) {
-    fullScreen = (screen->flags & SDL_FULLSCREEN) ? 1 : 0;
-    fprintf(stderr, "Toggled fullscreen mode - now %s\n",
-            fullScreen  ? "fullscreen" : "windowed");
-  } else {
-    fprintf(stderr, "Unable to toggle fullscreen mode\n");
-  }
-}
-
-
 #ifdef WIN32
 #include "win32/getopt.h"
 
@@ -229,11 +216,6 @@ int main(int argc, char** argv) {
       // このあたり, GLUT 風になっているので SDL 風に直す
       switch ( event.type ) {
       case SDL_KEYDOWN:
-	if ( (event.key.keysym.sym == SDLK_RETURN) &&
-	     (event.key.keysym.mod & KMOD_ALT) ) {
-		HotKey_ToggleFullScreen();
-		break;
-	}
 	Event::KeyboardFunc( event, 0, 0 );
 	break;
       case SDL_KEYUP:

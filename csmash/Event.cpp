@@ -47,6 +47,7 @@ extern int theSocket;
 extern bool isLighting;
 extern bool isTexture;
 extern bool isPolygon;
+extern bool fullScreen;
 
 extern long wins;
 
@@ -305,8 +306,25 @@ Event::Record() {
   return;
 }
 
+void HotKey_ToggleFullScreen(void)
+{
+  SDL_Surface *screen = SDL_GetVideoSurface();
+  if ( SDL_WM_ToggleFullScreen(screen) ) {
+    fullScreen = (screen->flags & SDL_FULLSCREEN) ? 1 : 0;
+    fprintf(stderr, "Toggled fullscreen mode - now %s\n",
+            fullScreen  ? "fullscreen" : "windowed");
+  } else {
+    fprintf(stderr, "Unable to toggle fullscreen mode\n");
+  }
+}
+
 void
 Event::KeyboardFunc( SDL_Event key, int x, int y ) {
+  if ( (key.key.keysym.sym == SDLK_RETURN) &&
+       (key.key.keysym.mod & KMOD_ALT) ) {
+    HotKey_ToggleFullScreen();
+    return;
+  }
   if ( key.key.keysym.unicode == 'Q' ) {
     QuitGame();
   }
