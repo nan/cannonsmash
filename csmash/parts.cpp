@@ -30,6 +30,8 @@
 
     struct plane_t {
 	short poly[4];
+	short cindex;
+
 	inline short& operator [](int i) { return poly[i]; }
 	inline int size() const { return (poly[3] < 0) ? 3 : 4; }
     };
@@ -72,10 +74,13 @@ polyhedron::polyhedron(const char* filename)
 		printf("%s:%d loop buffer overflow\n", __FILE__, __LINE__);
 		exit(5);
 	    }
-	    loop[numPolygons][3] = -1;
+	    plane_t &f = loop[numPolygons];
+	    f[3] = -1;
+	    f.cindex = 0;
 	    while ((NULL != (token = strtok(NULL, delim))) && (4 > i)) {
 		if ('#' == *token) break;
-		loop[numPolygons][i++] = atoi(token);
+		else if ('C' == *token) f.cindex = atoi(token+1);
+		else f[i++] = atoi(token);
 	    }
 	    numPolygons++;
 	}
@@ -86,12 +91,14 @@ polyhedron::polyhedron(const char* filename)
     polygons = new short[numPolygons][4];
     normals = new vector3F[numPolygons][4];
     planeNormal = new vector3F[numPolygons];
+    cindex = new unsigned char[numPolygons];
 
     int i;
     for (i = 0; numPoints > i; i++) {
 	points[i] = vertex[i];
     }
     for (i = 0; numPolygons > i; i++) {
+	cindex[i] = loop[i].cindex;
 	for (int j = 0; 4 > j; j++) {
 	    polygons[i][j] = loop[i][j];
 	}
@@ -103,6 +110,7 @@ polyhedron::~polyhedron()
 {
     delete[] points;
     delete[] polygons;
+    delete[] cindex;
     delete[] normals;
     delete[] planeNormal;
     delete[] edges;
@@ -422,6 +430,20 @@ partsmotion::~partsmotion()
     
 bool partsmotion::render(int frame)
 {
+#define c(R,G,B) { R/255.0F, G/255.0F, B/255.0F}
+    GLfloat colors[][3] = {
+//	{ 0.4F, 0.4F, 0.4F },	// C0 default
+	c(250,188,137),		// C0 default(skin)
+	c(0, 0, 0),		// C1 eye
+	c(42, 19, 5), 		// C2 hair
+	c(250,188,137),		// C3 skin
+	c(225, 7, 47),		// C4 shirts
+	c(2, 55, 32),		// C5 pants
+	c(102, 7, 3),		// C6 skin/shadow
+	{-1, -1, -1}		// stop
+    };
+#undef c
+
     for (int i = 0; numParts > i; i++) {
 	const polyhedron &ref = parts[i]->ref;
 	if (0 == ref.numPolygons) continue;
@@ -429,6 +451,7 @@ bool partsmotion::render(int frame)
 	glPushMatrix();
 	glMultMatrixf((float*)&aff);
 	for (int j = 0; ref.numPolygons > j; j++) {
+	    glColor3fv(colors[ref.cindex[j]]);
 	    int size = ref.polsize(j);
 	    if (3 == size) {
 		glBegin(GL_TRIANGLES);

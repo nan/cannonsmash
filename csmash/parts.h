@@ -27,6 +27,7 @@ public:
     int numPoints, numPolygons, numEdges;
     vector3F *points;
     short (*polygons)[4];
+    unsigned char *cindex;
     vector3F (*normals)[4];
     vector3F *planeNormal;
     edge *edges;
