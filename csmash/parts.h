@@ -10,9 +10,12 @@
 #ifndef __wata_ESESoft_9465__parts_h__INCLUDED__
 #define __wata_ESESoft_9465__parts_h__INCLUDED__
 /***********************************************************************/
+#include <algorithm>
+
 #include "float"
 #include "matrix"
 #include "affine"
+
 /* __BEGIN__BEGIN__ */
 
 class edge {
@@ -91,7 +94,7 @@ class polygon
     friend class polyhedron;
 protected:
     inline polygon(const polyhedron& parent, int polynum)
-      : num(polynum), p(parent) {
+      : p(parent), num(polynum) {
 	size = (p.polygons[num][3] < 0) ? 3 : 4;
     }
 
