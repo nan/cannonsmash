@@ -196,7 +196,8 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( m_count == 0 ) {
       thePlayer->m_targetX = TABLEWIDTH/2*0.3;
       thePlayer->m_targetY = TABLELENGTH/16*5;
-      comPlayer->m_y = TABLELENGTH/2+0.7;
+      comPlayer->m_x = 0.221131;
+      comPlayer->m_y = 1.855788;
       m_mouseX = 0;
       m_mouseY = 0;
       m_mouseB = 0;
@@ -207,9 +208,9 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     } else if ( m_count > 50 && m_count < 100 ) {
       m_mouseB = 1;
     } else if ( m_count == 180 ) {
-      comPlayer->m_targetX = -TABLEWIDTH/2*0.3;
+      comPlayer->m_targetX = -TABLEWIDTH/2*0.15;
       comPlayer->Swing( 1 );
-      comPlayer->m_pow = 8;
+      comPlayer->m_pow = 10;
       m_mouseB = 0;
     } else {
       m_mouseB = 0;
@@ -217,11 +218,24 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     break;
   case 4:	// 打球2
     if ( m_count == 570 ) {
-      thePlayer->Swing( 1 );
+//      thePlayer->Swing( 1 );
+      thePlayer->Swing( 3 );
       thePlayer->m_pow = 10;
       m_mouseB = 1;
     } else if ( m_count > 570 && m_count < 700 ) {
       m_mouseB = 1;
+    } else if ( m_count == 1000 ) {
+      thePlayer->m_x = 0.2;
+      theBall.Warp( 0.243705, 0.673854, 1.017764,
+		    -1.042663, -4.457266, 0.108404, -1.0, 2 );
+      thePlayer->m_x = 0.0;
+      m_mouseB = 0;
+    } else if ( m_count == 1570 ) {
+      thePlayer->Swing( 1 );
+      thePlayer->m_pow = 10;
+      m_mouseB = 3;
+    } else if ( m_count > 1570 && m_count < 1700 ) {
+      m_mouseB = 3;
     } else {
       m_mouseB = 0;
     }
@@ -255,7 +269,7 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     }
     break;
   case 4:
-    if ( m_count > 1200 ) {
+    if ( m_count > 2200 ) {
       mode = MODE_TITLE;
       return true;
     }
@@ -312,6 +326,15 @@ Howto::IsMove() {
       else
 	return false;
     } else if ( m_count < 670 ) {
+      return false;
+    } else if ( m_count < 1000 ) {
+      return true;
+    } else if ( m_count < 1570 ) {
+      if ( m_count%10 == 0 )
+	return true;
+      else
+	return false;
+    } else if ( m_count < 1670 ) {
       return false;
     } else 
       return true;

@@ -77,11 +77,13 @@ Opening::Init() {
   HitMark::Init();
 #endif
 
+#if 0
 #ifdef HAVE_LIBESD
   m_pid = theSound.InitBGM( SOUND_OPENING );
 #endif
 #ifdef WIN32
   theSound.InitBGM( SOUND_OPENING );
+#endif
 #endif
 
   return true;
@@ -1028,6 +1030,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     }
   }
 
+#if 0
 #ifdef WIN32
   if ( m_count == 0 )
     theSound.PlayBGM();
@@ -1043,6 +1046,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
   if ( m_count >= m_bgmCount/(441*2*2) )
     m_bgmCount += theSound.PlayBGM();
 
+#endif
 #endif
 
   if ( KeyHistory[Histptr] == 27 || MouseBHistory[Histptr] ) {	// ESC

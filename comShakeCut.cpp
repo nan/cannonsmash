@@ -36,13 +36,14 @@ ComShakeCut::ComShakeCut( long playerType, long side,
 			  double x, double y, double z,
 			  double vx, double vy, double vz,
 			  long status, long swing,
-			  long swingType, long afterSwing, long swingError,
+			  long swingType, bool swingSide,
+			  long afterSwing, long swingError,
 			  double targetX, double targetY,
 			  double eyeX, double eyeY, double eyeZ,
 			  long pow, double spin, double stamina ) :
   ShakeCut( playerType, side, x, y, z, vx, vy, vz, status, swing, swingType,
-	    afterSwing, swingError, targetX, targetY, eyeX, eyeY, eyeZ,
-	    pow, spin, stamina ), ComPlayer() {
+	    swingSide, afterSwing, swingError, targetX, targetY,
+	    eyeX, eyeY, eyeZ, pow, spin, stamina ), ComPlayer() {
 }
 
 ComShakeCut::~ComShakeCut() {
@@ -173,6 +174,7 @@ ComShakeCut::Think() {
 
       SetTargetX( opponent );
 
+#if 0
       if ( (tmpBall->GetZ()-TABLEHEIGHT)/fabs(m_y - m_targetY) < 0.0 ) {
 	m_targetY = TABLELENGTH/6*m_side;
 	Swing( 1 );
@@ -183,6 +185,20 @@ ComShakeCut::Think() {
 	m_targetY = TABLELENGTH/16*6*m_side;
 	Swing( 3 );
       }
+#else
+      if ( (tmpBall->GetZ()-TABLEHEIGHT)/fabs(m_y - m_targetY) < 0.0 )
+	m_targetY = TABLELENGTH/6*m_side;
+      else if ( (tmpBall->GetZ()-TABLEHEIGHT)/fabs(m_y-m_targetY) < 0.1 )
+	m_targetY = TABLELENGTH/4*m_side;
+      else
+	m_targetY = TABLELENGTH/16*6*m_side;
+
+      if ( (m_x-tmpBall->GetX())*m_side < 0 )
+	Swing(3);
+      else
+	Swing(1);
+#endif
+
       m_pow = 8;
     }
     delete tmpBall;

@@ -124,20 +124,7 @@ Event::IdleFunc() {
     _perfCount = 0;
     perfs = 0;
 
-#if 0
-    for ( int i = 0 ; i < MAX_HISTORY ; i++ ) {
-      theEvent.m_MouseXHistory[i] = 0;
-      theEvent.m_MouseYHistory[i] = 0;
-      theEvent.m_MouseBHistory[i] = 0;
-      theEvent.m_BacktrackBuffer[i].sec = m_lastTime.time;
-      theEvent.m_BacktrackBuffer[i].count = m_lastTime.millitm;
-      theEvent.m_BacktrackBuffer[i].theBall = theBall;
-      CopyPlayerData( theEvent.m_BacktrackBuffer[i].thePlayer, thePlayer );
-      CopyPlayerData( theEvent.m_BacktrackBuffer[i].comPlayer, comPlayer );
-    }
-#else
     ClearBacktrack();
-#endif
 
     return;
   }
@@ -352,6 +339,7 @@ CopyPlayerData( struct PlayerData& dest, Player* src ) {
   dest.status = src->GetStatus();
   dest.swing = src->GetSwing();
   dest.swingType = src->GetSwingType();
+  dest.swingSide = src->GetSwingSide();
   dest.swingError = src->GetSwingError();
   dest.targetX = src->GetTargetX();
   dest.targetY = src->GetTargetY();

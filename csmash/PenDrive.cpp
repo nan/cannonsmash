@@ -34,12 +34,13 @@ PenDrive::PenDrive(long side) : Player(side) {
 
 PenDrive::PenDrive( long playerType, long side, double x, double y, double z,
 		    double vx, double vy, double vz,long status, long swing,
-		    long swingType, long afterSwing, long swingError,
+		    long swingType, bool swingSide, long afterSwing,
+		    long swingError,
 		    double targetX, double targetY, double eyeX, double eyeY,
 		    double eyeZ, long pow, double spin, double stamina ) :
   Player( playerType, side, x, y, z, vx, vy, vz, status, swing, swingType,
-	  afterSwing, swingError, targetX, targetY, eyeX, eyeY, eyeZ,
-	  pow, spin, stamina ) {
+	  swingSide, afterSwing, swingError, targetX, targetY,
+	  eyeX, eyeY, eyeZ, pow, spin, stamina ) {
 }
 
 PenDrive::~PenDrive() {
@@ -73,7 +74,7 @@ PenDrive::Swing( long spin ) {
     return false;
 
   m_swing = 11;
-  m_pow = 0;
+  m_pow = 8;
 
   // 予想打球点とボールの性質から打ち方を決める
   // 0.1秒後のボールの位置を推定する
@@ -83,6 +84,14 @@ PenDrive::Swing( long spin ) {
 
   for ( int i = 0 ; i < 10 ; i++ )
     tmpBall->Move();
+
+#if 0
+#else
+  if ( spin < 3 )
+    m_swingSide = false;
+  else
+    m_swingSide = true;
+#endif
 
   SwingType( tmpBall, spin );
 
@@ -131,10 +140,18 @@ PenDrive::StartSwing( long spin ) { // 引数はサーブ時のみ有効
 	break;
       }
 
+      m_swingSide = true;
+
       if ( thePlayer == this && mode == MODE_MULTIPLAY )
 	theEvent.SendSwing( this );
-    } else
+    } else {
+      if ( (m_x-tmpBall->GetX())*m_side > 0 )
+	m_swingSide = false;
+      else
+	m_swingSide = true;
+
       SwingType( tmpBall, spin );
+    }
 
     delete tmpBall;
   }
@@ -174,11 +191,21 @@ PenDrive::HitBall() {
 
     GetModifiedTarget( targetX, targetY );
 
+#if 0
     if ( ((m_side == 1 && theBall.GetStatus() == 3) ||
 	  (m_side ==-1 && theBall.GetStatus() == 1)) &&
 	 fabs(m_x-theBall.GetX()) < 0.6 && 
 	 (m_y-theBall.GetY())*m_side < 0.3 &&
 	 (m_y-theBall.GetY())*m_side > -0.6 ) {
+#else
+    if ( ((m_side == 1 && theBall.GetStatus() == 3) ||
+	  (m_side ==-1 && theBall.GetStatus() == 1)) &&
+	 fabs(m_x-theBall.GetX()) < 0.6 && 
+	 ((GetSwingSide() && (m_x-theBall.GetX())*m_side < 0 ) ||
+	  (!GetSwingSide() && (m_x-theBall.GetX())*m_side > 0 )) &&
+	 (m_y-theBall.GetY())*m_side < 0.3 &&
+	 (m_y-theBall.GetY())*m_side > -0.6 ) {
+#endif
       AddStatus( -fabs(fabs(m_x-theBall.GetX())-0.3)*100 );
 
       double maxVy;
@@ -237,22 +264,42 @@ PenDrive::SwingType( Ball *ball, long spin ) {
 	 NETHEIGHT/(TABLELENGTH/2)*0.5 ) {	// 台上の低い球
       if ( ball->GetSpin() < 0 ) {
 	m_swingType = SWING_POKE;
+#if 0
 	m_spin = -spin*0.2-0.3;
+#else
+	m_spin = -0.7;
+#endif
       } else {
 	m_swingType = SWING_NORMAL;
+#if 0
 	m_spin = spin*0.2;
+#else
+	m_spin = 0.4;
+#endif
       }
     } else if ( ball->GetZ() < TABLEHEIGHT+NETHEIGHT*2 ) {	// ネットの下
       if ( ForeOrBack() ) {
 	m_swingType = SWING_DRIVE;
+#if 0
 	m_spin = spin*0.3+0.4;
+#else
+	m_spin = 1.0;
+#endif
       } else {
 	if ( ball->GetSpin() < 0 ) {
 	  m_swingType = SWING_POKE;
+#if 0
 	  m_spin = -spin*0.2-0.3;
+#else
+	  m_spin = -0.7;
+#endif
 	} else {
 	  m_swingType = SWING_NORMAL;
+#if 0
 	  m_spin = spin*0.2;
+#else
+	  m_spin = 0.4;
+#endif
 	}
       }
     } else if ( fabs(ball->GetY()) < TABLELENGTH/2+1.0 &&
@@ -261,11 +308,19 @@ PenDrive::SwingType( Ball *ball, long spin ) {
       m_spin = 0.2;
     } else {
       m_swingType = SWING_NORMAL;
+#if 0
       m_spin = spin*0.2;
+#else
+      m_spin = 0.4;
+#endif
     }
   } else {
     m_swingType = SWING_NORMAL;
+#if 0
     m_spin = spin*0.2;
+#else
+    m_spin = 0.4;
+#endif
   }
 
   return true;

@@ -72,7 +72,7 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   if ( m_smashPtr >= 0 ) {	// スマッシュリプレイ
     delayCounter++;
-    if ( m_smashCount != 2 && theBall.GetStatus() == 3 &&
+    if ( theBall.GetStatus() == 3 &&
 	 (delayCounter%5) != 0 ) {
       Histptr--;
       if ( Histptr < 0 )
@@ -84,7 +84,7 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( Histptr == m_smashPtr ) {
       SmashEffect(false, Histptr);
       m_smashCount++;
-      if ( m_smashCount > 2 ) {
+      if ( m_smashCount > 1 ) {
 	m_smashCount = 0;
 	m_smashPtr = -1;
 	m_smash = false;
@@ -144,14 +144,6 @@ SoloPlay::LookAt( double &srcX, double &srcY, double &srcZ,
 	destX = theBall.GetX();
 	destY = theBall.GetY();
 	destZ = theBall.GetZ();
-	break;
-      case 2:
-	srcX = thePlayer->GetX() + thePlayer->GetEyeX();
-	srcY = thePlayer->GetY() + thePlayer->GetEyeY();
-	srcZ = thePlayer->GetZ() + thePlayer->GetEyeZ();
-	destX = thePlayer->GetLookAtX();
-	destY = thePlayer->GetLookAtY();
-	destZ = thePlayer->GetLookAtZ();
 	break;
       default:
 	printf( "%d\n", (int)m_smashCount );

@@ -55,7 +55,7 @@ public:
   Player( long side );
   Player( long playerType, long side, double x, double y, double z, 
 	  double vx, double vy, double vz,long status, long swing, 
-	  long swingType, long afterSwing, long swingError, 
+	  long swingType, bool swingSide, long afterSwing, long swingError, 
 	  double targetX, double targetY, double eyeX, double eyeY,
 	  double eyeZ, long pow, double spin, double stamina );
 
@@ -96,6 +96,7 @@ public:
   virtual long   GetStatus() { return m_status; }
   virtual long   GetSwing() { return m_swing; }
   virtual long   GetSwingType() { return m_swingType; }
+  virtual bool   GetSwingSide() { return m_swingSide; }
   virtual long   GetSwingError() { return m_swingError; }
   virtual long   GetAfterSwing() { return m_afterSwing; }
 
@@ -139,6 +140,7 @@ protected:
   long m_status;	// 体勢ゲージ値
   long m_swing;		// スイングの状態
   long m_swingType;	// スイングの種類
+  bool m_swingSide;	// フォアかバックか
   long m_afterSwing;	// スイング後の硬直時間
   long m_swingError;	// ボールを打ったときの誤差. 
                         // 0 --- Perfect

@@ -221,10 +221,14 @@ Title::GetMenuNum( long major, long minor ) {
     case MENU_CONFIG_MODE:
       return 3;
     case MENU_CONFIG_SOUND:
+#if 0
 #ifdef HAVE_LIBESD
       return 2;
 #else
       return 0;
+#endif
+#else
+      return 2;
 #endif
     }
   }

@@ -296,6 +296,7 @@ Sound::SetSoundMode( long mode ) {
 
 long
 Sound::InitBGM( char *filename ) {
+#if 0
 #ifdef HAVE_LIBESD
   int filedes[2];
   long pid;
@@ -321,6 +322,7 @@ Sound::InitBGM( char *filename ) {
   read( fd, m_bgmSound, 4*1024*1024 );
   close( fd );
 #endif
+#endif
 
   return 0;
 }
@@ -328,6 +330,7 @@ Sound::InitBGM( char *filename ) {
 // 別スレッド化したい
 long
 Sound::PlayBGM() {
+#if 0
 #ifdef WIN32
   char *data;
 
@@ -356,6 +359,7 @@ Sound::PlayBGM() {
       }
     }
   }
+#endif
 #endif
 
   return 0;

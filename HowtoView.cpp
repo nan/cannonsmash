@@ -253,7 +253,10 @@ HowtoView::RedrawAlpha() {
     break;
   case 4:
     glColor4f( 1.0, 1.0, 1.0, 0.0 );
-    glRasterPos2i( 470, 170 );
+    if ( m_howto->GetCount() < 1000 )
+      glRasterPos2i( 470, 170 );
+    else
+      glRasterPos2i( 200, 170 );
 
     glBitmap( 50, 50, 0.0, 0.0, 0.0, 0, &m_arrow[1][0] );
     break;

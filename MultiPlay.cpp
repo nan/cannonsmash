@@ -158,7 +158,7 @@ SendPlayerData() {
 Player *
 ReadPlayerData() {
   double x, y, z, vx, vy, vz, spin;
-  long playerType, side, swing, swingType, afterSwing, swingError, pow;
+  long playerType, side, swing, swingType, swingSide, afterSwing, swingError, pow;
   double targetX, targetY, eyeX, eyeY, eyeZ, stamina;
   long stat;
   char buf[256];
@@ -192,6 +192,7 @@ ReadPlayerData() {
   b = ReadLong( b, stat );
   b = ReadLong( b, swing );
   b = ReadLong( b, swingType );
+  b = ReadLong( b, swingSide );
   b = ReadLong( b, afterSwing );
   b = ReadLong( b, swingError );
 
@@ -208,19 +209,22 @@ ReadPlayerData() {
   switch ( playerType ) {
   case PLAYER_PENATTACK:
     player = new PenAttack( playerType, side, x, y, z, vx, vy, vz, stat,
-			    swing, swingType, afterSwing, swingError,
+			    swing, swingType, (bool)swingSide, afterSwing,
+			    swingError,
 			    targetX, targetY, eyeX, eyeY, eyeZ, pow,
 			    spin, stamina );
     break;
   case PLAYER_SHAKECUT:
     player = new ShakeCut( playerType, side, x, y, z, vx, vy, vz, stat,
-			   swing, swingType, afterSwing, swingError,
+			   swing, swingType, (bool)swingSide, afterSwing,
+			   swingError,
 			   targetX, targetY, eyeX, eyeY, eyeZ, pow,
 			   spin, stamina );
     break;
   case PLAYER_PENDRIVE:
     player = new PenDrive( playerType, side, x, y, z, vx, vy, vz, stat,
-			   swing, swingType, afterSwing, swingError,
+			   swing, swingType, (bool)swingSide, afterSwing,
+			   swingError,
 			   targetX, targetY, eyeX, eyeY, eyeZ, pow,
 			   spin, stamina );
     break;
@@ -760,7 +764,7 @@ ExternalPSData::Read( long sock ) {
 
   long len = 0;
   while (1) {
-    if ( (len+=recv( sock, data+len, 20-len, 0 )) == 20 )
+    if ( (len+=recv( sock, data+len, 24-len, 0 )) == 24 )
       break;
   }
 

@@ -27,7 +27,7 @@ public:
   PenAttack(long side);
   PenAttack( long playerType, long side, double x, double y, double z, 
 	     double vx, double vy, double vz,long status, long swing, 
-	     long swingType, long afterSwing, long swingError, 
+	     long swingType, bool swingSide, long afterSwing, long swingError, 
 	     double targetX, double targetY, double eyeX, double eyeY,
 	     double eyeZ, long pow, double spin, double stamina );
   virtual ~PenAttack();

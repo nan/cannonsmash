@@ -22,7 +22,7 @@ AC_CHECK_LIB(GL, glLoadIdentity, , [AC_CHECK_LIB(MesaGL, glLoadIdentity, , [AC_C
 AC_CHECK_LIB(GLU, gluPerspective, , [AC_CHECK_LIB(MesaGLU, gluPerspective, , [AC_CHECK_LIB(GLU32, main, , AC_MSG_ERROR(GLU library not found))])])
 AC_CHECK_LIB(glut, glutCreateWindow, , [AC_CHECK_LIB(glut32, main, , AC_MSG_ERROR(glut library not found.))])
 AC_CHECK_LIB(esd, esd_play_stream)
-AC_CHECK_LIB(pthread, pthread_create)
+dnl AC_CHECK_LIB(pthread, pthread_create)
 AC_CHECK_LIB(z, gzdopen)
 dnl AC_CHECK_LIB(SDL, SDL_Init)
 dnl AC_CHECK_LIB(SDL_mixer, Mix_OpenAudio)

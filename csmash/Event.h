@@ -33,6 +33,7 @@ struct PlayerData {
   long status;
   long swing;
   long swingType;
+  bool swingSide;
   long afterSwing;
   long swingError;
   double targetX;

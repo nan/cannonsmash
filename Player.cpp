@@ -101,7 +101,8 @@ Player::Player( long side ) {
 
 Player::Player( long playerType, long side, double x, double y, double z, 
 		double vx, double vy, double vz,long status, long swing, 
-		long swingType, long afterSwing, long swingError, 
+		long swingType, bool swingSide, long afterSwing,
+		long swingError, 
 		double targetX, double targetY, double eyeX, double eyeY,
 		double eyeZ, long pow, double spin, double stamina ) {
   m_side = side;
@@ -118,6 +119,7 @@ Player::Player( long playerType, long side, double x, double y, double z,
   m_swing = swing;
   m_afterSwing = afterSwing;
   m_swingType = swingType;
+  m_swingSide = swingSide;
   m_swingError = swingError;
   m_targetX = targetX;
   m_targetY = targetY;
@@ -215,6 +217,7 @@ Player::Reset( struct PlayerData *p ) {
   m_status = p->status;
   m_swing = p->swing;
   m_swingType = p->swingType;
+  m_swingSide = p->swingSide;
   m_afterSwing = p->afterSwing;
   m_swingError = p->swingError;
   m_targetX = p->targetX;
@@ -364,6 +367,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	double ydiff = tmpBall->GetY() - (m_y+m_vy*(20-m_swing)*TICK);
 
 	double vxdiff, vydiff;
+#if 0	// 難しくなったと言われたのでちょっと戻す
 	if ( fabs(xdiff) > 0.6 ) {
 	  if ( xdiff > 0.0 )
 	    vxdiff = (xdiff-0.3)/TICK/(20-m_swing);
@@ -377,6 +381,19 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
 	  m_vx += vxdiff;
 	}
+#else
+	if ( xdiff > 0.0 )
+	  vxdiff = (xdiff-0.3)/TICK/(20-m_swing);
+	else
+	  vxdiff = (xdiff+0.3)/TICK/(20-m_swing);
+
+	if ( vxdiff > 5.0 )
+	  vxdiff = 5.0;
+	else if ( vxdiff < -5.0 )
+	  vxdiff = -5.0;
+
+	m_vx += vxdiff;
+#endif
 
 	if ( fabs(ydiff) > 0.3 ) {
 	  vydiff = ydiff/TICK/(20-m_swing);
@@ -515,7 +532,7 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
   }
 
 // 入力の反映
-  switch ( KeyHistory[Histptr] ){
+  switch ( KeyHistory[Histptr] ) {
   case '1':  case 'q':  case 'a':  case 'z':
   case '2':  case 'w':  case 's':  case 'x':
   case '3':
@@ -649,12 +666,15 @@ Player::KeyCheck( unsigned long *KeyHistory, long *MouseXHistory,
     }
   }
 
+#if 0
   if ( mouse & (BUTTON_RIGHT|BUTTON_MIDDLE|BUTTON_LEFT) &&
        m_swing > 10 && m_swing <= 20 ) {
     m_pow++;
     if ( m_pow > 10 )
       m_pow = 10;
   }
+#else
+#endif
 
   return true;
 }
@@ -1044,6 +1064,7 @@ Player::GetHand( double &degx, double &degy, double &degz ) {
 
 bool
 Player::ForeOrBack() {
+#if 0
   double px, py, bx, by, bvx, bvy;
   double t, btx;
 
@@ -1078,6 +1099,9 @@ Player::ForeOrBack() {
     return true;
   else
     return false;
+#else
+  return GetSwingSide();
+#endif
 }
 
 bool
@@ -1139,10 +1163,14 @@ Player::ExternalSwing( long pow, double spin, long swingType, long swing ) {
 bool
 Player::ExternalSwing( char *buf ) {
   char *b = buf;
+  long swingSide;
   b = ReadLong( b, m_pow );
   b = ReadDouble( b, m_spin );
   b = ReadLong( b, m_swingType );
+  b = ReadLong( b, swingSide );
   b = ReadLong( b, m_swing );
+
+  m_swingSide = (bool)swingSide;
 
   return true;
 }
@@ -1152,6 +1180,7 @@ Player::SendSwing( int sd ) {
   SendLong( sd, m_pow );
   SendDouble( sd, m_spin );
   SendLong( sd, m_swingType );
+  SendLong( sd, (long)m_swingSide );
   SendLong( sd, m_swing );
 
   return true;
@@ -1180,6 +1209,7 @@ Player::SendAll( int sd ) {
   SendLong( sd, m_status );
   SendLong( sd, m_swing );
   SendLong( sd, m_swingType );
+  SendLong( sd, (long)m_swingSide );
   SendLong( sd, m_afterSwing );
   SendLong( sd, m_swingError );
 
