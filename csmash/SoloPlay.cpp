@@ -26,8 +26,6 @@
 
 extern RCFile *theRC;
 
-extern Player* thePlayer;
-extern Player* comPlayer;
 extern Ball theBall;
 extern long mode;
 
@@ -56,16 +54,16 @@ SoloPlay::Init() {
 
 void
 SoloPlay::Create( long player, long com ) {
-  Event::ClearObject();
+  Control::ClearControl();
 
   m_theControl = new SoloPlay();
   m_theControl->Init();
 
-  thePlayer = Player::Create( player, 1, 0 );
-  comPlayer = Player::Create( com, -1, 1 );
+  m_thePlayer = Player::Create( player, 1, 0 );
+  m_comPlayer = Player::Create( com, -1, 1 );
 
-  thePlayer->Init();
-  comPlayer->Init();
+  m_thePlayer->Init();
+  m_comPlayer->Init();
 
   // Move it to view?
   SDL_ShowCursor(SDL_DISABLE);
@@ -120,9 +118,9 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
       }
     } else {
       theBall.Move();
-      reDraw |= thePlayer->Move( KeyHistory, MouseXHistory,
+      reDraw |= m_thePlayer->Move( KeyHistory, MouseXHistory,
 				 MouseYHistory, MouseBHistory, Histptr );
-      reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+      reDraw |= m_comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
 
       Event::TheEvent()->BackTrack(Histptr);
     }
@@ -131,9 +129,9 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
   }
 
   theBall.Move();
-  reDraw |= thePlayer->Move( KeyHistory, MouseXHistory,
+  reDraw |= m_thePlayer->Move( KeyHistory, MouseXHistory,
 			     MouseYHistory, MouseBHistory, Histptr );
-  reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+  reDraw |= m_comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
 
   if ( theBall.GetStatus() == 1 && prevStatus != 1 ) {
     if ( hypot( theBall.GetVY(), theBall.GetVZ() ) > 8.0 ) {
@@ -153,16 +151,16 @@ SoloPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
 bool
 SoloPlay::LookAt( double &srcX, double &srcY, double &srcZ,
 		  double &destX, double &destY, double &destZ ) {
-  if (thePlayer) {
+  if (m_thePlayer) {
     if ( m_smashPtr >= 0 ) {	// Smash replay
       switch (m_smashCount) {
       case 0:
 	srcX = 0;
-	srcY = TABLELENGTH*thePlayer->GetSide();
+	srcY = TABLELENGTH*m_thePlayer->GetSide();
 	srcZ = 1.6;
 
 	destX = 0;
-	destY = -TABLELENGTH/2*thePlayer->GetSide();
+	destY = -TABLELENGTH/2*m_thePlayer->GetSide();
 	destZ = TABLEHEIGHT;
 	break;
       case 1:
@@ -178,12 +176,12 @@ SoloPlay::LookAt( double &srcX, double &srcY, double &srcZ,
 	printf( "%d\n", (int)m_smashCount );
       }
     } else {
-      srcX = thePlayer->GetX() + thePlayer->GetEyeX();
-      srcY = thePlayer->GetY() + thePlayer->GetEyeY();
-      srcZ = thePlayer->GetZ() + thePlayer->GetEyeZ();
-      destX = thePlayer->GetLookAtX();
-      destY = thePlayer->GetLookAtY();
-      destZ = thePlayer->GetLookAtZ();
+      srcX = m_thePlayer->GetX() + m_thePlayer->GetEyeX();
+      srcY = m_thePlayer->GetY() + m_thePlayer->GetEyeY();
+      srcZ = m_thePlayer->GetZ() + m_thePlayer->GetEyeZ();
+      destX = m_thePlayer->GetLookAtX();
+      destY = m_thePlayer->GetLookAtY();
+      destZ = m_thePlayer->GetLookAtZ();
     }
   }
 
@@ -203,8 +201,8 @@ SoloPlay::SmashEffect( bool start, long histPtr ) {
     smashPtr = MAX_HISTORY-1;
 
   if (start) {
-    CopyPlayerData( p1, thePlayer );
-    CopyPlayerData( p2, comPlayer );
+    CopyPlayerData( p1, m_thePlayer );
+    CopyPlayerData( p2, m_comPlayer );
     b = theBall;
     score1 = m_Score1;
     score2 = m_Score2;
@@ -221,8 +219,8 @@ SoloPlay::SmashEffect( bool start, long histPtr ) {
 
     Event::TheEvent()->BackTrack( histPtr );
   } else {
-    thePlayer->Reset( &p1 );
-    comPlayer->Reset( &p2 );
+    m_thePlayer->Reset( &p1 );
+    m_comPlayer->Reset( &p2 );
     theBall = b;
     m_Score1 = score1;
     m_Score2 = score2;

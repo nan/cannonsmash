@@ -26,6 +26,7 @@
 #include "NetPenDrive.h"
 #include "NetShakeCut.h"
 #include "RCFile.h"
+#include "Control.h"
 
 #ifdef LOGGING
 #include "Logging.h"
@@ -50,7 +51,6 @@ bool endian;
 extern int theSocket;
 
 extern Ball theBall;
-extern Player *thePlayer;
 
 extern RCFile *theRC;
 
@@ -184,10 +184,11 @@ ReadTime( int sd, struct timeb* tb ) {
 void
 SendPlayerData() {
   send( theSocket, "PI", 2, 0 );
-  thePlayer->SendAll( theSocket );
+  Control::TheControl()->GetThePlayer()->SendAll( theSocket );
 
 #ifdef LOGGING
-  Logging::GetLogging()->LogPlayer( LOG_COMTHEPLAYER, thePlayer );
+  Logging::GetLogging()->LogPlayer( LOG_COMTHEPLAYER,
+				    Control::TheControl()->GetThePlayer() );
 #endif
 }
 

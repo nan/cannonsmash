@@ -60,6 +60,7 @@ protected:
 
   void ReadPI();
   void ReadOI();
+  void ReadOV();
 
   LobbyClientView *m_view;
 

@@ -22,8 +22,6 @@
 #include "Player.h"
 #include "Ball.h"
 
-extern Player* thePlayer;
-extern Player* comPlayer;
 extern Ball theBall;
 extern long mode;
 
@@ -35,16 +33,16 @@ PracticePlay::~PracticePlay() {
 
 void
 PracticePlay::Create( long player, long com ) {
-  Event::ClearObject();
+  Control::ClearControl();
 
   m_theControl = new PracticePlay();
   m_theControl->Init();
 
-  thePlayer = Player::Create( player, 1, 0 );
-  comPlayer = Player::Create( com, -1, 1 );
+  m_thePlayer = Player::Create( player, 1, 0 );
+  m_comPlayer = Player::Create( com, -1, 1 );
 
-  thePlayer->Init();
-  comPlayer->Init();
+  m_thePlayer->Init();
+  m_comPlayer->Init();
 
   // Move it to view?
   SDL_ShowCursor(0);

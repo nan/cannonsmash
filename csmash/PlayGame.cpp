@@ -25,8 +25,6 @@
 
 extern RCFile *theRC;
 
-extern Player* thePlayer;
-extern Player* comPlayer;
 extern Ball theBall;
 
 extern long mode;
@@ -149,7 +147,8 @@ PlayGame::ChangeScore() {
   }
 
   if ( theRC->gmode == GMODE_SIMPLE )
-    printf( _("You : %d -  %d : Opponent\n"), GetScore(thePlayer), GetScore(comPlayer) );
+    printf( _("You : %d -  %d : Opponent\n"), GetScore(m_thePlayer),
+	    GetScore(m_comPlayer) );
 }
 
 void
@@ -184,7 +183,7 @@ PlayGame::IsGameEnd() {
 void
 PlayGame::EndGame() {
   // Re-initialize
-  if ( GetScore(thePlayer) > GetScore(comPlayer) )
+  if ( GetScore(m_thePlayer) > GetScore(m_comPlayer) )
     wins++;
   else
     wins = 0;

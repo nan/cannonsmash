@@ -51,6 +51,9 @@
 
 #define RENDEREDGE 0
 
+vector4F Affine2Quaternion(affine4F aff);
+affine4F Quaternion2Affine(vector4F v, vector4F p);
+
 // for(;;) namescoping hack.
 // VC++ 6 is not compliant with latest ANSI C++ (but VC++7 does).
 #if defined(_MSC_VER) && (_MSC_VER <= 1200)
@@ -659,6 +662,237 @@ bool partsmotion::renderWire(int frame)
 	glPopMatrix();
     }
     return true;
+}
+
+bool partsmotion::render(double frame)
+{
+#define c(R,G,B,A) { R/255.0F, G/255.0F, B/255.0F, A/255.0F}
+    static GLfloat colors[][4] = {
+//	{ 0.4F, 0.4F, 0.4F, 1.0F},	// C0 default
+	c(250, 188, 137, 127),		// C0 default(skin)
+	c(1, 1, 1, 127),		// C1 eye
+	c(42, 19, 5, 127), 		// C2 hair
+	c(250, 188, 137, 127),		// C3 skin
+//	c(225, 7, 47, 127),		// C4 shirts (red)
+	c(3, 87, 125, 127),		// C4 shirts (blue)
+//	c(2, 13, 24, 127),		// C5 pants  (green)
+	c(0, 0, 0, 127),		// C5 pants  (black)
+	c(102, 7, 3, 127),		// C6 skin/shadow
+	c(255, 0, 0, 127),		// C7 racket/front
+	c(0, 0, 0, 127),		// C8 racket/back
+
+	{-1, -1, -1, -1}		// stop
+    };
+#undef c
+    GLfloat BLACK[4] = { 0,0,0,1 };
+
+    for (int i = 0; numParts > i; i++) {
+	const polyhedron &ref = parts[i]->ref;
+	if (0 == ref.numPolygons) continue;
+	const affine4F &aff1 = parts[i]->anim[frame];
+	affine4F aff2;
+
+	if ( frame+1 >= 50.0 )
+	  aff2 = parts[i]->anim[frame];
+	else
+	  aff2 = parts[i]->anim[frame+1];
+
+	vector4F q1 = Affine2Quaternion(aff1);
+	vector4F q2 = Affine2Quaternion(aff2);
+
+	if ( q1[1]*q2[1]+q1[2]*q2[2]+q1[3]*q2[3] < 0 )
+	  q2 = -q2;
+
+	vector4F q = q1*(1-(frame-(int)frame))+q2*(frame-(int)frame);
+
+	vector4F p;
+	p[0] = aff1[3][0]*(1-(frame-(int)frame))+aff2[3][0]*(frame-(int)frame);
+	p[1] = aff1[3][1]*(1-(frame-(int)frame))+aff2[3][1]*(frame-(int)frame);
+	p[2] = aff1[3][2]*(1-(frame-(int)frame))+aff2[3][2]*(frame-(int)frame);
+	p[3] = 1.0;
+
+	const affine4F &aff = Quaternion2Affine(q, p);
+
+	glPushMatrix();
+	glMultMatrixf((float*)&aff);
+
+	for (int j = 0; ref.numPolygons > j; j++) {
+	    polygon poly = ref.getPolygon(j);
+#if RENDEREDGE
+	    vector3F center(0);
+#endif
+	    glBegin(poly.glBeginSize());
+	    glColor4fv(colors[poly.c()]);
+	    for (int k = 0; poly.size > k; k++) {
+		glNormal3fv((float*)&poly.rn(k));
+#if RENDEREDGE
+		center += poly.rv(k);
+#endif
+		glVertex3fv((float*)&poly.rv(k));
+	    }
+	    glEnd();
+
+#if RENDEREDGE
+	    // stop here if alpha blending is active
+	    if (glIsEnabled(GL_BLEND)) continue;
+
+	    center /= poly.size;
+	    bool culling = glIsEnabled(GL_CULL_FACE)>0;
+	    if (!culling) glEnable(GL_CULL_FACE);
+
+	    glBegin(poly.glBeginSize());
+	    glColor4fv(BLACK);
+
+	    for (int k = poly.size-1; 0 <= k; --k) {
+		vector3F p = poly.rv(k);
+		p -= center;
+		Float l = p.len();
+		p *= 1 + (0.01F/l);
+		p += center;
+		p -= poly.n() * 1e-8F;
+		glVertex3fv((float*)&p);
+	    }
+	    glEnd();
+	    if (!culling) glDisable(GL_CULL_FACE);
+#endif
+	}
+	glPopMatrix();
+    }
+    return true;
+}
+
+bool partsmotion::renderWire(double frame)
+{
+    for (int i = 0; numParts > i; i++) {
+	const polyhedron &ref = parts[i]->ref;
+	if (0 == ref.numPolygons) continue;
+	const affine4F &aff1 = parts[i]->anim[frame];
+	affine4F aff2;
+
+	if ( frame+1 >= 50.0 )
+	  aff2 = parts[i]->anim[frame];
+	else
+	  aff2 = parts[i]->anim[frame+1];
+
+	vector4F q1 = Affine2Quaternion(aff1);
+	vector4F q2 = Affine2Quaternion(aff2);
+
+	if ( q1[1]*q2[1]+q1[2]*q2[2]+q1[3]*q2[3] < 0 )
+	  q2 = -q2;
+
+	vector4F q = q1*(1-(frame-(int)frame))+q2*(frame-(int)frame);
+
+	vector4F p;
+	p[0] = aff1[3][0]*(1-(frame-(int)frame))+aff2[3][0]*(frame-(int)frame);
+	p[1] = aff1[3][1]*(1-(frame-(int)frame))+aff2[3][1]*(frame-(int)frame);
+	p[2] = aff1[3][2]*(1-(frame-(int)frame))+aff2[3][2]*(frame-(int)frame);
+	p[3] = 1.0;
+
+	const affine4F &aff = Quaternion2Affine(q, p);
+
+	glPushMatrix();
+	glMultMatrixf((float*)&aff);
+
+	affine4F t;
+	glGetFloatv(GL_MODELVIEW_MATRIX, (float*)&t);
+	vector3F origin = vector3F(0) * ~t;
+	
+	glBegin(GL_LINES);
+	for (int j = 0; ref.numEdges > j; j++) {
+	    int p0 = ref.edges[j].p0;
+	    int p1 = ref.edges[j].p1;
+	    bool draw = false;
+	    vector3F v = ref.points[ref.edges[j].v0] - origin;
+	    if (p1 >= 0) {
+		Float i0 = v * ref.planeNormal[p0];
+		Float i1 = v * ref.planeNormal[p1];
+		if (i0 * i1 <= 0) draw = true;
+	    } else {
+#if 0
+                // Draw if the plane is facing toward eye.
+		Float i0 = v * ref.planeNormal[p0];
+		if (i0 <= 0) draw = true;
+#else	
+                // always draw *edge* edges.
+  		draw = true;
+#endif
+	    }
+
+	    if (draw) {
+		vector3F v0 = ref.points[ref.edges[j].v0];// - v * 0.01F;
+		vector3F v1 = ref.points[ref.edges[j].v1];// - v * 0.01F;
+		glVertex3fv((float*)&v0);
+		glVertex3fv((float*)&v1);
+	    }
+	}
+	glEnd();
+	glPopMatrix();
+    }
+    return true;
+}
+
+// http://skal.planet-d.net/demo/matrixfaq.htm#Q46
+vector4F
+Affine2Quaternion(affine4F aff) {
+  float t,s;
+  vector4F v;
+
+  t= aff[0][0] + aff[1][1] + aff[2][2] + 1.0f;
+
+  if ( t > 0.0 ) {
+    s = 0.5/sqrt(t);
+    v[0] = 0.25/s;
+    v[1] = (aff[2][1] - aff[1][2])*s;
+    v[2] = (aff[0][2] - aff[2][0])*s;
+    v[3] = (aff[1][0] - aff[0][1])*s;
+  } else if ( aff[0][0] >= aff[1][1] && aff[0][0] >= aff[2][2] ) {
+    s = sqrt(1.0 + aff[0][0] - aff[1][1] - aff[2][2])*2;
+    v[0] = (aff[1][2] + aff[2][1])/s;
+    v[1] = 0.5/s;
+    v[2] = (aff[0][1] + aff[1][0])/s;
+    v[3] = (aff[0][2] + aff[2][0])/s;
+  } else if ( aff[1][1] >= aff[0][0] && aff[1][1] >= aff[2][2] ) {
+    s = sqrt(1.0 + aff[1][1] - aff[0][0] - aff[2][2])*2;
+    v[0] = (aff[0][2] + aff[2][0])/s;
+    v[1] = (aff[0][1] + aff[1][0])/s;
+    v[2] = 0.5/s;
+    v[3] = (aff[1][2] + aff[2][1])/s;
+  } else {
+    s = sqrt(1.0 + aff[2][2] - aff[0][0] - aff[1][1])*2;
+    v[0] = (aff[0][1] + aff[1][0])/s;
+    v[1] = (aff[0][2] + aff[2][0])/s;
+    v[2] = (aff[1][2] + aff[2][1])/s;
+    v[3] = 0.5/s;
+  }
+
+  return v;
+}
+
+// http://skal.planet-d.net/demo/matrixfaq.htm#Q47
+affine4F
+Quaternion2Affine(vector4F v, vector4F p) {
+  affine4F ret;
+
+  ret[0][0] = 1.0 - 2*(v[2]*v[2] + v[3]*v[3]);
+  ret[0][1] =       2*(v[1]*v[2] - v[0]*v[3]);
+  ret[0][2] =       2*(v[1]*v[3] + v[0]*v[2]);
+  ret[1][0] =       2*(v[1]*v[2] + v[0]*v[3]);
+  ret[1][1] = 1.0 - 2*(v[1]*v[1] + v[3]*v[3]);
+  ret[1][2] =       2*(v[2]*v[3] - v[0]*v[1]);
+  ret[2][0] =       2*(v[1]*v[3] - v[0]*v[2]);
+  ret[2][1] =       2*(v[2]*v[3] + v[0]*v[1]);
+  ret[2][2] = 1.0 - 2*(v[1]*v[1] + v[2]*v[2]);
+
+  ret[3][0] = p[0];
+  ret[3][1] = p[1];
+  ret[3][2] = p[2];
+  ret[3][3] = p[3];
+
+  ret[0][3] = 0.0;
+  ret[1][3] = 0.0;
+  ret[2][3] = 0.0;
+
+  return ret;
 }
 
 #if 0

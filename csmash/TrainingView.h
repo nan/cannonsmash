@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,22 +18,20 @@
 
 #ifndef _TrainingView_
 #define _TrainingView_
-#include "View.h"
+#include "PlayGameView.h"
 
 class Training;
 
-class TrainingView : public View {
+class TrainingView : public PlayGameView {
 public:
   TrainingView();
   virtual ~TrainingView();
 
-  bool Init( Training * );
+  virtual bool Init( PlayGame * );
 
-  virtual bool Redraw();
   virtual bool RedrawAlpha();
 
 protected:
-  Training     *m_training;
   GLuint        m_max;
 };
 

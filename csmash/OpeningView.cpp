@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,8 +21,6 @@
 #include "Player.h"
 #include "Opening.h"
 
-extern Player* thePlayer;
-extern Player* comPlayer;
 
 OpeningView::OpeningView() {
 }
@@ -78,8 +76,8 @@ OpeningView::Redraw() {
   glLightfv(GL_LIGHT0, GL_DIFFUSE, light_intensity_dif);
   glLightfv(GL_LIGHT0, GL_SPECULAR, light_intensity_dif);
 
-  thePlayer->m_View->Redraw();
-  comPlayer->m_View->Redraw();
+  m_opening->GetThePlayer()->m_View->Redraw();
+  m_opening->GetComPlayer()->m_View->Redraw();
 
   if ( phrase >= 200 && phrase < 232 )
     m_opening->m_telop[0]->GetView()->Redraw();
@@ -89,8 +87,8 @@ OpeningView::Redraw() {
 
 bool
 OpeningView::RedrawAlpha() {
-  thePlayer->m_View->RedrawAlpha();
-  comPlayer->m_View->RedrawAlpha();
+  m_opening->GetThePlayer()->m_View->RedrawAlpha();
+  m_opening->GetComPlayer()->m_View->RedrawAlpha();
 
   long phrase, mod;
 

@@ -26,8 +26,6 @@
 
 extern long mode;
 
-extern Player *thePlayer;
-
 extern long wins;
 
 TrainingSelect::TrainingSelect() : PlayerSelect() {
@@ -46,7 +44,7 @@ TrainingSelect::Init() {
 
 void
 TrainingSelect::Create() {
-  Event::ClearObject();
+  Control::ClearControl();
 
   m_theControl = new TrainingSelect();
   m_theControl->Init();
@@ -64,7 +62,7 @@ TrainingSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
   // Next opponent
   if ( wins > 0 && m_selected == 0 ) {
     m_selected = 1;
-    m_rotate = (thePlayer->GetPlayerType()-1)*(360/TRAININGPLAYERS);
+    m_rotate = (m_thePlayer->GetPlayerType()-1)*(360/TRAININGPLAYERS);
     return true;
   }
 
@@ -85,7 +83,7 @@ TrainingSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     nothing = 0;
     if ( m_selected == 0 ) {
       m_selected = 1;
-      Sound::TheSound()->Play( SOUND_CLICK );
+      Sound::TheSound()->Play( SOUND_CLICK, 0, 0 );
     } else if ( m_selected > 100 ) {
       mode = MODE_TRAINING;
       return true;
@@ -124,7 +122,7 @@ TrainingSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
       m_rotate = (nextRotate+360/TRAININGPLAYERS/2)/(360/TRAININGPLAYERS)*
 	(360/TRAININGPLAYERS);
       lastRotate = 0;
-      Sound::TheSound()->Play( SOUND_CLICK );
+      Sound::TheSound()->Play( SOUND_CLICK, 0, 0 );
     } else
       m_rotate = nextRotate;
   }

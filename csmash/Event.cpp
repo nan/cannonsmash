@@ -41,8 +41,6 @@
 extern RCFile *theRC;
 
 extern Ball theBall;
-extern Player* thePlayer;
-extern Player* comPlayer;
 extern long mode;
 
 extern void Timer( int value );
@@ -394,8 +392,10 @@ Event::Record() {
   m_BacktrackBuffer[m_Histptr].count = m_lastTime.millitm/10;
 
   m_BacktrackBuffer[m_Histptr].theBall = theBall;
-  CopyPlayerData( m_BacktrackBuffer[m_Histptr].thePlayer, thePlayer );
-  CopyPlayerData( m_BacktrackBuffer[m_Histptr].comPlayer, comPlayer );
+  CopyPlayerData( m_BacktrackBuffer[m_Histptr].thePlayer,
+		  Control::GetThePlayer() );
+  CopyPlayerData( m_BacktrackBuffer[m_Histptr].comPlayer,
+		  Control::GetComPlayer() );
 
   if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
        mode == MODE_PRACTICE ) {
@@ -597,31 +597,11 @@ Event::SendPlayerAndBall( Player *player ) {
   return true;
 }
 
-void
-Event::ClearObject() {
-  if ( thePlayer && wins == 0 ) {
-    delete thePlayer;
-    thePlayer = NULL;
-    ClearSocket();
-  }
-  if ( comPlayer ) {
-    delete comPlayer;
-    comPlayer = NULL;
-  }
-  if ( Control::TheControl() ) {
-    if ( Control::TheControl()->IsPlaying() ) {
-      score1 = ((PlayGame *)Control::TheControl())->GetScore(1);
-      score2 = ((PlayGame *)Control::TheControl())->GetScore(-1);
-    }
-    delete Control::TheControl();
-  }
-}
-
 bool
 Event::BackTrack( long Histptr ) {
   theBall = m_BacktrackBuffer[Histptr].theBall;
-  thePlayer->Reset( &m_BacktrackBuffer[Histptr].thePlayer );
-  comPlayer->Reset( &m_BacktrackBuffer[Histptr].comPlayer );
+  Control::GetThePlayer()->Reset( &m_BacktrackBuffer[Histptr].thePlayer );
+  Control::GetComPlayer()->Reset( &m_BacktrackBuffer[Histptr].comPlayer );
 
   if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
        mode == MODE_PRACTICE) {
@@ -686,20 +666,21 @@ Event::ReadData() {
 	theBall.Move();
 
       if ( fThePlayer )
-	thePlayer->Move( m_KeyHistory, m_MouseXHistory,
-			 m_MouseYHistory, m_MouseBHistory, m_Histptr );
+	Control::GetThePlayer()->Move( m_KeyHistory, m_MouseXHistory,
+				       m_MouseYHistory, m_MouseBHistory,
+				       m_Histptr );
 
       if ( fComPlayer )
-	comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+	Control::GetComPlayer()->Move( NULL, NULL, NULL, NULL, 0 );
 
       while ( !(m_External->isNull()) &&
 	      m_External->sec == m_lastTime.time &&
 	      m_External->count == m_lastTime.millitm/10 ) {
 	Player *targetPlayer;
-	if ( m_External->side == thePlayer->GetSide() )
-	  targetPlayer = thePlayer;
-	else if ( m_External->side == comPlayer->GetSide() )
-	  targetPlayer = comPlayer;
+	if ( m_External->side == Control::GetThePlayer()->GetSide() )
+	  targetPlayer = Control::GetThePlayer();
+	else if ( m_External->side == Control::GetComPlayer()->GetSide() )
+	  targetPlayer = Control::GetComPlayer();
 	else {
 	  xerror("%s(%d) ExternalData", __FILE__, __LINE__);
 	  exit(1);
@@ -727,9 +708,11 @@ Event::ReadData() {
 	}
       }
       if ( fThePlayer )
-	CopyPlayerData( m_BacktrackBuffer[m_Histptr].thePlayer, thePlayer );
+	CopyPlayerData( m_BacktrackBuffer[m_Histptr].thePlayer,
+			Control::GetThePlayer() );
       if ( fComPlayer )
-	CopyPlayerData( m_BacktrackBuffer[m_Histptr].comPlayer, comPlayer );
+	CopyPlayerData( m_BacktrackBuffer[m_Histptr].comPlayer, 
+			Control::GetComPlayer() );
 
       m_lastTime.millitm += 10;
       if ( m_lastTime.millitm >= 1000 ) {
@@ -749,9 +732,9 @@ Event::ReadData() {
 		     m_BacktrackBuffer[m_Histptr].score2 );
     }
     if (!fThePlayer)
-      thePlayer->Reset( &m_BacktrackBuffer[m_Histptr].thePlayer );
+      Control::GetThePlayer()->Reset(&m_BacktrackBuffer[m_Histptr].thePlayer);
     if (!fComPlayer)
-      comPlayer->Reset( &m_BacktrackBuffer[m_Histptr].comPlayer );
+      Control::GetComPlayer()->Reset(&m_BacktrackBuffer[m_Histptr].comPlayer);
   }
 
   SDL_mutexV( networkMutex );
@@ -766,8 +749,10 @@ Event::ClearBacktrack() {
     Event::TheEvent()->m_BacktrackBuffer[i].sec = m_lastTime.time;
     Event::TheEvent()->m_BacktrackBuffer[i].count = m_lastTime.millitm/10;
     Event::TheEvent()->m_BacktrackBuffer[i].theBall = theBall;
-    CopyPlayerData( Event::TheEvent()->m_BacktrackBuffer[i].thePlayer, thePlayer );
-    CopyPlayerData( Event::TheEvent()->m_BacktrackBuffer[i].comPlayer, comPlayer );
+    CopyPlayerData( Event::TheEvent()->m_BacktrackBuffer[i].thePlayer, 
+		    Control::GetThePlayer() );
+    CopyPlayerData( Event::TheEvent()->m_BacktrackBuffer[i].comPlayer,
+		    Control::GetComPlayer() );
 
     Event::TheEvent()->m_BacktrackBuffer[i].score1 = 0;
     Event::TheEvent()->m_BacktrackBuffer[i].score2 = 0;

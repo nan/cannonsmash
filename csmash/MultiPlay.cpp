@@ -46,8 +46,6 @@ typedef int socklen_t;		/* mimic Penguin's typedef */
 extern long mode;
 
 extern Ball theBall;
-extern Player *thePlayer;
-extern Player *comPlayer;
 
 extern RCFile *theRC;
 
@@ -70,7 +68,7 @@ MultiPlay::StartServer() {
 
   SendPlayerData();
 
-  if ( !(comPlayer = ReadPlayerData()) ) {
+  if ( !(m_comPlayer = ReadPlayerData()) ) {
     xerror("%s(%d) ReadPlayerData", __FILE__, __LINE__);
     exit(1);
   }
@@ -132,7 +130,7 @@ MultiPlay::StartClient() {
   send( theSocket, buf, 60, 0 );
 
   // exchange player data
-  if ( !(comPlayer = ReadPlayerData()) ) {
+  if ( !(m_comPlayer = ReadPlayerData()) ) {
     xerror("%s(%d) ReadPlayerData", __FILE__, __LINE__);
     exit(1);
   }
@@ -164,7 +162,7 @@ void
 MultiPlay::Create( long player, long com ) {
   long side;
 
-  Event::ClearObject();
+  Control::ClearControl();
 
   m_theControl = new MultiPlay();
   m_theControl->Init();
@@ -174,8 +172,8 @@ MultiPlay::Create( long player, long com ) {
   else
     side = -1;	// client side
 
-  if ( thePlayer == NULL ) {
-    thePlayer = Player::Create( player, side, 0 );
+  if ( m_thePlayer == NULL ) {
+    m_thePlayer = Player::Create( player, side, 0 );
   }
 
   if ( side == 1 ) {
@@ -184,8 +182,8 @@ MultiPlay::Create( long player, long com ) {
     ((MultiPlay *)m_theControl)->StartClient();
   }
 
-  thePlayer->Init();
-  comPlayer->Init();
+  m_thePlayer->Init();
+  m_comPlayer->Init();
 
   SDL_ShowCursor(SDL_DISABLE);
   SDL_WM_GrabInput( SDL_GRAB_ON );
@@ -222,9 +220,9 @@ MultiPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
   bool reDraw = false;
 
   theBall.Move();
-  reDraw |= thePlayer->Move( KeyHistory, MouseXHistory,
+  reDraw |= m_thePlayer->Move( KeyHistory, MouseXHistory,
 			     MouseYHistory, MouseBHistory, Histptr );
-  reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+  reDraw |= m_comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
 
   return reDraw;
 }
@@ -232,13 +230,13 @@ MultiPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
 bool
 MultiPlay::LookAt( double &srcX, double &srcY, double &srcZ,
 		   double &destX, double &destY, double &destZ ) {
-  if (thePlayer) {
-    srcX = thePlayer->GetX() + thePlayer->GetEyeX();
-    srcY = thePlayer->GetY() + thePlayer->GetEyeY();
-    srcZ = thePlayer->GetZ() + thePlayer->GetEyeZ();
-    destX = thePlayer->GetLookAtX();
-    destY = thePlayer->GetLookAtY();
-    destZ = thePlayer->GetLookAtZ();
+  if (m_thePlayer) {
+    srcX = m_thePlayer->GetX() + m_thePlayer->GetEyeX();
+    srcY = m_thePlayer->GetY() + m_thePlayer->GetEyeY();
+    srcZ = m_thePlayer->GetZ() + m_thePlayer->GetEyeZ();
+    destX = m_thePlayer->GetLookAtX();
+    destY = m_thePlayer->GetLookAtY();
+    destZ = m_thePlayer->GetLookAtZ();
   }
 
   return true;
@@ -451,7 +449,7 @@ MultiPlay::WaitForData( void *dum ) {
       bool ret;
 
       SDL_mutexP( networkMutex );
-      ret = Event::TheEvent()->GetExternalData( comPlayer->GetSide() );
+      ret = Event::TheEvent()->GetExternalData( m_comPlayer->GetSide() );
       SDL_mutexV( networkMutex );
 
       if ( !ret ) {
@@ -559,9 +557,9 @@ bool
 ExternalPVData::Apply( Player *targetPlayer, bool &fThePlayer,
 		       bool &fComPlayer, bool &fTheBall ) {
   targetPlayer->Warp( data );
-  if ( targetPlayer == thePlayer )
+  if ( targetPlayer == Control::GetThePlayer() )
     fThePlayer = true;
-  else if ( targetPlayer == comPlayer )
+  else if ( targetPlayer == Control::GetComPlayer() )
     fComPlayer = true;
 
 #ifdef LOGGING
@@ -604,9 +602,9 @@ bool
 ExternalPSData::Apply( Player *targetPlayer, bool &fThePlayer,
 		       bool &fComPlayer, bool &fTheBall ) {
   targetPlayer->ExternalSwing( data );
-  if ( targetPlayer == thePlayer )
+  if ( targetPlayer == Control::GetThePlayer() )
     fThePlayer = true;
-  else if ( targetPlayer == comPlayer )
+  else if ( targetPlayer == Control::GetComPlayer() )
     fComPlayer = true;
 
 #ifdef LOGGING

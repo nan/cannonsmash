@@ -32,11 +32,11 @@ TrainingView::~TrainingView() {
 }
 
 bool
-TrainingView::Init( Training *training ) {
+TrainingView::Init( PlayGame *training ) {
   static char max[20] = "images/Max.ppm";
   ImageData Image;
 
-  m_training = training;
+  PlayGameView::Init( training );
 
   glGenTextures( 1, &m_max );
   Image.LoadPPM( max );
@@ -64,12 +64,9 @@ TrainingView::Init( Training *training ) {
 }
 
 bool
-TrainingView::Redraw() {
-  return true;
-}
-
-bool
 TrainingView::RedrawAlpha() {
+  PlayGameView::RedrawAlpha();
+
   glPushMatrix();
   glTranslatef( TABLEWIDTH/2-0.3F, 0, TABLEHEIGHT+NETHEIGHT );
 
@@ -84,8 +81,8 @@ TrainingView::RedrawAlpha() {
   glTexCoord2f(1.0F, 80.0F/256); glVertex3f( 0.2F, 0.0F, 0.2F );
   glEnd();
 
-  if ( m_training->GetTrainingCount() < 10 ) {
-    glBindTexture(GL_TEXTURE_2D, theBall.GetView()->m_number[m_training->GetTrainingCount()] );
+  if ( ((Training *)m_playGame)->GetTrainingCount() < 10 ) {
+    glBindTexture(GL_TEXTURE_2D, theBall.GetView()->m_number[((Training *)m_playGame)->GetTrainingCount()] );
     glBegin(GL_QUADS);
     glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.2F, 0.0F, 0.0F );
     glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.2F, 0.0F, 0.2F );
@@ -93,14 +90,14 @@ TrainingView::RedrawAlpha() {
     glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.4F, 0.0F, 0.0F );
     glEnd();
   } else {	/* Y2K :-) */
-    glBindTexture(GL_TEXTURE_2D, theBall.GetView()->m_number[(m_training->GetTrainingCount()/10)%10] );
+    glBindTexture(GL_TEXTURE_2D, theBall.GetView()->m_number[(((Training *)m_playGame)->GetTrainingCount()/10)%10] );
     glBegin(GL_QUADS);
     glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.2F, 0.0F, 0.0F );
     glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.2F, 0.0F, 0.2F );
     glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.3F, 0.0F, 0.2F );
     glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.3F, 0.0F, 0.0F );
     glEnd();
-    glBindTexture(GL_TEXTURE_2D, theBall.GetView()->m_number[m_training->GetTrainingCount()%10] );
+    glBindTexture(GL_TEXTURE_2D, theBall.GetView()->m_number[((Training *)m_playGame)->GetTrainingCount()%10] );
     glBegin(GL_QUADS);
     glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.3F, 0.0F, 0.0F );
     glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.3F, 0.0F, 0.2F );
@@ -108,9 +105,9 @@ TrainingView::RedrawAlpha() {
     glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.4F, 0.0F, 0.0F );
     glEnd();
   }
-  if ( m_training->GetTrainingMax() < 10 ) {
+  if ( ((Training *)m_playGame)->GetTrainingMax() < 10 ) {
     glBindTexture(GL_TEXTURE_2D,
-		  theBall.GetView()->m_number[m_training->GetTrainingMax()] );
+		  theBall.GetView()->m_number[((Training *)m_playGame)->GetTrainingMax()] );
     glBegin(GL_QUADS);
     glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.2F, 0.0F, 0.2F );
     glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.2F, 0.0F, 0.4F );
@@ -119,7 +116,7 @@ TrainingView::RedrawAlpha() {
     glEnd();
   } else {	/* Y2K :-) */
     glBindTexture(GL_TEXTURE_2D,
-		  theBall.GetView()->m_number[(m_training->GetTrainingMax()/10)%10] );
+		  theBall.GetView()->m_number[(((Training *)m_playGame)->GetTrainingMax()/10)%10] );
     glBegin(GL_QUADS);
     glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.2F, 0.0F, 0.2F );
     glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.2F, 0.0F, 0.4F );
@@ -127,7 +124,7 @@ TrainingView::RedrawAlpha() {
     glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.3F, 0.0F, 0.2F );
     glEnd();
     glBindTexture(GL_TEXTURE_2D,
-		  theBall.GetView()->m_number[m_training->GetTrainingMax()%10] );
+		  theBall.GetView()->m_number[((Training *)m_playGame)->GetTrainingMax()%10] );
     glBegin(GL_QUADS);
     glTexCoord2f(0.0F, 1.0F); glVertex3f( 0.3F, 0.0F, 0.2F );
     glTexCoord2f(0.0F, 0.0F); glVertex3f( 0.3F, 0.0F, 0.4F );

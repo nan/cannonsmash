@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ public:
 
   void SetSensitive( bool sensitive );
   void UpdateTable();
+  void ShowUpdateDialog( char *version );
 protected:
   static gint IdleFunc( gpointer data );
   static void SelectRow( GtkCList *clist, gint row, gint column,

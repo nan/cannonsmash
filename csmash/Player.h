@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -124,6 +124,8 @@ public:
   virtual bool GetModifiedTarget( double &targetX, double &targetY );
 
   virtual void CalcLevel( Ball *ball, double &diff, double &level, double &maxVy );
+
+  long StatusBorder();
 protected:
   long m_playerType;	// Player type
 
@@ -190,6 +192,8 @@ protected:
   virtual bool SwingError();
 
   void UpdateLastSend();
+
+  void AddError( double &vx, double &vy, double &vz );
 };
 
 #endif // _Player_

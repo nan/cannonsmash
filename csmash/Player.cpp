@@ -44,9 +44,6 @@ extern RCFile *theRC;
 
 extern Ball   theBall;
 
-extern Player *thePlayer;
-extern Player *comPlayer;
-
 extern long mode;
 
 Player::Player() {
@@ -306,10 +303,6 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   if ( m_swing > 0 ){
     if ( m_swing > 30 && m_afterSwing > 0 ) {
       m_afterSwing--;
-      /*
-      if ( m_afterSwing%10 == 0 )
-	m_swing++;
-	*/
     } else {
       if ( theBall.GetStatus() == 6 || theBall.GetStatus() == 7 ) {
 	if ( theBall.GetVZ() < 0 )
@@ -402,7 +395,8 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   if ( m_swing == 20 ){
     HitBall();
 
-    if ( thePlayer == this && theRC->gmode != GMODE_2D ) {
+    if ( Control::TheControl()->GetThePlayer() == this &&
+	 theRC->gmode != GMODE_2D ) {
       HitMark *hit;
 
       hit = new HitMark();
@@ -436,14 +430,12 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
       if ( ((tmpBall->GetStatus() == 3 && m_side == 1) ||
 	    (tmpBall->GetStatus() == 1 && m_side == -1)) ) {
-	double xdiff = tmpBall->GetX() - (m_x+m_vx*(20-m_swing)*TICK);
+	double hitpointX = m_swingSide ? m_x+0.3 : m_x-0.3;
+	double xdiff = tmpBall->GetX() - (hitpointX+m_vx*(20-m_swing)*TICK);
 	double ydiff = tmpBall->GetY() - (m_y+m_vy*(20-m_swing)*TICK);
 
 	double vxdiff, vydiff;
-	if ( xdiff > 0.0 )
-	  vxdiff = (xdiff-0.3)/TICK/(20-m_swing);
-	else
-	  vxdiff = (xdiff+0.3)/TICK/(20-m_swing);
+	vxdiff = xdiff/TICK/(20-m_swing);
 
 	if ( vxdiff > 2.0 )
 	  vxdiff = 2.0;
@@ -548,7 +540,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   if ( SDL_WM_GrabInput( SDL_GRAB_QUERY ) == SDL_GRAB_ON )
     KeyCheck( KeyHistory, MouseXHistory, MouseYHistory, MouseBHistory,Histptr );
 
-  if ( thePlayer == this && mode == MODE_MULTIPLAY ) {
+  if ( Control::TheControl()->GetThePlayer() == this && mode == MODE_MULTIPLAY ) {
     m_lastSendCount++;
 
     m_lastSendX += m_lastSendVX*TICK;
@@ -761,7 +753,7 @@ Player::AddStatus( long diff ) {
     }
 
     if ( diff < -3 ) {	// Not good... When status decreased without moving...
-      if ( this == thePlayer ) {
+      if ( Control::TheControl()->GetThePlayer() == this ) {
 	switch (theRC->gameLevel) {
 	case LEVEL_EASY:
 	  m_statusMax = (m_statusMax*3+m_status)/4;
@@ -1349,4 +1341,50 @@ Player::UpdateLastSend() {
   m_lastSendVX = m_vx;
   m_lastSendVY = m_vy;
   m_lastSendVZ = m_vz;
+}
+
+void
+Player::AddError( double &vx, double &vy, double &vz ) {
+  double v;
+  double n1x, n1y, n1z, n2x, n2y, n2z;
+  double radDiff, radRand;
+
+#if 0
+  radDiff = hypot( fabs(fabs(m_x-theBall.GetX())-0.3)/0.3, 
+		   fabs(m_y-theBall.GetY())/0.3 );
+  radDiff = sqrt( radDiff );
+  radDiff *= (double)(200-m_status)/200*3.141592/18;
+#else
+  radDiff = (double)(200-m_status)/200*3.141592/18;
+#endif
+
+  v = sqrt(vx*vx+vy*vy+vz*vz);
+  n1x = vy/hypot(vx, vy) * v*tan(radDiff);
+  n1y = -vx/hypot(vx, vy) * v*tan(radDiff);
+  n1z = 0;
+  n2x = vx*vz/(v*hypot(vx, vy)) * v*tan(radDiff);
+  n2y = vy*vz/(v*hypot(vx, vy)) * v*tan(radDiff);
+  n2z = (vx*vx+vy*vy)/(v*hypot(vx, vy)) * v*tan(radDiff);
+
+  // Hit the ball too fast --- net miss
+  // Hit the ball too slow --- over miss
+  if ( (m_y-theBall.GetY())*m_side < 0 )
+    radRand = (RAND(180)+180)*3.141592/180.0;
+  else
+    radRand = RAND(180)*3.141592/180.0;
+
+  vx += n1x*cos(radRand)+n2x*sin(radRand);
+  vy += n1y*cos(radRand)+n2y*sin(radRand);
+  vz += n1z*cos(radRand)+n2z*sin(radRand);
+}
+
+// If status point is less than this value, player will miss. 
+long
+Player::StatusBorder() {
+  double nearEdge = TABLEWIDTH/2-fabs(m_targetX);
+  if ( TABLELENGTH/4-fabs(fabs(m_targetY)-TABLELENGTH/4) < nearEdge )
+    nearEdge = TABLELENGTH/4-fabs(fabs(m_targetY)-TABLELENGTH/4);
+
+  return 50+(TABLELENGTH/4-nearEdge)*40;
+
 }

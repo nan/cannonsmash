@@ -26,8 +26,8 @@ extern RCFile *theRC;
 extern bool isComm;
 extern long mode;
 
+extern void InitGame();
 extern void StartGame();
-extern void EventLoop();
 extern void EndGame();
 extern bool PollEvent();
 
@@ -146,15 +146,13 @@ LobbyClientView::WarmUp( GtkWidget *widget, gpointer data ) {
   LobbyClientView *lobby = (LobbyClientView *)data;
 
   isWaiting = true;
-  ::StartGame();
+  ::InitGame();
 
   lobby->m_idle = gtk_idle_add( LobbyClientView::IdleFunc, data );
 }
 
 gint
 LobbyClientView::IdleFunc( gpointer data ) {
-  LobbyClientView *lobby = (LobbyClientView *)data;
-
   if ( !PollEvent() ) {
     ::EndGame();
     return 0;
@@ -168,7 +166,7 @@ LobbyClientView::Quit( GtkWidget *widget, gpointer data ) {
   LobbyClientView *lobby = (LobbyClientView *)data;
 
   lobby->m_parent->SendQT();
-  
+
   gtk_widget_destroy( lobby->m_window );
   gtk_timeout_remove( lobby->m_timeout );
 
@@ -180,6 +178,36 @@ LobbyClientView::SetSensitive( bool sensitive ) {
   gtk_widget_set_sensitive (m_connectButton, sensitive);
   gtk_widget_set_sensitive (m_warmUpButton, sensitive);
   gtk_widget_set_sensitive (m_table, sensitive);
+}
+
+void
+LobbyClientView::ShowUpdateDialog( char *version ) {
+  GtkWidget *dialog = gtk_dialog_new();
+
+  char buf[256];
+  sprintf( buf, _("Please upgrade to version %s\n"), version );
+
+  GtkWidget *label = gtk_label_new( buf );
+  GtkWidget *button = gtk_button_new_with_label( "OK" );
+
+  gtk_window_set_modal( (GtkWindow *)dialog, true );
+
+  gtk_label_set_line_wrap( GTK_LABEL(label), true );
+  gtk_widget_show( label );
+
+  gtk_box_pack_start( GTK_BOX(GTK_DIALOG(dialog)->vbox),
+		      label, TRUE, TRUE, 0 );
+
+  gtk_widget_show (dialog);
+
+  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->action_area),
+		      button, TRUE, TRUE, 0);
+  gtk_signal_connect (GTK_OBJECT (button), "clicked",
+		      GTK_SIGNAL_FUNC(LobbyClientView::Quit), this);
+  gtk_signal_connect_object(GTK_OBJECT(button), "clicked",
+			    GTK_SIGNAL_FUNC(gtk_widget_destroy), 
+			    GTK_OBJECT(dialog));
+  gtk_widget_show (button);
 }
 
 
@@ -270,10 +298,7 @@ PIDialog::PIOK( GtkWidget *widget, gpointer data ) {
     }
   }
 
-
   ::StartGame();
-  ::EventLoop();
-  ::EndGame();
 
   piDialog->m_parent->SendQP();
 }

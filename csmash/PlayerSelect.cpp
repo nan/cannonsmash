@@ -32,8 +32,6 @@ extern long mode;
 
 extern bool isComm;
 
-extern Player *thePlayer;
-
 extern long wins;
 
 PlayerSelect::PlayerSelect() {
@@ -62,7 +60,7 @@ PlayerSelect::Init() {
 
 void
 PlayerSelect::Create() {
-  Event::ClearObject();
+  Control::ClearControl();
 
   m_theControl = new PlayerSelect();
   m_theControl->Init();
@@ -80,7 +78,7 @@ PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
   // Next opponent
   if ( wins > 0 && m_selected == 0 ) {
     m_selected = 1;
-    m_rotate = (thePlayer->GetPlayerType()-1)*(360/PLAYERS);
+    m_rotate = (m_thePlayer->GetPlayerType()-1)*(360/PLAYERS);
     return true;
   }
 
@@ -104,7 +102,7 @@ PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     nothing = 0;
     if ( m_selected == 0 ) {
       m_selected = 1;
-      Sound::TheSound()->Play( SOUND_CLICK );
+      Sound::TheSound()->Play( SOUND_CLICK, 0, 0 );
     } else if ( m_selected > 100 ) {
       if (isComm)
 	mode = MODE_MULTIPLAY;
@@ -147,7 +145,7 @@ PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( m_rotate/(360/PLAYERS) != nextRotate/(360/PLAYERS) ) {
       m_rotate = (nextRotate+360/PLAYERS/2)/(360/PLAYERS)*(360/PLAYERS);
       lastRotate = 0;
-      Sound::TheSound()->Play( SOUND_CLICK );
+      Sound::TheSound()->Play( SOUND_CLICK, 0, 0 );
     } else
       m_rotate = nextRotate;
   }

@@ -34,8 +34,6 @@ extern long mode;
 
 extern void QuitGame();
 
-extern Player* thePlayer;
-extern Player* comPlayer;
 extern Ball theBall;
 
 Title::Title() {
@@ -68,11 +66,11 @@ Title::Init() {
 
   BaseView::TheView()->AddView( m_View );
 
-  thePlayer = Player::Create( RAND(3), 1, 1 );
-  comPlayer = Player::Create( RAND(3), -1, 1 );
+  m_thePlayer = Player::Create( RAND(3), 1, 1 );
+  m_comPlayer = Player::Create( RAND(3), -1, 1 );
 
-  thePlayer->Init();
-  comPlayer->Init();
+  m_thePlayer->Init();
+  m_comPlayer->Init();
 
   CreateMenu( MENU_MAIN );
 
@@ -81,7 +79,7 @@ Title::Init() {
 
 void
 Title::Create() {
-  Event::ClearObject();
+  Control::ClearControl();
 
   m_theControl = new Title();
   m_theControl->Init();
@@ -100,8 +98,8 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
     last = MAX_HISTORY-1;
 
   theBall.Move();
-  thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
-  comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+  m_thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
+  m_comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
 
   switch ( m_selectMode ) {
   case MENU_MAIN:

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ public:
   virtual void Clear();
 
   //bool Play( char *sndData, long count );
-  bool Play( long soundID );
+  bool Play( long soundID, double x, double y );
 
   long GetSoundMode();
 

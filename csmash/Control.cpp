@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,12 +18,44 @@
 
 #include "ttinc.h"
 #include "Control.h"
+#include "Player.h"
+#include "Network.h"
+#include "PlayGame.h"
+
+extern long wins;
+
+extern long score1;
+extern long score2;
 
 Control *Control::m_theControl = NULL;
+Player* Control::m_thePlayer = NULL;
+Player* Control::m_comPlayer = NULL;
 
 Control::Control() {
 }
 
 Control::~Control() {
   m_theControl = NULL;
+}
+
+void
+Control::ClearControl() {
+  if ( m_thePlayer && wins == 0 ) {
+    delete m_thePlayer;
+    m_thePlayer = NULL;
+    ClearSocket();
+  }
+  if ( m_comPlayer ) {
+    delete m_comPlayer;
+    m_comPlayer = NULL;
+  }
+
+  if ( m_theControl ) {
+    if ( m_theControl->IsPlaying() ) {
+      score1 = ((PlayGame *)m_theControl)->GetScore(1);
+      score2 = ((PlayGame *)m_theControl)->GetScore(-1);
+    }
+    delete m_theControl;
+    m_theControl = NULL;
+  }
 }

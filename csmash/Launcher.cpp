@@ -20,18 +20,7 @@
 #include "Launcher.h"
 #include "LauncherView.h"
 #include "LobbyClient.h"
-#include "RCFile.h"
 
-extern bool isComm;
-extern long mode;
-
-extern RCFile *theRC;
-
-extern void StartGame();
-extern void EventLoop();
-extern void EndGame();
-
-extern bool WriteRCFile();
 
 Launcher::Launcher() {
 }

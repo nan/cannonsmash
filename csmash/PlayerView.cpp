@@ -26,14 +26,14 @@
 #include "loadparts.h"
 #endif
 #include "Ball.h"
+#include "BaseView.h"
 #include "RCFile.h"
+#include "Control.h"
 
 extern RCFile *theRC;
 
 extern SDL_mutex *loadMutex;
 
-extern Player *thePlayer;
-extern Player *comPlayer;
 extern Ball   theBall;
 
 extern long mode;
@@ -147,7 +147,7 @@ bool
 PlayerView::Redraw() {
   static GLfloat mat_green[] = { 0.1F, 0.1F, 0.1F, 1.0F };
 
-  if ( m_player == comPlayer ) {
+  if ( Control::TheControl()->GetComPlayer() == m_player ) {
     glColor4f( 0.4F, 0.4F, 0.4F, 0.0F );
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_green);
 
@@ -161,7 +161,7 @@ bool
 PlayerView::RedrawAlpha() {
   static GLfloat mat_black[] = { 0.0F, 0.0F, 0.0F, 1.0F };
 
-  if ( m_player == thePlayer ) {
+  if ( Control::TheControl()->GetThePlayer() == m_player ) {
     if ( theRC->isWireFrame ) {
       glColor4f( 1.0F, 1.0F, 1.0F, 1.0F );
     } else {
@@ -177,148 +177,16 @@ PlayerView::RedrawAlpha() {
 
 bool
 PlayerView::SubRedraw() {
-//  double x, y, deg;
-//  double degx, degy, degz;
-//  double ydiff;
 
-  glPushMatrix();
-  glTranslatef( m_player->GetX()-0.3F*m_player->GetSide(),
-		m_player->GetY(), 0 );
-
-  glRotatef( -atan2( m_player->GetTargetX()-m_player->GetX(),
-		     m_player->GetTargetY()-m_player->GetY() )*180/3.141592F, 
-	     0.0F, 0.0F, 1.0F );
-
-  int swing;
-  partsmotion_t *motion;
-
-  swing = m_player->GetSwing();
-  switch( m_player->GetSwingType() ) {
-  case SWING_NORMAL:
-    if ( m_player->ForeOrBack() )
-      motion = m_Fnormal;
-    else
-      motion = m_Bnormal;
-    break;
-  case SWING_POKE:
-    if ( m_player->ForeOrBack() )
-      motion = m_Fpeck ? m_Fpeck : m_Fnormal;
-    else
-      motion = m_Bpeck ? m_Bpeck : m_Bnormal;
-    break;
-  case SWING_SMASH:
-    if ( m_player->ForeOrBack() )
-      motion = m_Fsmash ? m_Fsmash : m_Fnormal;
-    else
-      motion = m_Bsmash ? m_Bsmash : m_Bnormal;
-    break;
-  case SWING_DRIVE:
-    if ( m_player->ForeOrBack() )
-      motion = m_Fdrive ? m_Fdrive : m_Fnormal;
-    else
-      motion = m_Bdrive ? m_Bdrive : m_Bnormal;
-    break;
-  case SWING_CUT:
-    if ( m_player->ForeOrBack() )
-      motion = m_Fcut ? m_Fcut : m_Fnormal;
-    else
-      motion = m_Bcut ? m_Bcut : m_Bnormal;
-    break;
-  default:
-    return false;
-  }
-
-  if ( theRC->gmode == GMODE_SIMPLE )
-    motion->renderWire(swing);
-  else {
-    if (m_player == comPlayer) {
-      motion->render(swing);
-    }
-    if (m_player == thePlayer) {
-      if ( theRC->isWireFrame )
-	motion->renderWire(swing);
-      else {
-	glEnable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-	glDepthMask(0);
-	motion->render(swing);
-	glDepthMask(1);
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
-      }
-    }
-  }
-
-  glPopMatrix();
+  DrawPlayer();
 
   // Target
-  glColor4f( 1.0F, 0.0F, 0.0F, 0.5F );
-
-  static GLfloat mat_default[] = { 0.0F, 0.0F, 0.0F, 1.0F };
-  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_default);
-
-  if ( m_player == thePlayer ) {
-    double targetX, targetY;
-    if ( theBall.GetStatus() == 2 || theBall.GetStatus() == 3 )
-      m_player->GetModifiedTarget( targetX, targetY );
-    else {
-      targetX = m_player->GetTargetX();
-      targetY = m_player->GetTargetY();
-    }
-
-    double diff;
-
-    diff = (double)(220-m_player->GetStatus())/220*3.141592F/18;
-    DrawTargetCircle( diff );
-
-    targetX = thePlayer->GetTargetX();
-    targetY = thePlayer->GetTargetY();
-
-    glColor4f( 1.0F, 0.0F, 0.0F, 1.0F );
-    glBegin(GL_POLYGON);
-      glNormal3f( 0.0F, 1.0F, 0.0F );
-      glVertex3f( targetX-0.08F, targetY, TABLEHEIGHT+1.7320508F*0.08F );
-      glVertex3f( targetX+0.08F, targetY, TABLEHEIGHT+1.7320508F*0.08F );
-      glVertex3f( targetX, targetY, TABLEHEIGHT );
-    glEnd();
-
-    // Hit point
-    static long count = 0;
-
-    glColor4f(1.0F, 0.0F, 0.0F, 0.5F );
-    glPushMatrix();
-      glTranslatef( thePlayer->GetX()+0.3F, thePlayer->GetY(), 1.0F );
-      glRotatef( count, 0.0F, 0.0F, 1.0F );
-      glBegin(GL_QUADS);
-        glVertex3f( -0.1F, -0.01F, 0.0F );
-        glVertex3f( -0.1F,  0.01F, 0.0F );
-        glVertex3f(  0.1F,  0.01F, 0.0F );
-        glVertex3f(  0.1F, -0.01F, 0.0F );
-        glVertex3f( -0.01F, -0.1F, 0.0F );
-        glVertex3f( -0.01F,  0.1F, 0.0F );
-        glVertex3f(  0.01F,  0.1F, 0.0F );
-        glVertex3f(  0.01F, -0.1F, 0.0F );
-      glEnd();
-    glPopMatrix();
-
-    glPushMatrix();
-      glTranslatef( thePlayer->GetX()-0.3F, thePlayer->GetY(), 1.0F );
-      glRotatef( count, 0.0F, 0.0F, 1.0F );
-      glBegin(GL_QUADS);
-        glVertex3f( -0.1F, -0.01F, 0.0F );
-        glVertex3f( -0.1F,  0.01F, 0.0F );
-        glVertex3f(  0.1F,  0.01F, 0.0F );
-        glVertex3f(  0.1F, -0.01F, 0.0F );
-        glVertex3f( -0.01F, -0.1F, 0.0F );
-        glVertex3f( -0.01F,  0.1F, 0.0F );
-        glVertex3f(  0.01F,  0.1F, 0.0F );
-        glVertex3f(  0.01F, -0.1F, 0.0F );
-      glEnd();
-    glPopMatrix();
-    count++;
+  if ( Control::TheControl()->GetThePlayer() == m_player ) {
+    DrawTarget();
+    if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
+	 mode == MODE_PRACTICE )
+      DrawMeter();
   }
-
-//  glDepthMask(1);
 
   return true;
 }
@@ -434,4 +302,229 @@ PlayerView::DrawTargetCircle( double diff ) {
   glEnd();
 
   delete tmpBall;
+}
+
+// BallView とかぶる. 
+double
+PlayerView::GetHitpointY() {
+  Ball* tmpBall;
+
+  if ( Control::TheControl()->GetThePlayer() &&
+       (((theBall.GetStatus() == 2 || theBall.GetStatus() == 3) &&
+	 Control::TheControl()->GetThePlayer()->GetSide() > 0) ||
+	((theBall.GetStatus() == 0 || theBall.GetStatus() == 1) &&
+	 Control::TheControl()->GetThePlayer()->GetSide() < 0)) ) {
+    tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
+			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
+			theBall.GetSpin(), theBall.GetStatus() );
+    long t1 = 0, t2 = 0;
+    // get time until the ball reaches hit point
+    while ( tmpBall->GetStatus() != -1 ){
+      tmpBall->Move();
+      if ( tmpBall->GetY() < Control::TheControl()->GetThePlayer()->GetY() &&
+	   tmpBall->GetStatus() == 3 )
+	break;
+      t1++;
+    }
+    if ( tmpBall->GetStatus() == -1 )
+      return m_player->GetY()+0.6;
+
+    delete tmpBall;
+
+    tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
+			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
+			theBall.GetSpin(), theBall.GetStatus() );
+
+    while ( tmpBall->GetStatus() != -1 ){
+      tmpBall->Move();
+      t2++;
+      if ( t1-10 == t2 ){
+	return tmpBall->GetY();
+      }
+    }
+    delete tmpBall;
+  }
+
+  return m_player->GetY()+0.6;
+}
+
+void
+PlayerView::DrawPlayer() {
+  double swing;
+  partsmotion_t *motion;
+
+  swing = m_player->GetSwing();
+  switch( m_player->GetSwingType() ) {
+  case SWING_NORMAL:
+    if ( m_player->ForeOrBack() )
+      motion = m_Fnormal;
+    else
+      motion = m_Bnormal;
+    break;
+  case SWING_POKE:
+    if ( m_player->ForeOrBack() )
+      motion = m_Fpeck ? m_Fpeck : m_Fnormal;
+    else
+      motion = m_Bpeck ? m_Bpeck : m_Bnormal;
+    break;
+  case SWING_SMASH:
+    if ( m_player->ForeOrBack() )
+      motion = m_Fsmash ? m_Fsmash : m_Fnormal;
+    else
+      motion = m_Bsmash ? m_Bsmash : m_Bnormal;
+    break;
+  case SWING_DRIVE:
+    if ( m_player->ForeOrBack() )
+      motion = m_Fdrive ? m_Fdrive : m_Fnormal;
+    else
+      motion = m_Bdrive ? m_Bdrive : m_Bnormal;
+    break;
+  case SWING_CUT:
+    if ( m_player->ForeOrBack() )
+      motion = m_Fcut ? m_Fcut : m_Fnormal;
+    else
+      motion = m_Bcut ? m_Bcut : m_Bnormal;
+    break;
+  default:
+    return;
+  }
+
+  glPushMatrix();
+    glTranslatef( m_player->GetX()-0.3F*m_player->GetSide(),
+		  m_player->GetY(), 0 );
+
+    glRotatef( -atan2( m_player->GetTargetX()-m_player->GetX(),
+		       m_player->GetTargetY()-m_player->GetY() )*180/3.141592F,
+	       0.0F, 0.0F, 1.0F );
+
+    if ( theRC->gmode == GMODE_SIMPLE )
+      motion->renderWire(swing);
+    else {
+      if (Control::TheControl()->GetComPlayer() == m_player) {
+	motion->render(swing);
+      }
+      if (Control::TheControl()->GetThePlayer() == m_player) {
+	if ( theRC->isWireFrame )
+	  motion->renderWire(swing);
+	else {
+	  glEnable(GL_CULL_FACE);
+	  glDisable(GL_DEPTH_TEST);
+	  glDepthMask(0);
+	  motion->render(swing);
+	  glDepthMask(1);
+	  glEnable(GL_DEPTH_TEST);
+	  glDisable(GL_CULL_FACE);
+	}
+      }
+    }
+
+  glPopMatrix();
+}
+
+void
+PlayerView::DrawTarget() {
+  glColor4f( 1.0F, 0.0F, 0.0F, 0.5F );
+
+  static GLfloat mat_default[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_default);
+
+  double targetX, targetY;
+  if ( theBall.GetStatus() == 2 || theBall.GetStatus() == 3 )
+    m_player->GetModifiedTarget( targetX, targetY );
+  else {
+    targetX = m_player->GetTargetX();
+    targetY = m_player->GetTargetY();
+  }
+
+  double diff;
+
+  diff = (double)(220-m_player->GetStatus())/220*3.141592F/18;
+  //DrawTargetCircle( diff );
+
+  targetX = Control::TheControl()->GetThePlayer()->GetTargetX();
+  targetY = Control::TheControl()->GetThePlayer()->GetTargetY();
+
+  glColor4f( 1.0F, 0.0F, 0.0F, 1.0F );
+  glBegin(GL_POLYGON);
+    glNormal3f( 0.0F, 1.0F, 0.0F );
+    glVertex3f( targetX-0.08F, targetY, TABLEHEIGHT+1.7320508F*0.08F );
+    glVertex3f( targetX+0.08F, targetY, TABLEHEIGHT+1.7320508F*0.08F );
+    glVertex3f( targetX, targetY, TABLEHEIGHT );
+  glEnd();
+}
+
+void
+PlayerView::DrawMeter() {
+  static long count = 0;
+
+  count++;
+
+  long status = m_player->GetStatus();
+
+  if ( status < m_player->StatusBorder() && count%10 < 5 )
+    return;
+
+  glDisable(GL_DEPTH_TEST);
+  glDepthMask(0);
+
+  glPushMatrix();
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  gluOrtho2D( 0.0, (GLfloat)BaseView::GetWinWidth(),
+	      (GLfloat)BaseView::GetWinHeight(), 0.0 );
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+
+  long statusBarX, statusBarY, statusBarWidth, statusBarHeight;
+  statusBarX = 0;
+  statusBarY = 1;
+
+  statusBarWidth = BaseView::GetWinWidth()-2;
+  statusBarHeight = BaseView::GetWinHeight()/20;
+
+  glColor4f( 0.8F, 0.8F, 0.4F, 1.0F );
+  glBegin(GL_QUADS);
+    glVertex2i( statusBarX, statusBarY );
+    glVertex2i( statusBarX+statusBarWidth*status/200,
+		statusBarY );
+    glVertex2i( statusBarX+statusBarWidth*status/200,
+		statusBarY+statusBarHeight );
+    glVertex2i( statusBarX, statusBarY+statusBarHeight );
+  glEnd();
+
+  glColor4f( 1.0F, 0.0F, 0.0F, 1.0F );
+  glBegin(GL_QUADS);
+    glVertex2i( statusBarX+statusBarWidth*status/200,
+		statusBarY );
+    glVertex2i( statusBarX+statusBarWidth*status/200,
+		statusBarY+statusBarHeight );
+    glVertex2i( statusBarX+statusBarWidth, statusBarY+statusBarHeight );
+    glVertex2i( statusBarX+statusBarWidth, statusBarY );
+  glEnd();
+
+  glColor4f( 1.0F, 1.0F, 1.0F, 1.0F );
+  glBegin(GL_LINE_LOOP);
+    glVertex2i( statusBarX, statusBarY );
+    glVertex2i( statusBarX+statusBarWidth, statusBarY );
+    glVertex2i( statusBarX+statusBarWidth, statusBarY+statusBarHeight );
+    glVertex2i( statusBarX, statusBarY+statusBarHeight );
+  glEnd();
+
+  glColor4f( 1.0F, 0.0F, 0.0F, 1.0F );
+  glBegin(GL_LINES);
+    glVertex2i( statusBarX+statusBarWidth*m_player->StatusBorder()/200,
+		statusBarY );
+    glVertex2i( statusBarX+statusBarWidth*m_player->StatusBorder()/200,
+		statusBarY+statusBarHeight );
+  glEnd();
+
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
+
+  glDepthMask(1);
+  if ( theRC->gmode != GMODE_SIMPLE )
+    glEnable(GL_DEPTH_TEST);
 }

@@ -53,8 +53,6 @@ public:
   bool SendBall();
   bool SendPlayerAndBall( Player *player );
 
-  static void ClearObject();
-
   bool BackTrack( long Histptr );
 
   static struct timeb m_lastTime;

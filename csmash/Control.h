@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #define _Control_
 
 class View;
+class Player;
 
 class Control {
 public:
@@ -36,10 +37,17 @@ public:
 
   virtual View *GetView() = 0;
 
+  static void ClearControl();
+
   static Control *TheControl() { return m_theControl; };
+  static Player* GetThePlayer() { return m_thePlayer; };
+  static Player* GetComPlayer() { return m_comPlayer; };
 protected:
   Control();
   static Control *m_theControl;
+
+  static Player* m_thePlayer;
+  static Player* m_comPlayer;
 };
 
 #endif	// _Control_

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,8 +22,6 @@
 #include "Event.h"
 
 extern Ball   theBall;
-extern Player *thePlayer;
-extern Player *comPlayer;
 
 NetPenDrive::NetPenDrive() : PenDrive() {
 }

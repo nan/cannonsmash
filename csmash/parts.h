@@ -245,7 +245,9 @@ public:
     virtual ~partsmotion();
 
     virtual bool render(int frame);
+    virtual bool render(double frame);
     virtual bool renderWire(int frame);
+    virtual bool renderWire(double frame);
 };
 
 /* __END__END__ */

@@ -27,8 +27,6 @@
 extern RCFile *theRC;
 
 extern Ball   theBall;
-extern Player *thePlayer;
-extern Player *comPlayer;
 
 ComPenDrive::ComPenDrive() : PenDrive(), ComPlayer() {
 }
@@ -129,9 +127,9 @@ ComPenDrive::Think() {
   if ( m_swing == 19 ) {
     Player *opponent;
     if ( m_side == -1 )
-      opponent = thePlayer;
+      opponent = Control::TheControl()->GetThePlayer();
     else
-      opponent = comPlayer;
+      opponent = Control::TheControl()->GetComPlayer();
 
     SetTargetX( opponent );
   }

@@ -28,8 +28,6 @@ extern long mode;
 extern RCFile *theRC;
 
 extern void StartGame();
-extern void EventLoop();
-extern void EndGame();
 
 extern bool WriteRCFile();
 
@@ -222,12 +220,15 @@ LauncherHeader::Toggle( GtkWidget *widget, gpointer data ) {
   if ( gtk_toggle_button_get_active
        ( (GtkToggleButton *)g_slist_nth_data( list, 0 ) ) ) {
     theRC->gmode = GMODE_FULL;
+    theRC->isTexture = true;
   } else if ( gtk_toggle_button_get_active
 	      ( (GtkToggleButton *)g_slist_nth_data( list, 1 ) ) ) {
     theRC->gmode = GMODE_SIMPLE;
+    theRC->isTexture = false;
   } else if ( gtk_toggle_button_get_active
 	      ( (GtkToggleButton *)g_slist_nth_data( list, 2 ) ) ) {
     theRC->gmode = GMODE_2D;
+    theRC->isTexture = false;
   }
 }
 
@@ -412,8 +413,6 @@ ModeNote::StartGame( GtkWidget *widget, gpointer data ) {
   if ( theRC->gmode == GMODE_2D )
     mode = MODE_TITLE;
   ::StartGame();
-  ::EventLoop();
-  ::EndGame();
 }
 
 void
@@ -424,8 +423,6 @@ ModeNote::LANStartGame( GtkWidget *widget, gpointer data ) {
   isComm = true;
   mode = MODE_SELECT;
   ::StartGame();
-  ::EventLoop();
-  ::EndGame();
 }
 
 void

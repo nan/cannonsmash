@@ -24,8 +24,6 @@
 #include "Ball.h"
 #include "Event.h"
 
-extern Player* thePlayer;
-extern Player* comPlayer;
 extern Ball theBall;
 extern long mode;
 
@@ -55,16 +53,16 @@ Training::Init() {
 
 void
 Training::Create( long player, long com ) {
-  Event::ClearObject();
+  Control::ClearControl();
 
   m_theControl = new Training();
   m_theControl->Init();
 
-  thePlayer = Player::Create( player, 1, 2 );
-  comPlayer = Player::Create( com, -1, 3 );
+  m_thePlayer = Player::Create( player, 1, 2 );
+  m_comPlayer = Player::Create( com, -1, 3 );
 
-  thePlayer->Init();
-  comPlayer->Init();
+  m_thePlayer->Init();
+  m_comPlayer->Init();
 
   // Move it to view?
   SDL_ShowCursor(0);
@@ -84,9 +82,9 @@ Training::Move( unsigned long *KeyHistory, long *MouseXHistory,
   }
 
   theBall.Move();
-  reDraw |= thePlayer->Move( KeyHistory, MouseXHistory,
+  reDraw |= m_thePlayer->Move( KeyHistory, MouseXHistory,
 			     MouseYHistory, MouseBHistory, Histptr );
-  reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+  reDraw |= m_comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
 
   if ( ballStatus != theBall.GetStatus() ) {
     if ( theBall.GetStatus() == 8 ) {
@@ -102,13 +100,13 @@ Training::Move( unsigned long *KeyHistory, long *MouseXHistory,
 bool
 Training::LookAt( double &srcX, double &srcY, double &srcZ,
 		  double &destX, double &destY, double &destZ ) {
-  if (thePlayer) {
-    srcX = thePlayer->GetX() + thePlayer->GetEyeX();
-    srcY = thePlayer->GetY() + thePlayer->GetEyeY();
-    srcZ = thePlayer->GetZ() + thePlayer->GetEyeZ();
-    destX = thePlayer->GetLookAtX();
-    destY = thePlayer->GetLookAtY();
-    destZ = thePlayer->GetLookAtZ();
+  if (m_thePlayer) {
+    srcX = m_thePlayer->GetX() + m_thePlayer->GetEyeX();
+    srcY = m_thePlayer->GetY() + m_thePlayer->GetEyeY();
+    srcZ = m_thePlayer->GetZ() + m_thePlayer->GetEyeZ();
+    destX = m_thePlayer->GetLookAtX();
+    destY = m_thePlayer->GetLookAtY();
+    destZ = m_thePlayer->GetLookAtZ();
   }
 
   return true;

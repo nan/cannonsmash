@@ -28,9 +28,6 @@
 
 extern long mode;
 
-extern Player* thePlayer;
-extern Player* comPlayer;
-
 extern Ball theBall;
 
 Howto::Howto() {
@@ -58,18 +55,18 @@ Howto::Init() {
 
   BaseView::TheView()->AddView( m_View );
 
-  thePlayer = new PenAttack(1);
-  comPlayer = new ShakeCut(-1);
+  m_thePlayer = new PenAttack(1);
+  m_comPlayer = new ShakeCut(-1);
 
-  thePlayer->Init();
-  comPlayer->Init();
+  m_thePlayer->Init();
+  m_comPlayer->Init();
 
   return true;
 }
 
 void
 Howto::Create() {
-  Event::ClearObject();
+  Control::ClearControl();
 
   m_theControl = new Howto();
   m_theControl->Init();
@@ -81,8 +78,8 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	     int Histptr ) {
   if ( IsMove() ) {
     theBall.Move();
-    thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
-    comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+    m_thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
+    m_comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
   }
 
   if ( KeyHistory[Histptr] == SDLK_ESCAPE ) {
@@ -93,31 +90,31 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
   switch ( m_mode ) {
   case 0:	// How to move
     if ( m_count == 0 ) {
-      thePlayer->m_x = -TABLEWIDTH/4;
+      m_thePlayer->m_x = -TABLEWIDTH/4;
     }
 
     switch ( (m_count%400)/100 ) {
     case 0:
-      thePlayer->m_vx = (double)(50-abs((m_count%100)-50))/25.0;
-      thePlayer->m_vy = 0.0;
+      m_thePlayer->m_vx = (double)(50-abs((m_count%100)-50))/25.0;
+      m_thePlayer->m_vy = 0.0;
       m_mouseX = (m_count%100)/2;
       m_mouseY = 50;
       break;
     case 1:
-      thePlayer->m_vx = 0.0;
-      thePlayer->m_vy = -(double)(50-abs((m_count%100)-50))/25.0;
+      m_thePlayer->m_vx = 0.0;
+      m_thePlayer->m_vy = -(double)(50-abs((m_count%100)-50))/25.0;
       m_mouseX = 50;
       m_mouseY = 50-(m_count%100)/2;
       break;
     case 2:
-      thePlayer->m_vx = -(double)(50-abs((m_count%100)-50))/25.0;
-      thePlayer->m_vy = 0.0;
+      m_thePlayer->m_vx = -(double)(50-abs((m_count%100)-50))/25.0;
+      m_thePlayer->m_vy = 0.0;
       m_mouseX = 50-(m_count%100)/2;
       m_mouseY = 0;
       break;
     case 3:
-      thePlayer->m_vx = 0.0;
-      thePlayer->m_vy = (double)(50-abs((m_count%100)-50))/25.0;
+      m_thePlayer->m_vx = 0.0;
+      m_thePlayer->m_vy = (double)(50-abs((m_count%100)-50))/25.0;
       m_mouseX = 0;
       m_mouseY = (m_count%100)/2;
       break;
@@ -125,15 +122,15 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     m_mouseB = 0;
     break;
   case 1:	// Serve
-    thePlayer->m_x = -TABLEWIDTH/2;
-    thePlayer->m_y = -TABLELENGTH/2-0.5;
-    thePlayer->m_vx = 0.0;
-    thePlayer->m_vy = 0.0;
+    m_thePlayer->m_x = -TABLEWIDTH/2;
+    m_thePlayer->m_y = -TABLELENGTH/2-0.5;
+    m_thePlayer->m_vx = 0.0;
+    m_thePlayer->m_vy = 0.0;
     m_mouseX = 25;
     m_mouseY = 25;
     if ( m_count%350 == 50 ) {
-      theBall.Toss( thePlayer, 1 );
-      thePlayer->StartSwing( m_count/350+1 );
+      theBall.Toss( m_thePlayer, 1 );
+      m_thePlayer->StartSwing( m_count/350+1 );
     }
     if ( (m_count%350) >= 50 && (m_count%350) < 100 )
       m_mouseB = m_count/350+1;
@@ -142,78 +139,78 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     break;
   case 2:	// How to move target
     if ( m_count == 200 ) {
-      thePlayer->m_targetX = -TABLEWIDTH/2*0.9;
-      thePlayer->m_targetY = TABLELENGTH/12*5;
+      m_thePlayer->m_targetX = -TABLEWIDTH/2*0.9;
+      m_thePlayer->m_targetY = TABLELENGTH/12*5;
       m_mouseX = 0;
       m_mouseY = 0;
     } else if ( m_count == 300 ) {
-      thePlayer->m_targetX = -TABLEWIDTH/2*0.9;
-      thePlayer->m_targetY = TABLELENGTH/12*2;
+      m_thePlayer->m_targetX = -TABLEWIDTH/2*0.9;
+      m_thePlayer->m_targetY = TABLELENGTH/12*2;
       m_mouseX = 0;
       m_mouseY = 3;
     } else if ( m_count == 400 ) {
-      thePlayer->m_targetX = TABLEWIDTH/2*0.9;
-      thePlayer->m_targetY = TABLELENGTH/12*5;
+      m_thePlayer->m_targetX = TABLEWIDTH/2*0.9;
+      m_thePlayer->m_targetY = TABLELENGTH/12*5;
       m_mouseX = 12;
       m_mouseY = 0;
     } else if ( m_count == 500 ) {
-      thePlayer->m_targetX = TABLEWIDTH/2*0.9;
-      thePlayer->m_targetY = TABLELENGTH/12*2;
+      m_thePlayer->m_targetX = TABLEWIDTH/2*0.9;
+      m_thePlayer->m_targetY = TABLELENGTH/12*2;
       m_mouseX = 12;
       m_mouseY = 3;
     } else if ( m_count == 600 ) {
-      thePlayer->m_targetX = -TABLEWIDTH/2*0.6;
-      thePlayer->m_targetY = TABLELENGTH/12*3;
+      m_thePlayer->m_targetX = -TABLEWIDTH/2*0.6;
+      m_thePlayer->m_targetY = TABLELENGTH/12*3;
       m_mouseX = 2;
       m_mouseY = 2;
     } else if ( m_count == 700 ) {
-      thePlayer->m_targetX = TABLEWIDTH/2*0.15;
-      thePlayer->m_targetY = TABLELENGTH/12*4;
+      m_thePlayer->m_targetX = TABLEWIDTH/2*0.15;
+      m_thePlayer->m_targetY = TABLELENGTH/12*4;
       m_mouseX = 7;
       m_mouseY = 1;
     } else if ( m_count == 800 ) {
-      thePlayer->m_targetX = TABLEWIDTH/2*0.6;
-      thePlayer->m_targetY = TABLELENGTH/12*4;
+      m_thePlayer->m_targetX = TABLEWIDTH/2*0.6;
+      m_thePlayer->m_targetY = TABLELENGTH/12*4;
       m_mouseX = 10;
       m_mouseY = 1;
     } else if ( m_count == 900 ) {
-      thePlayer->m_targetX = TABLEWIDTH/2*0.75;
-      thePlayer->m_targetY = TABLELENGTH/12*3;
+      m_thePlayer->m_targetX = TABLEWIDTH/2*0.75;
+      m_thePlayer->m_targetY = TABLELENGTH/12*3;
       m_mouseX = 11;
       m_mouseY = 2;
     } else if ( m_count == 1150 ) {
-      theBall.Toss( thePlayer, 1 );
-      thePlayer->StartSwing( 1 );
+      theBall.Toss( m_thePlayer, 1 );
+      m_thePlayer->StartSwing( 1 );
     } else if ( m_count == 1450 ) {
-      thePlayer->m_targetX = -TABLEWIDTH/2*0.9;
-      thePlayer->m_targetY = TABLELENGTH/12*5;
+      m_thePlayer->m_targetX = -TABLEWIDTH/2*0.9;
+      m_thePlayer->m_targetY = TABLELENGTH/12*5;
       m_mouseX = 0;
       m_mouseY = 0;
     } else if ( m_count == 1550 ) {
-      theBall.Toss( thePlayer, 1 );
-      thePlayer->StartSwing( 1 );
+      theBall.Toss( m_thePlayer, 1 );
+      m_thePlayer->StartSwing( 1 );
     }
 
     break;
   case 3:	// Hit ball (1)
     if ( m_count == 0 ) {
-      thePlayer->m_targetX = TABLEWIDTH/2*0.3;
-      thePlayer->m_targetY = TABLELENGTH/16*5;
-      comPlayer->m_x = 0.221131;
-      comPlayer->m_y = 1.855788;
+      m_thePlayer->m_targetX = TABLEWIDTH/2*0.3;
+      m_thePlayer->m_targetY = TABLELENGTH/16*5;
+      m_comPlayer->m_x = 0.221131;
+      m_comPlayer->m_y = 1.855788;
       m_mouseX = 0;
       m_mouseY = 0;
       m_mouseB = 0;
     } else if ( m_count == 50 ) {
-      theBall.Toss( thePlayer, 1 );
-      thePlayer->StartSwing( 3 );
+      theBall.Toss( m_thePlayer, 1 );
+      m_thePlayer->StartSwing( 3 );
       m_mouseB = 1;
     } else if ( m_count > 50 && m_count < 100 ) {
       m_mouseB = 1;
     } else if ( m_count == 180 ) {
-      comPlayer->m_targetX = -TABLEWIDTH/2*0.15;
-      comPlayer->Swing( 1 );
-      comPlayer->m_pow = 10;
+      m_comPlayer->m_targetX = -TABLEWIDTH/2*0.15;
+      m_comPlayer->Swing( 1 );
+      m_comPlayer->m_pow = 10;
       m_mouseB = 0;
     } else {
       m_mouseB = 0;
@@ -221,21 +218,21 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
     break;
   case 4:	// Hit ball (2)
     if ( m_count == 570 ) {
-//      thePlayer->Swing( 1 );
-      thePlayer->Swing( 3 );
-      thePlayer->m_pow = 10;
+//      m_thePlayer->Swing( 1 );
+      m_thePlayer->Swing( 3 );
+      m_thePlayer->m_pow = 10;
       m_mouseB = 1;
     } else if ( m_count > 570 && m_count < 700 ) {
       m_mouseB = 1;
     } else if ( m_count == 1000 ) {
-      thePlayer->m_x = 0.2;
+      m_thePlayer->m_x = 0.2;
       theBall.Warp( 0.243705, 0.673854, 1.017764,
 		    -1.042663, -4.457266, 0.108404, -1.0, 2 );
-      thePlayer->m_x = 0.0;
+      m_thePlayer->m_x = 0.0;
       m_mouseB = 0;
     } else if ( m_count == 1570 ) {
-      thePlayer->Swing( 1 );
-      thePlayer->m_pow = 10;
+      m_thePlayer->Swing( 1 );
+      m_thePlayer->m_pow = 10;
       m_mouseB = 3;
     } else if ( m_count > 1570 && m_count < 1700 ) {
       m_mouseB = 3;
@@ -284,9 +281,9 @@ Howto::Move( unsigned long *KeyHistory, long *MouseXHistory,
 bool
 Howto::LookAt( double &srcX, double &srcY, double &srcZ,
 	       double &destX, double &destY, double &destZ ) {
-  srcX = thePlayer->GetX() + thePlayer->GetEyeX();
-  srcY = thePlayer->GetY() + thePlayer->GetEyeY();
-  srcZ = thePlayer->GetZ() + thePlayer->GetEyeZ();
+  srcX = m_thePlayer->GetX() + m_thePlayer->GetEyeX();
+  srcY = m_thePlayer->GetY() + m_thePlayer->GetEyeY();
+  srcZ = m_thePlayer->GetZ() + m_thePlayer->GetEyeZ();
 
   switch ( m_mode ) {
   case 2:

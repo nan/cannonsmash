@@ -21,9 +21,9 @@
 #include "Ball.h"
 #include "Event.h"
 #include "Network.h"
+#include "Control.h"
 
 extern Ball   theBall;
-extern Player *thePlayer;
 
 extern long mode;
 
@@ -64,13 +64,8 @@ PenAttack::Move( unsigned long *KeyHistory, long *MouseXHistory,
 		Histptr );
 
 // Calc status
-  static bool stAdj = false;
-  if ( hypot( m_vx, m_vy ) < 1.0 && m_swing <= 10 ) {
-    if ( stAdj ) {
+  if ( hypot( m_vx, m_vy ) < 1.0 ) {
       AddStatus( 1 );
-      stAdj = false;
-    } else
-      stAdj = true;
   }
 
   return true;
@@ -80,8 +75,14 @@ bool
 PenAttack::Swing( long spin ) {
   Ball *tmpBall;
 
-  if ( m_swing > 10 || theBall.GetStatus() == 6 ||theBall.GetStatus() == 7 )
+  if ( theBall.GetStatus() == 6 || theBall.GetStatus() == 7 )
     return false;
+
+  if ( m_swing > 10 && m_swing < 30 )
+    return false;
+
+  if ( m_swing >= 30 )
+    AddStatus( -(50-m_swing)*2 );
 
   m_swing = 11;
   m_pow = 8;
@@ -95,19 +96,16 @@ PenAttack::Swing( long spin ) {
   for ( int i = 0 ; i < 10 ; i++ )
     tmpBall->Move();
 
-#if 0
-#else
   if ( spin < 3 )
     m_swingSide = false;
   else
     m_swingSide = true;
-#endif
 
   SwingType( tmpBall, spin );
 
   delete tmpBall;
 
-  if ( thePlayer == this && mode == MODE_MULTIPLAY )
+  if ( Control::TheControl()->GetThePlayer() == this && mode == MODE_MULTIPLAY )
     ::SendSwing( this );
 
   return true;
@@ -152,7 +150,7 @@ PenAttack::StartSwing( long spin ) { // Argument is valid only on serve
 
       m_swingSide = true;
 
-      if ( thePlayer == this && mode == MODE_MULTIPLAY )
+      if ( Control::TheControl()->GetThePlayer() == this && mode == MODE_MULTIPLAY )
 	::SendSwing( this );
     } else {
       if ( (m_x-tmpBall->GetX())*m_side > 0 )
@@ -204,7 +202,6 @@ PenAttack::HitBall() {
 	      (m_y-theBall.GetY())*m_side < 0.3 &&
 	      (m_y-theBall.GetY())*m_side > -0.6 ) {
 
-    //AddStatus( -fabs(fabs(m_x-theBall.GetX())-0.3)*100 );
     double targetX, targetY;
 
     GetModifiedTarget( targetX, targetY );
@@ -215,33 +212,11 @@ PenAttack::HitBall() {
     theBall.TargetToV( targetX, targetY, level, m_spin, vx, vy, vz,
 		       0.1, maxVy );
 
-    double v;
-    double n1x, n1y, n1z, n2x, n2y, n2z;
-    double radDiff, radRand;
+    // If your target is near the edge of the table, much more status point
+    // is necessary. 
 
-    radDiff = hypot( fabs(fabs(m_x-theBall.GetX())-0.3)/0.3, 
-		     fabs(m_y-theBall.GetY())/0.3 );
-    radDiff = sqrt( radDiff );
-    radDiff *= (double)(200-m_status)/200*3.141592/18;
-
-    v = sqrt(vx*vx+vy*vy+vz*vz);
-    n1x = vy/hypot(vx, vy) * v*tan(radDiff);
-    n1y = -vx/hypot(vx, vy) * v*tan(radDiff);
-    n1z = 0;
-    n2x = vx*vz/(v*hypot(vx, vy)) * v*tan(radDiff);
-    n2y = vy*vz/(v*hypot(vx, vy)) * v*tan(radDiff);
-    n2z = (vx*vx+vy*vy)/(v*hypot(vx, vy)) * v*tan(radDiff);
-
-    // Hit the ball too fast --- net miss
-    // Hit the ball too slow --- over miss
-    if ( (m_y-theBall.GetY())*m_side < 0 )
-      radRand = (RAND(180)+180)*3.141592/180.0;
-    else
-      radRand = RAND(180)*3.141592/180.0;
-
-    vx += n1x*cos(radRand)+n2x*sin(radRand);
-    vy += n1y*cos(radRand)+n2y*sin(radRand);
-    vz += n1z*cos(radRand)+n2z*sin(radRand);
+    if ( m_status < StatusBorder() )
+      AddError( vx, vy, vz );
 
     // Reduce status
     m_afterSwing = (long)
@@ -259,7 +234,7 @@ PenAttack::HitBall() {
     theBall.Hit( vx, vy, vz, m_spin, this );
   } else {
     m_swingError = SWING_MISS;
-    if ( this == thePlayer && mode == MODE_MULTIPLAY )
+    if ( Control::TheControl()->GetThePlayer() == this && mode == MODE_MULTIPLAY )
       Event::TheEvent()->SendBall();
   }
 
@@ -276,42 +251,27 @@ PenAttack::SwingType( Ball *ball, long spin ) {
 	 NETHEIGHT/(TABLELENGTH/2)*0.5 ){	// low ball on the table
       if ( ball->GetSpin() < 0 ){
 	m_swingType = SWING_POKE;
-#if 0
-	m_spin = -spin*0.2-0.4;
-#else
+	//m_spin = -spin*0.2-0.4;
 	m_spin = -0.8;
-#endif
       } else{
 	m_swingType = SWING_NORMAL;
-#if 0
-	m_spin = spin*0.2;
-#else
+	//m_spin = spin*0.2;
 	m_spin = 0.4;
-#endif
       }
     } else if ( ball->GetZ() < TABLEHEIGHT+NETHEIGHT ) { // under the net
       if ( ForeOrBack() ) {
 	m_swingType = SWING_DRIVE;
-#if 0
-	m_spin = spin*0.2+0.4;
-#else
+	//m_spin = spin*0.2+0.4;
 	m_spin = 0.8;
-#endif
       } else {
 	if ( ball->GetSpin() < 0 ) {
 	  m_swingType = SWING_POKE;
-#if 0
-	  m_spin = -spin*0.2-0.4;
-#else
+	  //m_spin = -spin*0.2-0.4;
 	  m_spin = -0.8;
-#endif
 	} else {
 	  m_swingType = SWING_NORMAL;
-#if 0
-	  m_spin = spin*0.2;
-#else
+	  //m_spin = spin*0.2;
 	  m_spin = 0.4;
-#endif
 	}
       }	    
     } else if ( fabs(ball->GetY()) < TABLELENGTH/2+1.0 &&
@@ -320,19 +280,13 @@ PenAttack::SwingType( Ball *ball, long spin ) {
       m_spin = 0.2;
     } else {
       m_swingType = SWING_NORMAL;
-#if 0
-      m_spin = spin*0.2;
-#else
+      //m_spin = spin*0.2;
       m_spin = 0.4;
-#endif
     }
   } else{
     m_swingType = SWING_NORMAL;
-#if 0
-    m_spin = spin*0.2;
-#else
+    //m_spin = spin*0.2;
     m_spin = 0.4;
-#endif
   }
 
   return true;
@@ -369,12 +323,12 @@ PenAttack::CalcLevel(Ball *ball, double &diff, double &level, double &maxVy) {
   else
     diff = fabs( m_y-ball->GetY() )*0.3;
 
+  diff *= fabs(ball->GetSpin())+1;
+
   SwingError();
 
   level = 1 - fabs(targetY)/(TABLELENGTH/16)/40 -
     diff*fabs(targetY)/(TABLELENGTH/16);
-
-  level -= (1-level)*m_spin/2;
 
   level *= (double)m_pow/20.0 + 0.5;
 

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 #include "ttinc.h"
 #include "Sound.h"
+#include "Control.h"
 
 #ifdef WIN32
 #include <io.h>
@@ -112,11 +113,31 @@ Sound::Clear() {
 }
 
 bool
-Sound::Play( long soundID ) {
+Sound::Play( long soundID, double x, double y ) {
   if ( m_soundMode == SOUND_NONE )
     return true;
 
 #ifdef HAVE_LIBSDL_MIXER
+  double srcX, srcY, srcZ;
+  double destX, destY, destZ;
+  double angle, destAngle;
+
+  Control::TheControl()->LookAt( srcX, srcY, srcZ, destX, destY, destZ );
+
+  destX -= srcX; destY -= srcY;
+  x -= srcX; y -= srcY;
+
+  destAngle = acos( destX/hypot(destX, destY) );
+  if ( destY < 0 )
+    destAngle += 3.14159265;
+
+  angle = acos( x/hypot(x, y) );
+  if ( y < 0 )
+    angle += 3.14159265;
+
+  angle -= destAngle;
+
+  Mix_SetPosition( 0, (int)(angle*180.0/3.14159265), hypot(x, y)*8 );
   Mix_PlayChannel( 0, m_sound[soundID], 0 );
 #endif
 

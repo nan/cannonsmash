@@ -21,10 +21,9 @@
 #include "Ball.h"
 #include "Event.h"
 #include "Network.h"
+#include "Control.h"
 
 extern Ball   theBall;
-extern Player *thePlayer;
-extern Player *comPlayer;
 
 extern long mode;
 extern bool isComm;
@@ -76,8 +75,14 @@ bool
 PenDrive::Swing( long spin ) {
   Ball *tmpBall;
 
-  if ( m_swing > 10 || theBall.GetStatus() == 6 ||theBall.GetStatus() == 7 )
+  if ( theBall.GetStatus() == 6 || theBall.GetStatus() == 7 )
     return false;
+
+  if ( m_swing > 10 && m_swing < 30 )
+    return false;
+
+  if ( m_swing >= 30 )
+    AddStatus( -(50-m_swing)*2 );
 
   m_swing = 11;
   m_pow = 8;
@@ -91,19 +96,16 @@ PenDrive::Swing( long spin ) {
   for ( int i = 0 ; i < 10 ; i++ )
     tmpBall->Move();
 
-#if 0
-#else
   if ( spin < 3 )
     m_swingSide = false;
   else
     m_swingSide = true;
-#endif
 
   SwingType( tmpBall, spin );
 
   delete tmpBall;
 
-  if ( thePlayer == this && mode == MODE_MULTIPLAY )
+  if ( Control::TheControl()->GetThePlayer() == this && mode == MODE_MULTIPLAY )
     ::SendSwing( this );
 
   return true;
@@ -148,7 +150,7 @@ PenDrive::StartSwing( long spin ) { // Argument is valid only on serve
 
       m_swingSide = true;
 
-      if ( thePlayer == this && mode == MODE_MULTIPLAY )
+      if ( Control::TheControl()->GetThePlayer() == this && mode == MODE_MULTIPLAY )
 	::SendSwing( this );
     } else {
       if ( (m_x-tmpBall->GetX())*m_side > 0 )
@@ -175,7 +177,7 @@ PenDrive::HitBall() {
   if ( ( (m_side == 1 && theBall.GetStatus() == 6) ||
          (m_side ==-1 && theBall.GetStatus() == 7) ) &&
        fabs( m_x-theBall.GetX() ) < 0.6 && fabs( m_y-theBall.GetY() ) < 0.3 ) {
-    AddStatus( (long)-fabs(fabs(m_x-theBall.GetX())-0.3)*100 );
+    AddStatus( (long)-fabs(fabs(m_x-theBall.GetX())-0.3F)*100 );
     diff = fabs( m_y-theBall.GetY() )*0.3;
 
     SwingError();
@@ -192,13 +194,6 @@ PenDrive::HitBall() {
     theBall.TargetToVS( m_targetX, m_targetY, level, m_spin, vx, vy, vz );
 
     theBall.Hit( vx, vy, vz, m_spin, this );
-#if 0
-  } else if ( ((m_side == 1 && theBall.GetStatus() == 3) ||
-	       (m_side ==-1 && theBall.GetStatus() == 1)) &&
-	      fabs(m_x-theBall.GetX()) < 0.6 && 
-	      (m_y-theBall.GetY())*m_side < 0.3 &&
-	      (m_y-theBall.GetY())*m_side > -0.6 ) {
-#else
   } else if ( ((m_side == 1 && theBall.GetStatus() == 3) ||
 	       (m_side ==-1 && theBall.GetStatus() == 1)) &&
 	      fabs(m_x-theBall.GetX()) < 0.6 && 
@@ -206,8 +201,6 @@ PenDrive::HitBall() {
 	       (!GetSwingSide() && (m_x-theBall.GetX())*m_side > 0 )) &&
 	      (m_y-theBall.GetY())*m_side < 0.3 &&
 	      (m_y-theBall.GetY())*m_side > -0.6 ) {
-#endif
-    //AddStatus( -fabs(fabs(m_x-theBall.GetX())-0.3)*100 );
     double targetX, targetY;
 
     GetModifiedTarget( targetX, targetY );
@@ -218,33 +211,8 @@ PenDrive::HitBall() {
     theBall.TargetToV( targetX, targetY, level, m_spin, vx, vy, vz,
 		       0.1, maxVy );
 
-    double v;
-    double n1x, n1y, n1z, n2x, n2y, n2z;
-    double radDiff, radRand;
-
-    radDiff = hypot( fabs(fabs(m_x-theBall.GetX())-0.3)/0.3, 
-		     fabs(m_y-theBall.GetY())/0.3 );
-    radDiff = sqrt( radDiff );
-    radDiff *= (double)(200-m_status)/200*3.141592/18;
-
-    v = sqrt(vx*vx+vy*vy+vz*vz);
-    n1x = vy/hypot(vx, vy) * v*tan(radDiff);
-    n1y = -vx/hypot(vx, vy) * v*tan(radDiff);
-    n1z = 0;
-    n2x = vx*vz/(v*hypot(vx, vy)) * v*tan(radDiff);
-    n2y = vy*vz/(v*hypot(vx, vy)) * v*tan(radDiff);
-    n2z = (vx*vx+vy*vy)/(v*hypot(vx, vy)) * v*tan(radDiff);
-
-    // Hit the ball too fast --- net miss
-    // Hit the ball too slow --- over miss
-    if ( (m_y-theBall.GetY())*m_side < 0 )
-      radRand = (RAND(180)+180)*3.141592/180.0;
-    else
-      radRand = RAND(180)*3.141592/180.0;
-
-    vx += n1x*cos(radRand)+n2x*sin(radRand);
-    vy += n1y*cos(radRand)+n2y*sin(radRand);
-    vz += n1z*cos(radRand)+n2z*sin(radRand);
+    if ( m_status < StatusBorder() )
+      AddError( vx, vy, vz );
 
     // Reduce status
     if ( !isComm ) {	// Changed in 0.6.4
@@ -277,7 +245,7 @@ PenDrive::HitBall() {
     theBall.Hit( vx, vy, vz, m_spin, this );
   } else {
     m_swingError = SWING_MISS;
-    if ( this == thePlayer && mode == MODE_MULTIPLAY )
+    if ( Control::TheControl()->GetThePlayer() == this && mode == MODE_MULTIPLAY )
       Event::TheEvent()->SendBall();
   }
 
@@ -294,42 +262,27 @@ PenDrive::SwingType( Ball *ball, long spin ) {
 	 NETHEIGHT/(TABLELENGTH/2)*0.5 ) {	// low ball on the table
       if ( ball->GetSpin() < 0 ) {
 	m_swingType = SWING_POKE;
-#if 0
-	m_spin = -spin*0.2-0.3;
-#else
+	//m_spin = -spin*0.2-0.3;
 	m_spin = -0.7;
-#endif
       } else {
 	m_swingType = SWING_NORMAL;
-#if 0
-	m_spin = spin*0.2;
-#else
+	//m_spin = spin*0.2;
 	m_spin = 0.4;
-#endif
       }
     } else if ( ball->GetZ() < TABLEHEIGHT+NETHEIGHT*2 ) { // under the net
       if ( ForeOrBack() ) {
 	m_swingType = SWING_DRIVE;
-#if 0
-	m_spin = spin*0.3+0.4;
-#else
+	//m_spin = spin*0.3+0.4;
 	m_spin = 1.0;
-#endif
       } else {
 	if ( ball->GetSpin() < 0 ) {
 	  m_swingType = SWING_POKE;
-#if 0
-	  m_spin = -spin*0.2-0.3;
-#else
+	  //m_spin = -spin*0.2-0.3;
 	  m_spin = -0.7;
-#endif
 	} else {
 	  m_swingType = SWING_NORMAL;
-#if 0
-	  m_spin = spin*0.2;
-#else
+	  //m_spin = spin*0.2;
 	  m_spin = 0.4;
-#endif
 	}
       }
     } else if ( fabs(ball->GetY()) < TABLELENGTH/2+1.0 &&
@@ -338,19 +291,13 @@ PenDrive::SwingType( Ball *ball, long spin ) {
       m_spin = 0.2;
     } else {
       m_swingType = SWING_NORMAL;
-#if 0
-      m_spin = spin*0.2;
-#else
+      //m_spin = spin*0.2;
       m_spin = 0.4;
-#endif
     }
   } else {
     m_swingType = SWING_NORMAL;
-#if 0
-    m_spin = spin*0.2;
-#else
+    //m_spin = spin*0.2;
     m_spin = 0.4;
-#endif
   }
 
   return true;
@@ -387,6 +334,8 @@ PenDrive::CalcLevel( Ball *ball, double &diff, double &level, double &maxVy ) {
   else
     diff = fabs( m_y-ball->GetY() )*0.3;
 
+  diff *= fabs(ball->GetSpin())+1;
+
   SwingError();
 
   if ( m_swingType == SWING_DRIVE )
@@ -398,8 +347,6 @@ PenDrive::CalcLevel( Ball *ball, double &diff, double &level, double &maxVy ) {
   else
     level = 1 - fabs(targetY)/(TABLELENGTH/16)/40 -
       diff*fabs(targetY)/(TABLELENGTH/16)*1.2;
-
-  level -= (1-level)*m_spin/2;
 
   level *= (double)m_pow/20.0 + 0.5;
 

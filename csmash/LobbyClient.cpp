@@ -33,8 +33,6 @@ extern bool isComm;
 extern long mode;
 
 extern void StartGame();
-extern void EventLoop();
-extern void EndGame();
 
 extern unsigned int listenSocket;
 extern int one;
@@ -162,11 +160,7 @@ LobbyClient::PollServerMessage( gpointer data ) {
       acSocket = accept( listenSocket, NULL, NULL );
 
       closesocket( acSocket );
-#if 0
       lobby->m_canBeServer = true;
-#else
-      lobby->m_canBeServer = false;
-#endif
     } else {
       char buf[1024];
 
@@ -177,7 +171,6 @@ LobbyClient::PollServerMessage( gpointer data ) {
 	lobby->m_view->UpdateTable();
       } else if ( !strncmp( buf, "PI", 2 ) ) {
 	lobby->ReadPI();
-	//printf( "PI!\n" );
       } else if ( !strncmp( buf, "OI", 2 ) ) {
 	lobby->ReadOI();
       } else if ( !strncmp( buf, "AP", 2 ) ) {
@@ -193,12 +186,12 @@ LobbyClient::PollServerMessage( gpointer data ) {
 	lobby->SendSP();
 
 	::StartGame();
-	::EventLoop();
-	::EndGame();
 
 	lobby->SendQP();
       } else if ( !strncmp( buf, "DP", 2 ) ) {
 	lobby->m_view->SetSensitive( true );
+      } else if ( !strncmp( buf, "OV", 2 ) ) {
+	lobby->ReadOV();
       } else {
 	xerror("%s(%d) read header", __FILE__, __LINE__);
 	exit(1);
@@ -355,6 +348,36 @@ LobbyClient::ReadOI() {
   // At now, Ignore server or client. 
 
   //printf( "%s %d\n", theRC->serverName, theRC->csmash_port );
+}
+
+void
+LobbyClient::ReadOV() {
+  // get length
+  long protocolLength;
+  long len = 0;
+  char buf[1024];
+
+  while (1) {
+    if ( (len+=recv( m_socket, buf+len, 4-len, 0 )) == 4 )
+      break;
+  }
+  ReadLong( buf, protocolLength );
+
+  // First, read all
+  char *buffer = new char[protocolLength];
+  len = 0;
+  while (1) {
+    if ( (len+=recv( m_socket, buffer+len, protocolLength-len, 0 ))
+	 == protocolLength )
+      break;
+  }
+
+  // get version number
+  char version[16];
+  sprintf( version, "%d.%d.%d",
+	   (unsigned char)buffer[0], (unsigned char)buffer[1],
+	   (unsigned char)buffer[2] );
+  m_view->ShowUpdateDialog(version);
 }
 
 void

@@ -3,7 +3,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2002-02-22 02:13+0900\n"
+"POT-Creation-Date: 2002-11-04 03:38+0900\n"
 "PO-Revision-Date: 2002-01-20 22:22GMT\n"
 "Last-Translator: J. Henning Schwentner <hschwentner@hamburg.de>\n"
 "Language-Team: Deutsch <de@li.org>\n"
@@ -12,43 +12,44 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 0.9.5\n"
 
-#: BaseView.cpp:83
+#: BaseView.cpp:81
 msgid "CannonSmash"
 msgstr "CannonSmash"
 
-#: BaseView.cpp:357
+#: BaseView.cpp:356
 #, c-format
 msgid "EndGame %d : %d\n"
 msgstr "Endstand: %d : %d\n"
 
-#: BaseView.cpp:364 BaseView.cpp:366 MenuItemView.cpp:41
+#: BaseView.cpp:363 BaseView.cpp:365 MenuItemView.cpp:41
+#: PlayerSelectView.cpp:73
 #, c-format
 msgid "%s.pbm"
 msgstr "%s.de.pbm"
 
-#: Event.cpp:413
+#: Event.cpp:416
 #, c-format
 msgid "Toggled fullscreen mode - now %s\n"
 msgstr "Vollbildmodus umgestellt - jetzt: %s\n"
 
-#: Event.cpp:414
+#: Event.cpp:417
 msgid "fullscreen"
 msgstr "Vollbild"
 
-#: Event.cpp:414
+#: Event.cpp:417
 msgid "windowed"
 msgstr "Fenster"
 
-#: Event.cpp:416
+#: Event.cpp:419
 msgid "Unable to toggle fullscreen mode\n"
 msgstr "Kann Vollbildmodus nicht umschalten\n"
 
-#: Event.cpp:813
+#: Event.cpp:773
 #, c-format
 msgid "Avg = %f\n"
 msgstr "Durchschnitt = %f\n"
 
-#: Event.cpp:814
+#: Event.cpp:774
 #, c-format
 msgid "BackTrack = %f\n"
 msgstr "BackTrack = %f\n"
@@ -58,141 +59,151 @@ msgstr "BackTrack = %f\n"
 msgid "%s.ppm"
 msgstr "%s.de.ppm"
 
-#: Launcher.cpp:63
+#: LauncherView.cpp:62
 msgid "FullScreen"
 msgstr "Vollbild"
 
-#: Launcher.cpp:68
+#: LauncherView.cpp:67
 msgid "On"
 msgstr "An"
 
-#: Launcher.cpp:79
+#: LauncherView.cpp:78
 msgid "Off"
 msgstr "Aus"
 
-#: Launcher.cpp:103
+#: LauncherView.cpp:102
 msgid "Graphics"
 msgstr "Grafik"
 
-#: Launcher.cpp:117 Launcher.cpp:119
+#: LauncherView.cpp:116 LauncherView.cpp:118
 msgid "Simple"
 msgstr "Einfach"
 
-#: Launcher.cpp:129
+#: LauncherView.cpp:128
 msgid "Normal"
 msgstr "Normal"
 
-#: Launcher.cpp:249
+#: LauncherView.cpp:251
 msgid "Solo"
 msgstr "Allein"
 
-#: Launcher.cpp:254
+#: LauncherView.cpp:256
 msgid "LAN"
 msgstr "LAN"
 
-#: Launcher.cpp:259
+#: LauncherView.cpp:261
 msgid "Internet(Experimental)"
 msgstr "Internet (experimentell)"
 
 #. lowest area(start button)
-#: Launcher.cpp:274 Launcher.cpp:339
+#: LauncherView.cpp:276 LauncherView.cpp:341
 msgid "Game Start!"
 msgstr "Spiel starten!"
 
-#: Launcher.cpp:300
+#: LauncherView.cpp:302
 msgid "Server"
 msgstr "Server"
 
-#: Launcher.cpp:304
+#: LauncherView.cpp:306
 msgid "Client"
 msgstr "Client"
 
-#: Launcher.cpp:318
+#: LauncherView.cpp:320
 msgid "Server name:"
 msgstr "Servername:"
 
-#: Launcher.cpp:361
+#: LauncherView.cpp:363
 msgid "Nickname:"
 msgstr "Spitzname:"
 
-#: Launcher.cpp:371
+#: LauncherView.cpp:373
 msgid "Message:"
 msgstr "Nachricht:"
 
-#: Launcher.cpp:384
+#: LauncherView.cpp:386
 msgid "Connect to Lobby Server"
 msgstr "Zu Lobby Server verbinden"
 
-#: Launcher.cpp:466 LobbyClient.cpp:152 LobbyClient.cpp:516
+#: LauncherView.cpp:468 LobbyClientView.cpp:61 LobbyClientView.cpp:235
 msgid "Cannon Smash"
 msgstr "Cannon Smash"
 
-#: Launcher.cpp:483
+#: LauncherView.cpp:485
 msgid "Quit"
 msgstr "Beenden"
 
-#: LobbyClient.cpp:168
+#: LauncherView.cpp:531
+#, fuzzy
+msgid "Connection failed"
+msgstr "SDL Mix_OpenAudio failed\n"
+
+#: LobbyClientView.cpp:77
 msgid "Nickname"
 msgstr "Spitzname"
 
-#: LobbyClient.cpp:168
+#: LobbyClientView.cpp:77
 msgid "Message"
 msgstr "Nachricht"
 
-#: LobbyClient.cpp:182
+#: LobbyClientView.cpp:91
 msgid "connect"
 msgstr "verbinden"
 
-#: LobbyClient.cpp:190
+#: LobbyClientView.cpp:99
 msgid "warm up"
 msgstr "aufwdrmen"
 
-#: LobbyClient.cpp:197
+#: LobbyClientView.cpp:106
 msgid "close"
 msgstr "schlie_en"
 
-#: LobbyClient.cpp:525
+#: LobbyClientView.cpp:190
+#, c-format
+msgid "Please upgrade to version %s\n"
+msgstr ""
+
+#: LobbyClientView.cpp:244
 #, c-format
 msgid "\"%s\" (message: %s)want to play with you. OK?\n"
 msgstr "\"%s\" (Nachricht: %s) will mit dir spielen. OK?\n"
 
-#: LobbyClient.cpp:540
+#: LobbyClientView.cpp:259
 msgid "OK!"
 msgstr "OK!"
 
-#: LobbyClient.cpp:551
+#: LobbyClientView.cpp:270
 msgid "No!"
 msgstr "Nein!"
 
-#: main.cpp:195 main.cpp:210
+#: main.cpp:103 main.cpp:118
 msgid "No datafile directory.\n"
 msgstr "Kein Datenverzeichnis.\n"
 
-#: main.cpp:260 main.cpp:265 main.cpp:271
+#: main.cpp:264 main.cpp:269 main.cpp:275
 msgid "SDL initialize failed\n"
 msgstr "Konnte SDL nicht initialisieren.\n"
 
-#: parts.cpp:128
+#: parts.cpp:157
 #, c-format
 msgid "%s:%d vertex buffer overflow\n"
 msgstr "%s:%d vertex buffer overflow\n"
 
-#: parts.cpp:150
+#: parts.cpp:179
 #, c-format
 msgid "%s:%d loop buffer overflow\n"
 msgstr "%s:%d loop buffer overflow\n"
 
-#: parts.cpp:425
+#: parts.cpp:454
 #, c-format
 msgid "%s:%d matrix buffer overflow\n"
 msgstr "%s:%d matrix buffer overflow\n"
 
-#: Player.cpp:272
+#: Player.cpp:269
 #, c-format
 msgid "no player %ld\n"
 msgstr "kein Spieler %ld\n"
 
-#: PlayGame.cpp:152
+#: PlayGame.cpp:150
 #, c-format
 msgid "You : %d -  %d : Opponent\n"
 msgstr "Du : %d -  %d : Gegner\n"
@@ -206,10 +217,6 @@ msgstr "Kein \"home\"-Verzeichnis\n"
 msgid "Cannot open rc file %s.\n"
 msgstr "Kann Konfigurationsdatei %s nicht vffnen.\n"
 
-#: Sound.cpp:84
+#: Sound.cpp:85
 msgid "SDL Mix_OpenAudio failed\n"
 msgstr "SDL Mix_OpenAudio failed\n"
-
-#, fuzzy
-#~ msgid "iconv_open failed\n"
-#~ msgstr "SDL Mix_OpenAudio failed\n"

@@ -300,7 +300,7 @@ InitGame() {
 
 void EndGame()
 {
-  Event::ClearObject();
+  Control::ClearControl();
   BaseView::TheView()->QuitGame();
   Sound::TheSound()->Clear();
 
