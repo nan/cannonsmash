@@ -97,8 +97,6 @@ int main(int argc, char **argv) {
 int main(int argc, char** argv) {
 #endif
 
-    int c;
-
     /*initalise i18n*/
 #ifdef WIN32
     char buf[256];
@@ -115,8 +113,19 @@ int main(int argc, char** argv) {
 
     gtk_set_locale();
     setlocale (LC_ALL, "");
+#ifdef WIN32
+    char *localedir = (char*)alloca(MAX_PATH);
+    *localedir = '\0';
+    GetCurrentDir(localedir, MAX_PATH);
+    strcat( localedir, "\\locale" );
+    bindtextdomain ("csmash", localedir);
+    textdomain ("csmash");
+#else
     bindtextdomain (PACKAGE, LOCALEDIR);
     textdomain (PACKAGE);
+#endif
+
+    int c;
 
     while(EOF != (c = getopt(argc, argv, "schfS2Op:"))) {
         switch (c) {
