@@ -57,8 +57,10 @@ pthread_mutex_t loadMutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 #ifdef WIN32
-#include "win32/GetArgs.h"
 #include "win32/getopt.h"
+
+#ifndef WIN32CONSOLE
+#include "win32/GetArgs.h"
 
 int WINAPI WinMain_(HINSTANCE, HINSTANCE, LPSTR, int);
 
@@ -74,8 +76,11 @@ int WINAPI WinMain_(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   char **argv;
 
   GetArgs(&argc, &argv, lpCmdLine);
-
 #else
+int main(int argc, char **argv) {
+
+#endif
+#else /* WIN32 */
 int main(int argc, char** argv) {
 #endif
   bool fullScreen = false;
