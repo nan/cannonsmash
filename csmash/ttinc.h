@@ -152,6 +152,7 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 #include "Event.h"
 #include "View.h"
 #include "Control.h"
+#include "FieldView.h"
 #include "BaseView.h"
 #include "BallView.h"
 #include "Player.h"

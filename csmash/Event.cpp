@@ -29,7 +29,7 @@ extern long mode;
 extern long timeAdj;
 
 extern void Timer( int value );
-struct timeb m_lastTime = {0, 0, 0, 0};	// 直前にTimerEventが呼ばれたときの時刻
+struct timeb Event::m_lastTime = {0, 0, 0, 0};	// 直前にTimerEventが呼ばれたときの時刻
 
 extern int theSocket;
 
@@ -46,7 +46,6 @@ long _perfCount;
 long perfs;
 
 void CopyPlayerData( struct PlayerData& dest, Player* src );
-bool GetExternalData( ExternalData *&ext, int sd, long side );
 
 Event::Event() {
   m_KeyHistory[0] = 0;
@@ -372,35 +371,12 @@ CopyPlayerData( struct PlayerData& dest, Player* src ) {
   dest.stamina = src->GetStamina();
 }
 
-void SendTime( int sd ) {
-  char v;
-  long time, millitm;
-
-  time = m_lastTime.time;
-  millitm = m_lastTime.millitm/10;
-
-  millitm += timeAdj;
-
-  while ( millitm >= 100 ) {
-    millitm -= 100;
-    time++;
-  }
-  while ( millitm < 0 ) {
-    millitm += 100;
-    time--;
-  }
-
-  send( sd, (char *)&time, 4, 0 );
-  v = (char)(millitm);
-  send( sd, (char *)&v, 1, 0 );
-}
-
 bool
-GetExternalData( ExternalData *&ext, int sd, long side ) {
+Event::GetExternalData( ExternalData *&ext, long side ) {
   char buf[256];
   ExternalData *extNow;
 
-  if ( !(extNow = ExternalData::ReadData( sd, side )) )
+  if ( !(extNow = ExternalData::ReadData( side )) )
     return false;
 
   if ( ext->isNull() || ext->sec > extNow->sec || 
@@ -429,7 +405,8 @@ Event::SendSwing( Player *player ) {
     return false;
 
   send( theSocket, "PS", 2, 0 );
-  SendTime( theSocket );
+  //SendTime( theSocket );
+  ((MultiPlay *)theControl)->SendTime();
 
   player->SendSwing( theSocket );
 
@@ -442,7 +419,8 @@ Event::SendPlayer( Player *player ) {
     return false;
 
   send( theSocket, "PV", 2, 0 );
-  SendTime( theSocket );
+  //SendTime( theSocket );
+  ((MultiPlay *)theControl)->SendTime();
 
   player->SendLocation( theSocket );
 
@@ -455,7 +433,8 @@ Event::SendBall() {
     return false;
 
   send( theSocket, "BV", 2, 0 );
-  SendTime( theSocket );
+  //SendTime( theSocket );
+  ((MultiPlay *)theControl)->SendTime();
 
   theBall.Send( theSocket );
 
@@ -506,7 +485,7 @@ Event::ReadData() {
     to.tv_sec = to.tv_usec = 0;
 
     if ( select( theSocket+1, &rdfds, NULL, NULL, &to ) > 0 ) {
-      GetExternalData( m_External, theSocket, comPlayer->GetSide() );
+      GetExternalData( m_External, comPlayer->GetSide() );
     } else
       break;
     //printf( "External\n" );

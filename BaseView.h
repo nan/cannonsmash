@@ -32,8 +32,8 @@ public:
   static void ReshapeFunc( int width, int height );
 
   bool RedrawAll();
-  bool Redraw();
-  bool RedrawAlpha();
+  //bool Redraw();
+  //bool RedrawAlpha();
   bool SetViewPosition();
 
   bool AddView( View *view );
@@ -48,14 +48,15 @@ protected:
   double         m_centerY;
   double         m_centerZ;
   View           *m_View;
+  FieldView      *m_fieldView;
 
   static long    m_winWidth;
   static long    m_winHeight;
 
-  GLuint       m_offset;
-  GLuint       m_floor;
+  //GLuint       m_offset;
+  //GLuint       m_floor;
   GLuint       m_title;
-  GLuint       m_wall[4];
+  //GLuint       m_wall[4];
 
   void SetLookAt();
 };

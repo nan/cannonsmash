@@ -78,6 +78,8 @@ public:
   static void ClearObject();
 
   bool BackTrack( long Histptr );
+
+  static struct timeb m_lastTime;
 protected:
   bool Move();
   void Record();
@@ -88,6 +90,8 @@ protected:
   void SelectInit();
   void TrainingInit( long player, long com );
   void TrainingSelectInit();
+
+  bool GetExternalData( ExternalData *&ext, long side );
 
   unsigned long m_KeyHistory[MAX_HISTORY];		// キー入力履歴
   long m_MouseXHistory[MAX_HISTORY];			// マウス履歴

@@ -51,7 +51,7 @@ public:
 		      bool &fTheBall ) = 0;
   virtual bool Read( long sock ) = 0;
 
-  static ExternalData* ReadData( int sd, long s );
+  static ExternalData* ReadData( long s );
 
   virtual bool isNull() { return false; };
 protected:
@@ -115,6 +115,10 @@ public:
 
   virtual bool LookAt( double &srcX, double &srcY, double &srcZ,
 		       double &destX, double &destY, double &destZ );
+
+
+  void SendTime();
+
 protected:
   //bool m_smash;
   //long m_smashCount;

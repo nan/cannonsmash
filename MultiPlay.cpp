@@ -586,6 +586,32 @@ MultiPlay::LookAt( double &srcX, double &srcY, double &srcZ,
   return true;
 }
 
+
+void
+MultiPlay::SendTime() {
+  char v;
+  long time, millitm;
+
+  time = Event::m_lastTime.time;
+  millitm = Event::m_lastTime.millitm/10;
+
+  millitm += timeAdj;
+
+  while ( millitm >= 100 ) {
+    millitm -= 100;
+    time++;
+  }
+  while ( millitm < 0 ) {
+    millitm += 100;
+    time--;
+  }
+
+  send( theSocket, (char *)&time, 4, 0 );
+  v = (char)(millitm);
+  send( theSocket, (char *)&v, 1, 0 );
+}
+
+
 ExternalData::ExternalData() {
   side = 1;
   dataType = 0;
@@ -635,22 +661,22 @@ ExternalData::ReadTime( int sd, long *sec, char *count ) {
 }
 
 ExternalData *
-ExternalData::ReadData( int sd, long s ) {
+ExternalData::ReadData( long s ) {
   char buf[256];
   ExternalData *extNow;
 
-  if ( recv( sd, buf, 2, 0 ) != 2 )
+  if ( recv( theSocket, buf, 2, 0 ) != 2 )
     return NULL;
 
   if ( !strncmp( buf, "PV", 2 ) ) {
     extNow = new ExternalPVData(s);
-    extNow->Read( sd );
+    extNow->Read( theSocket );
   } else if ( !strncmp( buf, "PS", 2 ) ) {
     extNow = new ExternalPSData(s);
-    extNow->Read( sd );
+    extNow->Read( theSocket );
   } else if ( !strncmp( buf, "BV", 2 ) ) {
     extNow = new ExternalBVData(s);
-    extNow->Read( sd );
+    extNow->Read( theSocket );
   } else
     return NULL;
 
