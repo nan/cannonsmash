@@ -185,9 +185,7 @@ ComShakeCut::Think() {
     double tmpBallX, tmpBallY, tmpBallZ;
     double tmpX, tmpY;
 
-    tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
-			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
-			theBall.GetSpin(), theBall.GetStatus() );
+    tmpBall = new Ball(&theBall);
 
     for ( int i = 0 ; i < 9 ; i++ )
       tmpBall->Move();
@@ -249,9 +247,7 @@ ComShakeCut::Hitarea( double &hitX, double &hitY ) {
        (theBall.GetStatus() == 1 && m_side == -1) ||
        (theBall.GetStatus() == 4 && m_side == -1) ||
        (theBall.GetStatus() == 5 && m_side == 1) ) {
-    tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
-			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
-			theBall.GetSpin(), theBall.GetStatus() );
+    tmpBall = new Ball(&theBall);
 
     while ( tmpBall->GetStatus() != -1 ) {
       if ( (tmpBall->GetStatus() == 3 && m_side == 1) ||

@@ -59,9 +59,7 @@ NetShakeCut::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   double tmpBallX, tmpBallY, tmpBallZ;
   double tmpX, tmpY;
 
-  tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
-		      theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
-		      theBall.GetSpin(), theBall.GetStatus() );
+  tmpBall = new Ball(&theBall);
 
   for ( int i = 0 ; i < 9 ; i++ )
     tmpBall->Move();

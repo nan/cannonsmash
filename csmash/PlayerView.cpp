@@ -65,6 +65,7 @@ PlayerView::~PlayerView() {
 void *
 PlayerView::LoadData(void *dum) {
 #if !defined(CHIYO)
+  partsmotion::loadmodel("Parts/model/");
   motion_Fnormal = new partsmotion("Parts/Fnormal/Fnormal");
   motion_Bnormal = new partsmotion("Parts/Bnormal/Bnormal");
   motion_Fdrive = new partsmotion("Parts/Fdrive/Fdrive");
@@ -218,9 +219,7 @@ PlayerView::DrawTargetCircle( double diff ) {
 	(theBall.GetStatus() == 0 || theBall.GetStatus() == 1 || 
        theBall.GetStatus() == 4)) ) {
     ballHeight = theBall.GetZ();
-    tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
-			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
-			theBall.GetSpin(), theBall.GetStatus() );
+    tmpBall = new Ball(&theBall);
 
     while ( tmpBall->GetStatus() >= 0 &&
 	    tmpBall->GetY()*m_player->GetSide() >
@@ -319,9 +318,7 @@ PlayerView::GetHitpointY() {
 	 Control::TheControl()->GetThePlayer()->GetSide() > 0) ||
 	((theBall.GetStatus() == 0 || theBall.GetStatus() == 1) &&
 	 Control::TheControl()->GetThePlayer()->GetSide() < 0)) ) {
-    tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
-			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
-			theBall.GetSpin(), theBall.GetStatus() );
+    tmpBall = new Ball(&theBall);
     long t1 = 0, t2 = 0;
     // get time until the ball reaches hit point
     while ( tmpBall->GetStatus() != -1 ){
@@ -336,9 +333,7 @@ PlayerView::GetHitpointY() {
 
     delete tmpBall;
 
-    tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
-			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
-			theBall.GetSpin(), theBall.GetStatus() );
+    tmpBall = new Ball(&theBall);
 
     while ( tmpBall->GetStatus() != -1 ){
       tmpBall->Move();
@@ -399,9 +394,7 @@ PlayerView::DrawPlayer() {
   if ( m_player->GetSwing() > 10 && m_player->GetSwing() < 20 ) {
     Ball *tmpBall;
 
-    tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
-			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
-			theBall.GetSpin(), theBall.GetStatus() );
+    tmpBall = new Ball(&theBall);
 
     for ( int i = m_player->GetSwing() ; i < 20 ; i++ )
       tmpBall->Move();

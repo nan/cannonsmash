@@ -106,9 +106,7 @@ BallView::RedrawAlpha() {
 	thePlayer->GetSide() > 0) ||
        ((theBall.GetStatus() == 0 || theBall.GetStatus() == 1) &&
 	thePlayer->GetSide() < 0)) ){
-    tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
-			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
-			theBall.GetSpin(), theBall.GetStatus() );
+    tmpBall = new Ball( &theBall );
 
     long t1 = 0, t2 = 0;
     double t1x;
@@ -130,9 +128,7 @@ BallView::RedrawAlpha() {
 
     delete tmpBall;
 
-    tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
-			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
-			theBall.GetSpin(), theBall.GetStatus() );
+    tmpBall = new Ball( &theBall );
 
     glColor4f(0.8F, 0.8F, 0.8F, 1.0F);
     const static GLfloat mat_white[] = { 0.8F, 0.8F, 0.8F, 0.0F };

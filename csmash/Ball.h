@@ -28,7 +28,9 @@ class Ball {
 public:
   Ball();
   Ball( double _x, double _y, double _z, double _vx, double _vy, double _vz,
-	double _spin, long _status );
+	double _spinY, long _status );
+  Ball(Ball *ball);
+
   virtual ~Ball();
 
   virtual bool Init();
@@ -39,26 +41,26 @@ public:
   double GetVX() { return m_vx; }
   double GetVY() { return m_vy; }
   double GetVZ() { return m_vz; }
-  double GetSpin() { return m_spin; }
+  double GetSpinY() { return m_spinY; }
 
   long GetStatus() { return m_status; }
 
   bool Move();	// move to 1turn(0.01 sec) later
 
-  bool Hit( double vx, double vy, double vz, double spin, Player *player );
+  bool Hit( double vx, double vy, double vz, double spinY, Player *player );
   						// hit ball
   bool Toss( Player *player, long power );	// toss
 
   void Warp( double x, double y, double z, double vx, double vy, double vz, 
-	     double spin, long status );
+	     double spinY, long status );
   void Warp( char *buf );
 
   // Calc vy, vz from bound location
-  bool TargetToV( double targetX, double targetY, double height, double spin, 
+  bool TargetToV( double targetX, double targetY, double height, double spinY, 
 		  double &vx, double &vy, double &vz, double vMin = 0.1,
 		  double vMax = 30.0 );
   // For serve
-  bool TargetToVS( double targetX, double targetY, double height, double spin, 
+  bool TargetToVS( double targetX, double targetY, double height, double spinY,
 		   double &vx, double &vy, double &vz );
 
   char * Send( char *buf );
@@ -72,7 +74,7 @@ protected:
   double m_vy;
   double m_vz;
 
-  double m_spin;	// spin. plus --- top spin   minus --- back spin
+  double m_spinY;	// spin. plus --- top spin   minus --- back spin
 
   long m_status;	// 0 --- From the time side=1 hit to bound
   			// 1 --- During side=-1 can hit

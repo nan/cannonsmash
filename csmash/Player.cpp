@@ -418,9 +418,7 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     if ( m_swing > 10 && m_swing < 20 ) {
       Ball *tmpBall;
 
-      tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
-			  theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
-			  theBall.GetSpin(), theBall.GetStatus() );
+      tmpBall = new Ball(&theBall);
 
       for ( int i = 0 ; i < 20-m_swing ; i++ )
 	tmpBall->Move();
@@ -511,9 +509,7 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   if ( m_swing == 0 ) {
     Ball *tmpBall;
 
-    tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
-			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
-			theBall.GetSpin(), theBall.GetStatus() );
+    tmpBall = new Ball(&theBall);
 
     for ( int i = 0 ; i < 30 ; i++ ) {	/* A bit earlier */
       tmpBall->Move();

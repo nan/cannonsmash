@@ -138,9 +138,7 @@ ComTrainingPenDrive::Think() {
   // This part seems to be the same as Swing(). Consider again. 
   Ball *tmpBall;
 
-  tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
-		      theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
-		      theBall.GetSpin(), theBall.GetStatus() );
+  tmpBall = new Ball( &theBall );
 
   for ( int i = 0 ; i < 10 ; i++ )
     tmpBall->Move();
