@@ -268,10 +268,17 @@ Event::Record() {
   CopyPlayerData( m_BacktrackBuffer[m_Histptr].comPlayer, comPlayer );
 
   if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ) {
-    m_BacktrackBuffer[m_Histptr].score1 =
-      ((PlayGame *)theControl)->GetScore( thePlayer );
-    m_BacktrackBuffer[m_Histptr].score2 =
-      ((PlayGame *)theControl)->GetScore( comPlayer );
+    if ( thePlayer->GetSide() > 0 ) {
+      m_BacktrackBuffer[m_Histptr].score1 =
+	((PlayGame *)theControl)->GetScore( thePlayer );
+      m_BacktrackBuffer[m_Histptr].score2 =
+	((PlayGame *)theControl)->GetScore( comPlayer );
+    } else {
+      m_BacktrackBuffer[m_Histptr].score1 =
+	((PlayGame *)theControl)->GetScore( comPlayer );
+      m_BacktrackBuffer[m_Histptr].score2 =
+	((PlayGame *)theControl)->GetScore( thePlayer );
+    }
 
 #if 0
     if ( mode == MODE_MULTIPLAY ) {

@@ -103,7 +103,10 @@ FieldView::Redraw() {
   if ( isTexture )
     glEnable(GL_TEXTURE_2D);
 
-  glColor4f(0.8, 0.8, 0.8, 0.0);
+  if ( !isSimple )
+    glColor4f(0.8, 0.8, 0.8, 0.0);
+  else
+    glColor4f(0.75, 0.5, 0.25, 0.0);
 
   glCallList( m_offset );
 
@@ -306,7 +309,7 @@ FieldView::RedrawAlpha() {
 
   glDepthMask(0);
   glBegin(GL_QUADS);			// Tableの描画
-  if ( isLighting ) {
+  if ( isLighting && !isSimple ) {
     glNormal3f( 0.0, 0.0, -1.0 );
     glVertex3f( -TABLEWIDTH/2, -TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
     glVertex3f( -TABLEWIDTH/2,  TABLELENGTH/2, TABLEHEIGHT-TABLETHICK );
