@@ -42,15 +42,6 @@
 
 /* __BEGIN__BEGIN__ */
 //__NAMESPACE_BEGIN(ese);
-#if (!defined __GNUG__) || (__GNUC__ == 3)
-template<typename T>
-void swap(T& a, T& b)
-{
-    T c = a;
-    a = b;
-    b = c;
-}
-#endif
 
 // matrix_size MUST BE larger than 1
 template<int matrix_size, typename _float_t = float>
@@ -174,9 +165,10 @@ private:
 		    mx = x;
 		}
 	    }
-	    swap(pivot[k], pivot[piv]);
 
 	    int kk = pivot[k];
+		     pivot[k] = pivot[piv];
+		     pivot[piv] = kk;
 	    float_t t = m[kk][kk];
 	    if (0 == t) {
 		return 0;
@@ -222,9 +214,10 @@ private:
 		    mx = x;
 		}
 	    }
-	    swap(pivot[k], pivot[piv]);
 
 	    int kk = pivot[kk];
+		     pivot[k] = pivot[piv];
+		     pivot[piv] = kk;
 	    double t = a[kk][kk];
 	    if (0 == t) {
 		return 0;
@@ -283,7 +276,8 @@ private:
 	    }
 	    ik = ip[j];
 	    if (j != k) {
-		swap(ip[j], ip[k]);
+		ip[j] = ip[k];
+		ip[k] = ik;
 		det = -det;
 	    }
 	    u = a[ik][k];
