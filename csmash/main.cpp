@@ -197,7 +197,8 @@ StartGame() {
 
   loadMutex = SDL_CreateMutex();
 
-  SDL_CreateThread( LoadData, NULL );
+  //SDL_CreateThread( LoadData, NULL );
+  LoadData( NULL );
 
   EndianCheck();
 
@@ -223,6 +224,8 @@ StartGame() {
   SDL_Event event;
 
   SDL_EnableUNICODE(1);
+
+  QuitGame();
 
   while (1) {
     while ( SDL_PollEvent(&event) ) {
