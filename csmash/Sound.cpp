@@ -46,6 +46,7 @@ Sound::~Sound() {
   for ( int i = 0 ; i < 16 ; i++ ) {
     if ( m_sound[i] != 0 ) {
       Mix_FreeChunk( m_sound[i] );
+      m_sound[i] = 0;
     }
   }
   Mix_CloseAudio();
@@ -77,6 +78,7 @@ Sound::Clear() {
   for ( int i = 0 ; i < 16 ; i++ ) {
     if ( m_sound[i] != 0 ) {
       Mix_FreeChunk( m_sound[i] );
+      m_sound[i] = 0;
     }
   }
   Mix_CloseAudio();
