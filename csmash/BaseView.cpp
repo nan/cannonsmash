@@ -29,8 +29,6 @@
 
 extern RCFile *theRC;
 
-extern Player* thePlayer;
-extern Player* comPlayer;
 extern long mode;
 
 extern Ball theBall;
@@ -297,8 +295,8 @@ BaseView::SetLookAt() {
 
   srcX = srcY = srcZ = 0.0F;
   destX = m_centerX;
-  if (thePlayer)
-    destY = m_centerY*thePlayer->GetSide();
+  if (Control::TheControl()->GetThePlayer())
+    destY = m_centerY*Control::TheControl()->GetThePlayer()->GetSide();
   else
     destY = m_centerY;
   destZ = m_centerZ;
@@ -356,12 +354,12 @@ BaseView::EndGame() {
   glLoadIdentity();
 
   printf( _("EndGame %d : %d\n"),
-	  ((PlayGame *)Control::TheControl())->GetScore(thePlayer), 
-	  ((PlayGame *)Control::TheControl())->GetScore(comPlayer) );
+	  ((PlayGame *)Control::TheControl())->GetScore(Control::TheControl()->GetThePlayer()), 
+	  ((PlayGame *)Control::TheControl())->GetScore(Control::TheControl()->GetComPlayer()) );
 
   if ( Control::TheControl()->IsPlaying() && 
-       ((PlayGame *)Control::TheControl())->GetScore(thePlayer) >
-       ((PlayGame *)Control::TheControl())->GetScore(comPlayer) ) {
+       ((PlayGame *)Control::TheControl())->GetScore(Control::TheControl()->GetThePlayer()) >
+       ((PlayGame *)Control::TheControl())->GetScore(Control::TheControl()->GetComPlayer()) ) {
     sprintf( filename, _("%s.pbm"), file[0] );
   }  else {
     sprintf( filename, _("%s.pbm"), file[1] );

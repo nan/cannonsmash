@@ -32,8 +32,6 @@
 
 extern RCFile *theRC;
 
-extern Player* thePlayer;
-extern Player* comPlayer;
 extern Ball theBall;
 extern long mode;
 
@@ -73,7 +71,7 @@ Ball::Ball( double x, double y, double z, double vx, double vy, double vz,
 }
 
 Ball::~Ball() {
-  if ( m_View && &theBall == this){
+  if ( m_View && &theBall == this ){
     BaseView::TheView()->RemoveView( m_View );
     delete m_View;
   }
@@ -143,10 +141,10 @@ Ball::Move() {
     if ( Control::TheControl()->IsPlaying() ) {
       Player *player;
 
-      if ( ((PlayGame *)Control::TheControl())->GetService() == thePlayer->GetSide() )
-	player = thePlayer;
+      if ( ((PlayGame *)Control::TheControl())->GetService() == Control::TheControl()->GetThePlayer()->GetSide() )
+	player = Control::TheControl()->GetThePlayer();
       else
-	player = comPlayer;
+	player = Control::TheControl()->GetComPlayer();
 
       if ( ((PlayGame *)Control::TheControl())->GetService() > 0 ) {
 	m_x = player->GetX()+0.3;
@@ -169,8 +167,8 @@ Ball::Move() {
 	((PlayGame *)Control::TheControl())->EndGame();
       }
     } else {
-      m_x = thePlayer->GetX()+0.3;
-      m_y = thePlayer->GetY();
+      m_x = Control::TheControl()->GetThePlayer()->GetX()+0.3;
+      m_y = Control::TheControl()->GetThePlayer()->GetY();
 
       m_z = TABLEHEIGHT + 0.15;
       m_vx = 0.0;
@@ -221,7 +219,7 @@ Ball::Move() {
 
   if ( tableT < netT ){	// Bound on the table
     if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE );
+      Sound::TheSound()->Play( SOUND_TABLE, m_x, m_y );
     }
     tableY = y+m_vy*tableT;
     if ( tableY < 0 ){		// Table of my side
@@ -275,7 +273,7 @@ Ball::Move() {
     m_x = -AREAXSIZE/2;
     m_vx = -m_vx*TABLE_E/2;
     if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE );
+      Sound::TheSound()->Play( SOUND_TABLE, m_x, m_y );
     }
     BallDead();
   }
@@ -283,7 +281,7 @@ Ball::Move() {
     m_x = AREAXSIZE/2;
     m_vx = -m_vx*TABLE_E/2;
     if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE );
+      Sound::TheSound()->Play( SOUND_TABLE, m_x, m_y );
     }
     BallDead();
   }
@@ -292,7 +290,7 @@ Ball::Move() {
     m_y = -AREAYSIZE/2;
     m_vy = -m_vy*TABLE_E/2;
     if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE );
+      Sound::TheSound()->Play( SOUND_TABLE, m_x, m_y );
     }
     BallDead();
   }
@@ -300,7 +298,7 @@ Ball::Move() {
     m_y = AREAYSIZE/2;
     m_vy = -m_vy*TABLE_E/2;
     if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE );
+      Sound::TheSound()->Play( SOUND_TABLE, m_x, m_y );
     }
     BallDead();
   }
@@ -314,7 +312,7 @@ Ball::Move() {
       m_vy -= m_spin*0.8;
 
     if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE );
+      Sound::TheSound()->Play( SOUND_TABLE, m_x, m_y );
     }
     BallDead();
   }
@@ -322,7 +320,7 @@ Ball::Move() {
     m_z = AREAZSIZE;
     m_vz = -m_vz*0.1;
     if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_TABLE );
+      Sound::TheSound()->Play( SOUND_TABLE, m_x, m_y );
     }
     BallDead();
   }
@@ -344,7 +342,7 @@ bool
 Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
 // Normal inpact
   if ( this == &theBall ) {
-      Sound::TheSound()->Play( SOUND_RACKET );
+      Sound::TheSound()->Play( SOUND_RACKET, m_x, m_y );
   }
 
   m_spin = spin;
@@ -354,7 +352,8 @@ Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
   m_vz = vz;
 
   // m_status should be updated by the information from the opponent
-  if ( player == comPlayer && mode == MODE_MULTIPLAY ) {
+  if ( player == Control::TheControl()->GetComPlayer() &&
+       mode == MODE_MULTIPLAY ) {
     return true;
   }
 
@@ -368,7 +367,8 @@ Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
     m_status = 2;
   }
 
-  if ( player == thePlayer && mode == MODE_MULTIPLAY ) {
+  if ( player == Control::TheControl()->GetThePlayer() &&
+       mode == MODE_MULTIPLAY ) {
     Event::TheEvent()->SendBall();
   }
 
@@ -384,7 +384,8 @@ Ball::Toss( Player *player , long power ) {
   else
     m_status = 7;
 
-  if ( player == thePlayer && mode == MODE_MULTIPLAY ) {
+  if ( player == Control::TheControl()->GetThePlayer() &&
+       mode == MODE_MULTIPLAY ) {
     //Event::TheEvent()->SendPlayerAndBall( player );
     Event::TheEvent()->SendBall();
   }
@@ -603,8 +604,8 @@ Ball::BallDead() {
       ((PlayGame *)Control::TheControl())->ChangeScore();
 
       if ( mode == MODE_MULTIPLAY ) {
-	if ( (thePlayer->GetSide() > 0 && m_status == 3) ||
-	     (thePlayer->GetSide() < 0 && m_status == 1) ) {
+	if ( (Control::TheControl()->GetThePlayer()->GetSide() > 0 && m_status == 3) ||
+	     (Control::TheControl()->GetThePlayer()->GetSide() < 0 && m_status == 1) ) {
 	  m_status = -1;
 	  Event::TheEvent()->SendBall();
 	}

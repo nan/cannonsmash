@@ -26,8 +26,6 @@
 #include "BaseView2D.h"
 
 extern Ball   theBall;
-extern Player* thePlayer;
-extern Player *comPlayer;
 extern long mode;
 
 extern bool RenderRect( double x1, double y1, double z1, 

@@ -44,9 +44,6 @@ int LoadData( void *dum );
 
 Ball theBall;
 
-Player *thePlayer = NULL;
-Player *comPlayer = NULL;
-
 int theSocket = -1;
 bool isComm = false;		// Network Play?
 
@@ -58,9 +55,9 @@ long mode = MODE_OPENING;
 
 SDL_mutex *loadMutex;
 
+void InitGame();
 void StartGame();
 void EndGame();
-void EventLoop();
 bool PollEvent();
 
 #ifdef WIN32
@@ -244,7 +241,6 @@ int main(int argc, char** argv) {
     launcher->Init();
   } else {
     ::StartGame();
-    ::EventLoop();
     ::EndGame();
   }
 
@@ -253,11 +249,13 @@ int main(int argc, char** argv) {
 
 void
 StartGame() {
-  if ( theRC->gmode == GMODE_FULL )
-    theRC->isTexture = true;
-  else
-    theRC->isTexture = false;
+  ::InitGame();
+  while ( PollEvent() );
+  ::EndGame();
+}
 
+void
+InitGame() {
 #ifdef HAVE_LIBSDL_MIXER
 //  theRC->sndMode = SOUND_SDL;
 
@@ -290,13 +288,14 @@ StartGame() {
 
   Sound::TheSound()->Init( theRC->sndMode );
   BaseView::TheView()->Init();
-  Event::TheEvent()->Init();
 
   SDL_EnableUNICODE(1);
 
 #if defined(CHIYO)
   parts::realizeobjects();
 #endif
+
+  Event::TheEvent()->Init();
 }
 
 void EndGame()
@@ -319,10 +318,6 @@ void EndGame()
 #endif
 
   SDL_Quit();
-}
-
-void EventLoop() {
-  while ( PollEvent() );
 }
 
 bool PollEvent() {

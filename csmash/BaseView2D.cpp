@@ -26,8 +26,6 @@
 #include "PlayGame.h"
 #include "RCFile.h"
 
-extern Player* thePlayer;
-extern Player* comPlayer;
 extern long mode;
 
 extern Ball theBall;
@@ -86,10 +84,10 @@ BaseView2D::RedrawAll() {
   SetViewPosition();
 
   m_fieldView->GetDamageRect();
-  if ( thePlayer )
-    thePlayer->GetView()->GetDamageRect();
-  if ( comPlayer )
-    comPlayer->GetView()->GetDamageRect();
+  if ( Control::TheControl()->GetThePlayer() )
+    Control::TheControl()->GetThePlayer()->GetView()->GetDamageRect();
+  if ( Control::TheControl()->GetComPlayer() )
+    Control::TheControl()->GetComPlayer()->GetView()->GetDamageRect();
   theBall.GetView()->GetDamageRect();
   if ( Control::TheControl()->GetView() )
     Control::TheControl()->GetView()->GetDamageRect();
@@ -103,16 +101,16 @@ BaseView2D::RedrawAll() {
 
   m_fieldView->Redraw();
 
-  if ( comPlayer )
-    comPlayer->GetView()->Redraw();
+  if ( Control::TheControl()->GetComPlayer() )
+    Control::TheControl()->GetComPlayer()->GetView()->Redraw();
 
   SDL_SetClipRect( m_baseSurface, &rect );
   m_fieldView->RedrawAlpha();
 
   SDL_SetClipRect( m_baseSurface, NULL );
 
-  if ( thePlayer )
-    thePlayer->GetView()->RedrawAlpha();
+  if ( Control::TheControl()->GetThePlayer() )
+    Control::TheControl()->GetThePlayer()->GetView()->RedrawAlpha();
   theBall.GetView()->Redraw();
 
   if ( Control::TheControl()->GetView() ) {
@@ -164,12 +162,12 @@ BaseView2D::EndGame() {
   glLoadIdentity();
 
   printf( "EndGame %d : %d\n",
-	  ((PlayGame *)Control::TheControl())->GetScore(thePlayer), 
-	  ((PlayGame *)Control::TheControl())->GetScore(comPlayer) );
+	  ((PlayGame *)Control::TheControl())->GetScore(Control::TheControl()->GetThePlayer()), 
+	  ((PlayGame *)Control::TheControl())->GetScore(Control::TheControl()->GetComPlayer()) );
 
   if ( Control::TheControl()->IsPlaying() && 
-       ((PlayGame *)Control::TheControl())->GetScore(thePlayer) >
-       ((PlayGame *)Control::TheControl())->GetScore(comPlayer) ) {
+       ((PlayGame *)Control::TheControl())->GetScore(Control::TheControl()->GetThePlayer()) >
+       ((PlayGame *)Control::TheControl())->GetScore(Control::TheControl()->GetComPlayer()) ) {
 #ifndef HAVE_LIBZ
     if ( (fp = fopen(&file[0][0], "r")) == NULL )
       return;

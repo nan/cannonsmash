@@ -25,8 +25,6 @@
 #include "Training.h"
 
 extern Ball   theBall;
-extern Player *thePlayer;
-extern Player *comPlayer;
 
 ComTrainingPenAttack::ComTrainingPenAttack() : ComPenAttack() {
 }

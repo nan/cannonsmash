@@ -25,8 +25,6 @@
 #include "Training.h"
 
 extern Ball   theBall;
-extern Player *thePlayer;
-extern Player *comPlayer;
 
 ComTrainingPenDrive::ComTrainingPenDrive() : ComPenDrive() {
 }
@@ -156,9 +154,9 @@ ComTrainingPenDrive::Think() {
 
     Player *opponent;
     if ( m_side == -1 )
-      opponent = thePlayer;
+      opponent = Control::TheControl()->GetThePlayer();
     else
-      opponent = comPlayer;
+      opponent = Control::TheControl()->GetComPlayer();
 
     SetTargetX( opponent );
 
