@@ -408,20 +408,20 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	else
 	  vxdiff = (xdiff+0.3)/TICK/(20-m_swing);
 
-	if ( vxdiff > 5.0 )
-	  vxdiff = 5.0;
-	else if ( vxdiff < -5.0 )
-	  vxdiff = -5.0;
+	if ( vxdiff > 2.0 )
+	  vxdiff = 2.0;
+	else if ( vxdiff < -2.0 )
+	  vxdiff = -2.0;
 
 	m_vx += vxdiff;
 #endif
 
 	if ( fabs(ydiff) > 0.3 ) {
 	  vydiff = ydiff/TICK/(20-m_swing);
-	  if ( vydiff > 5.0 )
-	    vydiff = 5.0;
-	  else if ( vydiff < -5.0 )
-	    vydiff = -5.0;
+	  if ( vydiff > 2.0 )
+	    vydiff = 2.0;
+	  else if ( vydiff < -2.0 )
+	    vydiff = -2.0;
 	  m_vy += vydiff;
 	}
       }

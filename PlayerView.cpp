@@ -152,9 +152,6 @@ PlayerView::SubRedraw() {
 		     m_player->GetTargetY()-m_player->GetY() )*180.0/3.141592, 
 	     0.0, 0.0, 1.0 );
 
-  //if ( m_player->GetSide() < 0 )
-  //glRotatef( 180.0, 0.0, 0.0, 1.0 );
-
   if ( isPolygon ) {
     int swing;
     partsmotion *motion;

@@ -60,6 +60,8 @@ Event::Event() {
   m_Histptr = 0;
 
   m_External = NULL;
+
+  m_mouseButton = 0;
 }
 
 Event::~Event() {
@@ -314,24 +316,30 @@ Event::ButtonFunc( int button, int state, int x, int y ) {
     switch ( button ){
     case GLUT_LEFT_BUTTON:
       theEvent.m_MouseBHistory[theEvent.m_Histptr] |= BUTTON_LEFT;
+      theEvent.m_mouseButton |= BUTTON_LEFT;
       break;
     case GLUT_MIDDLE_BUTTON:
       theEvent.m_MouseBHistory[theEvent.m_Histptr] |= BUTTON_MIDDLE;
+      theEvent.m_mouseButton |= BUTTON_MIDDLE;
       break;
     case GLUT_RIGHT_BUTTON:
       theEvent.m_MouseBHistory[theEvent.m_Histptr] |= BUTTON_RIGHT;
+      theEvent.m_mouseButton |= BUTTON_RIGHT;
       break;
     }
   } else {
     switch ( button ){
     case GLUT_LEFT_BUTTON:
       theEvent.m_MouseBHistory[theEvent.m_Histptr] &= ~BUTTON_LEFT;
+      theEvent.m_mouseButton &= ~BUTTON_LEFT;
       break;
     case GLUT_MIDDLE_BUTTON:
       theEvent.m_MouseBHistory[theEvent.m_Histptr] &= ~BUTTON_MIDDLE;
+      theEvent.m_mouseButton &= ~BUTTON_MIDDLE;
       break;
     case GLUT_RIGHT_BUTTON:
       theEvent.m_MouseBHistory[theEvent.m_Histptr] &= ~BUTTON_RIGHT;
+      theEvent.m_mouseButton &= ~BUTTON_RIGHT;
       break;
     }
   }

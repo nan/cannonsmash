@@ -58,6 +58,8 @@ public:
   bool BackTrack( long Histptr );
 
   static struct timeb m_lastTime;
+
+  long m_mouseButton;					// リプレイスキップ用
 protected:
   bool Move();
   void Record();
