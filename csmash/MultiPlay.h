@@ -33,13 +33,14 @@ bool AcceptClient();
 void StartServer();
 void StartClient();
 
-struct ExternalData {
+class ExternalData {
+public:
   long side;
   long dataType;
   long sec;
   char count;
   char data[256];
-  struct ExternalData *next;
+  ExternalData *next;
 };
 
 class MultiPlay : public Control {

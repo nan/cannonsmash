@@ -49,7 +49,7 @@ long _perfCount;
 long perfs;
 
 void CopyPlayerData( struct PlayerData& dest, Player* src );
-bool GetExternalData( struct ExternalData **ext, int sd, long side );
+bool GetExternalData( ExternalData **ext, int sd, long side );
 
 Event::Event() {
   m_KeyHistory[0] = 0;
@@ -400,15 +400,15 @@ void SendTime( int sd ) {
 }
 
 bool
-GetExternalData( struct ExternalData **ext, int sd, long side ) {
+GetExternalData( ExternalData **ext, int sd, long side ) {
   char buf[256];
-  struct ExternalData *extNow;
+  ExternalData *extNow;
   long len;
 
   if ( recv( sd, buf, 2, 0 ) != 2 )
     return false;
 
-  extNow = new struct ExternalData;
+  extNow = new ExternalData();
   extNow->side = side;
   memset( extNow->data, 0, 256 );
   extNow->next = NULL;
@@ -452,7 +452,7 @@ GetExternalData( struct ExternalData **ext, int sd, long side ) {
     extNow->next = *ext;
     *ext = extNow;
   } else {
-    struct ExternalData *ext2 = *ext;
+    ExternalData *ext2 = *ext;
 
     while ( ext2->next ) {
       if ( ext2->next->sec > extNow->sec || 
@@ -562,7 +562,7 @@ Event::ReadData() {
 
   // externalDataの先頭までbacktrackする
   long btCount;
-  struct ExternalData *externalOld;
+  ExternalData *externalOld;
   long btHistptr;
   while ( m_External ) {	// 捨てる?
     //printf( "External2\n" );

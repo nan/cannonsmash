@@ -53,6 +53,8 @@ struct Backtrack {
   PlayerData comPlayer;
 };
 
+class ExternalData;
+
 class Event {
 public:
   Event();
@@ -90,7 +92,7 @@ protected:
   unsigned long m_MouseBHistory[MAX_HISTORY];		// マウスボタン履歴
   int  m_Histptr;
 
-  struct ExternalData *m_External;
+  ExternalData *m_External;
   struct Backtrack m_BacktrackBuffer[MAX_HISTORY];
   bool m_backtrack;		// 現在backtrack中か否か
 };
