@@ -313,7 +313,7 @@ PenAttack::SwingType( Ball *ball, long spin ) {
 	}
       }	    
     } else if ( fabs(ball->GetY()) < TABLELENGTH/2+1.0 &&
-		ball->GetZ() > TABLEHEIGHT+NETHEIGHT && ForeOrBack() ){
+		ball->GetZ() > TABLEHEIGHT+NETHEIGHT ){
       m_swingType = SWING_SMASH;
       m_spin = 0.2;
     } else {
@@ -403,7 +403,7 @@ PenAttack::CalcLevel(Ball *ball, double &diff, double &level, double &maxVy) {
 	(fabs(m_spin)+fabs(ball->GetSpin()))*4.0;
       break;
     case SWING_SMASH:
-      maxVy = hypot(ball->GetVX(), ball->GetVY())*0.6 + 15.0 -
+      maxVy = hypot(ball->GetVX(), ball->GetVY())*0.6 + 18.0 -
 	(fabs(m_spin)+fabs(ball->GetSpin()))*4.0;
       break;
     default:

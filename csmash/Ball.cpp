@@ -387,7 +387,8 @@ Ball::Toss( Player *player , long power ) {
     m_status = 7;
 
   if ( player == thePlayer && mode == MODE_MULTIPLAY ) {
-    Event::TheEvent()->SendPlayerAndBall( player );
+    //Event::TheEvent()->SendPlayerAndBall( player );
+    Event::TheEvent()->SendBall();
   }
 
   return true;

@@ -42,6 +42,8 @@ public:
   long GetService();
   long GetScore( Player *p );
   long GetScore( long side );
+  long GetGame( Player *p );
+  long GetGame( long side );
 
   bool IsGameEnd();
   virtual void EndGame();
@@ -52,8 +54,10 @@ public:
 protected:
   PlayGameView *m_View;
 
-  long m_Score1;	// Score of near side. Counter when training
-  long m_Score2;	// Score of far side
+  long m_Score1;	// Point of near side. Counter when training
+  long m_Game1;		// Game of near side. 
+  long m_Score2;	// Point of far side
+  long m_Game2;		// Game of far side. 
 };
 
 #endif	// _PlayGame_

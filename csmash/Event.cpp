@@ -628,7 +628,6 @@ Event::ReadData() {
   ExternalData *externalOld;
   long btHistptr;
   while ( !(m_External->isNull()) ) {	// 古すぎる情報を捨てる
-    //printf( "External2\n" );
     btCount = (m_lastTime.time-m_External->sec)*100 + 
       (m_lastTime.millitm/10-m_External->count);
     if ( btCount > MAX_HISTORY ) {
@@ -641,96 +640,93 @@ Event::ReadData() {
       break;
   }
 
-  if ( !(m_External->isNull()) ) {
-    if ( btCount > 0 ) {
-      backTracks += btCount;
-      _backTrackCount++;
+  if ( !(m_External->isNull()) && btCount > 0 ) {
+    backTracks += btCount;
+    _backTrackCount++;
 
-      btHistptr = m_Histptr - btCount;
-      if ( btHistptr < 0 )
-	btHistptr += MAX_HISTORY;
+    btHistptr = m_Histptr - btCount;
+    if ( btHistptr < 0 )
+      btHistptr += MAX_HISTORY;
 
-      long mtime = m_lastTime.millitm - btCount*10;
-      while ( mtime < 0 ) {
-	mtime += 1000;
-	m_lastTime.time--;
-      }
-      m_lastTime.millitm = mtime;
+    long mtime = m_lastTime.millitm - btCount*10;
+    while ( mtime < 0 ) {
+      mtime += 1000;
+      m_lastTime.time--;
+    }
+    m_lastTime.millitm = mtime;
 
-      bool fTheBall, fThePlayer, fComPlayer;
-      fTheBall = fThePlayer = fComPlayer = false;
+    bool fTheBall, fThePlayer, fComPlayer;
+    fTheBall = fThePlayer = fComPlayer = false;
 
-      //printf( "Backtrack From %d to", m_Histptr );
-      BackTrack( btHistptr );
-      //printf( " %d\n", m_Histptr );
+    //printf( "Backtrack From %d to", m_Histptr );
+    BackTrack( btHistptr );
+    //printf( " %d\n", m_Histptr );
 
-      // 適用する -> 進めるをbtCount繰り返す
-      while (1) {
-	if ( fTheBall )
-	  theBall.Move();
+    // 適用する -> 進めるをbtCount繰り返す
+    while (1) {
+      if ( fTheBall )
+	theBall.Move();
 
-        if ( fThePlayer )
-	  thePlayer->Move( m_KeyHistory, m_MouseXHistory,
-			   m_MouseYHistory, m_MouseBHistory, m_Histptr );
+      if ( fThePlayer )
+	thePlayer->Move( m_KeyHistory, m_MouseXHistory,
+			 m_MouseYHistory, m_MouseBHistory, m_Histptr );
 
-	if ( fComPlayer )
-	  comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+      if ( fComPlayer )
+	comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
 
-	while ( !(m_External->isNull()) &&
-		m_External->sec == m_lastTime.time &&
-		m_External->count == m_lastTime.millitm/10 ) {
-	  Player *targetPlayer;
-	  if ( m_External->side == thePlayer->GetSide() )
-	    targetPlayer = thePlayer;
-	  else if ( m_External->side == comPlayer->GetSide() )
-	    targetPlayer = comPlayer;
-	  else {
-	    xerror("%s(%d) ExternalData", __FILE__, __LINE__);
-	    exit(1);
-	  }
-
-	  m_External->Apply( targetPlayer, fThePlayer, fComPlayer, fTheBall );
-
-	  externalOld = m_External;
-	  m_External = m_External->next;
-	  delete externalOld;
+      while ( !(m_External->isNull()) &&
+	      m_External->sec == m_lastTime.time &&
+	      m_External->count == m_lastTime.millitm/10 ) {
+	Player *targetPlayer;
+	if ( m_External->side == thePlayer->GetSide() )
+	  targetPlayer = thePlayer;
+	else if ( m_External->side == comPlayer->GetSide() )
+	  targetPlayer = comPlayer;
+	else {
+	  xerror("%s(%d) ExternalData", __FILE__, __LINE__);
+	  exit(1);
 	}
 
-	m_Histptr++;
-	if ( m_Histptr == MAX_HISTORY )
-	  m_Histptr = 0;
+	m_External->Apply( targetPlayer, fThePlayer, fComPlayer, fTheBall );
 
-	// 後で Event::Record と調整? 
-	if ( fTheBall )
-	  m_BacktrackBuffer[m_Histptr].theBall = theBall;
-        if ( fThePlayer )
-	  CopyPlayerData( m_BacktrackBuffer[m_Histptr].thePlayer, thePlayer );
-	if ( fComPlayer )
-	  CopyPlayerData( m_BacktrackBuffer[m_Histptr].comPlayer, comPlayer );
-
-	m_lastTime.millitm += 10;
-	if ( m_lastTime.millitm >= 1000 ) {
-	  m_lastTime.millitm -= 1000;
-	  m_lastTime.time++;
-	}
-
-	btCount--;
-	if ( btCount <= 0 )
-	  break;
+	externalOld = m_External;
+	m_External = m_External->next;
+	delete externalOld;
       }
 
-      if (!fTheBall) {
-	theBall = m_BacktrackBuffer[m_Histptr].theBall;
-	((PlayGame *)Control::TheControl())->
-	  ChangeScore( m_BacktrackBuffer[m_Histptr].score1,
-		       m_BacktrackBuffer[m_Histptr].score2 );
+      m_Histptr++;
+      if ( m_Histptr == MAX_HISTORY )
+	m_Histptr = 0;
+
+      // 後で Event::Record と調整? 
+      if ( fTheBall )
+	m_BacktrackBuffer[m_Histptr].theBall = theBall;
+      if ( fThePlayer )
+	CopyPlayerData( m_BacktrackBuffer[m_Histptr].thePlayer, thePlayer );
+      if ( fComPlayer )
+	CopyPlayerData( m_BacktrackBuffer[m_Histptr].comPlayer, comPlayer );
+
+      m_lastTime.millitm += 10;
+      if ( m_lastTime.millitm >= 1000 ) {
+	m_lastTime.millitm -= 1000;
+	m_lastTime.time++;
       }
-      if (!fThePlayer)
-	thePlayer->Reset( &m_BacktrackBuffer[m_Histptr].thePlayer );
-      if (!fComPlayer)
-	comPlayer->Reset( &m_BacktrackBuffer[m_Histptr].comPlayer );
+
+      btCount--;
+      if ( btCount <= 0 )
+	break;
     }
 
+    if (!fTheBall) {
+      theBall = m_BacktrackBuffer[m_Histptr].theBall;
+      ((PlayGame *)Control::TheControl())->
+	ChangeScore( m_BacktrackBuffer[m_Histptr].score1,
+		     m_BacktrackBuffer[m_Histptr].score2 );
+    }
+    if (!fThePlayer)
+      thePlayer->Reset( &m_BacktrackBuffer[m_Histptr].thePlayer );
+    if (!fComPlayer)
+      comPlayer->Reset( &m_BacktrackBuffer[m_Histptr].comPlayer );
   }
 }
 

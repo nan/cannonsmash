@@ -37,6 +37,8 @@ PlayGame::PlayGame() {
 
   m_Score1 = 0;
   m_Score2 = 0;
+  m_Game1 = 0;
+  m_Game2 = 0;
 }
 
 PlayGame::~PlayGame() {
@@ -48,29 +50,36 @@ PlayGame::~PlayGame() {
 
 long
 PlayGame::GetService() {
+  long ret = 0;
   switch ( theRC->gameMode ) {
   case GAME_5PTS:
-    return ((m_Score1+m_Score2) & 1 ? -1 : 1);
+    ret = ((m_Score1+m_Score2) & 1 ? -1 : 1);
+    break;
   case GAME_11PTS:
     if ( m_Score1 > 9 && m_Score2 > 9 ) {	// Deuce
-      return ((m_Score1+m_Score2) & 1 ? -1 : 1);
+      ret = ((m_Score1+m_Score2) & 1 ? -1 : 1);
     } else {
       if ( (m_Score1 + m_Score2)%4 >= 2 )
-	return -1;
+	ret = -1;
       else
-	return 1;
+	ret = 1;
     }
+    break;
   case GAME_21PTS:
     if ( m_Score1 > 19 && m_Score2 > 19 ) {	// Deuce
-      return ((m_Score1+m_Score2) & 1 ? -1 : 1);
+      ret = ((m_Score1+m_Score2) & 1 ? -1 : 1);
     } else {
       if ( (m_Score1 + m_Score2)%10 >= 5 )
-	return -1;
+	ret = -1;
       else
-	return 1;
+	ret = 1;
     }
   }
-  return 0;
+
+  if ( (m_Game1+m_Game2)%2 )
+    ret = -ret;
+
+  return ret;
 }
 
 long
@@ -96,6 +105,32 @@ PlayGame::GetScore( long side ) {
       return m_Score2;
   } else {	// Training
     return m_Score1;
+  }
+}
+
+long
+PlayGame::GetGame( Player *p ) {
+  if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
+       mode == MODE_PRACTICE ) {
+    if ( p->GetSide() > 0 )
+      return m_Game1;
+    else
+      return m_Game2;
+  } else {	// Training
+    return m_Game1;
+  }
+}
+
+long
+PlayGame::GetGame( long side ) {
+  if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
+       mode == MODE_PRACTICE) {
+    if ( side > 0 )
+      return m_Game1;
+    else
+      return m_Game2;
+  } else {	// Training
+    return m_Game1;
   }
 }
 
