@@ -25,6 +25,7 @@
 #include "Event.h"
 #include "Network.h"
 #include "RCFile.h"
+#include "LobbyClient.h"
 
 #ifdef LOGGING
 #include "Logging.h"
@@ -608,6 +609,10 @@ Ball::BallDead() {
 	     (Control::TheControl()->GetThePlayer()->GetSide() < 0 && m_status == 1) ) {
 	  m_status = -1;
 	  Event::TheEvent()->SendBall();
+	  if ( LobbyClient::TheLobbyClient() )
+	    LobbyClient::TheLobbyClient()->
+	      SendSC( ((PlayGame *)Control::TheControl())->GetScore(1), 
+		      ((PlayGame *)Control::TheControl())->GetScore(-1) );
 	}
       }
     }
