@@ -33,6 +33,10 @@
 #include "PracticeSelect.h"
 #include "RCFile.h"
 
+#ifdef LOGGING
+#include "Logging.h"
+#endif
+
 extern RCFile *theRC;
 
 extern Ball theBall;
@@ -706,6 +710,10 @@ Event::ClearBacktrack() {
 
 void
 QuitGame() {
+#ifdef LOGGING
+  Event::TheEvent()->Event::RemainingLog();
+#endif
+
   printf( _("Avg = %f\n"), (double)perfs/_perfCount );
   if (_backTrackCount) printf( _("BackTrack = %f\n"), backTracks/_backTrackCount);
 
@@ -734,3 +742,54 @@ Event::SetNextMousePointer( long &x, long &y ) {
     y = BaseView::GetWinHeight()/2 + (y-BaseView::GetWinHeight()/2)*15/16;
   }
 }
+
+#ifdef LOGGING
+void
+Event::GetAdjustedTime( long &sec, long &cnt ) {
+  if ( isComm )
+    cnt += ((MultiPlay *)Control::TheControl())->GetTimeAdj();
+  while ( cnt < 0 ) {
+    sec--;
+    cnt += 100;
+  }
+  while ( cnt >= 100 ) {
+    sec++;
+    cnt -= 100;
+  }
+}
+
+void
+Event::RemainingLog() {
+  Logging::GetLogging()->Log( LOG_ACTBALL, "Quit Game\n" );
+  for ( int i = 0 ; i < MAX_HISTORY ; i++ ) {
+    m_Histptr++;
+    if ( m_Histptr == MAX_HISTORY )
+      m_Histptr = 0;
+    struct Backtrack *bt = &(m_BacktrackBuffer[m_Histptr]);
+    long sec = bt->sec;
+    long cnt = bt->count;
+    char buf[1024];
+
+    if ( isComm )
+      cnt += ((MultiPlay *)Control::TheControl())->GetTimeAdj();
+    while ( cnt < 0 ) {
+      sec--;
+      cnt += 100;
+    }
+    while ( cnt >= 100 ) {
+      sec++;
+      cnt -= 100;
+    }
+
+    sprintf( buf, "sec = %d msec = %d %d - %d  x = %4.2f y = %4.2f z = %4.2f st = %d %d\n",
+             sec, cnt,
+             bt->score1, bt->score2,
+             bt->theBall.GetX(),
+             bt->theBall.GetY(),
+             bt->theBall.GetZ(),
+             bt->theBall.GetStatus(), m_Histptr );
+    Logging::GetLogging()->Log( LOG_ACTBALL, buf );
+  }
+}
+
+#endif

@@ -60,6 +60,12 @@ public:
   static struct timeb m_lastTime;
 
   long m_mouseButton;					// For skip replay
+
+#ifdef LOGGING
+  static void GetAdjustedTime( long &sec, long &cnt );
+  void RemainingLog();
+#endif
+
 protected:
   bool Move();
   bool IsModeChanged( long preMode );
