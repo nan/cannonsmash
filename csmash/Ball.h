@@ -87,6 +87,8 @@ protected:
 
   BallView* m_View;
 
+  long m_lastSendCount;
+
 private:
   void BallDead();
 };

@@ -55,6 +55,8 @@ Ball::Ball() {
   m_status = -1000;
 
   m_View = NULL;
+
+  m_lastSendCount = 0;
 }
 
 Ball::Ball( double x, double y, double z, double vx, double vy, double vz,
@@ -69,6 +71,8 @@ Ball::Ball( double x, double y, double z, double vx, double vy, double vz,
   m_status = status;
 
   m_View = NULL;
+
+  m_lastSendCount = 0;
 }
 
 Ball::~Ball() {
@@ -126,6 +130,15 @@ Ball::Move() {
 	   ((PlayGame *)Control::TheControl())->IsGameEnd() == true ){
 	BaseView::TheView()->EndGame();
 	((PlayGame *)Control::TheControl())->EndGame();
+      }
+
+      // To Fix the possibility of score mismatch
+      if ( mode == MODE_MULTIPLAY && &theBall == this ) {
+	m_lastSendCount++;
+	if ( m_lastSendCount > 100 ) {
+	  Event::TheEvent()->SendBall();
+	  m_lastSendCount = 0;
+	}
       }
     } else {
       m_x = Control::TheControl()->GetThePlayer()->GetX()+0.3;
@@ -335,7 +348,7 @@ Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
   }
 
   if ( player == Control::TheControl()->GetThePlayer() &&
-       mode == MODE_MULTIPLAY ) {
+       mode == MODE_MULTIPLAY && &theBall == this ) {
     Event::TheEvent()->SendBall();
   }
 
@@ -352,8 +365,7 @@ Ball::Toss( Player *player , long power ) {
     m_status = 7;
 
   if ( player == Control::TheControl()->GetThePlayer() &&
-       mode == MODE_MULTIPLAY ) {
-    //Event::TheEvent()->SendPlayerAndBall( player );
+       mode == MODE_MULTIPLAY && &theBall == this ) {
     Event::TheEvent()->SendBall();
   }
 
