@@ -1,4 +1,4 @@
-//Microsoft Developer Studio generated resource script.
+// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
 
@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// ﾆｭｰﾄﾗﾙ resources
+// ニュートラル resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
 #ifdef _WIN32
@@ -28,18 +28,17 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_ICON1               ICON    DISCARDABLE     "orange.ico"
-IDI_ICON2               ICON    DISCARDABLE     "scream.ico"
+IDI_ICON1               ICON                    "orange.ico"
+IDI_ICON2               ICON                    "scream.ico"
 
-#ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,6,4,1
- PRODUCTVERSION 0,6,4,1
+ FILEVERSION 0,6,5,2
+ PRODUCTVERSION 0,6,5,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x21L
@@ -54,18 +53,17 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-            VALUE "Comments", "http://CannonSmash.sorceforge.net/\0"
-            VALUE "CompanyName", "utmc.or.jp\0"
-            VALUE "FileDescription", "Cannon Smash for Windows\0"
-            VALUE "FileVersion", "0, 6, 4, 1\0"
-            VALUE "InternalName", "csmash-i386-win32\0"
-            VALUE "LegalCopyright", "Copyright (C) 2001 nan@utmc.or.jp\0"
-            VALUE "LegalTrademarks", "nan@utmc.or.jp\0"
-            VALUE "OriginalFilename", "csmash.exe\0"
-            VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "Cannon Smash\0"
-            VALUE "ProductVersion", "0, 6, 4, 1\0"
-            VALUE "SpecialBuild", "Built for Comic market 2001 winter\0"
+            VALUE "Comments", "http://CannonSmash.sorceforge.net/"
+            VALUE "CompanyName", "utmc.or.jp"
+            VALUE "FileDescription", "Cannon Smash for Windows"
+            VALUE "FileVersion", "0, 6, 5, 2"
+            VALUE "InternalName", "csmash-i386-win32"
+            VALUE "LegalCopyright", "Copyright (C) 2002 nan@utmc.or.jp"
+            VALUE "LegalTrademarks", "nan@utmc.or.jp"
+            VALUE "OriginalFilename", "csmash.exe"
+            VALUE "ProductName", "Cannon Smash"
+            VALUE "ProductVersion", "0, 6, 5, 2"
+            VALUE "SpecialBuild", ""
         END
     END
     BLOCK "VarFileInfo"
@@ -74,9 +72,7 @@ BEGIN
     END
 END
 
-#endif    // !_MAC
-
-#endif    // ﾆｭｰﾄﾗﾙ resources
+#endif    // ニュートラル resources
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -95,18 +91,18 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE 
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE 
 BEGIN
     "\r\n"
     "\0"
