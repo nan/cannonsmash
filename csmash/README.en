@@ -1,0 +1,71 @@
+------------------------------------------------------------
+                        Cannon Smash
+------------------------------------------------------------
+                                              nan@utmc.or.jp
+
+1. Introduction
+ CannonSmash is a 3D tabletennis game. The goal of this project is to 
+represent various strategy of tabletennis on computer game. 
+
+2. Requirements
+ This program requires OpenGL and GLUT. Please install these components 
+first. If your machine doesn't have 3D accelaration video card, this 
+program runs very slowly.
+
+OpenGL:
+  Windows 95    You have nothing to do if your Window 95 is OSR2 or newer. 
+                If not, please get 
+                ftp://ftp.microsoft.com/softlib/msfiles/opengl95.exe
+                and install. 
+  Windows 98    You have nothing to do. 
+  Windows NT4.0 You have nothing to do. 
+  Windows 2000  You have nothing to do. 
+  Linux 2.2.x   Please install Mesa3D. 
+
+GLUT:
+  Please install GLUT3.7. 
+  Get GLUT 3.7 from http://reality.sgi.com/mjk/glut3/glut3.html and install. 
+
+Others:(Optional)
+  Sound effect becomes available if you install esd (on Linux). 
+  Install pthread and this program runs faster. 
+
+3. Install
+3.1. Install from source code
+
+To install, type like this. 
+
+# ./configure
+# make
+# make install
+
+If your path is correct, you can start game by typing like this. 
+
+# csmash
+
+3.2. Install from binary package
+We have binary packages for some platforms(Windows, Linux). But some 
+of them are old, so please install from source package if you can. 
+
+4. Multiplayer mode
+Cannon Smash supports multiplayer mode since version 0.4.0. 
+Two PC connected by LAN is needed to play multiplayer game. 
+You have to run the program in the sequence described below. 
+
+(1) Start game on server machine with "-s" option. 
+
+Ex.
+# csmash -s
+
+(2) You can see "Player Select" on server machine. Select player and
+    wait for a while until client machine will be connected. 
+
+(3) Start game on client machine with server machine name.
+
+Ex.
+# csmash servername
+
+(4) You can see Player Select on client machine. After you select player, 
+    client machine makes connection with server machine and game starts. 
+
+Enjoy!
