@@ -3,7 +3,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Cannon Smash 0.6.4\n"
-"POT-Creation-Date: 2002-11-04 03:38+0900\n"
+"POT-Creation-Date: 2002-11-06 00:44+0900\n"
 "PO-Revision-Date: 2002-02-03 19:00+0900\n"
 "Last-Translator: KANNA Yoshihiro <nan@utmc.or.jp>\n"
 "Language-Team: Cannon Smash development project <csmash@utmc.or.jp>\n"
@@ -43,12 +43,12 @@ msgstr ""
 msgid "Unable to toggle fullscreen mode\n"
 msgstr ""
 
-#: Event.cpp:773
+#: Event.cpp:768
 #, c-format
 msgid "Avg = %f\n"
 msgstr ""
 
-#: Event.cpp:774
+#: Event.cpp:769
 #, c-format
 msgid "BackTrack = %f\n"
 msgstr ""
@@ -123,7 +123,7 @@ msgstr "メッセージ:"
 msgid "Connect to Lobby Server"
 msgstr "ロビーサーバへ接続"
 
-#: LauncherView.cpp:468 LobbyClientView.cpp:61 LobbyClientView.cpp:235
+#: LauncherView.cpp:468 LobbyClientView.cpp:61 LobbyClientView.cpp:236
 msgid "Cannon Smash"
 msgstr ""
 
@@ -155,21 +155,23 @@ msgstr "待機"
 msgid "close"
 msgstr "中止"
 
-#: LobbyClientView.cpp:190
+#: LobbyClientView.cpp:188
 #, c-format
-msgid "Please upgrade to version %s\n"
+msgid ""
+"Latest Version %s is already released. \n"
+"Please upgrade to the latest version\n"
 msgstr ""
 
-#: LobbyClientView.cpp:244
+#: LobbyClientView.cpp:245
 #, c-format
 msgid "\"%s\" (message: %s)want to play with you. OK?\n"
 msgstr "\"%s\" (メッセージ: %s)から対戦の申し込みがありました。対戦しますか?\n"
 
-#: LobbyClientView.cpp:259
+#: LobbyClientView.cpp:260
 msgid "OK!"
 msgstr "対戦する"
 
-#: LobbyClientView.cpp:270
+#: LobbyClientView.cpp:271
 msgid "No!"
 msgstr "拒否する"
 
