@@ -1086,6 +1086,7 @@ Player::SendLocation( char *buf ) {
   for ( int i = 0 ; i < 3 ; i++ ) {
     d = SwapDbl(m_v[i]);
     memcpy( &(buf[c]), (char *)&d, 8 );
+    c += 8;
   }
 
   UpdateLastSend();
