@@ -526,8 +526,10 @@ Event::ReadData() {
 	    targetPlayer = thePlayer;
 	  else if ( m_External->side == comPlayer->GetSide() )
 	    targetPlayer = comPlayer;
-	  else
+	  else {
+	    xerror("%s(%d) ExternalData", __FILE__, __LINE__);
 	    exit(1);
+	  }
 
 	  m_External->Apply( targetPlayer, fThePlayer, fComPlayer, fTheBall );
 

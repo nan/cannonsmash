@@ -388,8 +388,10 @@ StartServer() {
     exit(1);
   }
 
-  if ( strncmp( buf, "BI", 2 ) )
+  if ( strncmp( buf, "BI", 2 ) ) {
+    xerror("%s(%d) recv BI", __FILE__, __LINE__);
     exit(1);
+  }
 
   len = 0;
   while (1) {
@@ -401,8 +403,10 @@ StartServer() {
 
   SendPlayerData();
 
-  if ( !(comPlayer = ReadPlayerData()) )
+  if ( !(comPlayer = ReadPlayerData()) ) {
+    xerror("%s(%d) ReadPlayerData", __FILE__, __LINE__);
     exit(1);
+  }
 }
 
 void
@@ -507,8 +511,10 @@ StartClient() {
   theBall.Send( theSocket );
 
 //      printf( "read\n" );
-  if ( !(comPlayer = ReadPlayerData()) )
+  if ( !(comPlayer = ReadPlayerData()) ) {
+    xerror("%s(%d) ReadPlayerData", __FILE__, __LINE__);
     exit(1);
+  }
 //      printf( "write\n" );
   SendPlayerData();
 }
