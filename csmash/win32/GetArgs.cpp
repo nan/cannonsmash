@@ -85,7 +85,7 @@ int GetArgs(int *pargc, char ***pargv, const char *cmdline_, int esc)
 	argv[argc++] = cur;
 
 	for (;'\0' != *cur && last > cur; cur++);
-    } while (last > cur);
+    } while ((last > cur) && (argc < 1024));
     argv[argc] = NULL;
     *pargv = argv;
     *pargc = argc;
