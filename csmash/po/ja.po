@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Cannon Smash 0.6.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2003-08-03 01:03+0900\n"
+"POT-Creation-Date: 2003-11-20 23:53+0900\n"
 "PO-Revision-Date: 2003-07-13 15:00+0900\n"
 "Last-Translator: KANNA Yoshihiro <nan@utmc.or.jp>\n"
 "Language-Team: Cannon Smash development project <csmash@utmc.or.jp>\n"
@@ -723,12 +723,12 @@ msgstr ""
 msgid "Unable to toggle fullscreen mode\n"
 msgstr ""
 
-#: Event.cpp:806
+#: Event.cpp:809
 #, c-format
 msgid "Avg = %f\n"
 msgstr ""
 
-#: Event.cpp:807
+#: Event.cpp:810
 #, c-format
 msgid "BackTrack = %f\n"
 msgstr ""
@@ -883,7 +883,7 @@ msgstr ""
 msgid "%s:%d matrix buffer overflow\n"
 msgstr ""
 
-#: Player.cpp:269
+#: Player.cpp:266
 #, c-format
 msgid "no player %ld\n"
 msgstr ""

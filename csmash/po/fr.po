@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Cannon Smash 0.6.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2003-08-03 01:03+0900\n"
+"POT-Creation-Date: 2003-11-20 23:53+0900\n"
 "PO-Revision-Date: 2003-01-30 02:00+0900\n"
 "Last-Translator: Lucien SAVIOT <carlu@free.fr>\n"
 "Language-Team: <>\n"
@@ -734,12 +734,12 @@ msgstr "fenêtré"
 msgid "Unable to toggle fullscreen mode\n"
 msgstr "Impossible de passer en plein écran\n"
 
-#: Event.cpp:806
+#: Event.cpp:809
 #, c-format
 msgid "Avg = %f\n"
 msgstr "Moyenne = %f\n"
 
-#: Event.cpp:807
+#: Event.cpp:810
 #, c-format
 msgid "BackTrack = %f\n"
 msgstr "BackTrack = %f\n"
@@ -897,7 +897,7 @@ msgstr "%s:%d débordement du tampon de boucles\n"
 msgid "%s:%d matrix buffer overflow\n"
 msgstr "%s:%d débordement du tampon de matrices\n"
 
-#: Player.cpp:269
+#: Player.cpp:266
 #, c-format
 msgid "no player %ld\n"
 msgstr "Pas de joueur %ld\n"
