@@ -55,6 +55,8 @@ long mode = MODE_OPENING;
 
 SDL_mutex *loadMutex;
 
+iconv_t ic = (iconv_t)-1;
+
 extern void QuitGame();
 void StartGame();
 void EventLoop();
@@ -98,6 +100,20 @@ int main(int argc, char** argv) {
     int c;
 
     /*initalise i18n*/
+#ifdef WIN32
+    char buf[256];
+    GetLocaleInfo( LOCALE_SYSTEM_DEFAULT, LOCALE_SENGLANGUAGE, buf, 256 );
+    if ( strcmp( buf, "Japanese" ) == 0 ) {
+      gettext_putenv("LANGUAGE=ja"); // Japanese
+      ic = iconv_open("UTF-8", "EUC-JP");
+      if ( ic == (iconv_t)-1 ) {
+	perror( _("iconv_open failed\n") );
+	exit(1);
+      }
+    }
+#endif
+
+    gtk_set_locale();
     setlocale (LC_ALL, "");
     bindtextdomain (PACKAGE, LOCALEDIR);
     textdomain (PACKAGE);
@@ -332,4 +348,31 @@ LoadData( void *dum ) {
   SDL_mutexV( loadMutex );
 
   return 0;
+}
+
+// Currently this function is only for EUC_JP -> UTF-8
+char *
+gettext_iconv( char *buf ) {
+  static char* tobuf = 0;
+  char *frombuf;
+  char *fromaddr, *toaddr;
+  unsigned int fromsize, tosize;
+
+  if ( ic == (iconv_t)-1 )
+    return gettext( buf );
+
+  frombuf = gettext(buf);
+  fromsize = strlen( frombuf );
+  fromaddr = frombuf;
+  if ( tobuf )
+    free(tobuf);
+  tobuf = (char *)malloc(fromsize*4);
+  memset( tobuf, 0, fromsize*4 );
+  tobuf[0] = 0xef;
+  tobuf[1] = 0xbb;
+  tobuf[2] = 0xbf;
+  toaddr = &tobuf[3];
+  tosize = fromsize*4-3;
+  iconv( ic, &fromaddr, &fromsize, &toaddr, &tosize );
+  return tobuf;
 }

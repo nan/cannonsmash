@@ -194,10 +194,13 @@ typedef int socklen_t;		/* mimic Penguin's socklen type */
 #include <SDL/SDL_mixer.h>
 #endif
 
+#include <iconv.h>
+
 #include <libintl.h>
 #define  gettext_noop(String)  (String)
-#define _(String) gettext (String)
+#define _(String) gettext_iconv (String)
 #define N_(String) gettext_noop (String)
+extern char * gettext_iconv( char *buf );
 
 #endif /* MKDEP_IGN_SYSINC */
 
