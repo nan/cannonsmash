@@ -46,12 +46,16 @@ struct PlayerData {
   double stamina;
 };
 
+class PlayGame;
+
 struct Backtrack {
   long sec;		// 秒
   char count;		// 1/100秒単位
   Ball theBall;
   PlayerData thePlayer;
   PlayerData comPlayer;
+  long score1;
+  long score2;
 };
 
 class ExternalData;

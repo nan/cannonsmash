@@ -261,6 +261,13 @@ Event::Record() {
   CopyPlayerData( m_BacktrackBuffer[m_Histptr].thePlayer, thePlayer );
   CopyPlayerData( m_BacktrackBuffer[m_Histptr].comPlayer, comPlayer );
 
+  if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ) {
+    m_BacktrackBuffer[m_Histptr].score1 =
+      ((PlayGame *)theControl)->GetScore( thePlayer );
+    m_BacktrackBuffer[m_Histptr].score2 =
+      ((PlayGame *)theControl)->GetScore( comPlayer );
+  }
+
   return;
 }
 
@@ -448,6 +455,11 @@ Event::BackTrack( long Histptr ) {
   thePlayer->Reset( &m_BacktrackBuffer[Histptr].thePlayer );
   comPlayer->Reset( &m_BacktrackBuffer[Histptr].comPlayer );
 
+  if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ) {
+    ((PlayGame *)theControl)->m_Score1 = m_BacktrackBuffer[Histptr].score1;
+    ((PlayGame *)theControl)->m_Score2 = m_BacktrackBuffer[Histptr].score2;
+  }
+
   m_Histptr = Histptr;
   return true;
 }
@@ -505,9 +517,7 @@ Event::ReadData() {
       bool fTheBall, fThePlayer, fComPlayer;
       fTheBall = fThePlayer = fComPlayer = false;
 
-      theBall = m_BacktrackBuffer[btHistptr].theBall;
-      thePlayer->Reset( &m_BacktrackBuffer[btHistptr].thePlayer );
-      comPlayer->Reset( &m_BacktrackBuffer[btHistptr].comPlayer );
+      BackTrack( btHistptr );
 
       // 適用する -> 進めるをbtCount繰り返す
       while (1) {
@@ -573,5 +583,8 @@ Event::ClearBacktrack() {
     theEvent.m_BacktrackBuffer[i].theBall = theBall;
     CopyPlayerData( theEvent.m_BacktrackBuffer[i].thePlayer, thePlayer );
     CopyPlayerData( theEvent.m_BacktrackBuffer[i].comPlayer, comPlayer );
+
+    theEvent.m_BacktrackBuffer[i].score1 = 0;
+    theEvent.m_BacktrackBuffer[i].score2 = 0;
   }
 }
