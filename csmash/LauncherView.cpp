@@ -97,6 +97,10 @@ _gdk_utf8_to_ucs2 (wchar_t     *dest,
 LRESULT CALLBACK
 ModeNote::EditWindowProc( HWND hwnd, UINT msg,
 			  WPARAM wparam, LPARAM lparam) {
+  LRESULT ret;
+
+  ret = CallWindowProc((WNDPROC)pEditWndProc,hwnd,msg,wparam,lparam);
+
   if ( msg == WM_CHAR ) {
     char buf[512], unibuf[2048];
     GetWindowText( hwnd, buf, 512 );
@@ -115,7 +119,7 @@ ModeNote::EditWindowProc( HWND hwnd, UINT msg,
 			_gdk_ucs2_to_utf8((const wchar_t *)unibuf, srclen) );
   }
 
-  return CallWindowProc((WNDPROC)pEditWndProc,hwnd,msg,wparam,lparam);
+  return ret;
 }
 
 LRESULT CALLBACK
@@ -399,7 +403,7 @@ ModeNote::Init( GtkBox *box ) {
   notebook = gtk_notebook_new();
 
   gtk_box_pack_start( box, notebook, FALSE, FALSE, 10 );
-  gtk_widget_show (notebook);
+  gtk_widget_show(notebook);
 
   // Solo Play
   noteBox = InitSoloPlayPanel();
