@@ -22,8 +22,6 @@
 extern bool isPolygon;
 extern bool isLighting;
 
-#undef HAVE_LIBPTHREAD
-
 #if HAVE_LIBPTHREAD
 extern pthread_mutex_t loadMutex;
 #endif
@@ -69,13 +67,7 @@ PlayerView::LoadData(void *dum) {
   motion_Bpeck = new partsmotion("Parts/Bpeck/Bpeck");
   motion_Fsmash = new partsmotion("Parts/Fsmash/Fsmash");
 
-#if HAVE_LIBPTHREAD
-  pthread_detach(pthread_self());
-  pthread_exit(NULL);
   return NULL;
-#else
-  return NULL;
-#endif
 }
 
 bool
@@ -84,6 +76,7 @@ PlayerView::Init( Player *player ) {
 
 #if HAVE_LIBPTHREAD
   pthread_mutex_lock( &loadMutex );
+#endif
   m_Fnormal = motion_Fnormal;
   m_Bnormal = motion_Bnormal;
   m_Fdrive = motion_Fdrive;
@@ -92,16 +85,8 @@ PlayerView::Init( Player *player ) {
   m_Fpeck = motion_Fpeck;
   m_Bpeck = motion_Bpeck;
   m_Fsmash = motion_Fsmash;
+#if HAVE_LIBPTHREAD
   pthread_mutex_unlock( &loadMutex );
-#else
-  m_Fnormal = motion_Fnormal;
-  m_Bnormal = motion_Bnormal;
-  m_Fdrive = motion_Fdrive;
-  m_Fcut = motion_Fcut;
-  m_Bcut = motion_Bcut;
-  m_Fpeck = motion_Fpeck;
-  m_Bpeck = motion_Bpeck;
-  m_Fsmash = motion_Fsmash;
 #endif
 
   return true;

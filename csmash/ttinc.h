@@ -154,6 +154,11 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 #include <netdb.h>
 #endif
 
+#ifdef HAVE_LIBSDL_MIXER
+#include <SDL/SDL.h>
+#include <SDL/SDL_mixer.h>
+#endif
+
 #include "LoadImage.h"
 #include "Ball.h"
 #include "Event.h"

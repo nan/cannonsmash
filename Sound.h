@@ -57,8 +57,12 @@ private:
   char *m_bgmSound;
 #endif
 
+#ifdef HAVE_LIBSDL_MIXER
+  Mix_Chunk *m_sound[16];
+#else
   char *m_sound[16];
   int  m_soundSize[16];
+#endif
 
   long m_soundMode;
 };

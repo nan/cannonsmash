@@ -107,12 +107,6 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   GetPhrase( phrase, mod );
 
-  /*
-  theBall.Move();
-  thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
-  comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
-  */
-
   if ( m_count == 0 ) {
     thePlayer->m_x = -1.5;
     thePlayer->m_y = -TABLELENGTH*3/2;
@@ -120,7 +114,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     comPlayer->m_x = 1.5;
     comPlayer->m_y = TABLELENGTH*3/2;
 
-    //m_count = 3292;
+    //m_count = 5700;
   } else if ( phrase < 32 ) {	// 素振り
     thePlayer->m_swing = (m_count%100)/2;
     thePlayer->m_swingType = SWING_CUT;
@@ -133,11 +127,16 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       theBall.m_x = -3.0;
 
     theBall.m_z = -1.0;
+  } else if ( phrase < 36 ) {	// 見回す
+    thePlayer->m_targetX = TABLELENGTH*5*
+      sin((m_count-1600)/200.0*3.14159265);
+    thePlayer->m_targetY = fabs(TABLELENGTH*5*
+      cos((m_count-1600)/200.0*3.14159265));
   } else if ( phrase < 48 ) {	// 台前へ
-    thePlayer->m_x = -1.5+(m_count-1600)*1.5/800.0;
-    thePlayer->m_y = -TABLELENGTH*3/2+(m_count-1600)*TABLELENGTH/800.0;
-    comPlayer->m_x = 1.5-(m_count-1600)*1.5/800.0;
-    comPlayer->m_y = TABLELENGTH*3/2-(m_count-1600)*TABLELENGTH/800.0;
+    thePlayer->m_x = -1.5+(m_count-1800)*1.5/600.0;
+    thePlayer->m_y = -TABLELENGTH*3/2+(m_count-1800)*TABLELENGTH/600.0;
+    comPlayer->m_x = 1.5-(m_count-1800)*1.5/600.0;
+    comPlayer->m_y = TABLELENGTH*3/2-(m_count-1800)*TABLELENGTH/600.0;
 
     theBall.m_z = -1.0;
   } else if ( m_count == 2400 ) {	// 審判からボールを受け取る
@@ -148,6 +147,9 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     theBall.m_vy = -TABLELENGTH/2/2.0;
     theBall.m_vz = 1.0;
     theBall.m_status = -1;
+
+    thePlayer->m_targetX = -TABLEWIDTH/2+0.2;
+    thePlayer->m_targetY = TABLELENGTH/2-0.2;
   } else if ( phrase < 52 ) {	// ボール転がる
     theBall.Move();
     theBall.m_status = -1;
@@ -205,7 +207,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( phrase == 73 && mod == 26 ) {
       comPlayer->StartSwing( 0.5 );
     }
-    if ( phrase == 74 && mod == 26 ) {	// 打球0.1秒前
+    if ( phrase == 74 && mod == 25 ) {	// 打球0.1秒前
       comPlayer->Swing( 0.5 );
     }
   } else if ( phrase < 80 ) {	// カット
@@ -238,7 +240,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( phrase == 77 && mod == 26 ) {
       thePlayer->StartSwing( 0.5 );
     }
-    if ( phrase == 78 && mod == 26 ) {	// 打球0.1秒前
+    if ( phrase == 78 && mod == 25 ) {	// 打球0.1秒前
       thePlayer->Swing( 0.5 );
     }
   } else if ( phrase < 84 ) {	// バックへドライブ
@@ -270,7 +272,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( phrase == 81 && mod == 26 ) {
       comPlayer->StartSwing( 0.5 );
     }
-    if ( phrase == 82 && mod == 26 ) {	// 打球0.1秒前
+    if ( phrase == 82 && mod == 25 ) {	// 打球0.1秒前
       comPlayer->Swing( 0.5 );
     }
   } else if ( phrase < 88 ) {	// バックカット
@@ -302,7 +304,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( phrase == 85 && mod == 26 ) {
       thePlayer->StartSwing( 0.5 );
     }
-    if ( phrase == 86 && mod == 26 ) {	// 打球0.1秒前
+    if ( phrase == 86 && mod == 25 ) {	// 打球0.1秒前
       thePlayer->Swing( 0.5 );
     }
     if ( phrase == 87 && mod == 0 ) {
@@ -336,7 +338,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( phrase == 89 && mod == 26 ) {
       comPlayer->StartSwing( 0.5 );
     }
-    if ( phrase == 90 && mod == 26 ) {	// 打球0.1秒前
+    if ( phrase == 90 && mod == 25 ) {	// 打球0.1秒前
       comPlayer->Swing( 0.5 );
     }
     if ( phrase == 91 && mod == 0 ) {
@@ -371,7 +373,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( phrase == 93 && mod == 26 ) {
       thePlayer->StartSwing( 0.5 );
     }
-    if ( phrase == 94 && mod == 26 ) {	// 打球0.1秒前
+    if ( phrase == 94 && mod == 25 ) {	// 打球0.1秒前
       thePlayer->Swing( 0.5 );
     }
     if ( phrase == 94 && mod == 0 ) {
@@ -407,7 +409,7 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     thePlayer->m_status = 200;
     comPlayer->m_status = 200;
 
-    if ( phrase == 97 && mod == 26 ) {
+    if ( phrase == 98 && mod == 1 ) {
       thePlayer->StartSwing( 0.5 );
     }
     if ( phrase == 98 && mod == 26 ) {	// 打球0.1秒前
@@ -457,12 +459,6 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->Swing( 0.0 );
       comPlayer->m_pow = 10;
     }
-
-    if ( phrase == 105 && mod == 0 ) {
-      printf( "%f %f\n", comPlayer->m_x, theBall.m_x );
-      printf( "%f %f\n", comPlayer->m_y, theBall.m_y );
-      printf( "%f\n", theBall.m_z );
-    }
   } else if ( phrase < 108 ) {	// スマッシュ連打(2)
     if ( phrase == 106 && mod == 0 ) {
       comPlayer->m_x = TABLEWIDTH/2+0.1;
@@ -489,12 +485,6 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( phrase == 106 && mod == 26 ) {	// 打球0.1秒前
       comPlayer->Swing( 0.0 );
       comPlayer->m_pow = 10;
-    }
-
-    if ( phrase == 107 && mod == 0 ) {
-      printf( "%f %f\n", comPlayer->m_x, theBall.m_x );
-      printf( "%f %f\n", comPlayer->m_y, theBall.m_y );
-      printf( "%f\n", theBall.m_z );
     }
   } else if ( phrase < 110 ) {	// スマッシュ連打(3)
     if ( phrase == 108 && mod == 0 ) {
@@ -528,12 +518,6 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->Swing( 0.0 );
       comPlayer->m_pow = 10;
     }
-
-    if ( phrase == 109 && mod == 0 ) {
-      printf( "%f %f\n", comPlayer->m_x, theBall.m_x );
-      printf( "%f %f\n", comPlayer->m_y, theBall.m_y );
-      printf( "%f\n", theBall.m_z );
-    }
   } else if ( phrase < 112 ) {	// スマッシュ連打(4)
     if ( phrase == 110 && mod == 0 ) {
       comPlayer->m_x = TABLEWIDTH/2+0.1;
@@ -560,12 +544,6 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( phrase == 110 && mod == 26 ) {	// 打球0.1秒前
       comPlayer->Swing( 0.0 );
       comPlayer->m_pow = 10;
-    }
-
-    if ( phrase == 111 && mod == 0 ) {
-      printf( "%f %f\n", comPlayer->m_x, theBall.m_x );
-      printf( "%f %f\n", comPlayer->m_y, theBall.m_y );
-      printf( "%f\n", theBall.m_z );
     }
   } else if ( phrase < 114 ) {	// スマッシュ連打(5)
     if ( phrase == 112 && mod == 0 ) {
@@ -599,12 +577,6 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->Swing( 0.0 );
       comPlayer->m_pow = 10;
     }
-
-    if ( phrase == 113 && mod == 0 ) {
-      printf( "%f %f\n", comPlayer->m_x, theBall.m_x );
-      printf( "%f %f\n", comPlayer->m_y, theBall.m_y );
-      printf( "%f\n", theBall.m_z );
-    }
   } else if ( phrase < 116 ) {	// スマッシュ連打(6)
     if ( phrase == 114 && mod == 0 ) {
       comPlayer->m_x = TABLEWIDTH/2+0.1;
@@ -631,12 +603,6 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( phrase == 114 && mod == 26 ) {	// 打球0.1秒前
       comPlayer->Swing( 0.0 );
       comPlayer->m_pow = 10;
-    }
-
-    if ( phrase == 115 && mod == 0 ) {
-      printf( "%f %f\n", comPlayer->m_x, theBall.m_x );
-      printf( "%f %f\n", comPlayer->m_y, theBall.m_y );
-      printf( "%f\n", theBall.m_z );
     }
   } else if ( phrase < 118 ) {	// スマッシュ連打(7)
     if ( phrase == 116 && mod == 0 ) {
@@ -670,12 +636,6 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->Swing( 0.0 );
       comPlayer->m_pow = 10;
     }
-
-    if ( phrase == 117 && mod == 0 ) {
-      printf( "%f %f\n", comPlayer->m_x, theBall.m_x );
-      printf( "%f %f\n", comPlayer->m_y, theBall.m_y );
-      printf( "%f\n", theBall.m_z );
-    }
   } else if ( phrase < 120 ) {	// スマッシュ連打(8)
     if ( phrase == 118 && mod == 0 ) {
       comPlayer->m_x = TABLEWIDTH/2+0.1;
@@ -702,12 +662,6 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( phrase == 118 && mod == 26 ) {	// 打球0.1秒前
       comPlayer->Swing( 0.0 );
       comPlayer->m_pow = 10;
-    }
-
-    if ( phrase == 119 && mod == 0 ) {
-      printf( "%f %f\n", comPlayer->m_x, theBall.m_x );
-      printf( "%f %f\n", comPlayer->m_y, theBall.m_y );
-      printf( "%f\n", theBall.m_z );
     }
   } else if ( phrase < 122 ) {	// スマッシュ連打(9)
     if ( phrase == 120 && mod == 0 ) {
@@ -741,12 +695,6 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->Swing( 0.0 );
       comPlayer->m_pow = 10;
     }
-
-    if ( phrase == 121 && mod == 0 ) {
-      printf( "%f %f\n", comPlayer->m_x, theBall.m_x );
-      printf( "%f %f\n", comPlayer->m_y, theBall.m_y );
-      printf( "%f\n", theBall.m_z );
-    }
   } else if ( phrase < 124 ) {	// スマッシュ連打(10)
     if ( phrase == 122 && mod == 0 ) {
       comPlayer->m_x = TABLEWIDTH/2+0.1;
@@ -773,12 +721,6 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( phrase == 122 && mod == 26 ) {	// 打球0.1秒前
       comPlayer->Swing( 0.0 );
       comPlayer->m_pow = 10;
-    }
-
-    if ( phrase == 123 && mod == 0 ) {
-      printf( "%f %f\n", comPlayer->m_x, theBall.m_x );
-      printf( "%f %f\n", comPlayer->m_y, theBall.m_y );
-      printf( "%f\n", theBall.m_z );
     }
   } else if ( phrase < 126 ) {	// スマッシュ連打(11)
     if ( phrase == 124 && mod == 0 ) {
@@ -812,12 +754,6 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->Swing( 0.0 );
       comPlayer->m_pow = 10;
     }
-
-    if ( phrase == 125 && mod == 0 ) {
-      printf( "%f %f\n", comPlayer->m_x, theBall.m_x );
-      printf( "%f %f\n", comPlayer->m_y, theBall.m_y );
-      printf( "%f\n", theBall.m_z );
-    }
   } else if ( phrase < 128 ) {	// スマッシュ連打(12)
     if ( phrase == 126 && mod == 0 ) {
       comPlayer->m_x = TABLEWIDTH/2+0.1;
@@ -844,12 +780,6 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( phrase == 126 && mod == 26 ) {	// 打球0.1秒前
       comPlayer->Swing( 0.0 );
       comPlayer->m_pow = 10;
-    }
-
-    if ( phrase == 127 && mod == 0 ) {
-      printf( "%f %f\n", comPlayer->m_x, theBall.m_x );
-      printf( "%f %f\n", comPlayer->m_y, theBall.m_y );
-      printf( "%f\n", theBall.m_z );
     }
   } else if ( phrase < 130 ) {	// スマッシュ連打(13)
     if ( phrase == 128 && mod == 0 ) {
@@ -883,12 +813,6 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->Swing( 0.0 );
       comPlayer->m_pow = 10;
     }
-
-    if ( phrase == 129 && mod == 0 ) {
-      printf( "%f %f\n", comPlayer->m_x, theBall.m_x );
-      printf( "%f %f\n", comPlayer->m_y, theBall.m_y );
-      printf( "%f\n", theBall.m_z );
-    }
   } else if ( phrase < 132 ) {	// スマッシュ連打(14)
     if ( phrase == 130 && mod == 0 ) {
       comPlayer->m_x = TABLEWIDTH/2+0.1;
@@ -915,12 +839,6 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( phrase == 130 && mod == 26 ) {	// 打球0.1秒前
       comPlayer->Swing( 0.0 );
       comPlayer->m_pow = 10;
-    }
-
-    if ( phrase == 131 && mod == 0 ) {
-      printf( "%f %f\n", comPlayer->m_x, theBall.m_x );
-      printf( "%f %f\n", comPlayer->m_y, theBall.m_y );
-      printf( "%f\n", theBall.m_z );
     }
   } else if ( phrase < 134 ) {	// スマッシュ連打(15)
     if ( phrase == 132 && mod == 0 ) {
@@ -954,12 +872,6 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->Swing( 0.0 );
       comPlayer->m_pow = 10;
     }
-
-    if ( phrase == 133 && mod == 0 ) {
-      printf( "%f %f\n", comPlayer->m_x, theBall.m_x );
-      printf( "%f %f\n", comPlayer->m_y, theBall.m_y );
-      printf( "%f\n", theBall.m_z );
-    }
   } else if ( phrase < 136 ) {	// スマッシュ連打(16)
     if ( phrase == 134 && mod == 0 ) {
       comPlayer->m_x = TABLEWIDTH/2+0.1;
@@ -987,11 +899,151 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       comPlayer->Swing( 0.0 );
       comPlayer->m_pow = 10;
     }
+  } else if ( phrase < 168 ) {	// スローモーション(1)
+    static Ball ball1, ball2;
+    if ( phrase == 136 && mod == 0 ) {
+      thePlayer->m_x = 0.0;
+      thePlayer->m_y = -TABLELENGTH*3/2;
+      thePlayer->m_vx = 0.0;
+      thePlayer->m_vy = 0.0;
+      thePlayer->m_swing = 1;
+      thePlayer->m_swingType = SWING_CUT;
 
-    if ( phrase == 135 && mod == 0 ) {
-      printf( "%f %f\n", comPlayer->m_x, theBall.m_x );
-      printf( "%f %f\n", comPlayer->m_y, theBall.m_y );
-      printf( "%f\n", theBall.m_z );
+      comPlayer->m_x = 0.0;
+      comPlayer->m_y = TABLELENGTH/2;
+      comPlayer->m_vx = 0.0;
+      comPlayer->m_vy = 0.0;
+      comPlayer->m_swing = 1;
+
+      ball1.Warp( -0.3, -TABLELENGTH/2-1.2, TABLEHEIGHT+NETHEIGHT,
+		  0.0, -8.2, -1.0, 0.0, 3 );
+      ball2.Warp( 0.0, TABLELENGTH/4, TABLEHEIGHT+0.01,
+		    -1.6, 3.5, -5.0, 0.0, 0 );
+    }
+
+    if ( phrase%2 ) {
+      theBall = ball1;
+      if ( (mod%15) == 0 ) {
+	if ( thePlayer->m_swing == 10 )
+	  thePlayer->Swing( 0.0 );
+
+	theBall.Move();
+	thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
+      }
+      ball1 = theBall;
+    } else {
+      theBall = ball2;
+      if ( (mod%15) == 0 ) {
+	if ( comPlayer->m_swing == 10 )
+	  comPlayer->Swing( 0.0 );
+
+	theBall.Move();
+	comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+      }
+      ball2 = theBall;
+    }
+  } else if ( phrase < 200 ) {	// スローモーション(2)
+    static Ball ball1, ball2;
+    if ( phrase == 168 && mod == 0 ) {
+      thePlayer->m_x = 0.0;
+      thePlayer->m_y = -TABLELENGTH*3/2;
+      thePlayer->m_vx = 0.0;
+      thePlayer->m_vy = 0.0;
+      thePlayer->m_swing = 1;
+
+      comPlayer->m_x = 0.0;
+      comPlayer->m_y = TABLELENGTH/2;
+      comPlayer->m_vx = 0.0;
+      comPlayer->m_vy = 0.0;
+      comPlayer->m_swing = 1;
+
+      ball1.Warp( 0.3, -TABLELENGTH/2-1.2, TABLEHEIGHT+NETHEIGHT,
+		  0.0, -8.2, -1.0, 0.0, 3 );
+      ball2.Warp( 0.0, TABLELENGTH/4, TABLEHEIGHT+0.01,
+		    1.6, 3.5, -5.0, 0.0, 0 );
+    }
+
+    if ( phrase%2 ) {
+      theBall = ball1;
+      if ( (mod%15) == 0 ) {
+	if ( thePlayer->m_swing == 10 )
+	  thePlayer->Swing( 0.0 );
+
+	theBall.Move();
+	thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
+      }
+      ball1 = theBall;
+    } else {
+      theBall = ball2;
+      if ( (mod%15) == 0 ) {
+	if ( comPlayer->m_swing == 10 )
+	  comPlayer->Swing( 0.0 );
+
+	theBall.Move();
+	comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+      }
+      ball2 = theBall;
+    }
+  } else if ( phrase < 216 ) {	// 止め絵, 回り込み (1)
+    if ( phrase == 200 && mod == 0 ) {
+      thePlayer->m_x = -1.2;
+      thePlayer->m_y = -TABLELENGTH*3/2;
+      thePlayer->m_swing = 12;
+
+      comPlayer->m_x = 0.0;
+      comPlayer->m_y = TABLELENGTH*3/4;
+      comPlayer->m_swing = 30;
+
+      theBall.Warp( 0.2, 0.1, TABLEHEIGHT+NETHEIGHT*2,
+		    -0.1, -3.0, 1.0, 0.6, 0 );
+    }
+
+    Ball orgBall = theBall;
+
+    theBall.Move();
+    theBall.m_x = orgBall.m_x + (theBall.m_x-orgBall.m_x)/35;
+    theBall.m_y = orgBall.m_y + (theBall.m_y-orgBall.m_y)/35;
+    theBall.m_z = orgBall.m_z + (theBall.m_z-orgBall.m_z)/35;
+
+    theBall.m_vx = orgBall.m_vx + (theBall.m_vx-orgBall.m_vx)/35;
+    theBall.m_vy = orgBall.m_vy + (theBall.m_vy-orgBall.m_vy)/35;
+    theBall.m_vz = orgBall.m_vz + (theBall.m_vz-orgBall.m_vz)/35;
+
+
+    if ( mod == 0 ) {
+      thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
+      comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+    }
+  } else if ( phrase < 232 ) {	// 止め絵, 回り込み (2)
+    if ( phrase == 216 && mod == 0 ) {
+      thePlayer->m_x = 1.2;
+      thePlayer->m_y = -TABLELENGTH;
+      thePlayer->m_swing = 28;
+      thePlayer->m_swingType = SWING_CUT;
+
+      comPlayer->m_x = -1.0;
+      comPlayer->m_y = TABLELENGTH/2;
+      comPlayer->m_swing = 10;
+      comPlayer->m_swingType = SWING_DRIVE;
+
+      theBall.Warp( 0.6, -TABLELENGTH/2, TABLEHEIGHT+NETHEIGHT,
+		    -1.0, 2.0, 1.0, -0.8, 0 );
+    }
+
+    Ball orgBall = theBall;
+
+    theBall.Move();
+    theBall.m_x = orgBall.m_x + (theBall.m_x-orgBall.m_x)/35;
+    theBall.m_y = orgBall.m_y + (theBall.m_y-orgBall.m_y)/35;
+    theBall.m_z = orgBall.m_z + (theBall.m_z-orgBall.m_z)/35;
+
+    theBall.m_vx = orgBall.m_vx + (theBall.m_vx-orgBall.m_vx)/35;
+    theBall.m_vy = orgBall.m_vy + (theBall.m_vy-orgBall.m_vy)/35;
+    theBall.m_vz = orgBall.m_vz + (theBall.m_vz-orgBall.m_vz)/35;
+
+    if ( mod == 0 ) {
+      thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
+      comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
     }
   }
 
@@ -1003,12 +1055,10 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
   m_count++;
 
 #ifdef HAVE_LIBESD
-  /*
-  if ( m_count >= (m_bgmCount+4410*2*2)/(441*2*2) ) {
+  //while ( m_count >= (m_bgmCount+441*2*2)/(441*2*2) )
+  if ( m_count >= (m_bgmCount+441*2*2)/(441*2*2) )
     m_bgmCount += theSound.SkipBGM();
-  } else if ( m_count >= m_bgmCount/(441*2*2) ) {
-    m_bgmCount += theSound.PlayBGM();
-  }*/
+
   if ( m_count >= m_bgmCount/(441*2*2) )
     m_bgmCount += theSound.PlayBGM();
 
@@ -1132,15 +1182,9 @@ Opening::LookAt( double &srcX, double &srcY, double &srcZ,
     destY = theBall.GetY();
     destZ = theBall.GetZ();
   } else if ( phrase < 120 ) {
-    //srcX = comPlayer->GetX();
-    //srcY = comPlayer->GetY()+0.5;
-    //srcZ = 1.8;
     srcX = 0.0;
     srcY = -TABLELENGTH*2;
     srcZ = 2.5;
-    //destX = 0.0;
-    //destY = 0.0;
-    //destZ = TABLEHEIGHT;
     destX = theBall.GetX();
     destY = theBall.GetY();
     destZ = theBall.GetZ();
@@ -1151,6 +1195,59 @@ Opening::LookAt( double &srcX, double &srcY, double &srcZ,
     destX = theBall.GetX();
     destY = theBall.GetY();
     destZ = theBall.GetZ();
+  } else if ( phrase < 136 ) {
+    srcX = -TABLEWIDTH/2-1.5;
+    srcY = -TABLELENGTH;
+    srcZ = TABLEHEIGHT+NETHEIGHT+0.5;
+    destX = theBall.GetX();
+    destY = theBall.GetY();
+    destZ = theBall.GetZ();
+  } else if ( phrase < 168 ) {
+    if ( phrase%2 ) {
+      srcX = thePlayer->GetX() - 1.0;
+      srcY = thePlayer->GetY() + 1.0;
+      srcZ = TABLEHEIGHT+NETHEIGHT+0.3;
+      destX = thePlayer->GetX();
+      destY = thePlayer->GetY();
+      destZ = 1.0;
+    } else {
+      srcX = comPlayer->GetX() - 1.0;
+      srcY = comPlayer->GetY() - 1.0;
+      srcZ = TABLEHEIGHT+NETHEIGHT+0.3;
+      destX = comPlayer->GetX();
+      destY = comPlayer->GetY();
+      destZ = 1.0;
+    }
+  } else if ( phrase < 200 ) {
+    if ( phrase%2 ) {
+      srcX = thePlayer->GetX() + 1.0;
+      srcY = thePlayer->GetY() + 1.0;
+      srcZ = TABLEHEIGHT+NETHEIGHT+0.3;
+      destX = thePlayer->GetX();
+      destY = thePlayer->GetY();
+      destZ = 1.0;
+    } else {
+      srcX = comPlayer->GetX() + 1.0;
+      srcY = comPlayer->GetY() - 1.0;
+      srcZ = TABLEHEIGHT+NETHEIGHT+0.3;
+      destX = comPlayer->GetX();
+      destY = comPlayer->GetY();
+      destZ = 1.0;
+    }
+  } else if ( phrase < 216 ) {
+    srcX = TABLELENGTH*1.5*cos(((phrase-200)*35.65+mod)*3.14159265/720.0);
+    srcY = TABLELENGTH*1.5*sin(((phrase-200)*35.65+mod)*3.14159265/720.0);
+    srcZ = TABLEHEIGHT*2;
+    destX = 0.0;
+    destY = 0.0;
+    destZ = TABLEHEIGHT;
+  } else if ( phrase < 232 ) {
+    srcX = TABLELENGTH*1.5*cos(3.14159265-((phrase-200)*35.65+mod)*3.14159265/720.0);
+    srcY = TABLELENGTH*1.5*sin(3.14159265-((phrase-200)*35.65+mod)*3.14159265/720.0);
+    srcZ = TABLEHEIGHT*2;
+    destX = 0.0;
+    destY = 0.0;
+    destZ = TABLEHEIGHT;
   } else {
     srcX = -TABLEWIDTH/2-1.5;
     srcY = -TABLELENGTH;

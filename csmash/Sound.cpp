@@ -27,6 +27,10 @@
 #include <io.h>
 #endif
 
+#if HAVE_LIBPTHREAD
+pthread_mutex_t bgmMutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
+
 extern long mode;
 
 Sound::Sound() {
@@ -48,8 +52,15 @@ Sound::Sound() {
 }
 
 Sound::~Sound() {
+#ifdef HAVE_LIBSDL_MIXER
   for ( int i = 0 ; i < 16 ; i++ ) {
-    if ( m_sound[i] == 0 ) {
+    if ( m_sound[i] != 0 ) {
+      Mix_FreeChunk( m_sound[i] );
+    }
+  }
+#else
+  for ( int i = 0 ; i < 16 ; i++ ) {
+    if ( m_sound[i] != 0 ) {
 #ifdef WIN32
       GlobalFree( m_sound[i] );
 #else
@@ -57,6 +68,7 @@ Sound::~Sound() {
 #endif
     }
   }
+#endif
 
 #ifdef HAVE_LIBESD
   if ( m_fd[0] >= 0 )
@@ -78,7 +90,16 @@ Sound::~Sound() {
 
 bool
 Sound::Init() {
-#ifdef HAVE_LIBESD
+#ifdef HAVE_LIBSDL_MIXER
+  if ( SDL_Init(SDL_INIT_AUDIO) < 0 ) {
+    perror( "SDL initialize failed\n" );
+    return false;
+  }
+
+  if ( Mix_OpenAudio( 44100, AUDIO_S16SYS, 2, 4096 ) < 0 ) {
+    perror( "SDL Mix_OpenAudio failed\n" );
+  }
+#elif defined(HAVE_LIBESD)
   int rate, fmt, stereo;
 
   switch ( m_soundMode ) {
@@ -152,7 +173,7 @@ Sound::Init() {
   }
   m_soundSize[SOUND_CLICK] = read( fd, m_sound[SOUND_CLICK], 65536 );
   close( fd );
-#else
+#elif defined(HAVE_LIBESD)
   fd = open( "wav/racket.wav", O_RDONLY );
   if ( m_sound[SOUND_RACKET] == 0 ) {
     m_sound[SOUND_RACKET] = (char *)malloc( 65536 );
@@ -176,6 +197,10 @@ Sound::Init() {
   m_soundSize[SOUND_CLICK] = read( fd, m_sound[SOUND_CLICK], 624 );
   m_soundSize[SOUND_CLICK] = read( fd, m_sound[SOUND_CLICK], 65536 );
   close( fd );
+#elif defined(HAVE_LIBSDL_MIXER)
+  m_sound[SOUND_RACKET] = Mix_LoadWAV( "wav/racket.wav" );
+  m_sound[SOUND_TABLE] = Mix_LoadWAV( "wav/table.wav" );
+  m_sound[SOUND_CLICK] = Mix_LoadWAV( "wav/click.wav" );
 #endif
 
   return true;
@@ -223,6 +248,8 @@ Sound::Play( long soundID ) {
       write( m_ossfd, m_sound[soundID], m_soundSize[soundID] );
       break;
     }
+#elif defined(HAVE_LIBSDL_MIXER)
+    Mix_PlayChannel( -1, m_sound[soundID], 0 );
 #endif
   }
 
@@ -300,7 +327,13 @@ Sound::InitBGM( char *filename ) {
 // 別スレッド化したい
 long
 Sound::PlayBGM() {
-#ifdef HAVE_LIBESD
+#ifdef WIN32
+  char *data;
+
+  data = (char *)GlobalLock( m_bgmSound );
+  PlaySound( data, NULL, SND_MEMORY|SND_ASYNC ); 
+  GlobalUnlock( m_bgmSound );
+#elif defined(HAVE_LIBESD)
   switch ( m_soundMode ) {
   case SOUND_ESD:
     char buf[44100*2+2];
@@ -320,20 +353,8 @@ Sound::PlayBGM() {
 	write( m_bgmoutfd, buf, bytes );
 	return bytes;
       }
-    } else {
-      bytes = SkipBGM();
-      printf( "skip %d\n", bytes );
-      return bytes;
     }
   }
-#endif
-
-#ifdef WIN32
-  char *data;
-
-  data = (char *)GlobalLock( m_bgmSound );
-  PlaySound( data, NULL, SND_MEMORY|SND_ASYNC ); 
-  GlobalUnlock( m_bgmSound );
 #endif
 
   return 0;
@@ -345,7 +366,7 @@ Sound::SkipBGM() {
   switch ( m_soundMode ) {
   case SOUND_ESD:
     char buf[4410*2+2];
-#if 0
+
     long bytes = 0;
 
     fd_set rdfds;
@@ -355,16 +376,11 @@ Sound::SkipBGM() {
     FD_SET( m_bgminfd, &rdfds );
     to.tv_sec = to.tv_usec = 0;
 
-    if ( select( m_bgminfd+1, &rdfds, NULL, NULL, &to ) > 0 ) {
+    if ( select( m_bgminfd+1, &rdfds, NULL, NULL, &to ) > 0 &&
+	 FD_ISSET( m_bgminfd, &rdfds ) ) {
       bytes = read( m_bgminfd, buf, 4410*2*2 );
-      
       return bytes;
     }
-#else
-    long bytes = 0;
-    bytes = read( m_bgminfd, buf, 4410*2*2 );
-    return bytes;
-#endif
   }
 #endif
 

@@ -49,8 +49,6 @@ Control*      theControl = NULL;
 
 long mode = MODE_OPENING;
 
-#undef HAVE_LIBPTHREAD
-
 #if HAVE_LIBPTHREAD
 pthread_mutex_t loadMutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
@@ -61,19 +59,10 @@ pthread_mutex_t loadMutex = PTHREAD_MUTEX_INITIALIZER;
 
 int WINAPI WinMain_(HINSTANCE, HINSTANCE, LPSTR, int);
 
-#if 0
-int main( int argc, char *argv[] )
-{
-  HINSTANCE hInstance = GetModuleHandle(NULL);
-  return WinMain_(hInstance, NULL, GetCommandLine(), SW_SHOW);
-}
-
-#else
 int WINAPI WinMain(HINSTANCE hI, HINSTANCE hP, LPSTR, int nCmdShow)
 {
   return WinMain_(hI, hP, GetCommandLine(), nCmdShow);
 }
-#endif
 
 int WINAPI WinMain_(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       LPSTR lpCmdLine, int nCmdShow )
@@ -152,12 +141,12 @@ int main(int argc, char** argv) {
 
 #if HAVE_LIBPTHREAD
   pthread_t ptid1, ptid2;
-  pthread_mutex_lock( &loadMutex );
+//  pthread_mutex_lock( &loadMutex );
 
-  pthread_create( &ptid1, NULL, PlayerView::LoadData(), NULL );
+//  pthread_create( &ptid1, NULL, PlayerView::LoadData, NULL );
   pthread_create( &ptid2, NULL, LoadData, NULL );
 
-  pthread_mutex_unlock( &loadMutex );
+//  pthread_mutex_unlock( &loadMutex );
 #else
   PlayerView::LoadData(NULL);
   LoadData( NULL );
@@ -203,7 +192,16 @@ int main(int argc, char** argv) {
 // 後でSoundもここから追い出して廃止する. 
 void *
 LoadData( void *dum ) {
+#if HAVE_LIBPTHREAD
+  pthread_mutex_lock( &loadMutex );
+#endif
+
+  PlayerView::LoadData(NULL);
   theSound.Init();
+
+#if HAVE_LIBPTHREAD
+  pthread_mutex_unlock( &loadMutex );
+#endif
 
 #if HAVE_LIBPTHREAD
   pthread_detach(pthread_self());

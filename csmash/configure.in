@@ -24,6 +24,8 @@ AC_CHECK_LIB(glut, glutCreateWindow, , [AC_CHECK_LIB(glut32, main, , AC_MSG_ERRO
 AC_CHECK_LIB(esd, esd_play_stream)
 AC_CHECK_LIB(pthread, pthread_create)
 AC_CHECK_LIB(z, gzdopen)
+dnl AC_CHECK_LIB(SDL, SDL_Init)
+dnl AC_CHECK_LIB(SDL_mixer, Mix_OpenAudio)
 
 if test x$ac_cv_lib_z_gzdopen = xyes; then
   PKGDATA=.gz
