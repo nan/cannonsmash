@@ -218,7 +218,7 @@ ComPenAttack::Think() {
   if ( theBall.GetStatus() == 8 &&
        ( (Control::TheControl()->IsPlaying() &&
 	  ((PlayGame *)Control::TheControl())->GetService() == GetSide()) ) &&
-       fabs(m_v[0]) < 0.1 && fabs(m_v[1]) < 0.1 &&
+       fabs(m_v[0]) < 0.2 && fabs(m_v[1]) < 0.2 &&
        fabs(m_x[0]+m_side*0.3-_hitX[0]) < 0.1 && fabs(m_x[1]-_hitX[1]) < 0.1 &&
        m_swing == 0 ) {
 #else
@@ -226,7 +226,7 @@ ComPenAttack::Think() {
        ( (Control::TheControl()->IsPlaying() &&
 	  ((PlayGame *)Control::TheControl())->GetService() == GetSide()) ||
 	 (!Control::TheControl()->IsPlaying() && GetSide() == 1) ) &&
-       fabs(m_v[0]) < 0.1 && fabs(m_v[1]) < 0.1 &&
+       fabs(m_v[0]) < 0.2 && fabs(m_v[1]) < 0.2 &&
        fabs(m_x[0]+m_side*0.3-_hitX[0]) < 0.1 && fabs(m_x[1]-_hitX[1]) < 0.1 &&
        m_swing == 0 ) {
 #endif
