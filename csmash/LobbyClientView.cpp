@@ -243,27 +243,8 @@ LobbyClientView::Init( LobbyClient *lobby ) {
 
   gtk_notebook_append_page( GTK_NOTEBOOK(notebook), scrolled_window, label);
 
-  int i = 0;
-#ifdef WIN32
-  while ( table[i].langID != -1 ) {
-    if ( PRIMARYLANGID(GetUserDefaultLangID()) == table[i].langID &&
-	 table[i].langID != 0x09 ) {
-      break;
-    }
-    i++;
-  }
-#else
-  while ( table[i].langID != -1 ) {
-    if ( strncmp( setlocale(LC_MESSAGES, NULL), table[i].code, 2 ) == 0 &&
-	 table[i].langID != 0x09 ) {
-      break;
-    }
-    i++;
-  }
-#endif
-
-  m_langID[1] = table[i].langID;
-  if ( table[i].langID != -1 ) {
+  m_langID[1] = table[m_parent->GetLang()].langID;
+  if ( m_langID[1] != 0x09 ) {
     scrolled_window = gtk_scrolled_window_new (NULL, NULL);
     m_chat[1] = gtk_text_view_new();
     gtk_text_view_set_editable( GTK_TEXT_VIEW(m_chat[1]), FALSE );
@@ -275,7 +256,7 @@ LobbyClientView::Init( LobbyClient *lobby ) {
     gtk_widget_show(m_chat[1]);
     gtk_widget_show(scrolled_window);
 
-    label = gtk_label_new( _(table[i].langname) );
+    label = gtk_label_new( _(table[m_parent->GetLang()].langname) );
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), scrolled_window, label);
   }
 
