@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of network utility methods. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2001-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -42,7 +47,7 @@ typedef int socklen_t;		/* mimic Penguin's typedef */
 
 #endif
 
-bool endian;
+bool endian;		///< If this machine takes big endian, endian is true. 
 
 long timeAdj = 0;
 
@@ -55,7 +60,12 @@ int listenSocket[16] = {-1, -1, -1, -1, -1, -1, -1, -1,
 			-1, -1, -1, -1, -1, -1, -1, -1 };
 extern int one;
 
-// convert endian
+/**
+ * Convert endian if this machine is little endian. 
+ * 
+ * @param d double variable to be converted. 
+ * @return returns converted double variable. 
+ */
 double
 SwapDbl( double d ) {
   if ( endian ) {
@@ -71,6 +81,12 @@ SwapDbl( double d ) {
   }
 }
 
+/**
+ * Convert endian if this machine is little endian. 
+ * 
+ * @param l long variable to be converted. 
+ * @return returns converted long variable. 
+ */
 long
 SwapLong( long l ) {
   if ( endian ) {
@@ -86,7 +102,11 @@ SwapLong( long l ) {
   }
 }
 
-// test endian
+/**
+ * Test endian. 
+ * If this machine takes little endian, endian is false. Otherwise endian 
+ * is true. 
+ */
 void
 EndianCheck() {
   long n = 1;
@@ -96,6 +116,13 @@ EndianCheck() {
     endian = true;
 }
 
+/**
+ * Send double variable through the specified socket. 
+ * 
+ * @param sd socket descriptor. 
+ * @param d double variable to be sent. 
+ * @return returns true if succeeds. 
+ */
 bool
 SendDouble( int sd, double d ) {
   d = SwapDbl(d);
@@ -106,6 +133,13 @@ SendDouble( int sd, double d ) {
     return false;
 }
 
+/**
+ * Send long variable through the specified socket. 
+ * 
+ * @param sd socket descriptor. 
+ * @param l long variable to be sent. 
+ * @return returns true if succeeds. 
+ */
 bool
 SendLong( int sd, long l ) {
   l = SwapLong(l);
@@ -116,7 +150,13 @@ SendLong( int sd, long l ) {
     return false;
 }
 
-// It seems to be strange...
+/**
+ * Convert a fragment of incoming message to double. 
+ * 
+ * @param buf a fragment of incoming message which represents double variable.
+ * @param d double variable. [out]
+ * @return returns pointer to the next message fragment. 
+ */
 char *
 ReadDouble( char *buf, double& d ) {
   memcpy( &d, buf, 8 );
@@ -125,6 +165,13 @@ ReadDouble( char *buf, double& d ) {
   return buf+8;
 }
 
+/**
+ * Convert a fragment of incoming message to long. 
+ * 
+ * @param buf a fragment of incoming message which represents long variable. 
+ * @param l long variable. [out]
+ * @return returns pointer to the next message fragment. 
+ */
 char *
 ReadLong( char *buf, long& l ) {
   memcpy( &l, buf, 4 );
@@ -133,7 +180,12 @@ ReadLong( char *buf, long& l ) {
   return buf+4;
 }
 
-// Send time using "TM" protocol
+/**
+ * Send time using "TM" protocol. 
+ * 
+ * @param sd socket descriptor. 
+ * @param tb time to be sent. 
+ */
 void
 SendTime( int sd, struct timeb* tb ) {
   long millitm = tb->millitm;
@@ -146,6 +198,12 @@ SendTime( int sd, struct timeb* tb ) {
 #endif
 }
 
+/**
+ * Read time from the opponent machine. 
+ * 
+ * @param sd socket descriptor. 
+ * @param tb time variable [out]
+ */
 void
 ReadTime( int sd, struct timeb* tb ) {
   char buf[256];
@@ -181,7 +239,12 @@ ReadTime( int sd, struct timeb* tb ) {
 #endif
 }
 
-// Read two character header of incoming message
+/**
+ * Read two character header of incoming message. 
+ * 
+ * @param socket socket descriptor. 
+ * @param buf buffer to which header is set. [out]
+ */
 void
 ReadHeader( int socket, char *buf ) {
   long len = 0;
@@ -191,7 +254,15 @@ ReadHeader( int socket, char *buf ) {
   }
 }
 
-// Read entire message, except for header and length field
+/**
+ * Read entire message, except for header and length field. 
+ * This method should be called after header is read. 
+ * This method reads length part of the message, then read message body. 
+ * 
+ * @param socket socket descriptor. 
+ * @param buf buffer to which message body is set. First, *buf is allocated. Then message is set to *buf buffer. 
+ * @return returns the length of the message body. 
+ */
 long
 ReadEntireMessage( int socket, char **buf ) {
   long msgLength;
@@ -215,7 +286,13 @@ ReadEntireMessage( int socket, char **buf ) {
   return msgLength;
 }
 
-// Send PlayerSwing using "PS" and "PV" protocol
+/**
+ * Send PlayerSwing to the opponent machine using "PS" and "PV" protocol. 
+ * This method send "PS" (player swing) message, then "PV" message to send
+ * player location also. 
+ * 
+ * @param player Player object to be sent. 
+ */
 void
 SendSwing( Player *player ) {
   char buf[256];
@@ -237,6 +314,12 @@ SendSwing( Player *player ) {
   send( theSocket, buf, 39+55, 0 );
 }
 
+/**
+ * Current time getter method. 
+ * This method is a wrapper for ftime (WIN32) and gettimeofday (others). 
+ * 
+ * @param tb current time [out]
+ */
 void
 getcurrenttime( struct timeb *tb ) {
 #ifdef WIN32
@@ -251,6 +334,9 @@ getcurrenttime( struct timeb *tb ) {
 #endif
 }
 
+/**
+ * Read "BI" message from the opponent machine. 
+ */
 void
 ReadBI() {
   long len;
@@ -287,6 +373,11 @@ ReadBI() {
 }
 
 #ifdef ENABLE_IPV6
+/**
+ * Get the host address of the opponent machine. 
+ * 
+ * @return host address of the opponent machine. 
+ */
 struct addrinfo *
 findhostname() {
   if (1 == theRC->serverName[0]) { // Broadcast mode
@@ -315,6 +406,11 @@ findhostname() {
 }
 #else
 
+/**
+ * Get the host address of the opponent machine. 
+ * 
+ * @param saddr address of the opponent machine. [out]
+ */
 void
 findhostname( struct sockaddr_in *saddr ) {
   if (1 == theRC->serverName[0]) { // Broadcast mode
@@ -379,6 +475,9 @@ findhostname( struct sockaddr_in *saddr ) {
 }
 #endif
 
+/**
+ * Send "QT" message to the opponent machine and close the socket. 
+ */
 void
 ClearSocket() {
   if ( theSocket >= 0 ) {
@@ -388,6 +487,11 @@ ClearSocket() {
   }
 }
 
+/**
+ * Setup listening socket for incoming message. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 GetSocket() {
 #ifdef ENABLE_IPV6
@@ -479,6 +583,13 @@ GetSocket() {
 #endif
 }
 
+/**
+ * Wait for client machine till connection is requested. 
+ * This methods set up listening socket and wait for the connection or 
+ * broadcast packet. When they are received, accept the connection. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 WaitForClient() {
   socklen_t fromlen;
@@ -646,6 +757,11 @@ WaitForClient() {
   return true;
 }
 
+/**
+ * Connect to the opponent machine which is configured as the server. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 ConnectToServer() {
   int i;
@@ -748,6 +864,17 @@ ConnectToServer() {
   return true;
 }
 
+/**
+ * Clock adjuster method for server side. 
+ * This method sends current time to the opponent machine. After that, 
+ * sends current time just after this method receives current time from the
+ * opponent machine. This activity iterates 16 times. 
+ * When this method receives current time from the opponent, this method
+ * calculate diff of current time of this machine and that of the opponent. 
+ * After 16 iteration, this method checks the diff calculated above. Picking
+ * up median 8 values of 16, this method calculate average timer difference
+ * between this machine and the opponent machine. 
+ */
 void
 ServerAdjustClock() {
   long adjLog[16];
@@ -809,7 +936,11 @@ ServerAdjustClock() {
   printf( "%d\n", timeAdj );
 }
 
-
+/**
+ * Clock adjuster method for server side. 
+ * This method sends current time of this machine just after it receives
+ * current time from the opponent machine. 
+ */
 void
 ClientAdjustClock() {
   // Respond server's AdjustClock()

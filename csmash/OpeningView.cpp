@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of OpeningView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
@@ -22,12 +27,26 @@
 #include "Opening.h"
 
 
+/**
+ * Default constructor. 
+ */
 OpeningView::OpeningView() {
 }
 
+/**
+ * Destructor. 
+ * Do nothing. 
+ */
 OpeningView::~OpeningView() {
 }
 
+/**
+ * Initializer method. 
+ * Set parent Opening object to m_opening. 
+ * 
+ * @param opening parant Opening object. 
+ * @return returns true if succeeds. 
+ */
 bool
 OpeningView::Init( Opening *opening ) {
   m_opening = opening;
@@ -35,6 +54,12 @@ OpeningView::Init( Opening *opening ) {
   return true;
 }
 
+/**
+ * Redraw objects. 
+ * Redraw valid objects. Additionally, change light position and intensity. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 OpeningView::Redraw() {
   GLfloat light_intensity_amb[] = { 0.6F, 0.6F, 0.6F, 1.0F };
@@ -85,6 +110,11 @@ OpeningView::Redraw() {
   return true;
 }
 
+/**
+ * Redraw transparent objects. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 OpeningView::RedrawAlpha() {
   m_opening->GetThePlayer()->m_View->RedrawAlpha();

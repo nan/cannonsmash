@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of OpeningView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
 //
@@ -23,6 +28,9 @@
 
 class Opening;
 
+/**
+ * OpeningView is a view class for Opening. 
+ */
 class OpeningView : public View {
 public:
   OpeningView();
@@ -34,7 +42,7 @@ public:
   virtual bool RedrawAlpha();
 
 protected:
-  Opening     *m_opening;
+  Opening     *m_opening;	///< Reference to attached Opening object. 
 };
 
 #endif	// _OpeningView_

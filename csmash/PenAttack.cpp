@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of PenAttack class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -30,14 +35,44 @@ extern Ball   theBall;
 
 extern long mode;
 
+/**
+ * Default constructor. 
+ * Set player type to pen attack. 
+ */
 PenAttack::PenAttack() {
   m_playerType = PLAYER_PENATTACK;
 }
 
+/**
+ * Constructor. 
+ * Set player type and side. 
+ * 
+ * @param side side of the player. 
+ */
 PenAttack::PenAttack(long side) : Player(side) {
   m_playerType = PLAYER_PENATTACK;
 }
 
+/**
+ * Constructor which specifies almost all member variables. 
+ * 
+ * @param playerType player type (pen attack, etc. )
+ * @param side side (1 or -1)
+ * @param x location of the player
+ * @param v velocity of the player
+ * @param status status of the player (0 - 200)
+ * @param swing swing status of the player (0-50)
+ * @param swingType type of swing (smash, cut, etc. )
+ * @param swingSide side of swing (forehand or backhand)
+ * @param afterSwing afterswing stop penalty
+ * @param swingError valuation of the swing (good, bad, miss, etc. )
+ * @param target location of the target
+ * @param eye location of the camera
+ * @param pow power to hit the ball
+ * @param spin spin to hit the ball
+ * @param stamina stamina (not used currently)
+ * @param statusMax max of the status
+ */
 PenAttack::PenAttack( long playerType, long side, const vector3d x, 
 		      const vector3d v, long status, long swing, 
 		      long swingType, bool swingSide, long afterSwing,
@@ -48,15 +83,37 @@ PenAttack::PenAttack( long playerType, long side, const vector3d x,
 	  afterSwing, swingError, target, eye, pow, spin, stamina, statusMax ) {
 }
 
+/**
+ * Destructor. 
+ * Do nothing. 
+ */
 PenAttack::~PenAttack() {
 }
 
+/**
+ * Change status value. 
+ * diff is added to m_status. 
+ * 
+ * @param diff this value is added to m_status. 
+ * @return returns true if succeeds. 
+ */
 bool
 PenAttack::AddStatus( long diff ) {
   // Add something in the future
   return Player::AddStatus( diff );
 }
 
+/**
+ * Move this player object. 
+ * Move this player and change m_status. 
+ * 
+ * @param KeyHistory history of keyboard input
+ * @param MouseXHistory history of mouse cursor move
+ * @param MouseYHistory history of mouse cursor move
+ * @param MouseBHistory history of mouse button push/release
+ * @param Histptr current position of histories described above. 
+ * @return returns true if it is neccesary to redraw. 
+ */
 bool
 PenAttack::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 	      long *MouseYHistory, unsigned long *MouseBHistory,
@@ -78,6 +135,15 @@ PenAttack::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   return true;
 }
 
+/**
+ * Start swing (backswing is already done). 
+ * This method is called when the game player clicks the mouse button to swing.
+ * This method checks whether this player can start swing, and decide
+ * swing type. 
+ * 
+ * @param spin spin level. Currently this parameter is used for deciding forehand/backhand. 
+ * @return returns true if succeeds. 
+ */
 bool
 PenAttack::Swing( long spin ) {
   Ball *tmpBall;
@@ -116,6 +182,17 @@ PenAttack::Swing( long spin ) {
   return true;
 }
 
+
+/**
+ * Start swing (backswing). 
+ * This method is called when the player starts backswing automatically, or
+ * the game player clicks the mouse button to serve. 
+ * This method checks whether this player can start backswing, and decide
+ * swing type. On serve, this method checks the serve type to start serve. 
+ * 
+ * @param spin spin level. Currently this parameter is used on serve only. 
+ * @return returns true if succeeds. 
+ */
 bool
 PenAttack::StartSwing( long spin ) { // Argument is valid only on serve
   Ball *tmpBall;
@@ -174,6 +251,13 @@ PenAttack::StartSwing( long spin ) { // Argument is valid only on serve
   return true;
 }
 
+/**
+ * Hit the ball with racket. 
+ * Referring the relative location of player and the ball, this method
+ * decides the velocity and spin of the ball. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 PenAttack::HitBall() {
   vector3d v;
@@ -248,6 +332,14 @@ PenAttack::HitBall() {
   return true;
 }
 
+/**
+ * Decide swing type. 
+ * Swing type is defined by the ball location and player type. 
+ * 
+ * @param ball the ball to be hit
+ * @param spin spin of which the player intend to set. 
+ * @return returns true if succeeds
+ */
 bool
 PenAttack::SwingType( Ball *ball, long spin ) {
   m_spin[0] = 0.0;
@@ -311,6 +403,13 @@ PenAttack::GetModifiedTarget( double &targetX, double &targetY ) {
   return true;
 }
 #else
+/**
+ * Modify location of the target. 
+ * Currently this method do nothing. 
+ * 
+ * @param target original target and modified target. [in, out]
+ * @return returns true if succeeds. 
+ */
 bool
 PenAttack::GetModifiedTarget( vector2d &target ) {
   target = m_target;
@@ -319,6 +418,14 @@ PenAttack::GetModifiedTarget( vector2d &target ) {
 }
 #endif
 
+/**
+ * Calculate the level of ball to be hit. 
+ * 
+ * @param ball the ball object to be hit. 
+ * @param diff difference from ideal hit. [out]
+ * @param level level of the hit. [out]
+ * @param maxVy maximum ball speed of y-coodinate [out]
+ */
 void
 PenAttack::CalcLevel(Ball *ball, double &diff, double &level, double &maxVy) {
   vector2d target;

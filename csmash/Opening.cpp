@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of Opening class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -40,6 +45,10 @@ extern RCFile *theRC;
 
 #define PHRASELENGTH (35.80)
 
+/**
+ * Constructor. 
+ * Initialize member variables to 0 or NULL. 
+ */
 Opening::Opening() {
   m_View = NULL;
   m_count = 0;
@@ -47,6 +56,10 @@ Opening::Opening() {
   m_pid = 0;
 }
 
+/**
+ * Destructor. 
+ * Detatch view class and delete it. 
+ */
 Opening::~Opening() {
   if ( m_View ){
     BaseView::TheView()->RemoveView( m_View );
@@ -60,6 +73,13 @@ Opening::~Opening() {
 #endif
 }
 
+/**
+ * Initializer method. 
+ * This method creates OpeningView object and attach it to this object. 
+ * Additionally, creates m_thePlayer and m_comPlayer and their view classes. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 Opening::Init() {
   m_View = (OpeningView *)View::CreateView( VIEW_OPENING );
@@ -89,6 +109,10 @@ Opening::Init() {
   return true;
 }
 
+/**
+ * Opening object creater. 
+ * This method creates singleton Opening object. 
+ */
 void
 Opening::Create() {
   Control::ClearControl();
@@ -97,6 +121,18 @@ Opening::Create() {
   m_theControl->Init();
 }
 
+/**
+ * Move valid objects. 
+ * Referring count, modify the status of objects and call Move method 
+ * of the ball and players. 
+ * 
+ * @param KeyHistory history of keyboard input
+ * @param MouseXHistory history of mouse cursor move
+ * @param MouseYHistory history of mouse cursor move
+ * @param MouseBHistory history of mouse button push/release
+ * @param Histptr current position of histories described above. 
+ * @return returns true if it is neccesary to redraw. 
+ */
 bool
 Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 	       long *MouseYHistory, unsigned long *MouseBHistory,
@@ -1345,6 +1381,13 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   return true;
 }
 
+/**
+ * Set camera position and direction. 
+ * 
+ * @param srcX camera position. [out]
+ * @param destX point where the camera is directed. [out]
+ * @return returns true if succeeds. 
+ */
 bool
 Opening::LookAt( vector3d &srcX, vector3d &destX ) {
   long phrase, mod;
@@ -1575,6 +1618,13 @@ Opening::LookAt( vector3d &srcX, vector3d &destX ) {
   return true;
 }
 
+/**
+ * Calculate phrase number and mod from m_count. 
+ * Basically, phrase number increments for each PHRASELENGTH count. 
+ * 
+ * @param phrase phrase number [out]
+ * @param mod mod [out]
+ */
 void
 Opening::GetPhrase( long &phrase, long &mod ) {
   if ( m_count <= 3200 ) {

@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of PenDrive class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -20,6 +25,9 @@
 #define _PenDrive_
 #include "Player.h"
 
+/**
+ * PenDrive class is a Player class of pen drive type player. 
+ */
 class PenDrive : public Player {
 public:
   PenDrive();

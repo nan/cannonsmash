@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of Opening class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2001, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -22,6 +27,9 @@
 #include "OpeningView.h"
 #include "MenuItem.h"
 
+/**
+ * Opening controller class. 
+ */
 class Opening : public Control {
 public:
   Opening();
@@ -37,19 +45,19 @@ public:
 
   virtual bool LookAt( vector3d &srcX, vector3d &destX );
 
-  long GetCount() { return m_count; };
+  long GetCount() { return m_count; }		///< Getter method for m_count
   void GetPhrase( long &phrase, long &mod );
 
-  virtual bool IsPlaying() { return false; };
+  virtual bool IsPlaying() { return false; }	///< Always false. 
 
-  virtual View *GetView() { return m_View; };
+  virtual View *GetView() { return m_View; }	///< Getter method for m_View
 
-  MenuItem *m_telop[10];
+  MenuItem *m_telop[10];	///< Telop for the music composer
 protected:
-  OpeningView *m_View;
-  long m_count;
-  long m_bgmCount;
-  long m_pid;
+  OpeningView *m_View;		///< Reference to attached m_View
+  long m_count;			///< Count from the beggining of the opening (in 1/100 sec)
+  long m_bgmCount;		///< Not used. 
+  long m_pid;			///< Not used. 
 };
 
 #endif	// _Opening_

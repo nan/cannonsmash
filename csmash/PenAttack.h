@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of PenAttack class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -20,6 +25,9 @@
 #define _PenAttack_
 #include "Player.h"
 
+/**
+ * PenAttack class is a Player class of pen attack type player. 
+ */
 class PenAttack : public Player {
 public:
   PenAttack();
