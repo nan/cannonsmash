@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
-  printf( dataDir );
+  printf( "datadir = %s\n", dataDir );
 
     /* initialize i18n */
 #ifdef WIN32
@@ -146,6 +146,7 @@ int main(int argc, char** argv) {
 
     gtk_set_locale();
     setlocale(LC_ALL, "");
+    setlocale(LC_NUMERIC, "C");
 
     putenv("SDL_MOUSE_RELATIVE=0");
 
