@@ -442,6 +442,18 @@ PlayerView::DrawPlayer() {
     else
       motion = m_Bcut ? m_Bcut : m_Bnormal;
     break;
+  case SERVE_NORMAL:
+    if ( m_player->ForeOrBack() )
+      motion = m_Fnormal;
+    else
+      motion = m_Bnormal;
+    break;
+  case SERVE_POKE:
+    if ( m_player->ForeOrBack() )
+      motion = m_Fpeck ? m_Fpeck : m_Fnormal;
+    else
+      motion = m_Bpeck ? m_Bpeck : m_Bnormal;
+    break;
   default:
     return;
   }
