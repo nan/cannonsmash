@@ -20,9 +20,9 @@
 #include "Network.h"
 #include "Ball.h"
 #include "Player.h"
-#include "PenAttack.h"
-#include "PenDrive.h"
-#include "ShakeCut.h"
+#include "NetPenAttack.h"
+#include "NetPenDrive.h"
+#include "NetShakeCut.h"
 #include "RCFile.h"
 
 #ifdef LOGGING
@@ -242,25 +242,25 @@ ReadPlayerData() {
 
   switch ( playerType ) {
   case PLAYER_PENATTACK:
-    player = new PenAttack( playerType, side, x, y, z, vx, vy, vz, stat,
-			    swing, swingType, (bool)swingSide, afterSwing,
-			    swingError,
-			    targetX, targetY, eyeX, eyeY, eyeZ, pow,
-			    spin, stamina, statusMax );
+    player = new NetPenAttack( playerType, side, x, y, z, vx, vy, vz, stat,
+			       swing, swingType, (bool)swingSide, afterSwing,
+			       swingError,
+			       targetX, targetY, eyeX, eyeY, eyeZ, pow,
+			       spin, stamina, statusMax );
     break;
   case PLAYER_SHAKECUT:
-    player = new ShakeCut( playerType, side, x, y, z, vx, vy, vz, stat,
-			   swing, swingType, (bool)swingSide, afterSwing,
-			   swingError,
-			   targetX, targetY, eyeX, eyeY, eyeZ, pow,
-			   spin, stamina, statusMax );
+    player = new NetShakeCut( playerType, side, x, y, z, vx, vy, vz, stat,
+			      swing, swingType, (bool)swingSide, afterSwing,
+			      swingError,
+			      targetX, targetY, eyeX, eyeY, eyeZ, pow,
+			      spin, stamina, statusMax );
     break;
   case PLAYER_PENDRIVE:
-    player = new PenDrive( playerType, side, x, y, z, vx, vy, vz, stat,
-			   swing, swingType, (bool)swingSide, afterSwing,
-			   swingError,
-			   targetX, targetY, eyeX, eyeY, eyeZ, pow,
-			   spin, stamina, statusMax );
+    player = new NetPenDrive( playerType, side, x, y, z, vx, vy, vz, stat,
+			      swing, swingType, (bool)swingSide, afterSwing,
+			      swingError,
+			      targetX, targetY, eyeX, eyeY, eyeZ, pow,
+			      spin, stamina, statusMax );
     break;
   default:
     return 0;
