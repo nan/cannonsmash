@@ -28,8 +28,9 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_ICON1               ICON    DISCARDABLE     "kuro.ico"
+IDI_ICON1               ICON    DISCARDABLE     "orange.ico"
 IDI_ICON2               ICON    DISCARDABLE     "scream.ico"
+IDI_ICON3               ICON    DISCARDABLE     "kuro.ico"
 
 #ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
@@ -38,8 +39,8 @@ IDI_ICON2               ICON    DISCARDABLE     "scream.ico"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,4,6,0
- PRODUCTVERSION 0,4,6,0
+ FILEVERSION 0,5,0,1
+ PRODUCTVERSION 0,5,0,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -54,17 +55,17 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-            VALUE "Comments", "Cannon Smash Windows build\0"
-            VALUE "CompanyName", "nan@utmc.or.jp\0"
+            VALUE "Comments", "Cannon Smash Windows build.\0"
+            VALUE "CompanyName", "utmc.or.jp\0"
             VALUE "FileDescription", "Cannon Smash for Windows\0"
-            VALUE "FileVersion", "0, 4, 6, 0\0"
+            VALUE "FileVersion", "0, 5, 0, 1\0"
             VALUE "InternalName", "csmash-i386-win32\0"
             VALUE "LegalCopyright", "Copyright (C) 2000 nan@utmc.or.jp\0"
             VALUE "LegalTrademarks", "nan@utmc.or.jp\0"
             VALUE "OriginalFilename", "csmash.exe\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "Cannon Smash\0"
-            VALUE "ProductVersion", "0, 4, 6, 0\0"
+            VALUE "ProductVersion", "0, 5, 0, 1\0"
             VALUE "SpecialBuild", "\0"
         END
     END
