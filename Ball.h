@@ -62,6 +62,7 @@ public:
 		   double &vx, double &vy, double &vz );
 
   bool Send( int sd );
+  char * Send_forNODELAY( char *buf );
 
 protected:
   double m_x;		// ballの位置

@@ -448,6 +448,7 @@ Event::SendPlayer( Player *player ) {
 }
 #endif
 
+#if 0
 bool
 Event::SendBall() {
   if ( m_backtrack || mode != MODE_MULTIPLAY )
@@ -461,6 +462,24 @@ Event::SendBall() {
 
   return true;
 }
+#else
+bool
+Event::SendBall() {
+  char buf[256];
+
+  if ( m_backtrack || mode != MODE_MULTIPLAY )
+    return false;
+
+  strncpy( buf, "BV", 2 );
+  ((MultiPlay *)theControl)->SendTime_forNODELAY( &(buf[2]) );
+
+  theBall.Send_forNODELAY( &(buf[7]) );
+
+  send( theSocket, buf, 67, 0 );
+
+  return true;
+}
+#endif
 
 void
 Event::ClearObject() {

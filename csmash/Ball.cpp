@@ -562,6 +562,31 @@ Ball::BallDead() {
   }
 }
 
+char *
+Ball::Send_forNODELAY( char *buf ) {
+  long l;
+  double d;
+
+  d = SwapDbl(m_x);
+  memcpy( buf, (char *)&d, 8 );
+  d = SwapDbl(m_y);
+  memcpy( &(buf[8]), (char *)&d, 8 );
+  d = SwapDbl(m_z);
+  memcpy( &(buf[16]), (char *)&d, 8 );
+  d = SwapDbl(m_vx);
+  memcpy( &(buf[24]), (char *)&d, 8 );
+  d = SwapDbl(m_vy);
+  memcpy( &(buf[32]), (char *)&d, 8 );
+  d = SwapDbl(m_vz);
+  memcpy( &(buf[40]), (char *)&d, 8 );
+  d = SwapDbl(m_spin);
+  memcpy( &(buf[48]), (char *)&d, 8 );
+  l = SwapLong(m_status);
+  memcpy( &(buf[56]), (char *)&l, 4 );
+
+  return buf;
+}
+
 bool
 Ball::Send( int sd ) {
   SendDouble( sd, m_x );
