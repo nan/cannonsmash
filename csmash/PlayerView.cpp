@@ -407,14 +407,19 @@ PlayerView::DrawPlayer() {
 
     if ( ((tmpBall->GetStatus() == 3 && m_player->GetSide() == 1) ||
 	  (tmpBall->GetStatus() == 1 && m_player->GetSide() == -1)) ) {
-      if ( m_player->GetSwingSide() )
-	xdiff = theBall.GetX() - (m_player->GetX() + m_player->GetSide()*0.3);
-      else
-	xdiff = theBall.GetX() - (m_player->GetX() - m_player->GetSide()*0.3);
+      double hitpointX = m_player->GetSwingSide() ?
+	m_player->GetX()+0.3*m_player->GetSide() :
+	m_player->GetX()-0.3*m_player->GetSide();
 
-      ydiff = (theBall.GetY() - m_player->GetY())*m_player->GetSide();
+      xdiff = tmpBall->GetX() -
+	(hitpointX+m_player->GetX()*(20-m_player->GetSwing())*TICK);
 
-      zdiff = theBall.GetZ() - 0.85;	/* temporary */
+      ydiff =
+        (tmpBall->GetY() -
+         (m_player->GetY()+m_player->GetVY()*(20-m_player->GetSwing())*TICK))*
+        m_player->GetSide();
+
+      zdiff = tmpBall->GetZ() - 0.85;	/* temporary */
     }
 
     if ( xdiff > 0.3 )
@@ -438,19 +443,23 @@ PlayerView::DrawPlayer() {
   }
 
   glPushMatrix();
+#if 1
     glTranslatef( m_player->GetX()-0.3F*m_player->GetSide(),
 		  m_player->GetY(), 0 );
 
+    /*
     if ( m_player->GetX() > -TABLEWIDTH/2 &&
 	 m_player->GetX() < TABLEWIDTH/2 &&
 	 m_player->GetY()*m_player->GetSide() > -TABLELENGTH/2 ) {
       glTranslatef( 0,-TABLELENGTH/2*m_player->GetSide()-m_player->GetY(), 0 );
       m_ydiff += fabs(-TABLELENGTH/2*m_player->GetSide()-m_player->GetY());
     }
+    */
 
     glRotatef( -atan2( m_player->GetTargetX()-m_player->GetX(),
 		       m_player->GetTargetY()-m_player->GetY() )*180/3.141592F,
 	       0.0F, 0.0F, 1.0F );
+#endif
 
     if ( theRC->gmode == GMODE_SIMPLE )
       motion->renderWire(swing, m_xdiff, m_ydiff, m_zdiff);
