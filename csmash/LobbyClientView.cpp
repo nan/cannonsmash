@@ -64,9 +64,6 @@ void
 LobbyClientView::Init( LobbyClient *lobby ) {
   m_parent = lobby;
 
-  gchar *channels[16] = {_("English"), _("Japanese"),
-			 _("Germany"), _("Korean") };
-
   m_timeout = gtk_timeout_add( 1000, LobbyClient::PollServerMessage,
 			       m_parent );
 
@@ -106,48 +103,58 @@ LobbyClientView::Init( LobbyClient *lobby ) {
 
 
   GtkWidget *notebook = gtk_notebook_new();
-  for ( int i = 0 ; i < 4 ; i++ ) {
-#if 0
-    GtkWidget *label;
-    GtkWidget *table = gtk_table_new( 1, 2, FALSE );
+  GtkWidget *label;
 
-    m_chat[i] = gtk_text_new( NULL, NULL );
-    GtkWidget *vscrollbar = gtk_vscrollbar_new( GTK_TEXT(m_chat[i])->vadj );
+  scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+  m_chat[0] = gtk_text_view_new();
+  gtk_text_view_set_editable( GTK_TEXT_VIEW(m_chat[0]), FALSE );
 
-    gtk_table_attach(GTK_TABLE(table), m_chat[i], 0, 1, 0, 1, 
-		     (GtkAttachOptions)(GTK_EXPAND|GTK_SHRINK|GTK_FILL), 
-		     (GtkAttachOptions)(GTK_EXPAND|GTK_SHRINK|GTK_FILL),
-		     0, 0 );
-    gtk_table_attach(GTK_TABLE(table), vscrollbar, 1, 2, 0, 1, 
-		     (GtkAttachOptions)(GTK_FILL), 
-		     (GtkAttachOptions)(GTK_EXPAND|GTK_SHRINK|GTK_FILL),
-		     0, 0 );
+  gtk_scrolled_window_set_policy( GTK_SCROLLED_WINDOW (scrolled_window),
+				  GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS );
+  gtk_scrolled_window_add_with_viewport( GTK_SCROLLED_WINDOW(scrolled_window),
+					 m_chat[0] );
+  gtk_widget_show(m_chat[0]);
+  gtk_widget_show(scrolled_window);
 
-    gtk_widget_show(m_chat[i]);
-    gtk_widget_show(vscrollbar);
-    gtk_widget_show(table);
+  label = gtk_label_new( _("English") );
+  m_langID[0] = 0x09;
 
-    label = gtk_label_new( channels[i] );
-    gtk_notebook_append_page( GTK_NOTEBOOK(notebook), table, label);
+  gtk_notebook_append_page( GTK_NOTEBOOK(notebook), scrolled_window, label);
+
+  int i = 0;
+#ifdef WIN32
+  while ( table[i].langID != -1 ) {
+    if ( PRIMARYLANGID(GetUserDefaultLangID()) == table[i].langID &&
+	 table[i].langID != 0x09 ) {
+      break;
+    }
+    i++;
+  }
 #else
-    GtkWidget *label;
+  while ( table[i].langID != -1 ) {
+    if ( strncmp( setlocale(LC_MESSAGES, NULL), table[i].code, 2 ) == 0 &&
+	 table[i].langID != 0x09 ) {
+      break;
+    }
+    i++;
+  }
+#endif
 
-    GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-    //gtk_container_set_border_width( GTK_CONTAINER (scrolled_window), 10 );
+  m_langID[1] = table[i].langID;
+  if ( table[i].langID != -1 ) {
+    scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+    m_chat[1] = gtk_text_view_new();
+    gtk_text_view_set_editable( GTK_TEXT_VIEW(m_chat[1]), FALSE );
 
-    m_chat[i] = gtk_text_view_new();
-    gtk_text_view_set_editable( GTK_TEXT_VIEW(m_chat[i]), FALSE );
-    gtk_text_view_set_cursor_visible( GTK_TEXT_VIEW(m_chat[i]), FALSE );
-
-    gtk_scrolled_window_set_policy( GTK_SCROLLED_WINDOW (scrolled_window),
-                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS );
-    gtk_scrolled_window_add_with_viewport( GTK_SCROLLED_WINDOW (scrolled_window), m_chat[i] );
-    gtk_widget_show(m_chat[i]);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
+				   GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
+					  m_chat[1] );
+    gtk_widget_show(m_chat[1]);
     gtk_widget_show(scrolled_window);
 
-    label = gtk_label_new( channels[i] );
-    gtk_notebook_append_page( GTK_NOTEBOOK(notebook), scrolled_window, label);
-#endif
+    label = gtk_label_new( _(table[i].langname) );
+    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), scrolled_window, label);
   }
 
   gtk_box_pack_start( GTK_BOX(GTK_DIALOG(m_window)->vbox), notebook,
@@ -236,39 +243,32 @@ LobbyClientView::KeyPress( GtkWidget *widget,
   if ( event->keyval == GDK_Return &&
        strlen(gtk_entry_get_text(GTK_ENTRY(lobby->m_chatinput))) > 0 ) {
     lobby->m_parent->SendMS( (char *)gtk_entry_get_text(GTK_ENTRY(lobby->m_chatinput)),
-			     lobby->m_chatChannel );
+			     lobby->m_langID[lobby->m_chatChannel] );
 
     char buf[32];
     getcurrenttimestr(buf);
 
-
-#if 0
-    gtk_text_insert(GTK_TEXT(lobby->m_chat[lobby->m_chatChannel]),
-		    NULL, NULL, NULL, buf, -1);
-    gtk_text_insert(GTK_TEXT(lobby->m_chat[lobby->m_chatChannel]),
-		    NULL, NULL, NULL, ">", -1);
-    gtk_text_insert(GTK_TEXT(lobby->m_chat[lobby->m_chatChannel]),
-		    NULL, NULL, NULL, 
-		    lobby->m_parent->m_nickname, -1);
-    gtk_text_insert(GTK_TEXT(lobby->m_chat[lobby->m_chatChannel]),
-		    NULL, NULL, NULL, "< ", -1);
-    gtk_text_insert(GTK_TEXT(lobby->m_chat[lobby->m_chatChannel]),
-		    NULL, NULL, NULL,
-		    gtk_entry_get_text(GTK_ENTRY(lobby->m_chatinput)), -1);
-    gtk_text_insert(GTK_TEXT(lobby->m_chat[lobby->m_chatChannel]),
-		    NULL, NULL, NULL, "\n", -1);
-#else
     GtkTextBuffer *buffer;
     buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(lobby->m_chat[lobby->m_chatChannel]));
 
-    gtk_text_buffer_insert_at_cursor( buffer, buf, -1 );
-    gtk_text_buffer_insert_at_cursor( buffer, ">", -1 );
-    gtk_text_buffer_insert_at_cursor( buffer, lobby->m_parent->m_nickname, -1 );
-    gtk_text_buffer_insert_at_cursor( buffer, "< ", -1 );
-    gtk_text_buffer_insert_at_cursor( buffer,
-				      gtk_entry_get_text(GTK_ENTRY(lobby->m_chatinput)), -1 );
-    gtk_text_buffer_insert_at_cursor( buffer, "\n", -1 );
-#endif
+    GtkTextIter iter;
+    gtk_text_buffer_get_end_iter( buffer, &iter );
+    gtk_text_buffer_insert( buffer, &iter, buf, -1 );
+    gtk_text_buffer_insert( buffer, &iter, ">", -1 );
+    gtk_text_buffer_insert( buffer, &iter, lobby->m_parent->m_nickname, -1 );
+    gtk_text_buffer_insert( buffer, &iter, "< ", -1 );
+    gtk_text_buffer_insert( buffer, &iter, 
+			    gtk_entry_get_text(GTK_ENTRY(lobby->m_chatinput)),
+			    -1 );
+    gtk_text_buffer_insert( buffer, &iter, "\n", -1 );
+
+    GtkWidget* scrolled_window;
+    scrolled_window = gtk_widget_get_parent(lobby->m_chat[lobby->m_chatChannel]);
+    scrolled_window = gtk_widget_get_parent(scrolled_window);
+
+    GtkAdjustment *adj =
+      gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
+    gtk_adjustment_set_value(adj, adj->upper-adj->page_size);
 
     gtk_entry_set_text(GTK_ENTRY(lobby->m_chatinput), "");
   }
@@ -350,19 +350,33 @@ void
 LobbyClientView::AddChatMessage( long channelID, char *message ) {
   char buf[32];
   getcurrenttimestr( buf );
-#if 0
-  gtk_text_insert(GTK_TEXT(m_chat[channelID]), NULL, NULL, NULL, buf, -1);
-  gtk_text_insert(GTK_TEXT(m_chat[channelID]), NULL, NULL, NULL, message, -1);
-  gtk_text_insert(GTK_TEXT(m_chat[channelID]), NULL, NULL, NULL, "\n", -1);
-#else
-    GtkTextBuffer *buffer;
-    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(m_chat[channelID]));
 
-    gtk_text_buffer_insert_at_cursor( buffer, buf, -1 );
-    gtk_text_buffer_insert_at_cursor( buffer, message, -1 );
-    gtk_text_buffer_insert_at_cursor( buffer, "\n", -1 );
-#endif
+  GtkTextBuffer *buffer;
+  int i;
 
+  for ( i = 0 ; i < 2 ; i++ ) {
+    if ( m_langID[i] == channelID )
+      break;
+  }
+
+  if ( i == 2 )
+    return;
+
+  buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(m_chat[i]));
+
+  GtkTextIter iter;
+  gtk_text_buffer_get_end_iter( buffer, &iter );
+  gtk_text_buffer_insert( buffer, &iter, buf, -1 );
+  gtk_text_buffer_insert( buffer, &iter, message, -1 );
+  gtk_text_buffer_insert( buffer, &iter, "\n", -1 );
+
+  GtkWidget* scrolled_window;
+  scrolled_window = gtk_widget_get_parent(m_chat[i]);
+  scrolled_window = gtk_widget_get_parent(scrolled_window);
+
+  GtkAdjustment *adj =
+    gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
+  gtk_adjustment_set_value(adj, adj->upper-adj->page_size);
 }
 
 PIDialog::PIDialog() {
