@@ -114,6 +114,8 @@ int main(int argc, char** argv) {
     gtk_set_locale();
     setlocale (LC_ALL, "");
 
+    putenv("SDL_MOUSE_RELATIVE=0");
+
 #ifdef WIN32
     char *localedir = (char*)alloca(MAX_PATH);
     *localedir = '\0';
