@@ -37,12 +37,16 @@
 #define __wata_ESESoft_9465__parts_h__INCLUDED__
 /***********************************************************************/
 #include <algorithm>
+#include <vector>
 
 #include "float"
 #include "matrix"
 #include "affine"
 
 /* __BEGIN__BEGIN__ */
+
+vector4F Affine2Quaternion(affine4F aff);
+affine4F Quaternion2Affine(vector4F v, vector4F p);
 
 class edge {
 public:
@@ -235,11 +239,44 @@ public:
     }
 };
 
+class quaternionanim {
+public:
+    int numFrames;
+    std::vector<vector4F> quaternions;
+    vector3F origin;
+
+    quaternionanim(int num);
+    quaternionanim(const char *filename);
+    ~quaternionanim();
+
+    inline const vector4F& operator[](int i) const {
+	return quaternions[i];
+    }
+    inline vector4F& operator [](int i) {
+	return quaternions[i];
+    }
+};
+
+class quaternionmotion {
+public:
+    polyhedron ref;
+    quaternionanim anim;
+
+    quaternionmotion(const char *ref, const char *anim);
+    //void write(const char *basename);
+    inline bool valid() const {
+	return  ref.numPoints > 0 && anim.numFrames > 0;
+    }
+};
+
 class partsmotion
 {
 public:
     int numParts;
-    affinemotion **parts;
+
+    static polyhedron **polyparts;
+    affineanim *origin;
+    quaternionanim **qanim;
 
     partsmotion(const char *basename);
     virtual ~partsmotion();
@@ -248,6 +285,15 @@ public:
     virtual bool render(double frame, float xdiff, float ydiff, float zdiff);
     virtual bool renderWire(int frame, float xdiff, float ydiff, float zdiff);
     virtual bool renderWire(double frame, float xdiff, float ydiff, float zdiff);
+
+private:
+    void drawleg( float xdiff, float ydiff, float zdiff, bool isWireFrame );
+    void legIK( vector3F hip, vector3F &knee, vector3F &heel, vector3F toe, 
+		float thighLength, float shinLength, float footSize, 
+		bool isWireFrame );
+    float drawbody( vector3F neck, vector3F waist, bool isWireFrame );
+
+    void renderparts( int partsNum, bool isWireFrame );
 };
 
 /* __END__END__ */

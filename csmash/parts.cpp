@@ -62,14 +62,14 @@
 #define NECKORIGINY	0.0
 #define NECKORIGINZ	1.30
 #define WAISTORIGINX	0.0
-#define WAISTORIGINY	-0.1
+#define WAISTORIGINY	-0.16
 #define WAISTORIGINZ	0.77
 
 #define RHIPORIGINX	0.1
-#define RHIPORIGINY	-0.1
+#define RHIPORIGINY	-0.16
 #define RHIPORIGINZ	0.77
 #define LHIPORIGINX	-0.1
-#define LHIPORIGINY	-0.1
+#define LHIPORIGINY	-0.16
 #define LHIPORIGINZ	0.77
 #define RFOOTORIGINX	0.25
 #define RFOOTORIGINY	0
@@ -78,13 +78,12 @@
 #define LFOOTORIGINY	0
 #define LFOOTORIGINZ	0
 
-const float thighLength = 0.462;
-const float shinLength = 0.366;
+const float thighLength = 0.396;
+const float shinLength = 0.430;
 const float footSize = 0.15;
 const float bodylength = 0.539;
 
-vector4F Affine2Quaternion(affine4F aff);
-affine4F Quaternion2Affine(vector4F v, vector4F p);
+#include "BaseView.h"
 
 // for(;;) namescoping hack.
 // VC++ 6 is not compliant with latest ANSI C++ (but VC++7 does).
@@ -501,6 +500,59 @@ affineanim::~affineanim()
     delete[] matrices;
 }
 
+
+quaternionanim::quaternionanim(int num)
+  : numFrames(num)
+{
+  quaternions.resize(numFrames);
+}
+
+quaternionanim::quaternionanim(const char *filename)
+  : numFrames(0)
+{
+    FILE *in = fopen(filename, "r");
+    if (NULL == in) return;
+
+    // Should be changed
+    quaternions.resize(1000);
+
+    char line[512];
+    const char *delim = " \t(,);\r\n";
+    while (NULL != fgets(line, sizeof(line), in)) {
+	char *token = strtok(line, delim);
+	if (!token) continue;
+	if (streq("Origin", token)) {
+	    vector3F v;
+	    for (int i = 0; 3 > i; i++) {
+	        token = strtok(NULL, delim);
+		if (token) v[i] = strtod(token, NULL);
+	    }
+	    //printf( "%2.5f %2.5f %2.5f %2.5f\n", v[0], v[1], v[2], v[3] );
+	    origin = v;
+	    break;
+	}
+    }
+    while (NULL != fgets(line, sizeof(line), in)) {
+	char *token = strtok(line, delim);
+	if (!token) continue;
+	if (streq("Quaternion", token)) {
+	    vector4F v;
+	    for (int i = 0; 4 > i; i++) {
+	        token = strtok(NULL, delim);
+		if (token) v[i] = strtod(token, NULL);
+	    }
+	    //printf( "%2.5f %2.5f %2.5f %2.5f\n", v[0], v[1], v[2], v[3] );
+	    v[0] = -v[0];
+	    quaternions[numFrames++] = v;
+	}
+    }
+    fclose(in);
+}
+
+quaternionanim::~quaternionanim()
+{
+}
+
 /***********************************************************************
  *	Class affinemotion
  ***********************************************************************/
@@ -540,24 +592,56 @@ affinemotion::write(const char *basename)
     }
 }
 
+/***********************************************************************
+ *	Class quaternionmotion
+ ***********************************************************************/
+quaternionmotion::quaternionmotion(const char *refname, const char *animname)
+  : ref(refname), anim(animname)
+{
+    ref.getNormal();    // create normal vectors of polyhedron
+}
 
-void legIK( vector3F hip, vector3F &knee, vector3F &heel, vector3F toe, 
-	    float thighLength, float shinLength, float footSize ) {
+
+void
+partsmotion::legIK( vector3F hip, vector3F &knee, vector3F &heel, vector3F toe,
+		    float thighLength, float shinLength, float footSize, 
+		    bool isWireFrame ) {
 
   vector3F _hip, _knee, _heel, _toe;
+  vector3F _heel2, _toe2;
 
+#define c(R,G,B,A) { R/255.0F, G/255.0F, B/255.0F, A/255.0F}
+  static GLfloat colors[][4] = {
+    c(250, 188, 137, 127),	// C0 default(skin)
+    c(1, 1, 1, 127),		// C1 eye
+    c(42, 19, 5, 127), 		// C2 hair
+    c(250, 188, 137, 127),	// C3 skin
+    c(3, 87, 125, 127),		// C4 shirts (blue)
+    c(0, 0, 0, 127),		// C5 pants  (black)
+    c(102, 7, 3, 127),		// C6 skin/shadow
+    c(255, 0, 0, 127),		// C7 racket/front
+    c(0, 0, 0, 127),		// C8 racket/back
+
+    {-1, -1, -1, -1}		// stop
+  };
+#undef c
+
+
+  glPushMatrix();
   /* hip が原点に来るよう平行移動 */
+  glTranslatef(hip[0], hip[1], hip[2]);
   _hip  = hip - hip;
   _toe  = toe - hip;
 
   /* toe が yz 平面上に来るようy軸周りで回転 */
-  float rot1;
+  float rot1, rot2, rot3;
   if ( _toe[2] == 0.0 )
     rot1 = 0;
   else
     rot1 = -atan2( _toe[0], _toe[2] );
 
   /* 回転計算 */
+  glRotatef( -rot1*180.0F/3.14159265, 0.0, 1.0, 0.0 );
   _toe = _toe*rotateY( rot1 );
   if ( _toe[1] < 0.0 ) {
     _toe[1] = -_toe[1];
@@ -574,18 +658,16 @@ void legIK( vector3F hip, vector3F &knee, vector3F &heel, vector3F toe,
     _heel[2] = _toe[2];
 
     /* かかとがz軸上に来るようx軸周りで回転 */
-    float rot2;
     if ( _heel[2] == 0.0 )
       rot2 = 0;
     else
       rot2 = atan2( _heel[1], _heel[2] );
 
     /* 結果は自明なので, 回転計算は行わない */
-    /* _toe を回転させていないことに注意!!  */
-    vector3F _heel2;
+    glRotatef( -rot2*180.0F/3.14159265, 1.0, 0.0, 0.0 );
 
     //_heel2 = _heel*rotateX( rot2 );
-    //printf( "rot2: %f %f %f %f\n", rot2, _heel2[0], _heel2[1], _heel2[2] );
+    _toe2 = _toe*rotateX( rot2 );
 
     _heel2[0] = 0;
     _heel2[1] = 0;
@@ -603,27 +685,16 @@ void legIK( vector3F hip, vector3F &knee, vector3F &heel, vector3F toe,
       _knee[1] = sqrt(thighLength*thighLength - _knee[2]*_knee[2]);
 
     //printf( "_knee: %f %f %f\n", _knee[0], _knee[1], _knee[2] );
-
-    /* rot2 の回転を戻す */
-    _knee = _knee*rotateX( -rot2 );
-
-    //printf( "_knee: %f %f %f\n", _knee[0], _knee[1], _knee[2] );
-
-    /* rot1 の回転を戻す */
-    _knee = _knee*rotateY( -rot1 );
-    _heel = _heel*rotateY( -rot1 );
   } else {
     /* 踵を上げ, 膝を伸ばした状態 */
     /* 爪先がz軸上に来るようx軸周りで回転 */
-    float rot2;
-
     if ( _toe[2] == 0.0 )
       rot2 = 0;
     else
       rot2 = atan2( _toe[1], _toe[2] );
 
     /* 結果は自明なので, 回転計算は行わない */
-    vector3F _toe2;
+    glRotatef( -rot2*180.0F/3.14159265, 1.0, 0.0, 0.0 );
 
     //_toe2 = _heel*rotateX( rot2 );
     //printf( "rot2: %f %f %f %f\n", rot2, _toe2[0], _toe2[1], _toe2[2] );
@@ -635,48 +706,89 @@ void legIK( vector3F hip, vector3F &knee, vector3F &heel, vector3F toe,
     //printf( "rot2: %f %f %f %f\n", rot2, _toe2[0], _toe2[1], _toe2[2] );
 
     /* 公式より, 踵の位置を求める */
-    _heel[2] = ((thighLength+shinLength)*(thighLength+shinLength)
+    _heel2[2] = ((thighLength+shinLength)*(thighLength+shinLength)
 		-footSize*footSize+_toe2[2]*_toe2[2]) / (2*_toe2[2]);
-    _heel[0] = 0;
+    _heel2[0] = 0;
     if ( (thighLength+shinLength)*(thighLength+shinLength)
-	 -_heel[2]*_heel[2] < 0 )
-      _heel[1] = 0.0;
+	 -_heel2[2]*_heel2[2] < 0 )
+      _heel2[1] = 0.0;
     else
-      _heel[1] = sqrt((thighLength+shinLength)*(thighLength+shinLength)
-		      - _heel[2]*_heel[2]);
+      _heel2[1] = -sqrt((thighLength+shinLength)*(thighLength+shinLength)
+			- _heel2[2]*_heel2[2]);
 
     //printf( "_knee: %f %f %f\n", _knee[0], _knee[1], _knee[2] );
 
     _knee[0] = 0;
-    _knee[1] = _heel[1]*thighLength/(thighLength+shinLength);
-    _knee[2] = _heel[2]*thighLength/(thighLength+shinLength);
-
-    /* rot2 の回転を戻す */
-    _knee = _knee*rotateX( -rot2 );
-
-    //printf( "_knee: %f %f %f\n", _knee[0], _knee[1], _knee[2] );
-
-    /* rot1 の回転を戻す */
-    _knee = _knee*rotateY( -rot1 );
-    _heel = _heel*rotateY( -rot1 );
+    _knee[1] = _heel2[1]*thighLength/(thighLength+shinLength);
+    _knee[2] = _heel2[2]*thighLength/(thighLength+shinLength);
   }
 
-  /* hip の位置を戻す */
-  _knee = _knee + hip;
-  _heel = _heel + hip;
+  /* 以下, 描画 */
 
-  /* 結果確定 */
-  knee = _knee;
-  heel = _heel;
+  /* 膝がz軸上に来るようx軸周りで回転 */
+  if ( _knee[2] == 0.0 )
+    rot3 = 0;
+  else
+    rot3 = atan2( _knee[1], _knee[2] );
 
-  //printf( "knee: %f %f %f\n", knee[0], knee[1], knee[2] );
-  //printf( "heel: %f %f %f\n", heel[0], heel[1], heel[2] );
+  //printf( "rot3: %f\n", rot3 );
+
+  _knee = _knee*rotateX( rot3 );
+  _heel2 = _heel2*rotateX( rot3 );
+  _toe2 = _toe2*rotateX( rot3 );
+
+  glRotatef( -rot3*180.0F/3.14159265, 1.0, 0.0, 0.0 );
+
+  renderparts(17, isWireFrame);
+
+  /* 膝が原点に来るよう平行移動 */
+  glTranslatef(_knee[0], _knee[1], _knee[2]);
+  _heel2 -= _knee;
+  _toe2 -= _knee;
+  _knee -= _knee;
+
+  /* 踵がz軸上に来るようx軸周りで回転 */
+  float rot4;
+  if ( _heel2[2] == 0.0 )
+    rot4 = 0;
+  else
+    rot4 = atan2( _heel2[1], _heel2[2] );
+
+  _heel2 = _heel2*rotateX( rot4 );
+  _toe2 = _toe2*rotateX( rot4 );
+
+  glRotatef( -rot4*180.0F/3.14159265, 1.0, 0.0, 0.0 );
+
+  renderparts(18, isWireFrame);
+
+  /* 踵が原点に来るよう平行移動 */
+  glTranslatef(_heel2[0], _heel2[1], _heel2[2]);
+  _toe2 -= _heel2;
+  _heel2 -= _heel2;
+
+  /* 爪先がz軸上に来るようx軸周りで回転 */
+  float rot5;
+  if ( _toe2[2] == 0.0 )
+    rot5 = 0;
+  else
+    rot5 = atan2( _toe2[1], _toe2[2] );
+
+  _toe2 = _toe2*rotateX( rot5 );
+
+  glRotatef( -rot5*180.0F/3.14159265, 1.0, 0.0, 0.0 );
+
+  renderparts(19, isWireFrame);
+
+  glPopMatrix();
 }
 
 void
-drawleg( float xdiff, float ydiff, float zdiff ) {
+partsmotion::drawleg( float xdiff, float ydiff, float zdiff,
+		      bool isWireFrame = false ) {
     vector3F hip, knee, heel, toe;
 
+    glPushMatrix();
+    //glTranslatef( 0.0, WAISTORIGINY, 0.0 );
     hip[0] = RHIPORIGINX+xdiff;
     hip[1] = RHIPORIGINY+ydiff;
     hip[2] = RHIPORIGINZ+zdiff;
@@ -685,15 +797,7 @@ drawleg( float xdiff, float ydiff, float zdiff ) {
     toe[2] = RFOOTORIGINZ;
 
     legIK( hip, knee, heel, toe,
-	   thighLength, shinLength, footSize );
-
-    glLineWidth( 10.0 );
-    glBegin(GL_LINE_STRIP);
-        glVertex3fv((float*)&hip);
-        glVertex3fv((float*)&knee);
-        glVertex3fv((float*)&heel);
-        glVertex3fv((float*)&toe);
-    glEnd();
+	   thighLength, shinLength, footSize, isWireFrame );
 
     hip[0] = LHIPORIGINX+xdiff;
     hip[1] = LHIPORIGINY+ydiff;
@@ -703,38 +807,15 @@ drawleg( float xdiff, float ydiff, float zdiff ) {
     toe[2] = LFOOTORIGINZ;
 
     legIK( hip, knee, heel, toe,
-	   thighLength, shinLength, footSize );
-
-    glBegin(GL_LINE_STRIP);
-        glVertex3fv((float*)&hip);
-        glVertex3fv((float*)&knee);
-        glVertex3fv((float*)&heel);
-        glVertex3fv((float*)&toe);
-    glEnd();
-    glLineWidth( 1.0 );
+	   thighLength, shinLength, footSize, isWireFrame );
+    glPopMatrix();
 }
 
 
-void bodyIK( vector3F &neck, vector3F &waist, float bodyLength ) {
+float bodyIK( float &xdiff, float &ydiff, float &zdiff, 
+	     vector3F &neck, vector3F &waist ) {
+
   float legLength = thighLength+shinLength+footSize;
-
-  if ( hypot( neck[1]-waist[1], neck[2]-legLength ) > bodyLength ) {
-    /* 肩の位置を下げる */
-    neck[2] = legLength +
-      sqrt( bodyLength*bodyLength - (neck[1]-waist[1])*(neck[1]-waist[1]) );
-    waist[2] = legLength;
-
-    return;
-  }
-
-  waist[2] = neck[2] - sqrt( bodyLength*bodyLength -
-			     (waist[0]-neck[0])*(waist[0]-neck[0]) -
-			     (waist[1]-neck[1])*(waist[1]-neck[1]) );
-}
-
-float
-drawbody( float xdiff, float &ydiff, float &zdiff ) {
-  vector3F neck, waist;
 
   neck[0]  = NECKORIGINX+xdiff;
   neck[1]  = NECKORIGINY+ydiff;
@@ -748,70 +829,111 @@ drawbody( float xdiff, float &ydiff, float &zdiff ) {
 
   ydiff = NECKORIGINY+ydiff - neck[1];
 
-  bodyIK( neck, waist, bodylength );
+  if ( hypot( neck[1]-waist[1], neck[2]-legLength ) > bodylength ) {
+    /* 肩の位置を下げる */
+    neck[2] = legLength +
+      sqrt( bodylength*bodylength - (neck[1]-waist[1])*(neck[1]-waist[1]) );
+    waist[2] = legLength;
+  } else {
+    waist[2] = neck[2] - sqrt( bodylength*bodylength -
+			       (waist[0]-neck[0])*(waist[0]-neck[0]) -
+			       (waist[1]-neck[1])*(waist[1]-neck[1]) );
+  }
 
   zdiff = NECKORIGINZ+zdiff - neck[2];
 
-  glLineWidth( 10.0 );
-  glBegin(GL_LINES);
-    glVertex3fv((float*)&neck);
-    glVertex3fv((float*)&waist);
-  glEnd();
-
-  vector3F Lwaist, Rwaist;
-  Lwaist = waist; Rwaist = waist;
-  Lwaist[0] -= 0.1; Rwaist[0] += 0.1;
-  glBegin(GL_LINES);
-    glVertex3fv((float*)&Lwaist);
-    glVertex3fv((float*)&Rwaist);
-  glEnd();
-
-  vector3F Lshoulder, Rshoulder;
-  Lshoulder = neck; Rshoulder = neck;
-  Lshoulder[0] -= 0.2; Rshoulder[0] += 0.2;
-  glBegin(GL_LINES);
-    glVertex3fv((float*)&Lshoulder);
-    glVertex3fv((float*)&Rshoulder);
-  glEnd();
-
-  glLineWidth( 1.0 );
-
   return waist[2]-WAISTORIGINZ;
+}
+
+float
+partsmotion::drawbody( vector3F neck, vector3F waist, 
+		       bool isWireFrame = false ) {
+
+#define c(R,G,B,A) { R/255.0F, G/255.0F, B/255.0F, A/255.0F}
+  static GLfloat colors[][4] = {
+    c(250, 188, 137, 127),	// C0 default(skin)
+    c(1, 1, 1, 127),		// C1 eye
+    c(42, 19, 5, 127), 		// C2 hair
+    c(250, 188, 137, 127),	// C3 skin
+    c(3, 87, 125, 127),		// C4 shirts (blue)
+    c(0, 0, 0, 127),		// C5 pants  (black)
+    c(102, 7, 3, 127),		// C6 skin/shadow
+    c(255, 0, 0, 127),		// C7 racket/front
+    c(0, 0, 0, 127),		// C8 racket/back
+
+    {-1, -1, -1, -1}		// stop
+  };
+#undef c
+
+  glPushMatrix();
+  glTranslatef( waist[0], waist[1], waist[2] );
+
+  renderparts(2, isWireFrame);
+
+  float rot = atan2( neck[1]-waist[1], neck[2]-waist[2] )-0.1;
+  glRotatef( -rot*180.0F/3.14159265, 1.0, 0.0, 0.0 );
+
+  for (int i = 0; i < 2 ; i++) {
+    renderparts(i, isWireFrame);
+  }
+  glPopMatrix();
 }
 
 
 /***********************************************************************
  *	Class partsmotion
  ***********************************************************************/
+polyhedron **partsmotion::polyparts = NULL;
+
 partsmotion::partsmotion(const char *basename)
-  : numParts(0), parts(NULL)
+  : numParts(0), origin(NULL), qanim(NULL)
 {
     const char *partnames[] = {
 	"head", "chest", "hip", "racket",
 	"Rshoulder", "Rarm", "Relbow", "Rforearm", "Rhand",
 	"Rthigh"/*, "Rknee"*/, "Rshin"/*, "Rankle"*/, "Rfoot",
 	"Lshoulder", "Larm", "Lelbow", "Lforearm", "Lhand",
-	"Lthigh"/*, "Lknee"*/, "Lshin"/*, "Lankle"*/, "Lfoot",
-    };
-    numParts = sizeof(partnames) / sizeof(const char *);
-    parts = new affinemotion*[numParts];
+	"Lthigh"/*, "Lknee"*/, "Lshin"/*, "Lankle"*/, "Lfoot" };
 
-    for (int i = 0; numParts > i; i++) {
-	char ref[128], anim[128];
-	snprintf(ref, sizeof(ref), "%s-%s01.dat", basename, partnames[i]);
-	snprintf(anim, sizeof(anim), "%s-%s.affine", basename, partnames[i]);
-//	printf("loading %s...", ref);
-	parts[i] = new affinemotion(ref, anim);
+    numParts = sizeof(partnames) / sizeof(const char *);
+    if ( polyparts == NULL ) {
+	polyparts = new polyhedron*[numParts];
+
+	for ( int i = 0 ; i < numParts ; i++ ) {
+	    char ref[128];
+	    snprintf(ref, sizeof(ref), "%s-%s01.dat", basename, partnames[i]);
+	    polyparts[i] = new polyhedron(ref);
+	    polyparts[i]->getNormal();
+	}
     }
+
+    qanim = new quaternionanim*[numParts];
+    for ( int i = 0 ; i < numParts ; i++ ) {
+	char anim[128];
+        if ( i == 3 || i == 5 || i == 7 || i == 9 || i == 10 || i == 11 ||
+	     i == 13 || i == 15 || i == 16 || i == 17 || i == 18 ||
+	     i == 19 ) {
+	    qanim[i] = NULL;
+	} else {
+	    snprintf( anim, sizeof(anim), "%s-%s.quaternion",
+		      basename, partnames[i] );
+	    qanim[i] = new quaternionanim(anim);
+	}
+    }
+
+    char anim[128];
+    snprintf(anim, sizeof(anim), "%s-center.affine", basename);
+    origin = new affineanim(anim);
 };
 
 partsmotion::~partsmotion()
 {
-    if (parts) {
+    if (qanim) {
 	for (int i = 0; numParts > i; i++) {
-	    delete parts[i];
+	    if (qanim[i])
+		delete qanim[i];
 	}
-	delete[] parts;
+	delete[] qanim;
     }
 }
     
@@ -839,57 +961,20 @@ bool partsmotion::render(int frame, float xdiff, float ydiff, float zdiff)
 
     drawleg( xdiff, ydiff, zdiff );
 
+#if 0
     for (int i = 0; numParts > i; i++) {
-        if ( i == 1 || i == 2 || i == 9 || i == 10 || i == 11 || i == 17 || i == 18 || i == 19 )
+        if ( i == 0 || i == 1 || i == 2 || i == 9 || i == 10 || i == 11 || i == 17 || i == 18 || i == 19 )
 	    continue;
-	const polyhedron &ref = parts[i]->ref;
-	if (0 == ref.numPolygons) continue;
+	if (0 == parts[i]->ref.numPolygons) continue;
 	const affine4F &aff = parts[i]->anim[frame];
 	glPushMatrix();
 	glMultMatrixf((float*)&aff);
 
-	for (int j = 0; ref.numPolygons > j; j++) {
-	    polygon poly = ref.getPolygon(j);
-#if RENDEREDGE
-	    vector3F center(0);
-#endif
-	    glBegin(poly.glBeginSize());
-	    glColor4fv(colors[poly.c()]);
-	    for (int k = 0; poly.size > k; k++) {
-		glNormal3fv((float*)&poly.rn(k));
-#if RENDEREDGE
-		center += poly.rv(k);
-#endif
-		glVertex3fv((float*)&poly.rv(k));
-	    }
-	    glEnd();
+	renderparts(i, false);
 
-#if RENDEREDGE
-	    // stop here if alpha blending is active
-	    if (glIsEnabled(GL_BLEND)) continue;
-
-	    center /= poly.size;
-	    bool culling = glIsEnabled(GL_CULL_FACE)>0;
-	    if (!culling) glEnable(GL_CULL_FACE);
-
-	    glBegin(poly.glBeginSize());
-	    glColor4fv(BLACK);
-
-	    for (int k = poly.size-1; 0 <= k; --k) {
-		vector3F p = poly.rv(k);
-		p -= center;
-		Float l = p.len();
-		p *= 1 + (0.01F/l);
-		p += center;
-		p -= poly.n() * 1e-8F;
-		glVertex3fv((float*)&p);
-	    }
-	    glEnd();
-	    if (!culling) glDisable(GL_CULL_FACE);
-#endif
-	}
 	glPopMatrix();
     }
+#endif
     return true;
 }
 
@@ -897,50 +982,20 @@ bool partsmotion::renderWire(int frame, float xdiff, float ydiff, float zdiff)
 {
     drawleg( xdiff, ydiff, zdiff );
 
+#if 0
     for (int i = 0; numParts > i; i++) {
-        if ( i == 1 || i == 2 || i == 9 || i == 10 || i == 11 || i == 17 || i == 18 || i == 19 )
+        if ( i == 0 || i == 1 || i == 2 || i == 9 || i == 10 || i == 11 || i == 17 || i == 18 || i == 19 )
 	    continue;
-	const polyhedron &ref = parts[i]->ref;
-	if (0 == ref.numPolygons) continue;
+	if (0 == parts[i]->ref.numPolygons) continue;
 	const affine4F &aff = parts[i]->anim[frame];
 	glPushMatrix();
 	glMultMatrixf((float*)&aff);
-	
-	affine4F t;
-	glGetFloatv(GL_MODELVIEW_MATRIX, (float*)&t);
-	vector3F origin = vector3F(0) * ~t;
-	
-	glBegin(GL_LINES);
-	for (int j = 0; ref.numEdges > j; j++) {
-	    int p0 = ref.edges[j].p0;
-	    int p1 = ref.edges[j].p1;
-	    bool draw = false;
-	    vector3F v = ref.points[ref.edges[j].v0] - origin;
-	    if (p1 >= 0) {
-		Float i0 = v * ref.planeNormal[p0];
-		Float i1 = v * ref.planeNormal[p1];
-		if (i0 * i1 <= 0) draw = true;
-	    } else {
-#if 0
-                // Draw if the plane is facing toward eye.
-		Float i0 = v * ref.planeNormal[p0];
-		if (i0 <= 0) draw = true;
-#else	
-                // always draw *edge* edges.
-  		draw = true;
-#endif
-	    }
 
-	    if (draw) {
-		vector3F v0 = ref.points[ref.edges[j].v0];// - v * 0.01F;
-		vector3F v1 = ref.points[ref.edges[j].v1];// - v * 0.01F;
-		glVertex3fv((float*)&v0);
-		glVertex3fv((float*)&v1);
-	    }
-	}
-	glEnd();
+	renderparts(i, true);
 	glPopMatrix();
     }
+#endif
+
     return true;
 }
 
@@ -968,169 +1023,373 @@ bool partsmotion::render(double _frame, float xdiff, float ydiff, float zdiff)
     GLfloat BLACK[4] = { 0,0,0,1 };
     float zwaistdiff;
     float _xdiff = xdiff, _ydiff = ydiff, _zdiff = zdiff;
+    vector3F neck, waist;
 
-    zwaistdiff = drawbody( _xdiff, _ydiff, _zdiff );
-    drawleg( _xdiff, 0.0, zwaistdiff );
+    zwaistdiff = bodyIK( _xdiff, _ydiff, _zdiff, neck, waist );
+    //drawbody( neck, waist );
 
-    if ( zdiff > 0.0 ) {
-      //printf( "%f %f\n", _ydiff, _zdiff );
-      glTranslatef( xdiff, ydiff-_ydiff, zdiff-_zdiff );
-    }
+    //drawleg( _xdiff, 0.0, zwaistdiff );
+
+    glTranslatef( xdiff, ydiff-_ydiff, zdiff-_zdiff );
 
     /* ラケットを所定の位置から ( 0, _ydiff, _zdiff ) だけ移動する */
 
-    for (int i = 0; numParts > i; i++) {
-        if ( i == 1 || i == 2 || i == 9 || i == 10 || i == 11 || i == 17 || i == 18 || i == 19 )
-	    continue;
-	const polyhedron &ref = parts[i]->ref;
-	if (0 == ref.numPolygons) continue;
-	const affine4F &aff1 = parts[i]->anim[frame];
-	affine4F aff2;
+    vector4F p;
 
-	if ( frame+1 >= 50.0 )
-	  aff2 = parts[i]->anim[frame];
-	else
-	  aff2 = parts[i]->anim[frame+1];
+    /*
+    vector4F q1 = parts[i]->anim[frame];
+    vector4F q2;
 
-	vector4F q1 = Affine2Quaternion(aff1);
-	vector4F q2 = Affine2Quaternion(aff2);
+    if ( frame+1 >= 50.0 )
+      q2 = parts[i]->anim[frame];
+    else
+      q2 = parts[i]->anim[frame+1];
 
-	if ( q1[1]*q2[1]+q1[2]*q2[2]+q1[3]*q2[3] < 0 )
-	  q2 = -q2;
+    if ( q1[1]*q2[1]+q1[2]*q2[2]+q1[3]*q2[3] < 0 )
+      q2 = -q2;
 
-	vector4F q = q1*(1-(frame-(int)frame))+q2*(frame-(int)frame);
+    vector4F q = q1*(1-(frame-(int)frame))+q2*(frame-(int)frame);
+    */
 
-	vector4F p;
-	p[0] = aff1[3][0]*(1-(frame-(int)frame))+aff2[3][0]*(frame-(int)frame);
-	p[1] = aff1[3][1]*(1-(frame-(int)frame))+aff2[3][1]*(frame-(int)frame);
-	p[2] = aff1[3][2]*(1-(frame-(int)frame))+aff2[3][2]*(frame-(int)frame);
-	p[3] = 1.0;
+    affine4F aff;
+    vector4F pdum, qdum;
 
-	const affine4F &aff = Quaternion2Affine(q, p);
+    pdum[0] = pdum[1] = pdum[2] = 0;
+    pdum[3] = 1.0F;
 
-	glPushMatrix();
+    qdum[0] = 1.0F;
+    qdum[1] = qdum[2] = qdum[3] = 0;
+
+    glPushMatrix();
+      aff = (*origin)[(int)frame];
+      glMultMatrixf((float*)&aff);
+
+      glPushMatrix();
+        p[0] = qanim[1]->origin[0];
+	p[1] = qanim[1]->origin[1];
+	p[2] = qanim[1]->origin[2];
+	p[3] = 1.0F;
+	aff = Quaternion2Affine((*qanim[1])[(int)frame], p);
 	glMultMatrixf((float*)&aff);
-
-	for (int j = 0; ref.numPolygons > j; j++) {
-	    polygon poly = ref.getPolygon(j);
-#if RENDEREDGE
-	    vector3F center(0);
-#endif
-	    glBegin(poly.glBeginSize());
-	    glColor4fv(colors[poly.c()]);
-	    for (int k = 0; poly.size > k; k++) {
-		glNormal3fv((float*)&poly.rn(k));
-#if RENDEREDGE
-		center += poly.rv(k);
-#endif
-		glVertex3fv((float*)&poly.rv(k));
-	    }
-	    glEnd();
-
-#if RENDEREDGE
-	    // stop here if alpha blending is active
-	    if (glIsEnabled(GL_BLEND)) continue;
-
-	    center /= poly.size;
-	    bool culling = glIsEnabled(GL_CULL_FACE)>0;
-	    if (!culling) glEnable(GL_CULL_FACE);
-
-	    glBegin(poly.glBeginSize());
-	    glColor4fv(BLACK);
-
-	    for (int k = poly.size-1; 0 <= k; --k) {
-		vector3F p = poly.rv(k);
-		p -= center;
-		Float l = p.len();
-		p *= 1 + (0.01F/l);
-		p += center;
-		p -= poly.n() * 1e-8F;
-		glVertex3fv((float*)&p);
-	    }
-	    glEnd();
-	    if (!culling) glDisable(GL_CULL_FACE);
-#endif
-	}
+	renderparts(1, false);					/* chest */
+	glPushMatrix();
+	  p[0] = qanim[0]->origin[0];
+	  p[1] = qanim[0]->origin[1];
+	  p[2] = qanim[0]->origin[2];
+	  p[3] = 1.0F;
+	  aff = Quaternion2Affine((*qanim[0])[(int)frame], p);
+	  glMultMatrixf((float*)&aff);
+	  renderparts(0, false);				/* head */
 	glPopMatrix();
-    }
+	glPushMatrix();
+          p[0] = qanim[4]->origin[0];
+	  p[1] = qanim[4]->origin[1];
+	  p[2] = qanim[4]->origin[2];
+	  p[3] = 1.0F;
+	  aff = Quaternion2Affine((*qanim[4])[(int)frame], p);
+	  glMultMatrixf((float*)&aff);
+	  renderparts(4, false);				/* Rshoulder */
+	  renderparts(5, false);				/* Rarm */
+
+	  p[0] = qanim[6]->origin[0];
+	  p[1] = qanim[6]->origin[1];
+	  p[2] = qanim[6]->origin[2];
+	  p[3] = 1.0F;
+	  aff = Quaternion2Affine((*qanim[6])[(int)frame], p);
+	  glMultMatrixf((float*)&aff);
+	  renderparts(6, false);				/* Relbow */
+	  renderparts(7, false);				/* Rforearm */
+
+	  p[0] = qanim[8]->origin[0];
+	  p[1] = qanim[8]->origin[1];
+	  p[2] = qanim[8]->origin[2];
+	  p[3] = 1.0F;
+	  aff = Quaternion2Affine((*qanim[8])[(int)frame], p);
+	  glMultMatrixf((float*)&aff);
+	  renderparts(8, false);				/* Rhand */
+	  renderparts(3, false);				/* racket */
+        glPopMatrix();
+	glPushMatrix();
+          p[0] = qanim[12]->origin[0];
+	  p[1] = qanim[12]->origin[1];
+	  p[2] = qanim[12]->origin[2];
+	  p[3] = 1.0F;
+	  aff = Quaternion2Affine((*qanim[12])[(int)frame], p);
+	  glMultMatrixf((float*)&aff);
+	  renderparts(12, false);				/* Lshoulder */
+	  renderparts(13, false);				/* Larm */
+
+	  p[0] = qanim[14]->origin[0];
+	  p[1] = qanim[14]->origin[1];
+	  p[2] = qanim[14]->origin[2];
+	  p[3] = 1.0F;
+	  aff = Quaternion2Affine((*qanim[14])[(int)frame], p);
+	  glMultMatrixf((float*)&aff);
+	  renderparts(14, false);				/* Lelbow */
+	  renderparts(15, false);				/* Lforearm */
+	  renderparts(16, false);				/* Lhand */
+        glPopMatrix();
+      glPopMatrix();
+      glPushMatrix();
+        p[0] = qanim[2]->origin[0];
+	p[1] = qanim[2]->origin[1];
+	p[2] = qanim[2]->origin[2];
+	p[3] = 1.0F;
+	aff = Quaternion2Affine((*qanim[2])[(int)frame], p);
+	glMultMatrixf((float*)&aff);
+	renderparts(2, false);					/* hip */
+
+	/* Here, legs should be drawn */
+	glTranslatef( 0.0, 0.159459, -1.010000 );
+	drawleg( _xdiff, 0.0, zwaistdiff );
+
+      glPopMatrix();
+    glPopMatrix();
+
     return true;
 }
 
 bool partsmotion::renderWire(double _frame, float xdiff, float ydiff, float zdiff)
 {
     float frame = _frame;
+    float zwaistdiff;
+    float _xdiff = xdiff, _ydiff = ydiff, _zdiff = zdiff;
+    vector3F neck, waist;
 
-    drawleg( xdiff, ydiff, zdiff );
+    zwaistdiff = bodyIK( _xdiff, _ydiff, _zdiff, neck, waist );
+    //zwaistdiff = drawbody( _xdiff, _ydiff, _zdiff, true );
 
-    for (int i = 0; numParts > i; i++) {
-        if ( i == 1 || i == 2 || i == 9 || i == 10 || i == 11 || i == 17 || i == 18 || i == 19 )
-	    continue;
-	const polyhedron &ref = parts[i]->ref;
-	if (0 == ref.numPolygons) continue;
-	const affine4F &aff1 = parts[i]->anim[frame];
-	affine4F aff2;
+    //drawbody( neck, waist, true );
+    //drawleg( _xdiff, 0.0, zwaistdiff, true );
 
-	if ( frame+1 >= 50.0 )
-	  aff2 = parts[i]->anim[frame];
-	else
-	  aff2 = parts[i]->anim[frame+1];
+    glTranslatef( xdiff, ydiff-_ydiff, zdiff-_zdiff );
 
-	vector4F q1 = Affine2Quaternion(aff1);
-	vector4F q2 = Affine2Quaternion(aff2);
+    /* ラケットを所定の位置から ( 0, _ydiff, _zdiff ) だけ移動する */
 
-	if ( q1[1]*q2[1]+q1[2]*q2[2]+q1[3]*q2[3] < 0 )
-	  q2 = -q2;
+    vector4F p;
 
-	vector4F q = q1*(1-(frame-(int)frame))+q2*(frame-(int)frame);
+    /*
+    vector4F q1 = parts[i]->anim[frame];
+    vector4F q2;
 
-	vector4F p;
-	p[0] = aff1[3][0]*(1-(frame-(int)frame))+aff2[3][0]*(frame-(int)frame);
-	p[1] = aff1[3][1]*(1-(frame-(int)frame))+aff2[3][1]*(frame-(int)frame);
-	p[2] = aff1[3][2]*(1-(frame-(int)frame))+aff2[3][2]*(frame-(int)frame);
+    if ( frame+1 >= 50.0 )
+      q2 = parts[i]->anim[frame];
+    else
+      q2 = parts[i]->anim[frame+1];
+
+    if ( q1[1]*q2[1]+q1[2]*q2[2]+q1[3]*q2[3] < 0 )
+      q2 = -q2;
+
+    vector4F q = q1*(1-(frame-(int)frame))+q2*(frame-(int)frame);
+    */
+
+    affine4F aff;
+    vector4F pdum, qdum;
+
+    pdum[0] = pdum[1] = pdum[2] = 0;
+    pdum[3] = 1.0F;
+
+    qdum[0] = 1.0F;
+    qdum[1] = qdum[2] = qdum[3] = 0;
+
+    glPushMatrix();
+      aff = (*origin)[(int)frame];
+      glMultMatrixf((float*)&aff);
+
+      glPushMatrix();
+	p[0] = qanim[1]->origin[0];
+	p[1] = qanim[1]->origin[1];
+	p[2] = qanim[1]->origin[2];
 	p[3] = 1.0F;
-
-	const affine4F &aff = Quaternion2Affine(q, p);
-
-	glPushMatrix();
+	aff = Quaternion2Affine((*qanim[1])[(int)frame], p);
 	glMultMatrixf((float*)&aff);
-
-	affine4F t;
-	glGetFloatv(GL_MODELVIEW_MATRIX, (float*)&t);
-	vector3F origin = vector3F(0) * ~t;
-	
-	glBegin(GL_LINES);
-	for (int j = 0; ref.numEdges > j; j++) {
-	    int p0 = ref.edges[j].p0;
-	    int p1 = ref.edges[j].p1;
-	    bool draw = false;
-	    vector3F v = ref.points[ref.edges[j].v0] - origin;
-	    if (p1 >= 0) {
-		Float i0 = v * ref.planeNormal[p0];
-		Float i1 = v * ref.planeNormal[p1];
-		if (i0 * i1 <= 0) draw = true;
-	    } else {
-#if 0
-                // Draw if the plane is facing toward eye.
-		Float i0 = v * ref.planeNormal[p0];
-		if (i0 <= 0) draw = true;
-#else	
-                // always draw *edge* edges.
-  		draw = true;
-#endif
-	    }
-
-	    if (draw) {
-		vector3F v0 = ref.points[ref.edges[j].v0];// - v * 0.01F;
-		vector3F v1 = ref.points[ref.edges[j].v1];// - v * 0.01F;
-		glVertex3fv((float*)&v0);
-		glVertex3fv((float*)&v1);
-	    }
-	}
-	glEnd();
+	renderparts(1, true);					/* chest */
+	glPushMatrix();
+	  p[0] = qanim[0]->origin[0];
+	  p[1] = qanim[0]->origin[1];
+	  p[2] = qanim[0]->origin[2];
+	  p[3] = 1.0F;
+	  aff = Quaternion2Affine((*qanim[0])[(int)frame], p);
+	  glMultMatrixf((float*)&aff);
+	  renderparts(0, false);				/* head */
 	glPopMatrix();
-    }
+	glPushMatrix();
+	  p[0] = qanim[4]->origin[0];
+	  p[1] = qanim[4]->origin[1];
+	  p[2] = qanim[4]->origin[2];
+	  p[3] = 1.0F;
+	  aff = Quaternion2Affine((*qanim[4])[(int)frame], p);
+	  glMultMatrixf((float*)&aff);
+	  renderparts(4, true);					/* Rshoulder */
+	  renderparts(5, true);					/* Rarm */
+
+	  p[0] = qanim[6]->origin[0];
+	  p[1] = qanim[6]->origin[1];
+	  p[2] = qanim[6]->origin[2];
+	  p[3] = 1.0F;
+	  aff = Quaternion2Affine((*qanim[6])[(int)frame], p);
+	  glMultMatrixf((float*)&aff);
+	  renderparts(6, true);					/* Relbow */
+	  renderparts(7, true);					/* Relbow */
+
+	  p[0] = qanim[8]->origin[0];
+	  p[1] = qanim[8]->origin[1];
+	  p[2] = qanim[8]->origin[2];
+	  p[3] = 1.0F;
+	  aff = Quaternion2Affine((*qanim[8])[(int)frame], p);
+	  glMultMatrixf((float*)&aff);
+	  renderparts(8, true);					/* Rhand */
+	  renderparts(3, true);					/* racket */
+	glPopMatrix();
+	glPushMatrix();
+	  p[0] = qanim[12]->origin[0];
+	  p[1] = qanim[12]->origin[1];
+	  p[2] = qanim[12]->origin[2];
+	  p[3] = 1.0F;
+	  aff = Quaternion2Affine((*qanim[12])[(int)frame], p);
+	  glMultMatrixf((float*)&aff);
+	  renderparts(12, true);				/* Lshoulder */
+	  renderparts(13, true);				/* Larm */
+
+	  p[0] = qanim[14]->origin[0];
+	  p[1] = qanim[14]->origin[1];
+	  p[2] = qanim[14]->origin[2];
+	  p[3] = 1.0F;
+	  aff = Quaternion2Affine((*qanim[14])[(int)frame], p);
+	  glMultMatrixf((float*)&aff);
+	  renderparts(14, true);				/* Lelbow */
+	  renderparts(15, true);				/* Lforearm */
+	  renderparts(16, true);				/* Lhand */
+	glPopMatrix();
+      glPopMatrix();
+      glPushMatrix();
+	p[0] = qanim[2]->origin[0];
+	p[1] = qanim[2]->origin[1];
+	p[2] = qanim[2]->origin[2];
+	p[3] = 1.0F;
+	aff = Quaternion2Affine((*qanim[2])[(int)frame], p);
+	glMultMatrixf((float*)&aff);
+	renderparts(2, true);					/* hip */
+
+	/* Here, legs should be drawn */
+	glTranslatef( 0.0, 0.159459, -1.010000 );
+	drawleg( _xdiff, 0.0, zwaistdiff, true );
+
+      glPopMatrix();
+    glPopMatrix();
+
     return true;
 }
+
+void
+partsmotion::renderparts( int partsNum, bool isWireFrame ) {
+#define c(R,G,B,A) { R/255.0F, G/255.0F, B/255.0F, A/255.0F}
+  static GLfloat colors[][4] = {
+//    { 0.4F, 0.4F, 0.4F, 1.0F},	// C0 default
+    c(250, 188, 137, 127),		// C0 default(skin)
+    c(1, 1, 1, 127),		// C1 eye
+    c(42, 19, 5, 127), 		// C2 hair
+    c(250, 188, 137, 127),		// C3 skin
+//    c(225, 7, 47, 127),		// C4 shirts (red)
+    c(3, 87, 125, 127),		// C4 shirts (blue)
+//    c(2, 13, 24, 127),		// C5 pants  (green)
+    c(0, 0, 0, 127),		// C5 pants  (black)
+    c(102, 7, 3, 127),		// C6 skin/shadow
+    c(255, 0, 0, 127),		// C7 racket/front
+    c(0, 0, 0, 127),		// C8 racket/back
+
+    {-1, -1, -1, -1}		// stop
+  };
+#undef c
+
+  if (isWireFrame) {
+    affine4F t;
+    glGetFloatv(GL_MODELVIEW_MATRIX, (float*)&t);
+    vector3F origin = vector3F(0) * ~t;
+
+    glBegin(GL_LINES);
+    for (int j = 0; polyparts[partsNum]->numEdges > j; j++) {
+      int p0 = polyparts[partsNum]->edges[j].p0;
+      int p1 = polyparts[partsNum]->edges[j].p1;
+      bool draw = false;
+      vector3F v = polyparts[partsNum]->points[polyparts[partsNum]->edges[j].v0] - origin;
+      if (p1 >= 0) {
+	Float i0 = v * polyparts[partsNum]->planeNormal[p0];
+	Float i1 = v * polyparts[partsNum]->planeNormal[p1];
+	if (i0 * i1 <= 0) draw = true;
+      } else {
+#if 0
+	// Draw if the plane is facing toward eye.
+	Float i0 = v * polyparts[partsNum]->planeNormal[p0];
+	if (i0 <= 0) draw = true;
+#else	
+	// always draw *edge* edges.
+	draw = true;
+#endif
+      }
+
+      if (draw) {
+	vector3F v0 = polyparts[partsNum]->points[polyparts[partsNum]->edges[j].v0];// - v * 0.01F;
+	vector3F v1 = polyparts[partsNum]->points[polyparts[partsNum]->edges[j].v1];// - v * 0.01F;
+	glVertex3fv((float*)&v0);
+	glVertex3fv((float*)&v1);
+      }
+    }
+    glEnd();
+  } else {
+    for (int j = 0; polyparts[partsNum]->numPolygons > j; j++) {
+      polygon poly = polyparts[partsNum]->getPolygon(j);
+#if RENDEREDGE
+      vector3F center(0);
+#endif
+      glBegin(poly.glBeginSize());
+      glColor4fv(colors[poly.c()]);
+      for (int k = 0; poly.size > k; k++) {
+      vector3F n = poly.rn(k);
+      vector3F v = poly.rv(k);
+
+#if 0
+      if ( hip[0] > 0 ) {	/* right leg */
+	n[0] = -n[0];
+	v[0] = -v[0];
+      }
+#endif
+
+	glNormal3fv((float*)&n);
+#if RENDEREDGE
+	center += v;
+#endif
+	glVertex3fv((float*)&v);
+      }
+      glEnd();
+
+#if RENDEREDGE
+      // stop here if alpha blending is active
+      if (glIsEnabled(GL_BLEND)) continue;
+
+      center /= poly.size;
+      bool culling = glIsEnabled(GL_CULL_FACE)>0;
+      if (!culling) glEnable(GL_CULL_FACE);
+
+      glBegin(poly.glBeginSize());
+      glColor4fv(BLACK);
+
+      for (int k = poly.size-1; 0 <= k; --k) {
+	vector3F p = poly.rv(k);
+	p -= center;
+	Float l = p.len();
+	p *= 1 + (0.01F/l);
+	p += center;
+	p -= poly.n() * 1e-8F;
+	glVertex3fv((float*)&p);
+      }
+      glEnd();
+      if (!culling) glDisable(GL_CULL_FACE);
+#endif
+    }
+  }
+}
+
 
 // http://skal.planet-d.net/demo/matrixfaq.htm#Q46
 vector4F
@@ -1196,6 +1455,7 @@ Quaternion2Affine(vector4F v, vector4F p) {
   return ret;
 }
 
+
 #if 0
 /***********************************************************************
  *	test
@@ -1208,6 +1468,7 @@ int main(int argc, char *argv[])
     snprintf(aff, sizeof(aff), "%s.affine", argv[1]);
 
     affinemotion pa(ref, aff);
+
     printf("load\n");
     pa.write(argv[2]);
     printf("write\n");
