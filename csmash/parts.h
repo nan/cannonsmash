@@ -252,8 +252,30 @@ public:
     inline const vector4F& operator[](int i) const {
 	return quaternions[i];
     }
+    inline const vector4F operator[](float i) const {
+	if ( i == (int)i ) {
+	    return quaternions[(int)i];
+	} else {
+	    vector4F q1 = quaternions[(int)i];
+	    vector4F q2 = quaternions[(int)i+1];
+	    if ( q1[1]*q2[1]+q1[2]*q2[2]+q1[3]*q2[3] < 0 )
+	        q2 = -q2;
+	    return q1*(1-(i-(int)i)) + q2*(i-(int)i);
+	}
+    }
     inline vector4F& operator [](int i) {
 	return quaternions[i];
+    }
+    inline vector4F operator[](float i) {
+	if ( i == (int)i ) {
+	    return quaternions[(int)i];
+	} else {
+	    vector4F q1 = quaternions[(int)i];
+	    vector4F q2 = quaternions[(int)i+1];
+	    if ( q1[1]*q2[1]+q1[2]*q2[2]+q1[3]*q2[3] < 0 )
+	        q2 = -q2;
+	    return q1*(1-(i-(int)i)) + q2*(i-(int)i);
+	}
     }
 };
 

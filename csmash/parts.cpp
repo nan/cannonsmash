@@ -184,7 +184,7 @@ polyhedron::polyhedron(const char* filename)
 	if (!token) continue;
 	if (streq("point", token)) {
 	    int num = atoi(strtok(NULL, delim));
-	    if (vertex.capacity() <= numPoints) {
+	    if ((int)vertex.capacity() <= numPoints) {
 		printf(_("%s:%d vertex buffer overflow\n"), __FILE__, __LINE__);
 		exit(5);
 	    }
@@ -206,7 +206,7 @@ polyhedron::polyhedron(const char* filename)
 	}
 	elif (streq("plane", token)) {
 	    int i = 0;
-	    if (loop.capacity() <= numPolygons) {
+	    if ((int)loop.capacity() <= numPolygons) {
 		printf(_("%s:%d loop buffer overflow\n"), __FILE__, __LINE__);
 		exit(5);
 	    }
@@ -481,7 +481,7 @@ affineanim::affineanim(const char *filename)
 		    if (token) t[i][j] = (float)strtod(token, NULL);
 		}
 	    }
-	    if (mat.capacity() <= numFrames) {
+	    if ((int)mat.capacity() <= numFrames) {
 		printf(_("%s:%d matrix buffer overflow\n"), __FILE__, __LINE__);
 		exit(5);
 	    }
@@ -609,23 +609,6 @@ partsmotion::legIK( vector3F hip, vector3F &knee, vector3F &heel, vector3F toe,
 
   vector3F _hip, _knee, _heel, _toe;
   vector3F _heel2, _toe2;
-
-#define c(R,G,B,A) { R/255.0F, G/255.0F, B/255.0F, A/255.0F}
-  static GLfloat colors[][4] = {
-    c(250, 188, 137, 127),	// C0 default(skin)
-    c(1, 1, 1, 127),		// C1 eye
-    c(42, 19, 5, 127), 		// C2 hair
-    c(250, 188, 137, 127),	// C3 skin
-    c(3, 87, 125, 127),		// C4 shirts (blue)
-    c(0, 0, 0, 127),		// C5 pants  (black)
-    c(102, 7, 3, 127),		// C6 skin/shadow
-    c(255, 0, 0, 127),		// C7 racket/front
-    c(0, 0, 0, 127),		// C8 racket/back
-
-    {-1, -1, -1, -1}		// stop
-  };
-#undef c
-
 
   glPushMatrix();
   /* hip が原点に来るよう平行移動 */
@@ -848,23 +831,6 @@ float bodyIK( float &xdiff, float &ydiff, float &zdiff,
 void
 partsmotion::drawbody( vector3F neck, vector3F waist, 
 		       bool isWireFrame = false ) {
-
-#define c(R,G,B,A) { R/255.0F, G/255.0F, B/255.0F, A/255.0F}
-  static GLfloat colors[][4] = {
-    c(250, 188, 137, 127),	// C0 default(skin)
-    c(1, 1, 1, 127),		// C1 eye
-    c(42, 19, 5, 127), 		// C2 hair
-    c(250, 188, 137, 127),	// C3 skin
-    c(3, 87, 125, 127),		// C4 shirts (blue)
-    c(0, 0, 0, 127),		// C5 pants  (black)
-    c(102, 7, 3, 127),		// C6 skin/shadow
-    c(255, 0, 0, 127),		// C7 racket/front
-    c(0, 0, 0, 127),		// C8 racket/back
-
-    {-1, -1, -1, -1}		// stop
-  };
-#undef c
-
   glPushMatrix();
   glTranslatef( waist[0], waist[1], waist[2] );
 
@@ -939,117 +905,26 @@ partsmotion::~partsmotion()
     
 bool partsmotion::render(int frame, float xdiff, float ydiff, float zdiff)
 {
-#define c(R,G,B,A) { R/255.0F, G/255.0F, B/255.0F, A/255.0F}
-    static GLfloat colors[][4] = {
-//	{ 0.4F, 0.4F, 0.4F, 1.0F},	// C0 default
-	c(250, 188, 137, 127),		// C0 default(skin)
-	c(1, 1, 1, 127),		// C1 eye
-	c(42, 19, 5, 127), 		// C2 hair
-	c(250, 188, 137, 127),		// C3 skin
-//	c(225, 7, 47, 127),		// C4 shirts (red)
-	c(3, 87, 125, 127),		// C4 shirts (blue)
-//	c(2, 13, 24, 127),		// C5 pants  (green)
-	c(0, 0, 0, 127),		// C5 pants  (black)
-	c(102, 7, 3, 127),		// C6 skin/shadow
-	c(255, 0, 0, 127),		// C7 racket/front
-	c(0, 0, 0, 127),		// C8 racket/back
-
-	{-1, -1, -1, -1}		// stop
-    };
-#undef c
-    GLfloat BLACK[4] = { 0,0,0,1 };
-
-    drawleg( xdiff, ydiff, zdiff );
-
-#if 0
-    for (int i = 0; numParts > i; i++) {
-        if ( i == 0 || i == 1 || i == 2 || i == 9 || i == 10 || i == 11 || i == 17 || i == 18 || i == 19 )
-	    continue;
-	if (0 == parts[i]->ref.numPolygons) continue;
-	const affine4F &aff = parts[i]->anim[frame];
-	glPushMatrix();
-	glMultMatrixf((float*)&aff);
-
-	renderparts(i, false);
-
-	glPopMatrix();
-    }
-#endif
-    return true;
+    return render( (double)frame, xdiff, ydiff, zdiff );
 }
 
 bool partsmotion::renderWire(int frame, float xdiff, float ydiff, float zdiff)
 {
-    drawleg( xdiff, ydiff, zdiff );
-
-#if 0
-    for (int i = 0; numParts > i; i++) {
-        if ( i == 0 || i == 1 || i == 2 || i == 9 || i == 10 || i == 11 || i == 17 || i == 18 || i == 19 )
-	    continue;
-	if (0 == parts[i]->ref.numPolygons) continue;
-	const affine4F &aff = parts[i]->anim[frame];
-	glPushMatrix();
-	glMultMatrixf((float*)&aff);
-
-	renderparts(i, true);
-	glPopMatrix();
-    }
-#endif
-
-    return true;
+    return renderWire( (double)frame, xdiff, ydiff, zdiff );
 }
 
 bool partsmotion::render(double _frame, float xdiff, float ydiff, float zdiff)
 {
     float frame = _frame;
-#define c(R,G,B,A) { R/255.0F, G/255.0F, B/255.0F, A/255.0F}
-    static GLfloat colors[][4] = {
-//	{ 0.4F, 0.4F, 0.4F, 1.0F},	// C0 default
-	c(250, 188, 137, 127),		// C0 default(skin)
-	c(1, 1, 1, 127),		// C1 eye
-	c(42, 19, 5, 127), 		// C2 hair
-	c(250, 188, 137, 127),		// C3 skin
-//	c(225, 7, 47, 127),		// C4 shirts (red)
-	c(3, 87, 125, 127),		// C4 shirts (blue)
-//	c(2, 13, 24, 127),		// C5 pants  (green)
-	c(0, 0, 0, 127),		// C5 pants  (black)
-	c(102, 7, 3, 127),		// C6 skin/shadow
-	c(255, 0, 0, 127),		// C7 racket/front
-	c(0, 0, 0, 127),		// C8 racket/back
-
-	{-1, -1, -1, -1}		// stop
-    };
-#undef c
-    GLfloat BLACK[4] = { 0,0,0,1 };
     float zwaistdiff;
     float _xdiff = xdiff, _ydiff = ydiff, _zdiff = zdiff;
     vector3F neck, waist;
 
     zwaistdiff = bodyIK( _xdiff, _ydiff, _zdiff, neck, waist );
-    //drawbody( neck, waist );
-
-    //drawleg( _xdiff, 0.0, zwaistdiff );
 
     glTranslatef( xdiff, ydiff-_ydiff, zdiff-_zdiff );
 
-    /* ラケットを所定の位置から ( 0, _ydiff, _zdiff ) だけ移動する */
-
     vector4F p;
-
-    /*
-    vector4F q1 = parts[i]->anim[frame];
-    vector4F q2;
-
-    if ( frame+1 >= 50.0 )
-      q2 = parts[i]->anim[frame];
-    else
-      q2 = parts[i]->anim[frame+1];
-
-    if ( q1[1]*q2[1]+q1[2]*q2[2]+q1[3]*q2[3] < 0 )
-      q2 = -q2;
-
-    vector4F q = q1*(1-(frame-(int)frame))+q2*(frame-(int)frame);
-    */
 
     affine4F aff;
     vector4F pdum, qdum;
@@ -1069,7 +944,7 @@ bool partsmotion::render(double _frame, float xdiff, float ydiff, float zdiff)
 	p[1] = qanim[1]->origin[1];
 	p[2] = qanim[1]->origin[2];
 	p[3] = 1.0F;
-	aff = Quaternion2Affine((*qanim[1])[(int)frame], p);
+	aff = Quaternion2Affine((*qanim[1])[frame], p);
 	glMultMatrixf((float*)&aff);
 	renderparts(1, false);					/* chest */
 	glPushMatrix();
@@ -1077,7 +952,7 @@ bool partsmotion::render(double _frame, float xdiff, float ydiff, float zdiff)
 	  p[1] = qanim[0]->origin[1];
 	  p[2] = qanim[0]->origin[2];
 	  p[3] = 1.0F;
-	  aff = Quaternion2Affine((*qanim[0])[(int)frame], p);
+	  aff = Quaternion2Affine((*qanim[0])[frame], p);
 	  glMultMatrixf((float*)&aff);
 	  renderparts(0, false);				/* head */
 	glPopMatrix();
@@ -1086,7 +961,7 @@ bool partsmotion::render(double _frame, float xdiff, float ydiff, float zdiff)
 	  p[1] = qanim[4]->origin[1];
 	  p[2] = qanim[4]->origin[2];
 	  p[3] = 1.0F;
-	  aff = Quaternion2Affine((*qanim[4])[(int)frame], p);
+	  aff = Quaternion2Affine((*qanim[4])[frame], p);
 	  glMultMatrixf((float*)&aff);
 	  renderparts(4, false);				/* Rshoulder */
 	  renderparts(5, false);				/* Rarm */
@@ -1095,7 +970,7 @@ bool partsmotion::render(double _frame, float xdiff, float ydiff, float zdiff)
 	  p[1] = qanim[6]->origin[1];
 	  p[2] = qanim[6]->origin[2];
 	  p[3] = 1.0F;
-	  aff = Quaternion2Affine((*qanim[6])[(int)frame], p);
+	  aff = Quaternion2Affine((*qanim[6])[frame], p);
 	  glMultMatrixf((float*)&aff);
 	  renderparts(6, false);				/* Relbow */
 	  renderparts(7, false);				/* Rforearm */
@@ -1104,7 +979,7 @@ bool partsmotion::render(double _frame, float xdiff, float ydiff, float zdiff)
 	  p[1] = qanim[8]->origin[1];
 	  p[2] = qanim[8]->origin[2];
 	  p[3] = 1.0F;
-	  aff = Quaternion2Affine((*qanim[8])[(int)frame], p);
+	  aff = Quaternion2Affine((*qanim[8])[frame], p);
 	  glMultMatrixf((float*)&aff);
 	  renderparts(8, false);				/* Rhand */
 	  renderparts(3, false);				/* racket */
@@ -1114,7 +989,7 @@ bool partsmotion::render(double _frame, float xdiff, float ydiff, float zdiff)
 	  p[1] = qanim[12]->origin[1];
 	  p[2] = qanim[12]->origin[2];
 	  p[3] = 1.0F;
-	  aff = Quaternion2Affine((*qanim[12])[(int)frame], p);
+	  aff = Quaternion2Affine((*qanim[12])[frame], p);
 	  glMultMatrixf((float*)&aff);
 	  renderparts(12, false);				/* Lshoulder */
 	  renderparts(13, false);				/* Larm */
@@ -1123,7 +998,7 @@ bool partsmotion::render(double _frame, float xdiff, float ydiff, float zdiff)
 	  p[1] = qanim[14]->origin[1];
 	  p[2] = qanim[14]->origin[2];
 	  p[3] = 1.0F;
-	  aff = Quaternion2Affine((*qanim[14])[(int)frame], p);
+	  aff = Quaternion2Affine((*qanim[14])[frame], p);
 	  glMultMatrixf((float*)&aff);
 	  renderparts(14, false);				/* Lelbow */
 	  renderparts(15, false);				/* Lforearm */
@@ -1135,7 +1010,7 @@ bool partsmotion::render(double _frame, float xdiff, float ydiff, float zdiff)
 	p[1] = qanim[2]->origin[1];
 	p[2] = qanim[2]->origin[2];
 	p[3] = 1.0F;
-	aff = Quaternion2Affine((*qanim[2])[(int)frame], p);
+	aff = Quaternion2Affine((*qanim[2])[frame], p);
 	glMultMatrixf((float*)&aff);
 	renderparts(2, false);					/* hip */
 
@@ -1157,31 +1032,12 @@ bool partsmotion::renderWire(double _frame, float xdiff, float ydiff, float zdif
     vector3F neck, waist;
 
     zwaistdiff = bodyIK( _xdiff, _ydiff, _zdiff, neck, waist );
-    //zwaistdiff = drawbody( _xdiff, _ydiff, _zdiff, true );
-
-    //drawbody( neck, waist, true );
-    //drawleg( _xdiff, 0.0, zwaistdiff, true );
 
     glTranslatef( xdiff, ydiff-_ydiff, zdiff-_zdiff );
 
     /* ラケットを所定の位置から ( 0, _ydiff, _zdiff ) だけ移動する */
 
     vector4F p;
-
-    /*
-    vector4F q1 = parts[i]->anim[frame];
-    vector4F q2;
-
-    if ( frame+1 >= 50.0 )
-      q2 = parts[i]->anim[frame];
-    else
-      q2 = parts[i]->anim[frame+1];
-
-    if ( q1[1]*q2[1]+q1[2]*q2[2]+q1[3]*q2[3] < 0 )
-      q2 = -q2;
-
-    vector4F q = q1*(1-(frame-(int)frame))+q2*(frame-(int)frame);
-    */
 
     affine4F aff;
     vector4F pdum, qdum;
@@ -1201,7 +1057,7 @@ bool partsmotion::renderWire(double _frame, float xdiff, float ydiff, float zdif
 	p[1] = qanim[1]->origin[1];
 	p[2] = qanim[1]->origin[2];
 	p[3] = 1.0F;
-	aff = Quaternion2Affine((*qanim[1])[(int)frame], p);
+	aff = Quaternion2Affine((*qanim[1])[frame], p);
 	glMultMatrixf((float*)&aff);
 	renderparts(1, true);					/* chest */
 	glPushMatrix();
@@ -1209,7 +1065,7 @@ bool partsmotion::renderWire(double _frame, float xdiff, float ydiff, float zdif
 	  p[1] = qanim[0]->origin[1];
 	  p[2] = qanim[0]->origin[2];
 	  p[3] = 1.0F;
-	  aff = Quaternion2Affine((*qanim[0])[(int)frame], p);
+	  aff = Quaternion2Affine((*qanim[0])[frame], p);
 	  glMultMatrixf((float*)&aff);
 	  renderparts(0, true);					/* head */
 	glPopMatrix();
@@ -1218,7 +1074,7 @@ bool partsmotion::renderWire(double _frame, float xdiff, float ydiff, float zdif
 	  p[1] = qanim[4]->origin[1];
 	  p[2] = qanim[4]->origin[2];
 	  p[3] = 1.0F;
-	  aff = Quaternion2Affine((*qanim[4])[(int)frame], p);
+	  aff = Quaternion2Affine((*qanim[4])[frame], p);
 	  glMultMatrixf((float*)&aff);
 	  renderparts(4, true);					/* Rshoulder */
 	  renderparts(5, true);					/* Rarm */
@@ -1227,7 +1083,7 @@ bool partsmotion::renderWire(double _frame, float xdiff, float ydiff, float zdif
 	  p[1] = qanim[6]->origin[1];
 	  p[2] = qanim[6]->origin[2];
 	  p[3] = 1.0F;
-	  aff = Quaternion2Affine((*qanim[6])[(int)frame], p);
+	  aff = Quaternion2Affine((*qanim[6])[frame], p);
 	  glMultMatrixf((float*)&aff);
 	  renderparts(6, true);					/* Relbow */
 	  renderparts(7, true);					/* Relbow */
@@ -1236,7 +1092,7 @@ bool partsmotion::renderWire(double _frame, float xdiff, float ydiff, float zdif
 	  p[1] = qanim[8]->origin[1];
 	  p[2] = qanim[8]->origin[2];
 	  p[3] = 1.0F;
-	  aff = Quaternion2Affine((*qanim[8])[(int)frame], p);
+	  aff = Quaternion2Affine((*qanim[8])[frame], p);
 	  glMultMatrixf((float*)&aff);
 	  renderparts(8, true);					/* Rhand */
 	  renderparts(3, true);					/* racket */
@@ -1246,7 +1102,7 @@ bool partsmotion::renderWire(double _frame, float xdiff, float ydiff, float zdif
 	  p[1] = qanim[12]->origin[1];
 	  p[2] = qanim[12]->origin[2];
 	  p[3] = 1.0F;
-	  aff = Quaternion2Affine((*qanim[12])[(int)frame], p);
+	  aff = Quaternion2Affine((*qanim[12])[frame], p);
 	  glMultMatrixf((float*)&aff);
 	  renderparts(12, true);				/* Lshoulder */
 	  renderparts(13, true);				/* Larm */
@@ -1255,7 +1111,7 @@ bool partsmotion::renderWire(double _frame, float xdiff, float ydiff, float zdif
 	  p[1] = qanim[14]->origin[1];
 	  p[2] = qanim[14]->origin[2];
 	  p[3] = 1.0F;
-	  aff = Quaternion2Affine((*qanim[14])[(int)frame], p);
+	  aff = Quaternion2Affine((*qanim[14])[frame], p);
 	  glMultMatrixf((float*)&aff);
 	  renderparts(14, true);				/* Lelbow */
 	  renderparts(15, true);				/* Lforearm */
@@ -1267,7 +1123,7 @@ bool partsmotion::renderWire(double _frame, float xdiff, float ydiff, float zdif
 	p[1] = qanim[2]->origin[1];
 	p[2] = qanim[2]->origin[2];
 	p[3] = 1.0F;
-	aff = Quaternion2Affine((*qanim[2])[(int)frame], p);
+	aff = Quaternion2Affine((*qanim[2])[frame], p);
 	glMultMatrixf((float*)&aff);
 	renderparts(2, true);					/* hip */
 
