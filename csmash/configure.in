@@ -6,6 +6,7 @@ AC_CONFIG_SRCDIR(main.cpp)
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE(csmash, 0.6.5)
 AM_CONFIG_HEADER(config.h)
+AM_GNU_GETTEXT([external])
 
 dnl this must be defined before AM_GNU_GETTEXT
 ALL_LINGUAS="de ja"
@@ -13,7 +14,6 @@ ALL_LINGUAS="de ja"
 dnl Checks for programs.
 AC_PROG_CXX
 AC_PATH_PROG(GZIP, gzip)
-AM_GNU_GETTEXT
 
 AC_PATH_X
 
@@ -79,18 +79,16 @@ dnl Checks for library functions.
 dnl moved to makefile.am
 dnl AC_DEFINE_UNQUOTED(CANNONSMASH_DATADIR, "@prefix@/share/$PACKAGE/")
 
-AC_OUTPUT([makefile \
-	Parts/makefile \
-	Parts/Bcut/makefile \
-	Parts/Bnormal/makefile \
-	Parts/Bpeck/makefile \
-	Parts/Fcut/makefile \
-	Parts/Fdrive/makefile \
-	Parts/Fnormal/makefile \
-	Parts/Fpeck/makefile \
-	Parts/Fsmash/makefile \
-	images/makefile \
-	wav/makefile \
-	win32/makefile \
-	intl/Makefile \
-	po/Makefile.in ])
+AC_OUTPUT([Makefile  m4/Makefile \
+	Parts/Makefile \
+	Parts/Bcut/Makefile \
+	Parts/Bnormal/Makefile \
+	Parts/Bpeck/Makefile \
+	Parts/Fcut/Makefile \
+	Parts/Fdrive/Makefile \
+	Parts/Fnormal/Makefile \
+	Parts/Fpeck/Makefile \
+	Parts/Fsmash/Makefile \
+	images/Makefile \
+	wav/Makefile \
+	win32/Makefile ])

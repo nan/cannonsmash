@@ -39,8 +39,10 @@ csmash_SOURCES = main.cpp Launcher.cpp LobbyClient.cpp Ball.cpp Event.cpp \
 		LobbyClientView.h LauncherView.h
 
 DEFS = -DLOCALEDIR=\"$(localedir)\" -DCANNONSMASH_DATADIR=\"$(pkgdatadir)\" @DEFS@
-LIBS = @INTLLIBS@ @LIBS@
+LIBS = @LIBINTL@ @LIBS@
 #INCLUDES = $(INCLUDES) -I../intl -I$(top_srcdir)/intl
 
-SUBDIRS = intl Parts images wav win32 po
-EXTRA_DIST = README.en README.nt Makefile.nt CREDITS csmash.spec
+SUBDIRS = m4  Parts images wav win32 po
+EXTRA_DIST = config.rpath  config.rpath  README.en README.nt Makefile.nt CREDITS csmash.spec
+
+ACLOCAL_AMFLAGS = -I m4
