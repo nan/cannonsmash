@@ -3,14 +3,14 @@
 # $Id$
 #
 ############################################################################
-.SUFFIXES: .exe .so .dll .a .lib .o .obj .cpp .cc .c .asm .s .y .h .l
+.SUFFIXES: .exe .so .dll .a .lib .o .obj .cpp .cc .c .asm .s .y .pch .h .l
 
 .c.obj:
-	$(CC) $(CFLAGS) $(Cpost) $<
+	$(CC) $(CFLAGS) $(IFLAGS) $(Cpost) $<
 .cpp.obj:
-	$(CXX) $(CXXFLAGS) $(CXXpost) $<
+	$(CXX) $(CXXFLAGS) $(IFLAGS) $(CXXpost) $<
 .cc.obj:
-	$(CXX) $(CXXFLAGS) $(CXXpost) $<
+	$(CXX) $(CXXFLAGS) $(IFLAGS) $(CXXpost) $<
 
 ############################################################################
 CC = cl -nologo -W3
@@ -19,11 +19,12 @@ CXX = $(CC)
 Cpost = -c -Tc
 CXXpost = -c -Tp
 
-#CFLAGS = -MD -Ox -G6 -vms $(INCDIRS)
-CFLAGS = -MD -Ox -G6 -vms -DHAVE_LIBZ -DHAVE_LIBSDL_MIXER $(INCDIRS)
-#CFLAGS = -MD -Od -Zi -G6 -vms -DHAVE_LIBZ $(INCDIRS)
+CFLAGS = -MD -Ox -G6 -vms $(DFLAGS) $(INCDIRS)
+#CFLAGS = -MD -Od -Zi -G6 -vms $(DFLAGS) $(INCDIRS)
 
 CXXFLAGS=$(CFLAGS) -GX
+
+IFLAGS	= -Yuttinc.h
 
 O = obj
 A = lib
@@ -32,8 +33,9 @@ EXE = .exe
 AOUT = -Fe
 
 ############################################################################
-
+DFLAGS = -DHAVE_LIBZ -DHAVE_LIBSDL_MIXER
 INCDIRS = -I. -I./glib/ -I./gdk/
+
 LIBS =	win32/GetArgs.obj win32/getopt.obj win32/wsaerror.obj \
 	win32/wsainit.obj win32/csmash.res \
 	SDL.lib SDL_mixer.lib opengl32.lib glu32.lib zlib.lib \
@@ -59,7 +61,7 @@ TARGET = csmash$(EXE)
 ############################################################################
 all: $(TARGET)
 clean:
-	rm -f $(TARGET) *.$(O)
+	rm -f $(TARGET) *.$(O) *.pch
 	cd win32; $(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" clean
 distclean:
 	rm -f $(TARGET) *.$(O) *~ *.bak depend.nt
@@ -74,6 +76,11 @@ depend:
 
 $(TARGET): $(OBJS) win32/all
 	$(CC) $(CFLAGS) $(AOUT)$@ $(OBJS) $(LIBS)
+
+$(OBJS) : ttinc.pch
+
+ttinc.pch: ttinc.h ttinc.cpp
+	$(CXX) $(CXXFLAGS) $(IFLAGS) -Ycttinc.h $(CXXpost) ttinc.cpp
 
 win32/all:
 	cd win32 && $(MAKE) -f Makefile.nt CFLAGS="$(CFLAGS)" all

@@ -7,16 +7,15 @@
  *	the "Artistic license". See "ARTISTIC" for detail.
  *
  ***********************************************************************/
+#include "ttinc.h"
+
 #include <stdio.h>
 #include <errno.h>
 #include <stdarg.h>
 #include <string.h>
 
 #ifdef _WIN32
-#include "win32/minwin32.h"
-#include <winsock2.h>
 #include <iostream>
-
 #include "win32/wsaerror.h"
 #endif
 

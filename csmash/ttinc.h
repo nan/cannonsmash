@@ -19,11 +19,11 @@
 #ifndef _ttinc_
 #define _ttinc_
 
-#define CSMASH_PORT	3573	// TCP Port num. 
-
 #ifdef _WIN32
 #define WIN32
 #endif
+
+#define CSMASH_PORT	3573	// TCP Port num. 
 
 // Window size
 #define WINXSIZE	800
@@ -126,14 +126,16 @@
 enum level {LEVEL_EASY, LEVEL_NORMAL, LEVEL_HARD, LEVEL_TSUBORISH};
 enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 
-#ifdef WIN32
+#ifdef _WIN32
+#define NOMINMAX
+#define VC_EXTRALEAN
 #include <winsock2.h>
 #include <windows.h>
 #include <io.h>
 #include <direct.h>
+
 #define F_OK 0 /* if exist */
-#else
-#define closesocket(FD) close(FD)
+#define snprintf _snprintf
 #endif
 
 #ifdef HAVE_UNISTD_H
@@ -141,16 +143,23 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 #endif
 
 #include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include <float.h>
 #include <stdlib.h>
+#include <sys/types.h>
 #include <sys/timeb.h>
 #include <fcntl.h>
+#include <string.h>
+#include <ctype.h>
+#include <math.h>
+#include <float.h>
+
 #ifndef WIN32
 #include <sys/time.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#define closesocket(A) close(A)
 #endif
-#include <ctype.h>
 
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -158,14 +167,6 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 #ifdef HAVE_LIBZ
 #include <sys/stat.h>
 #include "z.h"
-#endif
-
-#include <sys/types.h>
-#ifndef WIN32
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
 #endif
 
 #include <SDL/SDL.h>

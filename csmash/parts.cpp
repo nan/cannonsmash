@@ -7,13 +7,6 @@
  *	the "Artistic license". See "ARTISTIC" for detail.
  *
  ***********************************************************************/
-#ifdef _WIN32
-# include "win32/minwin32.h"
-# ifdef _MSC_VER
-#  pragma warning(disable: 4786)
-# endif
-#endif
-
 #include "ttinc.h"
 
 #include <iostream>

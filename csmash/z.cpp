@@ -18,13 +18,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  ***********************************************************************/
-#ifdef HAVE_LIBZ
-
-#ifdef _WIN32
-#include <io.h>
-#endif
-
 #include "ttinc.h"
+#ifdef HAVE_LIBZ
 
 gzFile gzopenx(const char *filename, const char *mode) {
   int fd, m = 0;
