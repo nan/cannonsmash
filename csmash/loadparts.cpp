@@ -479,15 +479,15 @@ bool polyhedron_parts::assign(parts* a)
 
 void polyhedron_parts::render() const
 {
-    GLbyte NanTheBLACK[4] = { 0, 0, 0, 1 };
-    GLbyte ManOfVirtue[4] = { (GLbyte)255, (GLbyte)255, (GLbyte)255, 1 };
+    float NanTheBLACK[4] = { 0, 0, 0, 1 };
+    float ManOfVirtue[4] = { 1, 1, 1, 1 };
 
     polyhedron &poly = *object;
     if (tex) tex->realize();
     if (tex && poly.texcoord && tex->object) {
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, tex->object);
-	glColor4bv(ManOfVirtue);
+	glColor4fv(ManOfVirtue);
 	for (int i = 0; poly.numPolygons > i; ++i) {
 	    const polygon &face = poly.getPolygon(i);
 	    glBegin(face.glBeginSize());
@@ -504,7 +504,8 @@ void polyhedron_parts::render() const
 	    const polygon &face = poly.getPolygon(i);
 	    glBegin(face.glBeginSize());
 	    for (int j = 0; face.size > j; ++j) {
-		glColor4bv((const GLbyte*)&poly.cmap[face.c()]);
+//		glColor4bv((const GLbyte*)&poly.cmap[face.c()]);
+		poly.cmap[face.c()].glBind();
 		glNormal3fv((float*)&face.rn(j));
 		glVertex3fv((float*)&face.rv(j));
 	    }

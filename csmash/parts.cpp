@@ -69,7 +69,7 @@ END_ANONYMOUS
  ***********************************************************************/
 bool colormap::load(const char *file)
 {
-    fill(color4b(128,128,128));
+    fill(color_t(128,128,128));
     FILE *fp = fopen(file, "r");
     if (!fp) return false;
     do {
@@ -87,9 +87,9 @@ bool colormap::load(const char *file)
 	int a = (token && '#' != *token) ? atoi(token) : 255;
 
 	if (0 > num) {
-	    fill(color4b(r, g, b, a));
+	    fill(color_t(r, g, b, a));
 	} else {
-	    map[clamp(0, num, 255)] = color4b(r, g, b, a);
+	    map[clamp(0, num, map_size-1)] = color_t(r, g, b, a);
 	}
     } while (!ferror(fp));
     fclose(fp);
@@ -200,19 +200,20 @@ polyhedron::~polyhedron()
 
 void polyhedron::initColormap()
 {
-    cmap.fill(color4b(128));	// default to be gray
+    typedef colormap::color_t color_t;
+    cmap.fill(color_t(128));	// default to be gray
 
-    cmap[0] = color4b(250, 188, 137);	// C0 skin
-    cmap[1] = color4b(1);		// C1 eye
-    cmap[2] = color4b(42, 19, 5);	// C2 hair
-    cmap[3] = color4b(250, 188, 137);	// C3 skin
-//    cmap[4] = color4b(225, 7, 47);	// C4 shirts (red)
-    cmap[4] = color4b(3, 87, 125);	// C4 shirts (blue)
-//    cmap[5] = color4b(2, 13, 24);	// C5 pants  (green)
-    cmap[5] = color4b(0);		// C5 pants  (black)
-    cmap[6] = color4b(102, 7, 3);	// C6 skin/shadow
-    cmap[7] = color4b(255, 0, 0);	// C7 racket/front
-    cmap[8] = color4b(0);		// C8 racket/back
+    cmap[0] = color_t(250, 188, 137);	// C0 skin
+    cmap[1] = color_t(1);		// C1 eye
+    cmap[2] = color_t(42, 19, 5);	// C2 hair
+    cmap[3] = color_t(250, 188, 137);	// C3 skin
+//    cmap[4] = color_t(225, 7, 47);	// C4 shirts (red)
+    cmap[4] = color_t(3, 87, 125);	// C4 shirts (blue)
+//    cmap[5] = color_t(2, 13, 24);	// C5 pants  (green)
+    cmap[5] = color_t(0);		// C5 pants  (black)
+    cmap[6] = color_t(102, 7, 3);	// C6 skin/shadow
+    cmap[7] = color_t(255, 0, 0);	// C7 racket/front
+    cmap[8] = color_t(0);		// C8 racket/back
 }
 
 // normal vectors are destroyed

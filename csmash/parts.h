@@ -44,18 +44,44 @@ public:
     void glBind() const { glColor4bv((const GLbyte*)element_array()); }
 };
 
+class color4f
+{
+public:
+    typedef unsigned char element_t;
+    enum {
+	element_size = 4,
+    };
+
+    float r, g, b, a;
+
+    inline color4f() {}
+    inline color4f(int i, int a=255) : r(i/255.0F), g(i/255.0F), b(i/255.0F), a(a/255.0F) {}
+    inline color4f(int r, int g, int b, int a=255) :
+      r(r/255.0F), g(g/255.0F), b(b/255.0F), a(a/255.0F) {}
+
+    float* element_array() { return (float*)this; }
+    const float* element_array() const { return (float*)this; }
+
+    void glBind() const { glColor4fv(element_array()); }
+};
+
 class colormap
 {
 public:
+    typedef color4f color_t;
+    enum {
+	map_size = 256,
+    };
+
     bool load(const char *file);
-    void fill(const color4b& c) {
-	std::fill(&map[0], &map[256], c);
+    void fill(const color_t& c) {
+	std::fill(&map[0], &map[map_size], c);
     }
-    inline color4b& operator [](int i) { return map[i]; }
-    inline const color4b& operator [](int i) const { return map[i]; }
+    inline color_t& operator [](int i) { return map[i]; }
+    inline const color_t& operator [](int i) const { return map[i]; }
 
 public:
-    color4b map[256];
+    color_t map[map_size];
 };
 
 class polygon;
