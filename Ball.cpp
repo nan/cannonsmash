@@ -334,7 +334,11 @@ Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
   //  return true;
   //}
   if ( player == comPlayer && mode == MODE_MULTIPLAY ) {
-    printf( "Hit : %f %f %f %f %f %f %f\n", m_x, m_y, m_z, vx, vy, vz, spin );
+    printf( "Hit: sec = %d count = %d\n",
+	    Event::m_lastTime.time, Event::m_lastTime.millitm);
+    printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n", m_x, m_y, m_z, vx, vy, vz );
+
+    fflush(0);
   }
 
   m_spin = spin;
@@ -354,7 +358,7 @@ Ball::Hit( double vx, double vy, double vz, double spin, Player *player ) {
   m_vz = vz;
 
   if ( player == thePlayer && mode == MODE_MULTIPLAY ) {
-    theEvent.SendPlayer( player );
+    //theEvent.SendPlayer( player );
     theEvent.SendBall();
   }
 

@@ -500,11 +500,9 @@ Event::ReadData() {
 
     if ( select( theSocket+1, &rdfds, NULL, NULL, &to ) > 0 ) {
       GetExternalData( m_External, comPlayer->GetSide() );
-      //printf( "* " );
       flag = true;
     } else
       break;
-    //printf( "External\n" );
   }
 
   // for testing

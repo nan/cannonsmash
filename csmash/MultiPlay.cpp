@@ -834,18 +834,12 @@ ExternalBVData::Apply( Player *targetPlayer, bool &fThePlayer,
   theBall.Warp( data );
   fTheBall = true;
 
-#if 0
   printf( "BV: sec = %d count = %d\n", sec, count);
   printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n", theBall.GetX(),
 	  theBall.GetY(), theBall.GetZ(),
 	  theBall.GetVX(), theBall.GetVY(), theBall.GetVZ() );
 
   fflush(0);
-#else
-  printf( "BV: x=%f y=%f z=%f vx=%f vy=%f vz=%f\n", theBall.GetX(),
-	  theBall.GetY(), theBall.GetZ(),
-	  theBall.GetVX(), theBall.GetVY(), theBall.GetVZ() );
-#endif
 
   return true;
 }
@@ -853,6 +847,10 @@ ExternalBVData::Apply( Player *targetPlayer, bool &fThePlayer,
 bool
 ExternalBVData::Read( long sock ) {
   ReadTime( sock, &sec, &count );
+
+  printf( "BVRead: sec = %d count = %d : ", sec, count);
+  printf( "sec = %d count = %d\n",
+	  Event::m_lastTime.time, Event::m_lastTime.millitm);
 
   long len = 0;
   while (1) {
