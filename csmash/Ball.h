@@ -126,7 +126,11 @@ protected:
 private:
   void BallDead();
   bool Reset();
-  bool CollisionCheck(vector3d &x, vector3d &v);
+  bool CollisionCheck(vector3d &x, vector3d &v, vector2d &spin);
+  double getTimeToReachTarget( vector2d target, double velocity, vector2d spin, vector3d &v );
+  double getTimeToReachY( double &targetX, double targetY, vector2d x, vector2d spin, vector3d v );
+  double getVz0ToReachTarget( double targetHeight, vector2d spin, double t );
+
 };
 
 #endif // _Ball_

@@ -141,6 +141,7 @@ Ball::Init() {
 bool
 Ball::Move() {
   vector3d oldX, oldV;
+  vector2d oldSpin;
 
   // Return ball immidiately when ball dead
   if ( m_status < 0 )
@@ -153,24 +154,33 @@ Ball::Move() {
   // Update velocity
   oldX = m_x;
   oldV = m_v;
+  oldSpin = m_spin;
 
-  m_v[2] -= GRAVITY(m_spin[1])*TICK;	// Gravity
+  // Vxy =  Vxy0*Rot(SpinX/PHY*(1-exp(-PHY*t)))*exp(-PHY*t)
+  // Vz  = (Vz0+g/PHY)*exp(-PHY*t) - g/PHY
 
-  /*
-  //TODO: apply spinX
-  double rotVx = m_v[0]*cos(m_spin[0])-m_v[1]*sin(m_spin[0]);
-  double rotVy = m_v[0]*sin(m_spin[0])+m_v[1]*cos(m_spin[0]);
+  double rot = oldSpin[0]/PHY-oldSpin[0]/PHY*exp(-PHY*TICK);
+  m_v[0] = (oldV[0]*cos(rot) - oldV[1]*sin(rot))*exp(-PHY*TICK);
+  m_v[1] = (oldV[0]*sin(rot) + oldV[1]*cos(rot))*exp(-PHY*TICK);
+  m_v[2] = (oldV[2]+GRAVITY(oldSpin[1])/PHY)*exp(-PHY*TICK) - GRAVITY(oldSpin[1])/PHY;
 
-  m_v[0] = rotVx; m_v[1] = rotVy;
-  */
-  
-  m_v = m_v - PHY*TICK*m_v;		// Air resistance
+  if ( oldSpin[0] == 0.0 ) {
+    m_x[0] = oldX[0] + oldV[0]/PHY-oldV[0]/PHY*exp(-PHY*TICK);
+    m_x[1] = oldX[1] + oldV[1]/PHY-oldV[1]/PHY*exp(-PHY*TICK);
+  } else {
+    //double theta = hypot(oldV[0], oldV[1])/PHY*(1-exp(-PHY*TICK))/(hypot(oldV[0], oldV[1])/oldSpin[0]);
+    double theta = oldSpin[0]/PHY-oldSpin[0]/PHY*exp(-PHY*TICK);
 
-  // Move
-  m_x = m_x + (oldV+m_v)/2*TICK;
+    m_x[0] = oldV[1]/oldSpin[0]*cos(theta) - (-oldV[0]/oldSpin[0])*sin(theta) + oldX[0]-oldV[1]/oldSpin[0];
+    m_x[1] = oldV[1]/oldSpin[0]*sin(theta) + (-oldV[0]/oldSpin[0])*cos(theta) + oldX[1]+oldV[0]/oldSpin[0];
+  }
+
+  m_x[2] = (PHY*oldV[2]+GRAVITY(oldSpin[1]))/(PHY*PHY)-(PHY*oldV[2]+GRAVITY(oldSpin[1]))/(PHY*PHY)*exp(-PHY*TICK) - GRAVITY(oldSpin[1])/PHY*TICK + oldX[2];
+
+  m_spin[0] = oldSpin[0]*exp(-PHY*TICK);
 
   // Collision check
-  CollisionCheck(oldX, oldV);
+  CollisionCheck(oldX, oldV, oldSpin);
 
   return true;
 }
@@ -301,87 +311,55 @@ Ball::Warp( char *buf ) {
  * @param v velocity (return value)
  * @param vMin minimum velocity
  * @param vMax maximum velocity
- * \todo apply m_spinX
  * @return returns true of succeeds. 
  */
 bool
 Ball::TargetToV( vector2d target, double level, const vector2d spin, 
 		 vector3d &v, double vMin, double vMax ) {
-  double y;
-  double vyMin = 0.1, vyMax;
   double t1, t2, z1;
+  double vCurrent;
+  vector2d x;
 
-  vyMax = fabs(target[1]-m_x[1])/hypot(target[0]-m_x[0], target[1]-m_x[1])*vMax;
+  x[0] = m_x[0]; x[1] = m_x[1];
 
-  if ( target[1] < m_x[1] ) {
-    y = -m_x[1];
-    target[1] = -target[1];
-  } else
-    y = m_x[1];
-
-  if ( target[1]*y >= 0 ) {	// Never go over the net
-    v[1] = vyMax*level*0.5;
-
+  if ( target[1]*m_x[1] >= 0 ) {	// Never go over the net
     // t2 = time until ball reaches targetY
-    t2 = -LOG( 1- PHY*(target[1]-y)/v[1] ) / PHY;
+    t2 = getTimeToReachTarget( target-x, vMax*level*0.5, spin, v );
 
     // define vz which satisfy z=TABLEHEIGHT when t=t2
-    if (0 != t2) {
-	v[2] = (PHY*(TABLEHEIGHT-m_x[2])+GRAVITY(spin[1])*t2)/(1-exp(-PHY*t2)) -
-	    GRAVITY(spin[1])/PHY;
-	v[0] = PHY*(target[0]-m_x[0]) / (1-exp(-PHY*t2));
-    } else {
-	v[2] = m_x[2];
-	v[0] = m_x[0];
-    }
-
-    if ( y != m_x[1] )
-      v[1] = -v[1];
+    v[2] = getVz0ToReachTarget(TABLEHEIGHT-m_x[2], spin, t2);
 
     return true;
   }
 
-  while (vyMax-vyMin > 0.001) {
-    v[1] = (vyMin+vyMax)/2;
+  while (vMax-vMin > 0.001) {
+    vCurrent = (vMin+vMax)/2;
 
     // t2 = time until ball reaches targetY
-    t2 = -LOG( 1- PHY*(target[1]-y)/v[1] ) / PHY;
+    t2 = getTimeToReachTarget( target-x, vCurrent, spin, v );
 
-    // t1 = time until ball reaches the net
-    t1 = -LOG( 1- PHY*(-y)/v[1] ) / PHY;
+    // t1 = time until ball reaches the net(y=0)
+    double dummy;
+    t1 = getTimeToReachY( dummy, 0, x, spin, v );
 
     // define vz which satisfy z=TABLEHEIGHT when t=t2
-    if (0 != t2) {
-	v[2] = (PHY*(TABLEHEIGHT-m_x[2])+GRAVITY(spin[1])*t2)/(1-exp(-PHY*t2)) -
-	  GRAVITY(spin[1])/PHY;
-    } else {
-	v[2] = m_x[2];
-    }
+    v[2] = getVz0ToReachTarget(TABLEHEIGHT-m_x[2], spin, t2);
 
-    // z1 = height of the ball when t=t2
+    // z1 = height of the ball when t=t1
     z1 = -(v[2]+GRAVITY(spin[1])/PHY)*exp(-PHY*t1)/PHY - GRAVITY(spin[1])*t1/PHY +
       (v[2]+GRAVITY(spin[1])/PHY)/PHY;
 
     if ( z1 < TABLEHEIGHT+NETHEIGHT-m_x[2] )
-      vyMax = v[1];
+      vMax = vCurrent;
     else
-      vyMin = v[1];
+      vMin = vCurrent;
   }
 
-  v[1] *= level;
+  vCurrent *= level;
 
-  t2 = -LOG( 1- PHY*(target[1]-y)/v[1] ) / PHY;
-  if (0 != t2) {
-      v[2] = (PHY*(TABLEHEIGHT-m_x[2])+GRAVITY(spin[1])*t2)/(1-exp(-PHY*t2)) -
-	GRAVITY(spin[1])/PHY;
-  } else {
-      v[2] = m_x[2];
-  }
+  t2 = getTimeToReachTarget( target-x, vCurrent, spin, v );
 
-  if ( y != m_x[1] )
-    v[1] = -v[1];
-
-  v[0] = PHY*(target[0]-m_x[0]) / (1-exp(-PHY*t2));
+  v[2] = getVz0ToReachTarget(TABLEHEIGHT-m_x[2], spin, t2);
 
   return true;
 }
@@ -394,86 +372,98 @@ Ball::TargetToV( vector2d target, double level, const vector2d spin,
  * @param level hitting power(percentage)
  * @param spin ball spin
  * @param v velocity (return value)
- * \todo apply m_spinX
  * @return returns true if succeeds. 
  */
 bool
 Ball::TargetToVS( vector2d target, double level, 
 		  const vector2d spin, vector3d &v ) {
-  double boundY = -TABLELENGTH/2;
-  double y;
+  vector2d bound;
+  double boundX;
   vector3d tmpV = vector3d(0.0);
+  vector2d sCurrent;
+  vector2d x;
+  x[0] = m_x[0]; x[1] = m_x[1];
 
-  if ( target[1] < m_x[1] ){
-    y = -m_x[1];
-    target[1] = -target[1];
-  } else
-    y = m_x[1];
+  for ( bound[1] = -TABLELENGTH/2 ; bound[1] < TABLELENGTH/2 ; bound[1] += TICK ) {
+    if ( bound[1]*m_x[1] < 0 )
+      continue;
 
-  for ( boundY = -TABLELENGTH/2 ; boundY < 0 ; boundY += TICK ) {
-    double vyMin = 0.1;
-    double vyMax = 30.0;
+    double vMin = 0.1;
+    double vMax = 30.0;
+    double vXY;
     vector3d vCurrent = vector3d();
     double t1, t2, t3;
     double z;
 
-    while (vyMax-vyMin > 0.001) {
-      v[1] = (vyMin+vyMax)/2;
+    while (vMax-vMin > 0.001) {
+      vXY = (vMin+vMax)/2;
 
-      // t2 = time until the ball reaches boundY
-      t2 = -LOG( 1- PHY*(boundY-y)/v[1] ) / PHY;
+      double xMin = -TABLEWIDTH/2;
+      double xMax =  TABLEWIDTH/2;
 
-      // define vz which satisfy z=TABLEHEIGHT when t=t2
-      if (0 != t2) {
-	  v[2] = (PHY*(TABLEHEIGHT-m_x[2])+GRAVITY(spin[1])*t2)/(1-exp(-PHY*t2)) -
-	      GRAVITY(spin[1])/PHY;
-      } else {
-	  v[2] = m_x[2];
+      while (xMax-xMin > 0.001) {
+	bound[0] = (xMin+xMax)/2;
+	sCurrent = spin;
+
+	// t2 = time until the ball reaches bound
+	t2 = getTimeToReachTarget( bound-x, vXY, sCurrent, vCurrent );
+
+	// Calculate v just before the ball bounce
+	double rotVx = vCurrent[0]*cos(sCurrent[0]*t2)-vCurrent[1]*sin(sCurrent[0]*t2);
+	double rotVy = vCurrent[0]*sin(sCurrent[0]*t2)+vCurrent[1]*cos(sCurrent[0]*t2);
+
+	vCurrent[0] = rotVx; vCurrent[1] = rotVy;
+	vCurrent *= exp(-PHY*t2);
+	sCurrent[0] *= exp(-PHY*t2);
+
+	// Calculate v just after the ball bounce
+	double vCurrentXY = hypot(vCurrent[0], vCurrent[1]);
+	vCurrent[0] += vCurrent[0]/vCurrentXY*sCurrent[1]*0.8;
+	vCurrent[1] += vCurrent[1]/vCurrentXY*sCurrent[1]*0.8;
+
+	sCurrent[0] *= 0.95;
+	sCurrent[1] *= 0.8;
+
+	// t1 = time until the ball reaches target
+	t1 = getTimeToReachY( boundX, target[1], bound, sCurrent, vCurrent );
+
+	if ( boundX < target[0] )
+	  xMin = bound[0];
+	else
+	  xMax = bound[0];
       }
 
+      // define vz which satisfy z=TABLEHEIGHT when t=t2
+      vCurrent[2] = getVz0ToReachTarget( TABLEHEIGHT-m_x[2], spin, t2 );
+
       // Bound
-      vCurrent[1] = v[1]*exp(-PHY*t2);
-      vCurrent[2] = (v[2]+GRAVITY(spin[1])/PHY)*exp(-PHY*t2) - GRAVITY(spin[1])/PHY;
-
-      vCurrent[1] += spin[1]*0.8;
+      vCurrent[2] = (vCurrent[2]+GRAVITY(spin[1])/PHY)*exp(-PHY*t2) - GRAVITY(spin[1])/PHY;
       vCurrent[2] *= -TABLE_E;
-
-      t1 = -LOG( 1- PHY*(target[1]-boundY)/vCurrent[1] ) / PHY;
 
       z = -( vCurrent[2]+GRAVITY(spin[1]*0.8)/PHY)*exp(-PHY*t1)/PHY
 	 - GRAVITY(spin[1]*0.8)/PHY*t1
 	 + (vCurrent[2]+GRAVITY(spin[1]*0.8)/PHY)/PHY;
 
       if ( z > 0 )
-	vyMax = v[1];
+	vMax = vXY;
       else
-	vyMin = v[1];
+	vMin = vXY;
     }
 
-    if ( fabs(z) < TICK ) {
-      t3 = -LOG( 1- PHY*(-boundY)/vCurrent[1] ) / PHY;
-      z = -( vCurrent[2]+GRAVITY(spin[1]*0.8)/PHY)*exp(-PHY*t3)/PHY
-	 - GRAVITY(spin[1]*0.8)/PHY*t3
-	 + (vCurrent[2]+GRAVITY(spin[1]*0.8)/PHY)/PHY;
-      if ( z > NETHEIGHT+(1.0-level)*0.1 ) {	// temporary
-        if ( v[1] > tmpV[1] ) {
-	  if (0 != t1+t2) {
-	    tmpV[0] = PHY*(target[0]-m_x[0]) / (1-exp(-PHY*(t1+t2)));
-	  } else {
-	    tmpV[0] = v[0];
-	  }
-	  tmpV[1] = v[1];
-	  tmpV[2] = v[2];
-	}
+    t3 = getTimeToReachY( boundX, 0, bound, sCurrent, vCurrent );
+    z = -( vCurrent[2]+GRAVITY(spin[1]*0.8)/PHY)*exp(-PHY*t3)/PHY
+      - GRAVITY(spin[1]*0.8)/PHY*t3
+      + (vCurrent[2]+GRAVITY(spin[1]*0.8)/PHY)/PHY;
+    if ( z > NETHEIGHT+(1.0-level)*0.1 ) {	// temporary
+      if ( vXY > hypot(tmpV[0], tmpV[1] ) ) {
+	t2 = getTimeToReachTarget( bound-x, vXY, spin, tmpV );
+	tmpV[2] = getVz0ToReachTarget( TABLEHEIGHT-m_x[2], spin, t2 );
       }
     }
   }
+
   v[0] = tmpV[0];
   v[1] = tmpV[1];
-
-  if ( y != m_x[1] )
-    v[1] = -v[1];
-
   v[2] = tmpV[2];
 
   return true;
@@ -606,14 +596,15 @@ Ball::Reset() {
 
 /**
  * Check whether the ball bounces on the table, net or floor. 
- * If it bouces, change location, velocity, status of the ball. 
+ * If it bounces, change location, velocity, status of the ball. 
  * 
  * @param x ball location of previous TICK. 
  * @param v ball velocity of previous TICK. 
+ * @param spin ball spin of previous TICK. 
  * @return returns true if succeeds. 
  */
 bool
-Ball::CollisionCheck( vector3d &x, vector3d &v ) {
+Ball::CollisionCheck( vector3d &x, vector3d &v, vector2d &spin ) {
   double netT , tableT;        /* Flag for bound on the table, hit net */
   double tableY;               /* Hold y on bounding */
 
@@ -647,7 +638,7 @@ Ball::CollisionCheck( vector3d &x, vector3d &v ) {
     m_x[1] = m_v[1]*(TICK-netT);
   }
 
-  if ( tableT < netT ){	// Bound on the table
+  if ( tableT < netT ){	// Bounce on the table
     if ( this == &theBall ) {
       Sound::TheSound()->Play( SOUND_TABLE, m_x );
     }
@@ -676,26 +667,59 @@ Ball::CollisionCheck( vector3d &x, vector3d &v ) {
       }
     }
 
-    m_v[2] = v[2] - GRAVITY(m_spin[1])*tableT;
-    m_v[2] += -PHY*m_v[2]*tableT;
-    m_v[2] *= -TABLE_E;
-    m_x[2] = TABLEHEIGHT + (TICK-tableT)*m_v[2];
-    m_v[2] -= GRAVITY(m_spin[1])*(TICK-tableT);
-    m_v[2] += -PHY*m_v[2]*(TICK-tableT);
+    // before bounce
+    vector3d bv;
+    double rot;
+    rot = spin[0]/PHY-spin[0]/PHY*exp(-PHY*tableT);
+    bv[0] = (v[0]*cos(rot) - v[1]*sin(rot))*exp(-PHY*tableT);
+    bv[1] = (v[0]*sin(rot) + v[1]*cos(rot))*exp(-PHY*tableT);
+    bv[2] = (v[2]+GRAVITY(spin[1])/PHY)*exp(-PHY*tableT) - GRAVITY(spin[1])/PHY;
 
-    m_v[1] = v[1] -PHY*v[1]*tableT;
+    if ( spin[0] == 0.0 ) {
+      m_x[0] = x[0] + v[0]/PHY-v[0]/PHY*exp(-PHY*tableT);
+      m_x[1] = x[1] + v[1]/PHY-v[1]/PHY*exp(-PHY*tableT);
+    } else {
+      //double theta = hypot(v[0], v[1])/PHY*(1-exp(-PHY*tableT))/(hypot(v[0], v[1])/spin[0]);
+      double theta = spin[0]/PHY-spin[0]/PHY*exp(-PHY*tableT);
 
-    if ( m_v[1] > 0 )
-      m_v[1] += m_spin[1]*0.8;
-    else
-      m_v[1] -= m_spin[1]*0.8;
+      m_x[0] = v[1]/spin[0]*cos(theta) - (-v[0]/spin[0])*sin(theta) + x[0]-v[1]/spin[0];
+      m_x[1] = v[1]/spin[0]*sin(theta) + (-v[0]/spin[0])*cos(theta) + x[1]+v[0]/spin[0];
+    }
 
-    m_v[1] += -PHY*m_v[1]*(TICK-tableT);
+    m_x[2] = (PHY*v[2]+GRAVITY(spin[1]))/(PHY*PHY)-(PHY*v[2]+GRAVITY(spin[1]))/(PHY*PHY)*exp(-PHY*tableT) - GRAVITY(spin[1])/PHY*tableT + x[2];
 
-    m_v[0] = v[0] -PHY*v[0]*TICK;
+    m_spin[0] = spin[0]*exp(-PHY*tableT);
 
-    m_spin[0] *= 0.95;
-    m_spin[1] *= 0.8;
+    // bounce
+    m_spin[0] = spin[0]*0.95;
+    m_spin[1] = spin[1]*0.8;
+
+    double vXY = hypot(bv[0], bv[1]);
+    bv[0] += bv[0]/vXY*m_spin[1];
+    bv[1] += bv[1]/vXY*m_spin[1];
+    bv[2] *= -TABLE_E;
+
+    // after bounce
+    rot = m_spin[0]/PHY-m_spin[0]/PHY*exp(-PHY*(TICK-tableT));
+    m_v[0] = (bv[0]*cos(rot) - bv[1]*sin(rot))*exp(-PHY*(TICK-tableT));
+    m_v[1] = (bv[0]*sin(rot) + bv[1]*cos(rot))*exp(-PHY*(TICK-tableT));
+    m_v[2] = (bv[2]+GRAVITY(m_spin[1])/PHY)*exp(-PHY*(TICK-tableT)) - GRAVITY(m_spin[1])/PHY;
+
+    if ( m_spin[0] == 0.0 ) {
+      m_x[0] = m_x[0] + bv[0]/PHY-bv[0]/PHY*exp(-PHY*(TICK-tableT));
+      m_x[1] = m_x[1] + bv[1]/PHY-bv[1]/PHY*exp(-PHY*(TICK-tableT));
+    } else {
+      //double theta = hypot(bv[0], bv[1])/PHY*(1-exp(-PHY*(TICK-tableT)))/(hypot(bv[0], bv[1])/m_spin[0]);
+      double theta = m_spin[0]/PHY-m_spin[0]/PHY*exp(-PHY*(TICK-tableT));
+
+      m_x[0] = bv[1]/m_spin[0]*cos(theta) - (-bv[0]/m_spin[0])*sin(theta) + m_x[0]-bv[1]/m_spin[0];
+      m_x[1] = bv[1]/m_spin[0]*sin(theta) + (-bv[0]/m_spin[0])*cos(theta) + m_x[1]+bv[0]/m_spin[0];
+    }
+
+    m_x[2] = (PHY*bv[2]+GRAVITY(m_spin[1]))/(PHY*PHY)-(PHY*bv[2]+GRAVITY(m_spin[1]))/(PHY*PHY)*exp(-PHY*(TICK-tableT))
+      - GRAVITY(m_spin[1])/PHY*(TICK-tableT) + m_x[2];
+
+    m_spin[0] = m_spin[0]*exp(-PHY*(TICK-tableT));
 
     return true;
   }
@@ -755,4 +779,99 @@ Ball::CollisionCheck( vector3d &x, vector3d &v ) {
   }
 
   return true;
+}
+
+/**
+ * Calculate time the ball reaches the target. 
+ * 
+ * @param target relative location of the target from current ball position. 
+ * @param velocity velocity(absolute) of the ball. 
+ * @param spin spin of the ball. 
+ * @param v velocity of the ball. 
+ * @return returns time when the ball reaches the target. 
+ */
+double
+Ball::getTimeToReachTarget( vector2d target, double velocity, vector2d spin, vector3d &v ) {
+  if ( spin[0] == 0.0 ) {
+    v[0] = target[0]/target.len()*velocity;
+    v[1] = target[1]/target.len()*velocity;
+
+    return -LOG(1-PHY*target.len()/velocity) / PHY;
+  } else {
+    double theta = asin(target.len()*spin[0]/(2*velocity));
+    v[0] = target[0]/target.len()*velocity*cos(-theta) - target[1]/target.len()*velocity*sin(-theta);
+    v[1] = target[0]/target.len()*velocity*sin(-theta) + target[1]/target.len()*velocity*cos(-theta);
+
+    return -LOG(1-2*PHY/spin[0]*theta)/PHY;
+  }
+}
+
+/**
+ * Calculate time when x[1] of the ball becomes targetY. 
+ * 
+ * @param targetX x[0] when x[1] becomes y. [out]
+ * @param targetY y of the target. 
+ * @param x current ball location. 
+ * @param spin spin of the ball. 
+ * @param v velocity of the ball. 
+ * @return returns time when x[1] of the ball becomes targetY. 
+ */
+double
+Ball::getTimeToReachY( double &targetX, double targetY, vector2d x, vector2d spin, vector3d v ) {
+  vector2d target;
+  v[2] = 0.0;
+
+  if ( spin[0] == 0.0 ) {
+    target[0] = x[0]+v[0]/v[1]*(targetY-x[1]);
+    target[1] = targetY;
+
+    targetX = target[0];
+
+    return getTimeToReachTarget( target-x, v.len(), spin, v );
+  } else {
+    vector2d centerX, yTarget;
+    double ip;
+
+    centerX[0] = x[0] - v[1]/spin[0];
+    centerX[1] = x[1] + v[0]/spin[0];
+
+    yTarget[0] = centerX[0] +
+      sqrt( -(targetY-centerX[1])*(targetY-centerX[1]) + v.len2()/(spin[0]*spin[0]));
+    yTarget[1] = targetY;
+
+    ip = (x-centerX)*(yTarget-centerX);
+
+    yTarget[0] = centerX[0] -
+      sqrt( -(targetY-centerX[1])*(targetY-centerX[1]) + v.len2()/(spin[0]*spin[0]));
+    yTarget[1] = targetY;
+
+    if ( ip > (x-centerX)*(yTarget-centerX) ) {
+      yTarget[0] = centerX[0] +
+	sqrt( -(targetY-centerX[1])*(targetY-centerX[1]) + v.len2()/(spin[0]*spin[0]));
+    } else {
+      //yTarget[0] = centerX[0] -
+      //sqrt( -(targetY-centerX[1])*(targetY-centerX[1]) + v.len2()/(spin[0]*spin[0]));
+    }
+
+    targetX = yTarget[0];
+
+    return getTimeToReachTarget( yTarget-x, v.len(), spin, v );
+  }
+}
+
+/**
+ * Calculate vz which satisfy z=target when time=t. 
+ * 
+ * @param targetHeight relative height of the target from current position. 
+ * @param spin ball spin. 
+ * @param t time when height=targetHeight
+ * @return returns initial vz which satisfy z=target when time=t. 
+ */
+double
+Ball::getVz0ToReachTarget( double targetHeight, vector2d spin, double t ) {
+  if ( t != 0.0 ) {
+    return (PHY*targetHeight+GRAVITY(spin[1])*t)/(1-exp(-PHY*t)) - GRAVITY(spin[1])/PHY;
+  } else {	// Invalid time
+    return -targetHeight;
+  }
 }
