@@ -49,6 +49,7 @@ public:
 
   virtual bool Apply( Player *targetPlayer, bool &fThePlayer, bool &fComPlayer,
 		      bool &fTheBall ) = 0;
+  virtual bool Read( long sock ) = 0;
 };
 
 class ExternalPVData : public ExternalData {
@@ -58,6 +59,7 @@ public:
 
   virtual bool Apply( Player *targetPlayer, bool &fThePlayer, bool &fComPlayer,
 		      bool &fTheBall );
+  virtual bool Read( long sock );
 };
 
 class ExternalPSData : public ExternalData {
@@ -67,6 +69,7 @@ public:
 
   virtual bool Apply( Player *targetPlayer, bool &fThePlayer, bool &fComPlayer,
 		      bool &fTheBall );
+  virtual bool Read( long sock );
 };
 
 class ExternalBVData : public ExternalData {
@@ -76,7 +79,9 @@ public:
 
   virtual bool Apply( Player *targetPlayer, bool &fThePlayer, bool &fComPlayer,
 		      bool &fTheBall );
+  virtual bool Read( long sock );
 };
+
 
 class MultiPlay : public Control {
 public:

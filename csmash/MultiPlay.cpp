@@ -39,6 +39,8 @@ extern long timeAdj;
 extern int theSocket;
 bool endian;
 
+extern void ReadTime( int sd, long *sec, char *count );
+
 // endian変換
 double
 SwapDbl( double d ) {
@@ -634,6 +636,21 @@ ExternalPVData::Apply( Player *targetPlayer, bool &fThePlayer,
   return true;
 }
 
+bool
+ExternalPVData::Read( long sock ) {
+  ReadTime( sock, &sec, &count );
+
+  long len = 0;
+  while (1) {
+    if ( (len+=recv( sock, data+len, 48-len, 0 )) == 48 )
+      break;
+  }
+//  printf( "Get PV : %d %d\n", extNow->sec, extNow->count );
+
+  return true;
+}
+
+
 ExternalPSData::ExternalPSData() : ExternalData() {
   dataType = DATA_PS;
 }
@@ -657,6 +674,19 @@ ExternalPSData::Apply( Player *targetPlayer, bool &fThePlayer,
   return true;
 }
 
+bool
+ExternalPSData::Read( long sock ) {
+  ReadTime( sock, &sec, &count );
+
+  long len = 0;
+  while (1) {
+    if ( (len+=recv( sock, data+len, 20-len, 0 )) == 20 )
+      break;
+  }
+
+  return true;
+}
+
 
 ExternalBVData::ExternalBVData() : ExternalData() {
   dataType = DATA_BV;
@@ -677,5 +707,18 @@ ExternalBVData::Apply( Player *targetPlayer, bool &fThePlayer,
 //  printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n",
 //	  x, y, z, vx, vy, vz );
 //  fflush(0);
+  return true;
+}
+
+bool
+ExternalBVData::Read( long sock ) {
+  ReadTime( sock, &sec, &count );
+
+  long len = 0;
+  while (1) {
+    if ( (len+=recv( sock, data+len, 60-len, 0 )) == 60 )
+      break;
+  }
+
   return true;
 }

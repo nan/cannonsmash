@@ -418,9 +418,6 @@ GetExternalData( ExternalData **ext, int sd, long side ) {
   if ( !strncmp( buf, "PV", 2 ) ) {
 #if 0
     extNow->dataType = DATA_PV;
-#else
-    extNow = new ExternalPVData(side);
-#endif
     ReadTime( sd, &extNow->sec, &extNow->count );
 
     len = 0;
@@ -429,12 +426,13 @@ GetExternalData( ExternalData **ext, int sd, long side ) {
 	break;
     }
 //    printf( "Get PV : %d %d\n", extNow->sec, extNow->count );
+#else
+    extNow = new ExternalPVData(side);
+    extNow->Read( sd );
+#endif
   } else if ( !strncmp( buf, "PS", 2 ) ) {
 #if 0
     extNow->dataType = DATA_PS;
-#else
-    extNow = new ExternalPSData(side);
-#endif
     ReadTime( sd, &extNow->sec, &extNow->count );
 
     len = 0;
@@ -442,12 +440,13 @@ GetExternalData( ExternalData **ext, int sd, long side ) {
       if ( (len+=recv( sd, extNow->data+len, 20-len, 0 )) == 20 )
 	break;
     }
+#else
+    extNow = new ExternalPSData(side);
+    extNow->Read( sd );
+#endif
   } else if ( !strncmp( buf, "BV", 2 ) ) {
 #if 0
     extNow->dataType = DATA_BV;
-#else
-    extNow = new ExternalBVData(side);
-#endif
     ReadTime( sd, &extNow->sec, &extNow->count );
 
     len = 0;
@@ -455,6 +454,10 @@ GetExternalData( ExternalData **ext, int sd, long side ) {
       if ( (len+=recv( sd, extNow->data+len, 60-len, 0 )) == 60 )
 	break;
     }
+#else
+    extNow = new ExternalBVData(side);
+    extNow->Read( sd );
+#endif
   } else
     return false;
 
@@ -672,7 +675,7 @@ Event::ReadData() {
 	    break;
 	  }
 #else
-	  m_External->Apply( thePlayer, fThePlayer, fComPlayer, fTheBall );
+	  m_External->Apply( targetPlayer, fThePlayer, fComPlayer, fTheBall );
 #endif
 	  externalOld = m_External;
 	  m_External = m_External->next;
