@@ -283,7 +283,7 @@ Event::Record() {
   long cnt = m_BacktrackBuffer[m_Histptr].count;
   char buf[1024];
 
-  if ( isComm )
+  if ( mode == MODE_MULTIPLAY )
     cnt += ((MultiPlay *)Control::TheControl())->GetTimeAdj();
   while ( cnt < 0 ) {
     sec--;

@@ -22,6 +22,9 @@
 #include "MenuItem.h"
 #include "LoadImage.h"
 #include "BaseView.h"
+#include "RCFile.h"
+
+extern RCFile *theRC;
 
 TitleView::TitleView() {
   m_View = NULL;
@@ -170,7 +173,8 @@ TitleView::RedrawAlpha() {
   }
 
   glDepthMask(1);
-  glEnable(GL_DEPTH_TEST);
+  if ( theRC->gmode != GMODE_SIMPLE )
+    glEnable(GL_DEPTH_TEST);
 
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();

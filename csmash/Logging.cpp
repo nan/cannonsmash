@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "ttinc.h"
+#ifdef LOGGING
 #include "MultiPlay.h"
 #include "Event.h"
 #include "Ball.h"
@@ -259,3 +260,4 @@ Logging::LogRecvPSMessage( ExternalPSData *ps ) {
 
   return true;
 }
+#endif

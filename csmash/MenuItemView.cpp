@@ -21,6 +21,9 @@
 #include "MenuItem.h"
 #include "LoadImage.h"
 #include "BaseView.h"
+#include "RCFile.h"
+
+extern RCFile *theRC;
 
 MenuItemView::MenuItemView() {
   m_image = NULL;
@@ -75,7 +78,8 @@ MenuItemView::RedrawAlpha() {
 	    0.0F, 0.0F, 0.0F, 0, m_image->GetImage() );
 
   glDepthMask(1);
-  glEnable(GL_DEPTH_TEST);
+  if ( theRC->gmode != GMODE_SIMPLE )
+    glEnable(GL_DEPTH_TEST);
 
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
