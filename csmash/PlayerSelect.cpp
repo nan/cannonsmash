@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -51,10 +51,7 @@ PlayerSelect::~PlayerSelect() {
 
 bool
 PlayerSelect::Init() {
-  if ( theRC->gmode == GMODE_2D )
-    m_View = new PlayerSelectView2D();
-  else
-    m_View = new PlayerSelectView();
+  m_View = (PlayerSelectView *)View::CreateView( VIEW_PLAYERSELECT );
 
   m_View->Init( this );
 

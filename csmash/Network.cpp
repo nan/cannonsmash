@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -206,7 +206,7 @@ ReadPlayerData() {
 
   len = 0;
   while (1) {
-    if ( (len+=recv( theSocket, buf+len, 136-len, 0 )) == 136 )
+    if ( (len+=recv( theSocket, buf+len, 144-len, 0 )) == 144 )
       break;
   }
 

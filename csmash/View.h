@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,16 +19,35 @@
 #ifndef _View_
 #define _View_
 
+#define VIEW_PLAYER         1
+#define VIEW_BALL           2
+#define VIEW_FIELD          3
+#define VIEW_HOWTO          4
+#define VIEW_MENUITEM       5
+#define VIEW_OPENING        6
+#define VIEW_PLAYGAME       7
+#define VIEW_PLAYERSELECT   8
+#define VIEW_PRACTICESELECT 9
+#define VIEW_TRAININGSELECT 10
+#define VIEW_TITLE          11
+#define VIEW_TRAINING       12
+
 class View {
 public:
   View();
   virtual ~View();
+
+  static View* CreateView( int viewType );
 
   virtual bool Redraw() = 0;
   virtual bool RedrawAlpha();
   virtual bool GetDamageRect();
 
   View *m_next;
+
+private:
+  static View* CreateView2D( int viewType );
+  static View* CreateView3D( int viewType );
 };
 
 #endif	// _View_

@@ -59,6 +59,8 @@ extern void QuitGame();
 
 int one=1;
 
+SDL_mutex *networkMutex;
+
 void
 MultiPlay::StartServer() {
 
@@ -149,7 +151,7 @@ MultiPlay::Init() {
 #ifdef LOGGING
   Logging::GetLogging()->StartLog();
 #endif
-  m_View = new PlayGameView();
+  m_View = (PlayGameView *)View::CreateView( VIEW_PLAYGAME );
 
   m_View->Init( this );
 
@@ -190,6 +192,9 @@ MultiPlay::Create( long player, long com ) {
 
   theRC->gameLevel = LEVEL_HARD;
   theRC->gameMode = GAME_21PTS;
+
+  networkMutex = SDL_CreateMutex();
+  SDL_CreateThread( Event::WaitForData, NULL );
 }
 
 bool

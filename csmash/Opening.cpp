@@ -64,7 +64,8 @@ Opening::~Opening() {
 
 bool
 Opening::Init() {
-  m_View = new OpeningView();
+  m_View = (OpeningView *)View::CreateView( VIEW_OPENING );
+
   m_View->Init( this );
 
   BaseView::TheView()->AddView( m_View );
@@ -72,10 +73,10 @@ Opening::Init() {
   thePlayer = Player::Create( 1, 1, 0 );
   comPlayer = Player::Create( 2, -1, 0 );
 
-  thePlayer->m_View = new PlayerView();
+  thePlayer->m_View = (PlayerView *)View::CreateView( VIEW_PLAYER );
   thePlayer->m_View->Init( thePlayer );
 
-  comPlayer->m_View = new PlayerView();
+  comPlayer->m_View = (PlayerView *)View::CreateView( VIEW_PLAYER );
   comPlayer->m_View->Init( comPlayer );
 
   HitMark::Init();
@@ -1077,10 +1078,10 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       thePlayer = Player::Create( 1, 1, 1 );
       comPlayer = Player::Create( 2, -1, 1 );
 
-      thePlayer->m_View = new PlayerView();
+      thePlayer->m_View = (PlayerView *)View::CreateView( VIEW_PLAYER );
       thePlayer->m_View->Init( thePlayer );
 
-      comPlayer->m_View = new PlayerView();
+      comPlayer->m_View = (PlayerView *)View::CreateView( VIEW_PLAYER );
       comPlayer->m_View->Init( comPlayer );
 
       theRC->gameLevel = LEVEL_HARD;
@@ -1102,10 +1103,10 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
       thePlayer = Player::Create( 0, 1, 0 );
       comPlayer = Player::Create( 0, -1, 0 );
 
-      thePlayer->m_View = new PlayerView();
+      thePlayer->m_View = (PlayerView *)View::CreateView( VIEW_PLAYER );
       thePlayer->m_View->Init( thePlayer );
 
-      comPlayer->m_View = new PlayerView();
+      comPlayer->m_View = (PlayerView *)View::CreateView( VIEW_PLAYER );
       comPlayer->m_View->Init( comPlayer );
 
       theBall.m_status = 8;

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -44,7 +44,8 @@ Training::~Training() {
 
 bool
 Training::Init() {
-  m_View = new TrainingView();
+  m_View = (TrainingView *)View::CreateView( VIEW_TRAINING );
+
   m_View->Init( this );
 
   BaseView::TheView()->AddView( m_View );

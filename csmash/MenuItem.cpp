@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -56,10 +56,7 @@ MenuItem::Init( long x, long y, long width, long height, char *fileName,
 
   m_parent = parent;
 
-  if ( theRC->gmode == GMODE_2D )
-    m_View = new MenuItemView2D();
-  else
-    m_View = new MenuItemView();
+  m_View = (MenuItemView *)View::CreateView( VIEW_MENUITEM );
 
   m_View->Init( this, fileName );
 

@@ -45,13 +45,11 @@ SoloPlay::~SoloPlay() {
 
 bool
 SoloPlay::Init() {
-  if ( theRC->gmode != GMODE_2D ) {
-    m_View = new PlayGameView();
+  m_View = (PlayGameView *)View::CreateView( VIEW_PLAYGAME );
 
-    m_View->Init( this );
+  m_View->Init( this );
 
-    BaseView::TheView()->AddView( m_View );
-  }
+  BaseView::TheView()->AddView( m_View );
 
   return true;
 }

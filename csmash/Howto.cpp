@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -52,7 +52,8 @@ Howto::~Howto() {
 
 bool
 Howto::Init() {
-  m_View = new HowtoView();
+  m_View = (HowtoView *)View::CreateView( VIEW_HOWTO );
+
   m_View->Init( this );
 
   BaseView::TheView()->AddView( m_View );

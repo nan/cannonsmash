@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,7 +35,8 @@ TrainingSelect::TrainingSelect() : PlayerSelect() {
 
 bool
 TrainingSelect::Init() {
-  m_View = new TrainingSelectView();
+  m_View = (TrainingSelectView *)View::CreateView( VIEW_TRAININGSELECT );
+
   m_View->Init( this );
 
   BaseView::TheView()->AddView( m_View );

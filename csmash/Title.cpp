@@ -62,10 +62,7 @@ Title::~Title() {
 
 bool
 Title::Init() {
-  if ( theRC->gmode == GMODE_2D )
-    m_View = new TitleView2D();
-  else
-    m_View = new TitleView();
+  m_View = (TitleView *)View::CreateView( VIEW_TITLE );
 
   m_View->Init( this );
 

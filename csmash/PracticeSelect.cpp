@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  _“ì ‹gG(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002  _“ì ‹gG(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -44,14 +44,7 @@ PracticeSelect::~PracticeSelect() {
 
 bool
 PracticeSelect::Init() {
-#if 0
-  if ( GetRCFile()->gmode == GMODE_2D )
-    m_View = new PracticeSelectView2D();
-  else
-    m_View = new PracticeSelectView();
-#else
-  m_View = new PracticeSelectView();
-#endif
+  m_View = (PracticeSelectView *)View::CreateView( VIEW_PRACTICESELECT );
 
   m_View->Init( this );
 
