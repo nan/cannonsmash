@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
+// Copyright (C) 2000  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ extern long mode;
 extern long timeAdj;
 
 extern void Timer( int value );
-struct timeb Event::m_lastTime = {0, 0, 0, 0};	// $BD>A0$K(BTimerEvent$B$,8F$P$l$?$H$-$N;~9o(B
+struct timeb Event::m_lastTime = {0, 0, 0, 0};	// Ä¾Á°¤ËTimerEvent¤¬¸Æ¤Ð¤ì¤¿¤È¤­¤Î»þ¹ï
 
 extern int theSocket;
 
@@ -193,7 +193,7 @@ Event::Move() {
   reDraw |= theControl->Move( m_KeyHistory, m_MouseXHistory,
 			      m_MouseYHistory, m_MouseBHistory, m_Histptr );
 
-  if ( mode != preMode ){	// $B%b!<%IJQ99$"$j(B
+  if ( mode != preMode ){	// ¥â¡¼¥ÉÊÑ¹¹¤¢¤ê
     long p;
 
     switch ( mode ) {
@@ -483,7 +483,7 @@ Event::BackTrack( long Histptr ) {
 
 void
 Event::ReadData() {
-  // $B>pJs<u?.(B
+  // ¾ðÊó¼õ¿®
   fd_set rdfds;
   struct timeval to;
 
@@ -534,11 +534,11 @@ Event::ReadData() {
   //if ( flag )
     //printf( "%d\n", (tb2.time-tb1.time)*1000+tb2.millitm-tb1.millitm );
 
-  // externalData$B$N@hF,$^$G(Bbacktrack$B$9$k(B
+  // externalData¤ÎÀèÆ¬¤Þ¤Çbacktrack¤¹¤ë
   long btCount;
   ExternalData *externalOld;
   long btHistptr;
-  while ( !(m_External->isNull()) ) {	// $B<N$F$k(B?
+  while ( !(m_External->isNull()) ) {	// ¼Î¤Æ¤ë?
     //printf( "External2\n" );
     btCount = (m_lastTime.time-m_External->sec)*100 + 
       (m_lastTime.millitm/10-m_External->count);
@@ -575,7 +575,7 @@ Event::ReadData() {
       BackTrack( btHistptr );
       //printf( " %d\n", m_Histptr );
 
-      // $BE,MQ$9$k(B -> $B?J$a$k$r(BbtCount$B7+$jJV$9(B
+      // Å¬ÍÑ¤¹¤ë -> ¿Ê¤á¤ë¤òbtCount·«¤êÊÖ¤¹
       while (1) {
 	if ( fTheBall )
 	  theBall.Move();
@@ -657,7 +657,7 @@ Event::ClearBacktrack() {
 void
 QuitGame() {
   printf( "Avg = %f\n", (double)perfs/_perfCount );
-  printf( "BackTrack = %f\n", backTracks/_backTrackCount );
+  if (_backTrackCount) printf( "BackTrack = %f\n", backTracks/_backTrackCount);
   Event::ClearObject();
   exit(2);
 }
