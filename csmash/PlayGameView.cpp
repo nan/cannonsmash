@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ PlayGameView::Redraw() {
 
 bool
 PlayGameView::RedrawAlpha() {
-  glColor4f( 1.0, 1.0, 1.0, 0.0 );
+  glColor4f( 1.0, 1.0, 1.0, 1.0 );
 
   if ( SDL_WM_GrabInput( SDL_GRAB_QUERY ) == SDL_GRAB_OFF ) {
     glPushMatrix();
