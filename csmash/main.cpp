@@ -218,7 +218,7 @@ int main(int argc, char** argv) {
     if (!isComm && argc > optind) {
       // Client mode
       isComm = true;
-      mode = MODE_SELECT;
+      mode = MODE_MULTIPLAYSELECT;
       strncpy(theRC->serverName, argv[optind], sizeof(theRC->serverName));
     }
 

@@ -38,10 +38,6 @@
 
 extern long mode;
 
-extern bool isComm;
-
-extern long wins;
-
 extern RCFile *theRC;
 extern SDL_mutex *networkMutex;
 extern int theSocket;
