@@ -28,6 +28,7 @@ extern RCFile *theRC;
 
 extern Ball theBall;
 extern long mode;
+extern long wins;
 
 //extern void CopyPlayerData( struct PlayerData& dest, Player* src );
 extern void CopyPlayerData( Player& dest, Player* src );
@@ -79,6 +80,7 @@ SoloPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   long prevStatus = theBall.GetStatus();
 
   if ( KeyHistory[Histptr].unicode == 'Q' ) {
+    wins = 0;
     mode = MODE_TITLE;
     return true;
   }

@@ -85,6 +85,7 @@ PlayerSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   if ( (KeyHistory[Histptr].unicode == SDLK_ESCAPE ||
 	KeyHistory[Histptr].unicode == 'Q') && !isComm ) {
     mode = MODE_TITLE;
+    wins = 0;
     return true;
   }
 
