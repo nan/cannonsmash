@@ -340,7 +340,7 @@ bool parts::load_polyhedron(int lineno, polyhedron_parts *object,
 	case 'm': {     /* matrix */
 	    affine4F m;
 	    if (!loadAffine4F(operand, &m)) {
-                throw verror(lineno, "matrix cannot be loaded\n");
+                throw verror(lineno, "matrix %s cannot be loaded\n", operand);
             }
 	    *object->object *= m;
 
@@ -572,6 +572,9 @@ void anim_parts::render(int frame) const
 {
     affineanim &anim = *object;
     glPushMatrix();
+#ifdef CHIYO
+    glTranslatef(0,0,0.1F);	// Her shoes go underground without this:-)
+#endif
     glMultMatrixf((float*)&anim[frame]);
     for (std::list<polyhedron_parts*>::const_iterator i = poly.begin();
 	 poly.end() != i; ++i) {
@@ -584,6 +587,9 @@ void anim_parts::renderWire(int frame) const
 {
     affineanim &anim = *object;
     glPushMatrix();
+#ifdef CHIYO
+    glTranslatef(0,0,0.1F);	// Her shoes go underground without this:-)
+#endif
     glMultMatrixf((float*)&anim[frame]);
 
     affine4F t;
