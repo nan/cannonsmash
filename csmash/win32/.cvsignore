@@ -1,0 +1,14 @@
+*~
+*.bak
+
+*.obj
+*.lib
+*.dll
+*.res
+
+*.pch
+*.aps
+*.plg
+*.idb
+*.pdb
+*.ilk
