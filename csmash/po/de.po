@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2002-01-24 16:43+0900\n"
+"POT-Creation-Date: 2002-02-05 02:43+0900\n"
 "PO-Revision-Date: 2002-01-20 22:22GMT\n"
 "Last-Translator: J. Henning Schwentner <hschwentner@hamburg.de>\n"
 "Language-Team: Deutsch <de@li.org>\n"
@@ -120,11 +120,15 @@ msgstr "Nachricht:"
 msgid "Connect to Lobby Server"
 msgstr "Zu Lobby Server verbinden"
 
-#: Launcher.cpp:447 LobbyClient.cpp:151 LobbyClient.cpp:513
+#: Launcher.cpp:446
+msgid "-unknown-MS UI Gothic-normal-r-normal--12-100-*-*-*-*-windows-*"
+msgstr ""
+
+#: Launcher.cpp:454 LobbyClient.cpp:151 LobbyClient.cpp:513
 msgid "Cannon Smash"
 msgstr "Cannon Smash"
 
-#: Launcher.cpp:464
+#: Launcher.cpp:471
 msgid "Quit"
 msgstr "Beenden"
 
@@ -161,11 +165,20 @@ msgstr "OK!"
 msgid "No!"
 msgstr "Nein!"
 
-#: main.cpp:162 main.cpp:177
+#: main.cpp:126
+msgid "UTF-8"
+msgstr ""
+
+#: main.cpp:128
+#, fuzzy
+msgid "iconv_open failed\n"
+msgstr "SDL Mix_OpenAudio failed\n"
+
+#: main.cpp:192 main.cpp:207
 msgid "No datafile directory.\n"
 msgstr "Kein Datenverzeichnis.\n"
 
-#: main.cpp:229 main.cpp:234 main.cpp:240
+#: main.cpp:259 main.cpp:264 main.cpp:270
 msgid "SDL initialize failed\n"
 msgstr "Konnte SDL nicht initialisieren.\n"
 

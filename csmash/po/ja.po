@@ -3,7 +3,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Cannon Smash 0.6.4\n"
-"POT-Creation-Date: 2002-01-20 22:07+0100\n"
+"POT-Creation-Date: 2002-02-05 02:43+0900\n"
 "PO-Revision-Date: 2002-02-03 19:00+0900\n"
 "Last-Translator: KANNA Yoshihiro <nan@utmc.or.jp>\n"
 "Language-Team: Cannon Smash development project <csmash@utmc.or.jp>\n"
@@ -11,38 +11,38 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: BaseView.cpp:89
+#: BaseView.cpp:83
 msgid "CannonSmash"
 msgstr ""
 
-#: BaseView.cpp:365
+#: BaseView.cpp:361
 #, c-format
 msgid "EndGame %d : %d\n"
 msgstr ""
 
-#: Event.cpp:348
+#: Event.cpp:313
 #, c-format
 msgid "Toggled fullscreen mode - now %s\n"
 msgstr ""
 
-#: Event.cpp:349
+#: Event.cpp:314
 msgid "fullscreen"
 msgstr ""
 
-#: Event.cpp:349
+#: Event.cpp:314
 msgid "windowed"
 msgstr ""
 
-#: Event.cpp:351
+#: Event.cpp:316
 msgid "Unable to toggle fullscreen mode\n"
 msgstr ""
 
-#: Event.cpp:760
+#: Event.cpp:709
 #, c-format
 msgid "Avg = %f\n"
 msgstr ""
 
-#: Event.cpp:761
+#: Event.cpp:710
 #, c-format
 msgid "BackTrack = %f\n"
 msgstr ""
@@ -52,173 +52,171 @@ msgstr ""
 msgid "%s.ppm"
 msgstr "%s.ja.ppm"
 
-#: Launcher.cpp:64
+#: Launcher.cpp:62
 msgid "FullScreen"
 msgstr "フルスクリーン"
 
-#: Launcher.cpp:69
+#: Launcher.cpp:67
 msgid "On"
 msgstr "オン"
 
-#: Launcher.cpp:80
+#: Launcher.cpp:78
 msgid "Off"
 msgstr "オフ"
 
-#: Launcher.cpp:104
+#: Launcher.cpp:102
 msgid "Graphics"
 msgstr "画面"
 
-#.
-#. twoDButton = gtk_radio_button_new_with_label ( (GSList *)NULL, "2D");
-#. list = gtk_radio_button_group( GTK_RADIO_BUTTON(twoDButton) );
-#. gtk_box_pack_start( GTK_BOX(box), twoDButton, FALSE, FALSE, 10 );
-#. gtk_widget_show (twoDButton);
-#. if ( theRC->gmode == GMODE_2D ) {
-#. gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(twoDButton), TRUE );
-#. }
-#.
-#. simpleButton = gtk_radio_button_new_with_label ( list, "Simple");
-#: Launcher.cpp:120
+#: Launcher.cpp:115
 msgid "Simple"
 msgstr "簡易モード"
 
-#: Launcher.cpp:128
+#: Launcher.cpp:123
 msgid "Normal"
 msgstr "通常モード"
 
-#: Launcher.cpp:195
+#: Launcher.cpp:241
 msgid "Solo"
 msgstr "一人"
 
-#: Launcher.cpp:200
+#: Launcher.cpp:246
 msgid "LAN"
 msgstr "ネットワーク対戦"
 
-#: Launcher.cpp:205
+#: Launcher.cpp:251
 msgid "Internet(Experimental)"
 msgstr "インターネット対戦"
 
 #. lowest area(start button)
-#: Launcher.cpp:220 Launcher.cpp:285
+#: Launcher.cpp:266 Launcher.cpp:331
 msgid "Game Start!"
 msgstr "ゲーム開始!"
 
-#: Launcher.cpp:246
+#: Launcher.cpp:292
 msgid "Server"
 msgstr "サーバ"
 
-#: Launcher.cpp:250
+#: Launcher.cpp:296
 msgid "Client"
 msgstr "クライアント"
 
-#: Launcher.cpp:264
+#: Launcher.cpp:310
 msgid "Server name:"
 msgstr "サーバ名:"
 
-#: Launcher.cpp:307
+#: Launcher.cpp:353
 msgid "Nickname:"
 msgstr "名前:"
 
-#: Launcher.cpp:317
+#: Launcher.cpp:363
 msgid "Message:"
 msgstr "メッセージ:"
 
-#: Launcher.cpp:330
+#: Launcher.cpp:376
 msgid "Connect to Lobby Server"
 msgstr "ロビーサーバへ接続"
 
-#: Launcher.cpp:401 LobbyClient.cpp:165 LobbyClient.cpp:527
+#: Launcher.cpp:446
+msgid "-unknown-MS UI Gothic-normal-r-normal--12-100-*-*-*-*-windows-*"
+msgstr ""
+
+#: Launcher.cpp:454 LobbyClient.cpp:151 LobbyClient.cpp:513
 msgid "Cannon Smash"
 msgstr ""
 
-#: Launcher.cpp:418
+#: Launcher.cpp:471
 msgid "Quit"
 msgstr "終了"
 
-#: LobbyClient.cpp:181
+#: LobbyClient.cpp:167
 msgid "Nickname"
 msgstr "名前"
 
-#: LobbyClient.cpp:181
+#: LobbyClient.cpp:167
 msgid "Message"
 msgstr "メッセージ"
 
-#: LobbyClient.cpp:195
+#: LobbyClient.cpp:181
 msgid "connect"
 msgstr "接続"
 
-#: LobbyClient.cpp:203
+#: LobbyClient.cpp:189
 msgid "warm up"
 msgstr "待機"
 
-#: LobbyClient.cpp:210
+#: LobbyClient.cpp:196
 msgid "close"
 msgstr "中止"
 
-#: LobbyClient.cpp:536
+#: LobbyClient.cpp:522
 #, c-format
 msgid "\"%s\" (message: %s)want to play with you. OK?\n"
 msgstr "\"%s\" (メッセージ: %s)から対戦の申し込みがありました。対戦しますか?\n"
 
-#: LobbyClient.cpp:551
+#: LobbyClient.cpp:537
 msgid "OK!"
 msgstr "対戦する"
 
-#: LobbyClient.cpp:562
+#: LobbyClient.cpp:548
 msgid "No!"
 msgstr "拒否する"
 
-#: main.cpp:110
+#: main.cpp:126
 msgid "UTF-8"
 msgstr "EUC-JP"
 
-#: main.cpp:179 main.cpp:194
+#: main.cpp:128
+msgid "iconv_open failed\n"
+msgstr ""
+
+#: main.cpp:192 main.cpp:207
 msgid "No datafile directory.\n"
 msgstr ""
 
-#: main.cpp:245 main.cpp:250
+#: main.cpp:259 main.cpp:264 main.cpp:270
 msgid "SDL initialize failed\n"
 msgstr ""
 
-#: MenuItemView.cpp:46
+#: MenuItemView.cpp:38
 #, c-format
 msgid "%s.pbm"
 msgstr "%s.ja.pbm"
 
-#: parts.cpp:72
+#: parts.cpp:128
 #, c-format
 msgid "%s:%d vertex buffer overflow\n"
 msgstr ""
 
-#: parts.cpp:84
+#: parts.cpp:150
 #, c-format
 msgid "%s:%d loop buffer overflow\n"
 msgstr ""
 
-#: parts.cpp:344
+#: parts.cpp:425
 #, c-format
 msgid "%s:%d matrix buffer overflow\n"
 msgstr ""
 
-#: Player.cpp:280
+#: Player.cpp:272
 #, c-format
 msgid "no player %ld\n"
 msgstr ""
 
-#: PlayGame.cpp:121
+#: PlayGame.cpp:152
 #, c-format
 msgid "You : %d -  %d : Opponent\n"
 msgstr ""
 
-#: RCFile.cpp:148
+#: RCFile.cpp:152
 msgid "No home directory.\n"
 msgstr ""
 
-#: RCFile.cpp:168
+#: RCFile.cpp:172
 #, c-format
 msgid "Cannot open rc file %s.\n"
 msgstr ""
 
-#: Sund.cpp:68
+#: Sound.cpp:84
 msgid "SDL Mix_OpenAudio failed\n"
 msgstr ""
