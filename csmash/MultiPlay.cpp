@@ -558,9 +558,13 @@ MultiPlay::WaitForData( void *dum ) {
 
     if ( select( theSocket+1, &rdfds, NULL, NULL, NULL ) > 0 ) {
       bool ret;
+      long side = -1;
+
+      if ( m_comPlayer )
+	side = m_comPlayer->GetSide();
 
       SDL_mutexP( networkMutex );
-      ret = Event::TheEvent()->GetExternalData( -1 );
+      ret = Event::TheEvent()->GetExternalData( side );
       SDL_mutexV( networkMutex );
 
       if ( !ret ) {
