@@ -37,6 +37,7 @@ protected:
 
 // Calc hit point
   virtual bool Hitarea( double &hitX, double &hitY) = 0;
+  virtual double GetBallTop( double &maxX, double &maxY, Player *p );
 };
 
 #endif // _comPlayer_

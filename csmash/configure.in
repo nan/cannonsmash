@@ -35,7 +35,9 @@ AM_PATH_SDL($SDL_VERSION,
 CFLAGS="$CFLAGS $SDL_CFLAGS"
 CPPFLAGS="$CPPFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
+
 AC_CHECK_LIB(SDL_mixer, Mix_OpenAudio)
+AC_CHECK_LIB(SDL_image, IMG_Load, ,AC_MSG_ERROR(SDL_image not found))
 
 AM_PATH_GTK( 1.2.0, [LIBS="$LIBS $GTK_LIBS" CFLAGS="$CFLAGS $GTK_CFLAGS" CPPFLAGS="$CPPFLAGS $GTK_CFLAGS"], )
 
@@ -65,7 +67,7 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 
-AM_INIT_AUTOMAKE(csmash, 0.6.3, no-define)
+AM_INIT_AUTOMAKE(csmash, 0.6.4, no-define)
 
 AC_DEFINE_UNQUOTED(CANNONSMASH_DATADIR, "@prefix@/share/$PACKAGE/")
 

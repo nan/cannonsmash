@@ -35,13 +35,16 @@ PlayerSelectView2D::~PlayerSelectView2D() {
 
 bool
 PlayerSelectView2D::Init( PlayerSelect *playerSelect ) {
-  static char pname[][30] = {"images/PenAttack.bmp", "images/ShakeCut.bmp",
-			     "images/PenDrive.bmp"};
+//  static char pname[][30] = {"images/PenAttack.bmp", "images/ShakeCut.bmp",
+//			     "images/PenDrive.bmp"};
+  static char pname[][30] = {"images/PenAttack.jpg", "images/ShakeCut.jpg",
+			     "images/PenDrive.jpg"};
 
   m_playerSelect = playerSelect;
 
   for ( int i = 0 ; i < PLAYERS ; i++ ) {
-    m_playerBMP[i] = SDL_LoadBMP( pname[i] );
+//    m_playerBMP[i] = SDL_LoadBMP( pname[i] );
+    m_playerBMP[i] = IMG_Load( pname[i] );
   }
 
   ((BaseView2D *)BaseView::TheView())->AddUpdateRect( NULL );
