@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2003  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
+// Copyright (C) 2000-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ extern Ball theBall;
 extern long mode;
 
 extern void Timer( int value );
-struct timeb Event::m_lastTime = {0, 0, 0, 0};	// $BD>A0$K(BTimerEvent$B$,8F$P$l$?$H$-$N;~9o(B
+struct timeb Event::m_lastTime = {0, 0, 0, 0};	// Ä¾Á°¤ËTimerEvent¤¬¸Æ¤Ð¤ì¤¿¤È¤­¤Î»þ¹ï
 
 Event* Event::m_theEvent = NULL;
 
@@ -468,7 +468,7 @@ Event::KeyboardFunc( SDL_Event key, int x, int y ) {
 
 void
 Event::KeyUpFunc( SDL_Event key, int x, int y ) {
-  // $BGQ;_$7$F$b$h$$(B
+  // ÇÑ»ß¤·¤Æ¤â¤è¤¤
 #if 0
   if ( key.key.keysym.unicode == 'Q' ) {
     QuitGame();
@@ -639,11 +639,11 @@ Event::ReadData() {
 
   SDL_mutexP( networkMutex );
 
-  // externalData$B$N@hF,$^$G(Bbacktrack$B$9$k(B
+  // externalData¤ÎÀèÆ¬¤Þ¤Çbacktrack¤¹¤ë
   long btCount = 0;
   ExternalData *externalOld;
   long btHistptr;
-  while ( !(m_External->isNull()) ) {	// $B8E$9$.$k>pJs$r<N$F$k(B
+  while ( !(m_External->isNull()) ) {	// ¸Å¤¹¤®¤ë¾ðÊó¤ò¼Î¤Æ¤ë
     btCount = (m_lastTime.time-m_External->sec)*100 + 
       (m_lastTime.millitm/10-m_External->count);
     if ( btCount > MAX_HISTORY ) {
@@ -676,7 +676,7 @@ Event::ReadData() {
 
     BackTrack( btHistptr );
 
-    // $BE,MQ$9$k(B -> $B?J$a$k$r(BbtCount$B7+$jJV$9(B
+    // Å¬ÍÑ¤¹¤ë -> ¿Ê¤á¤ë¤òbtCount·«¤êÊÖ¤¹
     while (1) {
       if ( fTheBall )
 	theBall.Move();
@@ -766,6 +766,9 @@ Event::ReadSelectData() {
   SDL_mutexP( networkMutex );
 
   while ( !(m_External->isNull()) ) {
+    if ( m_External->dataType != DATA_PT )  // Selection is already finished
+      break;
+
     m_External->Apply( NULL, dum, dum, dum );
 
     externalOld = m_External;

@@ -126,9 +126,6 @@ Player::Player( long side ) {
   m_lastSendX = m_lastSendY = m_lastSendZ = 0.0;
   m_lastSendVX = m_lastSendVY = m_lastSendVZ = 0.0;
   m_lastSendCount = 0;
-  m_lastSendX = m_lastSendY = m_lastSendZ = 0.0;
-  m_lastSendVX = m_lastSendVY = m_lastSendVZ = 0.0;
-  m_lastSendCount = 0;
 }
 
 Player::Player( long playerType, long side, double x, double y, double z, 

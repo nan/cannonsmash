@@ -133,9 +133,10 @@ Ball::Move() {
       }
 
       // To Fix the possibility of score mismatch
-      if ( mode == MODE_MULTIPLAY && &theBall == this ) {
+      if ( mode == MODE_MULTIPLAY && &theBall == this &&
+	   Control::TheControl()->GetThePlayer()->GetSide() > 0 ) {
 	m_lastSendCount++;
-	if ( m_lastSendCount > 100 ) {
+	if ( m_lastSendCount >= 100 ) {
 	  Event::TheEvent()->SendBall();
 	  m_lastSendCount = 0;
 	}

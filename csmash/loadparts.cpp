@@ -500,15 +500,7 @@ bool texture_parts::realize()
     ImageData img;
     bool loaded;
 
-#if !defined(CHIYO) || !defined(WIN32)
     loaded = img.LoadFile(filename.c_str());
-#else
-    if (LANG_HINDI == PRIMARYLANGID(GetUserDefaultLangID())) {
-	loaded = img.LoadFile("images/ntb.jpg");
-    } else {
-	loaded = img.LoadFile(filename.c_str());
-    }
-#endif
 
     if (!loaded) {
         throw verror("could not load texture %s\n", filename.c_str());
