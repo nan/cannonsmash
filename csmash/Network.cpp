@@ -47,12 +47,16 @@ typedef int socklen_t;		/* mimic Penguin's typedef */
 #endif
 
 bool endian;
+
+long timeAdj = 0;
+
 extern int theSocket;
 extern Ball theBall;
 extern RCFile *theRC;
 extern long mode;
 
-extern int listenSocket[];
+int listenSocket[16] = {-1, -1, -1, -1, -1, -1, -1, -1,
+			-1, -1, -1, -1, -1, -1, -1, -1 };
 extern int one;
 
 // convert endian
@@ -153,7 +157,7 @@ ReadTime( int sd, struct timeb* tb ) {
 
   if ( recv( sd, buf, 2, 0 ) != 2 ) {
     xerror("%s(%d) recv", __FILE__, __LINE__);
-    throw MultiPlay::NetworkError();
+    throw NetworkError();
   }
   len = 0;
   while (1) {
@@ -213,105 +217,6 @@ ReadEntireMessage( int socket, char **buf ) {
   return msgLength;
 }
 
-// Send PlayerData using "PI" protocol
-void
-SendPlayerData() {
-  send( theSocket, "PI", 2, 0 );
-  Control::TheControl()->GetThePlayer()->SendAll( theSocket );
-
-#ifdef LOGGING
-  Logging::GetLogging()->LogPlayer( LOG_COMTHEPLAYER,
-				    Control::TheControl()->GetThePlayer() );
-#endif
-}
-
-// Recv PlayerData
-Player *
-ReadPlayerData() {
-  double x, y, z, vx, vy, vz, spin;
-  long playerType, side, swing, swingType, swingSide, afterSwing, swingError, pow, statusMax;
-  double targetX, targetY, eyeX, eyeY, eyeZ, stamina;
-  long stat;
-  char buf[256];
-  long len;
-  Player *player;
-
-  if ( recv( theSocket, buf, 2, 0 ) != 2 )
-    return 0;
-
-  if ( strncmp( buf, "PI", 2 ) )
-    return 0;
-
-  len = 0;
-  while (1) {
-    if ( (len+=recv( theSocket, buf+len, 144-len, 0 )) == 144 )
-      break;
-  }
-
-  char *b = buf;
-
-  b = ReadLong( b, playerType );
-  b = ReadLong( b, side );
-
-  b = ReadDouble( b, x );
-  b = ReadDouble( b, y );
-  b = ReadDouble( b, z );
-  b = ReadDouble( b, vx );
-  b = ReadDouble( b, vy );
-  b = ReadDouble( b, vz );
-
-  b = ReadLong( b, stat );
-  b = ReadLong( b, swing );
-  b = ReadLong( b, swingType );
-  b = ReadLong( b, swingSide );
-  b = ReadLong( b, afterSwing );
-  b = ReadLong( b, swingError );
-
-  b = ReadDouble( b, targetX );
-  b = ReadDouble( b, targetY );
-  b = ReadDouble( b, eyeX );
-  b = ReadDouble( b, eyeY );
-  b = ReadDouble( b, eyeZ );
-
-  b = ReadLong( b, pow );
-  b = ReadDouble( b, spin );
-  b = ReadDouble( b, stamina );
-  b = ReadLong( b, statusMax );
-
-  bool bSwingSide = bool(swingSide != 0);
-  switch ( playerType ) {
-  case PLAYER_PENATTACK:
-    player = new NetPenAttack( playerType, side, x, y, z, vx, vy, vz, stat,
-			       swing, swingType, bSwingSide, afterSwing,
-			       swingError,
-			       targetX, targetY, eyeX, eyeY, eyeZ, pow,
-			       spin, stamina, statusMax );
-    break;
-  case PLAYER_SHAKECUT:
-    player = new NetShakeCut( playerType, side, x, y, z, vx, vy, vz, stat,
-			      swing, swingType, bSwingSide, afterSwing,
-			      swingError,
-			      targetX, targetY, eyeX, eyeY, eyeZ, pow,
-			      spin, stamina, statusMax );
-    break;
-  case PLAYER_PENDRIVE:
-    player = new NetPenDrive( playerType, side, x, y, z, vx, vy, vz, stat,
-			      swing, swingType, bSwingSide, afterSwing,
-			      swingError,
-			      targetX, targetY, eyeX, eyeY, eyeZ, pow,
-			      spin, stamina, statusMax );
-    break;
-  default:
-    return 0;
-  }
-
-#ifdef LOGGING
-  Logging::GetLogging()->LogPlayer( LOG_COMCOMPLAYER, player );
-#endif
-
-  return player;
-}
-
 // Send PlayerSwing using "PS" and "PV" protocol
 void
 SendSwing( Player *player ) {
@@ -356,12 +261,12 @@ ReadBI() {
   // Read Ball Data
   if ( recv( theSocket, buf, 2, 0 ) != 2 ) {
     xerror("%s(%d) recv", __FILE__, __LINE__);
-    throw MultiPlay::NetworkError();
+    throw NetworkError();
   }
 
   if ( strncmp( buf, "BI", 2 ) ) {
     xerror("%s(%d) recv BI", __FILE__, __LINE__);
-    throw MultiPlay::NetworkError();
+    throw NetworkError();
   }
 
   len = 0;
@@ -387,7 +292,7 @@ struct addrinfo *
 findhostname() {
   if (1 == theRC->serverName[0]) { // Broadcast mode
       printf( "Broadcast is not supported\n" );
-      throw MultiPlay::NetworkError();
+      throw NetworkError();
   }
   struct addrinfo hent, *res;
   int error;
@@ -404,7 +309,7 @@ findhostname() {
   if (error) {
     xerror("%s: %s(%d) getaddrinfo",
 	   gai_strerror(error), __FILE__, __LINE__);
-    throw MultiPlay::NetworkError();
+    throw NetworkError();
   }
 
   return res;
@@ -419,7 +324,7 @@ findhostname( struct sockaddr_in *saddr ) {
     unsigned int sb;
     if (0 > (sb = socket(PF_INET, SOCK_DGRAM, 0))) {
       xerror("%s(%d) socket", __FILE__, __LINE__);
-      throw MultiPlay::NetworkError();
+      throw NetworkError();
     }
 
     int one = 1;
@@ -432,7 +337,7 @@ findhostname( struct sockaddr_in *saddr ) {
     sba.sin_port = 0;
     if (0 != bind(sb, (sockaddr*)&sba, sizeof(sba))) {
       xerror("%s(%d) bind", __FILE__, __LINE__);
-      throw MultiPlay::NetworkError();
+      throw NetworkError();
     }
 
     int x = 0;
@@ -464,7 +369,7 @@ findhostname( struct sockaddr_in *saddr ) {
     if (30 <= x) {
       // notfound
       printf("timeout\n");
-      throw MultiPlay::NetworkError();
+      throw NetworkError();
     }
     saddr->sin_addr.s_addr = sba.sin_addr.s_addr;
   } else {
@@ -573,4 +478,347 @@ GetSocket() {
 
   return true;
 #endif
+}
+
+bool
+WaitForClient() {
+  socklen_t fromlen;
+#ifdef ENABLE_IPV6
+  char port[10];
+
+  sprintf( port, "%d", theRC->csmash_port );
+#endif
+
+  if ( listenSocket[0] < 0 ) {
+    if ( !GetSocket() )
+      throw NetworkError();
+  }
+
+  unsigned int sb;
+#ifdef ENABLE_IPV6
+  struct addrinfo sba;
+  struct addrinfo *res;
+  memset(&sba, 0, sizeof(sba));
+
+  int error;
+  if ( theRC->protocol == IPv6 )
+    sba.ai_family = AF_INET6;
+  else
+    sba.ai_family = AF_INET;
+
+  sba.ai_socktype = SOCK_DGRAM;
+  sba.ai_flags = AI_PASSIVE;
+  error = getaddrinfo( NULL, port, &sba, &res );
+  if (error || res->ai_next) {
+    xerror("%s(%d) getaddrinfo", __FILE__, __LINE__);
+    throw NetworkError();
+  }
+
+  if ( 0 > (sb = socket( res->ai_family, res->ai_socktype,
+			 res->ai_protocol )) ) {
+    xerror("%s(%d) socket", __FILE__, __LINE__);
+    throw NetworkError();
+  }
+
+#ifdef IPV6_V6ONLY
+  if ( res->ai_family == AF_INET6 &&
+       setsockopt( s, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on) ) < 0 ) {
+    close(sb);
+    xerror("%s(%d) setsockopt", __FILE__, __LINE__);
+    return false;
+  }
+#endif
+
+  if (0 > bind(sb, res->ai_addr, res->ai_addrlen)) {
+    xerror("%s(%d) bind", __FILE__, __LINE__);
+    throw NetworkError();
+  }
+#else
+  struct sockaddr_in sba;
+  if (0 > (sb = socket(PF_INET, SOCK_DGRAM, 0))) {
+    xerror("%s(%d) socket", __FILE__, __LINE__);
+    throw NetworkError();
+  }
+  sba.sin_addr.s_addr = INADDR_ANY;
+  sba.sin_family = AF_INET;
+  sba.sin_port = htons(theRC->csmash_port);
+  if (0 > bind(sb, (struct sockaddr*)&sba, sizeof(sba))) {
+    xerror("%s(%d) bind", __FILE__, __LINE__);
+    throw NetworkError();
+  }
+#endif
+
+  // wait for connection / broadcast packet
+  printf("server selecting\n");
+
+  fd_set fd;
+
+  do {
+    int max = 0;
+    int i = 0;
+
+    FD_ZERO(&fd);
+    while ( listenSocket[i] >= 0 ) {
+      FD_SET(listenSocket[i], &fd);
+      if ( listenSocket[i] > max )
+	max = listenSocket[i];
+      i++;
+    }
+    FD_SET(sb, &fd);
+
+    max = max > sb ? max : sb;
+    if (0 <= select(max+1, &fd, NULL, NULL, NULL)) {
+      if (FD_ISSET(sb, &fd)) {
+	// datagram to udp port
+	printf("server recived broadcast packet");
+	if ( theRC->protocol == IPv6 ) {
+	  printf(", but not supported\n" );
+	  throw NetworkError();
+	} else {
+	  char buf[1];
+	  sockaddr_in client;
+	  socklen_t l = sizeof(client);
+
+	  if ( 0 <= recvfrom(sb, (char*)&buf, sizeof(buf), 0,
+			     (sockaddr*)&client, &l)) {
+	    printf("%s\n", inet_ntoa(client.sin_addr));
+	    struct hostent *h;
+	    char buf[128];
+	    if (0 == gethostname(buf, sizeof(buf))) {
+	      h = gethostbyname(buf);
+	      if (h) {
+		sockaddr_in a;
+		memcpy(&a.sin_addr, h->h_addr, h->h_length);
+		printf("send %s\n", inet_ntoa(a.sin_addr));
+		l = sizeof(client);
+		sendto(sb, (char*)&a.sin_addr.s_addr,
+		       sizeof(a.sin_addr.s_addr), 0, (sockaddr*)&client, l);
+	      }
+	    }
+	  }
+	}
+      } else {
+	// connection to tcp port
+	break;
+      }
+    } else {
+      // select error... No, Timeout
+      xerror("%s(%d): select");
+    }
+  } while (1);
+  closesocket(sb);
+
+  if ( theRC->protocol == IPv6 ) {
+#ifdef ENABLE_IPV6
+    struct addrinfo faddr;
+    int i = 0;
+
+    fromlen = sizeof(faddr);
+    while ( listenSocket[i] >= 0 ) {
+      if (FD_ISSET(listenSocket[i], &fd)) {
+	theSocket = accept( listenSocket[i],
+			    (struct sockaddr *)&faddr, &fromlen );
+	break;
+      }
+      i++;
+    }
+#endif
+  } else {
+    struct sockaddr_in faddr;
+    int i = 0;
+
+    fromlen = sizeof(faddr);
+    while ( listenSocket[i] >= 0 ) {
+      if (FD_ISSET(listenSocket[i], &fd)) {
+	theSocket = accept( listenSocket[i],
+			    (struct sockaddr *)&faddr, &fromlen );
+	break;
+      }
+      i++;
+    }
+  }
+  setsockopt( theSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(int) );
+
+  if (0 > theSocket) {
+    xerror("%s(%d) accept", __FILE__, __LINE__);
+    throw NetworkError();
+  }
+
+  return true;
+}
+
+bool
+ConnectToServer() {
+  char buf[128];
+  int i;
+
+#ifdef ENABLE_IPV6
+  struct addrinfo *saddr, saddr2, *res, *res0;
+  char hbuf[32];
+  char port[10];
+  int error;
+
+  sprintf( port, "%d", theRC->csmash_port );
+
+  saddr = findhostname();
+
+  if ( getnameinfo( saddr->ai_addr, saddr->ai_addrlen,
+		    hbuf, sizeof(hbuf), NULL, 0, 0 ) == 0 )
+    printf( "server is %s\n", hbuf );
+
+  memset( &saddr2, 0, sizeof(saddr2) );
+  if ( theRC->protocol == IPv6 )
+    saddr2.ai_family = PF_UNSPEC;
+  else
+    saddr2.ai_family = PF_INET;
+  saddr2.ai_socktype = SOCK_STREAM;
+
+  error = getaddrinfo( hbuf, port, &saddr2, &res0 );
+
+  if (error) {
+    xerror("%s: %s(%d) getaddrinfo",
+	   gai_strerror(error), __FILE__, __LINE__);
+    throw NetworkError();
+  }
+
+  theSocket = -1;
+
+  for ( res = res0 ; res ; res = res->ai_next ) {
+    if ( (theSocket = socket( res->ai_family, res->ai_socktype,
+			      res->ai_protocol )) < 0 ) 
+      continue;
+
+    setsockopt(theSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(int));
+
+    for ( i = 0 ; i < 10 ; i++ ) {
+      if ( !connect( theSocket, res->ai_addr, res->ai_addrlen ) )
+	break;
+#ifdef WIN32
+      Sleep(3000);
+#else
+      sleep(3);
+#endif
+    }
+
+    if ( i < 10 )
+      break;
+
+    close(theSocket);
+    theSocket = -1;
+    continue;
+  }
+
+  if ( theSocket < 0 ) {
+    xerror("%s(%d) connect", __FILE__, __LINE__);
+    throw NetworkError();
+  }
+
+  freeaddrinfo(saddr);
+  freeaddrinfo(res0);
+#else
+  struct sockaddr_in saddr;
+  memset(&saddr, 0, sizeof(saddr));
+
+  findhostname(&saddr);
+
+  printf("server is %s\n", inet_ntoa(saddr.sin_addr));
+  saddr.sin_family = AF_INET;
+  saddr.sin_port = htons(theRC->csmash_port);
+
+  // connect
+  if ( (theSocket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
+    xerror("%s(%d) socket", __FILE__, __LINE__);
+    throw NetworkError();
+  }
+  setsockopt(theSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(int));
+
+  for ( i = 0 ; i < 10 ; i++ ) {
+    if ( !connect( theSocket, (struct sockaddr *)&saddr, sizeof(saddr) ) )
+      break;
+#ifdef WIN32
+    Sleep(3000);
+#else
+    sleep(3);
+#endif
+  }
+
+  if ( i == 10 ) {
+    xerror("%s(%d) connect", __FILE__, __LINE__);
+    throw NetworkError();
+  }
+#endif
+}
+
+void
+ServerAdjustClock() {
+  long adjLog[16];
+  int i, j;
+
+  for ( i = 0 ; i < 16 ; i++ ) {
+    struct timeb tb1, tb2, tb3;
+    long diff;
+
+    getcurrenttime( &tb1 );
+
+    ::SendTime( theSocket, &tb1 );
+    ReadTime( theSocket, &tb3 );
+
+    getcurrenttime( &tb2 );
+
+    diff = ((long)(tb2.time-tb1.time)*1000 + tb2.millitm-tb1.millitm)/2;
+    long mtm = tb1.millitm+diff;
+    while ( mtm >= 1000 ) {
+      mtm -= 1000;
+      tb1.time++;
+    }
+    while ( mtm < 1000 ) {
+      mtm += 1000;
+      tb1.time--;
+    }
+    tb1.millitm = (unsigned short)mtm;
+
+    adjLog[i] = (tb3.time-tb1.time)*1000 + tb3.millitm-tb1.millitm;
+  }
+
+  // Bubble sort
+  i = 0;
+  while ( i == 0 ) {
+    i = 1;
+    for ( j = 0 ; j < 15 ; j++ ) {
+      if ( adjLog[j] > adjLog[j+1] ) {
+	long k = adjLog[j];
+	adjLog[j] = adjLog[j+1];
+	adjLog[j+1] = k;
+	i = 0;
+      }
+    }
+  }
+
+  for ( i = 0 ; i < 16 ; i++ ) {
+    printf( "%d ", adjLog[i] );
+  }
+  printf( "\n" );
+
+  // Use 8 medium value
+  timeAdj = 0;
+  for ( i = 4 ; i < 12 ; i++ ) {
+    timeAdj += adjLog[i];
+  }
+
+  timeAdj /= 80;	/* 8*10 */
+
+  printf( "%d\n", timeAdj );
+}
+
+
+void
+ClientAdjustClock() {
+  // Respond server's AdjustClock()
+  for ( int i = 0 ; i < 16 ; i++ ) {
+    struct timeb tb;
+
+    ReadTime( theSocket, &tb );	// Dispose
+    getcurrenttime( &tb );
+    ::SendTime( theSocket, &tb );
+  }
 }

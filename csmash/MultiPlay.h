@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -97,12 +97,6 @@ public:
 };
 
 
-bool WaitForClient();
-bool ConnectToServer();
-void ServerAdjustClock();
-void ClientAdjustClock();
-
-
 class MultiPlay : public PlayGame {
 public:
   MultiPlay();
@@ -133,9 +127,6 @@ public:
 
   static int WaitForData( void * );
   static int Connect( void * );
-
-  // For exception. 
-  struct NetworkError { };
 
 protected:
   //bool m_smash;

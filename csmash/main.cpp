@@ -259,9 +259,9 @@ StartGame() {
   try {
     ::InitGame();
     while ( PollEvent() );
-  } catch ( MultiPlay::NetworkError ) {
+  } catch ( NetworkError ) {
     ::EndGame();
-    throw MultiPlay::NetworkError();
+    throw NetworkError();
   }
   ::EndGame();
 }

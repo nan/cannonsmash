@@ -37,8 +37,6 @@ void ReadHeader( int socket, char *buf );
 long ReadEntireMessage( int socket, char **buf );
 
 void WritePlayerData();
-Player *ReadPlayerData();
-void SendPlayerData();
 
 void SendSwing( Player *player );
 
@@ -55,5 +53,13 @@ void findhostname( struct sockaddr_in *saddr );
 
 void ClearSocket();
 bool GetSocket();
+
+bool WaitForClient();
+bool ConnectToServer();
+void ServerAdjustClock();
+void ClientAdjustClock();
+
+// For exception. 
+struct NetworkError { };
 
 #endif	// _Network_
