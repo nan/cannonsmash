@@ -60,7 +60,6 @@ long perfs;
 long _backTrackCount = 0;
 double backTracks = 0;
 
-//void CopyPlayerData( struct PlayerData& dest, Player* src );
 void CopyPlayerData( Player& dest, Player* src );
 
 void QuitGame();
@@ -160,9 +159,6 @@ Event::IdleFunc() {
 
   for ( int i = 0 ; i < diffcount ; i++ ) {
     reDraw |= Event::TheEvent()->Move();
-//    printf( "sec=%d count=%d status=%d\nx=%f y=%f z=%f spin = %f\n",
-//	    m_lastTime.time, m_lastTime.millitm/10, theBall.GetStatus(),
-//	    theBall.GetX(), theBall.GetY(), theBall.GetZ(), theBall.GetSpin() );
     Event::TheEvent()->Record();
 
     m_lastTime.millitm += 10;
@@ -268,52 +264,21 @@ Event::Record() {
   if ( m_Histptr == MAX_HISTORY )
     m_Histptr = 0;
 
-#if 0
-  long sec = m_BacktrackBuffer[m_Histptr].sec;
-  long cnt = m_BacktrackBuffer[m_Histptr].count;
-  if ( isComm )
-    cnt += ((MultiPlay *)Control::TheControl())->GetTimeAdj();
-  while ( cnt < 0 ) {
-    sec--;
-    cnt += 100;
-  }
-
-  printf( "sec = %d msec = %d %d - %d  x = %f y = %f st = %d\n", 
-	  sec, cnt,
-	  m_BacktrackBuffer[m_Histptr].score1, m_BacktrackBuffer[m_Histptr].score2, 
-	  m_BacktrackBuffer[m_Histptr].theBall.GetX(), 
-	  m_BacktrackBuffer[m_Histptr].theBall.GetY(),
-	  m_BacktrackBuffer[m_Histptr].theBall.GetStatus() );
-#endif
-
   if ( (mode == MODE_SOLOPLAY || mode == MODE_PRACTICE) &&
        Control::TheControl() &&
        ((SoloPlay *)Control::TheControl())->GetSmashPtr() >= 0 )
     return;
 
+  // Warp Mouse Pointer
+  SetNextMousePointer( x, y );
+
   m_KeyHistory[m_Histptr] = 0;
-  if ( mode == MODE_TITLE ) {
-    m_MouseXHistory[m_Histptr] = x;
-    m_MouseYHistory[m_Histptr] = y;
-  } else if ( mode == MODE_SELECT || mode == MODE_TRAININGSELECT ||
-	      mode == MODE_PRACTICESELECT ) {
-    m_MouseXHistory[m_Histptr] = BaseView::GetWinWidth()/2 +
-      (x-BaseView::GetWinWidth()/2)*15/16;
-    m_MouseYHistory[m_Histptr] = y;
-  } else {
-    m_MouseXHistory[m_Histptr] = BaseView::GetWinWidth()/2 +
-      (x-BaseView::GetWinWidth()/2)*15/16;
-    m_MouseYHistory[m_Histptr] = BaseView::GetWinHeight()/2 +
-      (y-BaseView::GetWinHeight()/2)*15/16;
-  }
+  m_MouseXHistory[m_Histptr] = x;
+  m_MouseYHistory[m_Histptr] = y;
   m_MouseBHistory[m_Histptr] = btn;
 
   m_BacktrackBuffer[m_Histptr].sec = m_lastTime.time;
   m_BacktrackBuffer[m_Histptr].count = m_lastTime.millitm/10;
-  while ( m_BacktrackBuffer[m_Histptr].count > 100 ) {
-    m_BacktrackBuffer[m_Histptr].sec--;
-    m_BacktrackBuffer[m_Histptr].count += 100;
-  }
 
   m_BacktrackBuffer[m_Histptr].theBall = theBall;
   CopyPlayerData( m_BacktrackBuffer[m_Histptr].thePlayer, thePlayer );
@@ -325,13 +290,6 @@ Event::Record() {
       ((PlayGame *)Control::TheControl())->GetScore(1);
     m_BacktrackBuffer[m_Histptr].score2 =
       ((PlayGame *)Control::TheControl())->GetScore(-1);
-#if 0
-    if ( mode == MODE_MULTIPLAY ) {
-      printf( "Hptr = %d x=%f y=%f vx=%f vy=%f vz=%f\n", m_Histptr, 
-	      comPlayer->GetX(), comPlayer->GetY(),
-	      comPlayer->GetVX(), comPlayer->GetVY(), comPlayer->GetVZ() );
-    }
-#endif
   }
 
   return;
@@ -379,46 +337,48 @@ Event::KeyUpFunc( SDL_Event key, int x, int y ) {
 
 void
 Event::MotionFunc( int x, int y ) {
-  Event::TheEvent()->m_MouseXHistory[Event::TheEvent()->m_Histptr] = x;
-  Event::TheEvent()->m_MouseYHistory[Event::TheEvent()->m_Histptr] = y;
+  Event *e = Event::TheEvent();
+  e->m_MouseXHistory[e->m_Histptr] = x;
+  e->m_MouseYHistory[e->m_Histptr] = y;
 }
 
 void
 Event::ButtonFunc( int button, int state, int x, int y ) {
+  Event *e = Event::TheEvent();
   if ( state == SDL_MOUSEBUTTONDOWN ) {
     switch ( button ) {
     case 1:
-      Event::TheEvent()->m_MouseBHistory[Event::TheEvent()->m_Histptr] |= BUTTON_LEFT;
-      Event::TheEvent()->m_mouseButton |= BUTTON_LEFT;
+      e->m_MouseBHistory[e->m_Histptr] |= BUTTON_LEFT;
+      e->m_mouseButton |= BUTTON_LEFT;
       break;
     case 2:
-      Event::TheEvent()->m_MouseBHistory[Event::TheEvent()->m_Histptr] |= BUTTON_MIDDLE;
-      Event::TheEvent()->m_mouseButton |= BUTTON_MIDDLE;
+      e->m_MouseBHistory[e->m_Histptr] |= BUTTON_MIDDLE;
+      e->m_mouseButton |= BUTTON_MIDDLE;
       break;
     case 3:
-      Event::TheEvent()->m_MouseBHistory[Event::TheEvent()->m_Histptr] |= BUTTON_RIGHT;
-      Event::TheEvent()->m_mouseButton |= BUTTON_RIGHT;
+      e->m_MouseBHistory[e->m_Histptr] |= BUTTON_RIGHT;
+      e->m_mouseButton |= BUTTON_RIGHT;
       break;
     }
-  } else {
+  } else {	// Relase Button
     switch ( button ) {
     case 1:
-      Event::TheEvent()->m_MouseBHistory[Event::TheEvent()->m_Histptr] &= ~BUTTON_LEFT;
-      Event::TheEvent()->m_mouseButton &= ~BUTTON_LEFT;
+      e->m_MouseBHistory[e->m_Histptr] &= ~BUTTON_LEFT;
+      e->m_mouseButton &= ~BUTTON_LEFT;
       break;
     case 2:
-      Event::TheEvent()->m_MouseBHistory[Event::TheEvent()->m_Histptr] &= ~BUTTON_MIDDLE;
-      Event::TheEvent()->m_mouseButton &= ~BUTTON_MIDDLE;
+      e->m_MouseBHistory[e->m_Histptr] &= ~BUTTON_MIDDLE;
+      e->m_mouseButton &= ~BUTTON_MIDDLE;
       break;
     case 3:
-      Event::TheEvent()->m_MouseBHistory[Event::TheEvent()->m_Histptr] &= ~BUTTON_RIGHT;
-      Event::TheEvent()->m_mouseButton &= ~BUTTON_RIGHT;
+      e->m_MouseBHistory[e->m_Histptr] &= ~BUTTON_RIGHT;
+      e->m_mouseButton &= ~BUTTON_RIGHT;
       break;
     }
   }
 
-  Event::TheEvent()->m_MouseXHistory[Event::TheEvent()->m_Histptr] = x;
-  Event::TheEvent()->m_MouseYHistory[Event::TheEvent()->m_Histptr] = y;
+  e->m_MouseXHistory[e->m_Histptr] = x;
+  e->m_MouseYHistory[e->m_Histptr] = y;
 }
 
 void
@@ -566,8 +526,9 @@ Event::BackTrack( long Histptr ) {
 
   if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
        mode == MODE_PRACTICE) {
-    ((PlayGame *)Control::TheControl())->ChangeScore( m_BacktrackBuffer[Histptr].score1,
-					   m_BacktrackBuffer[Histptr].score2 );
+    ((PlayGame *)Control::TheControl())->
+      ChangeScore( m_BacktrackBuffer[Histptr].score1,
+		   m_BacktrackBuffer[Histptr].score2 );
   }
 
   m_Histptr = Histptr;
@@ -576,24 +537,8 @@ Event::BackTrack( long Histptr ) {
 
 void
 Event::ReadData() {
-  // 情報受信
   fd_set rdfds;
   struct timeval to;
-
-  // for testing
-  struct timeb tb1;
-#ifndef WIN32
-  struct timeval tv1;
-  struct timezone tz1;
-#endif
-
-#ifdef WIN32
-  ftime( &tb1 );
-#else
-  gettimeofday( &tv1, &tz1 );
-  tb1.time = tv1.tv_sec;
-  tb1.millitm = tv1.tv_usec/1000;
-#endif
 
   while (1) {
     FD_ZERO( &rdfds );
@@ -607,21 +552,6 @@ Event::ReadData() {
     } else
       break;
   }
-
-  // for testing
-  struct timeb tb2;
-#ifndef WIN32
-  struct timeval tv2;
-  struct timezone tz2;
-#endif
-
-#ifdef WIN32
-  ftime( &tb2 );
-#else
-  gettimeofday( &tv2, &tz2 );
-  tb2.time = tv2.tv_sec;
-  tb2.millitm = tv2.tv_usec/1000;
-#endif
 
   // externalDataの先頭までbacktrackする
   long btCount = 0;
@@ -658,9 +588,7 @@ Event::ReadData() {
     bool fTheBall, fThePlayer, fComPlayer;
     fTheBall = fThePlayer = fComPlayer = false;
 
-    //printf( "Backtrack From %d to", m_Histptr );
     BackTrack( btHistptr );
-    //printf( " %d\n", m_Histptr );
 
     // 適用する -> 進めるをbtCount繰り返す
     while (1) {
@@ -698,7 +626,6 @@ Event::ReadData() {
       if ( m_Histptr == MAX_HISTORY )
 	m_Histptr = 0;
 
-      // 後で Event::Record と調整? 
       if ( fTheBall )
 	m_BacktrackBuffer[m_Histptr].theBall = theBall;
       if ( fThePlayer )
@@ -763,4 +690,17 @@ QuitGame() {
   SDL_Event e;
   e.type = SDL_QUIT;
   SDL_PushEvent( &e );
+}
+
+void
+Event::SetNextMousePointer( long &x, long &y ) {
+  if ( mode == MODE_TITLE ) {
+    return;
+  } else if ( mode == MODE_SELECT || mode == MODE_TRAININGSELECT ||
+	      mode == MODE_PRACTICESELECT ) {
+    x = BaseView::GetWinWidth()/2 + (x-BaseView::GetWinWidth()/2)*15/16;
+  } else {
+    x = BaseView::GetWinWidth()/2 + (x-BaseView::GetWinWidth()/2)*15/16;
+    y = BaseView::GetWinHeight()/2 + (y-BaseView::GetWinHeight()/2)*15/16;
+  }
 }

@@ -85,6 +85,8 @@ protected:
   ExternalData *m_External;
   struct Backtrack m_BacktrackBuffer[MAX_HISTORY];
   bool m_backtrack;		// Now backtracking or not
+
+  void SetNextMousePointer( long &x, long &y );
 private:
   Event();
   static Event* m_theEvent;
