@@ -83,7 +83,10 @@
 #define SOUND_CLICK  (2)
 
 // その他
-#define RAND(N) ((int)((double)N*rand()/RAND_MAX))
+#define RAND(N) ((int)((double)(N)*rand()/RAND_MAX))
+
+// 強さ
+enum level {LEVEL_EASY, LEVEL_NORMAL, LEVEL_HARD, LEVEL_TSUBORISH};
 
 #ifdef WIN32
 #include <windows.h>

@@ -32,11 +32,13 @@ TitleView::Init( Title *title ) {
   int i, j, k;
 #ifndef HAVE_LIBZ
   FILE *fp;
-#else
-  gzFile fp;
-#endif 
   static char menu[][30] = {"images/StartGame.ppm", "images/Howto.ppm",
 			    "images/Quit.ppm"};
+#else
+  gzFile fp;
+  static char menu[][30] = {"images/StartGame.ppm.gz", "images/Howto.ppm.gz",
+			    "images/Quit.ppm.gz"};
+#endif 
 
   ImageData image;
 

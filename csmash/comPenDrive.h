@@ -34,6 +34,7 @@ protected:
   virtual bool Think();
 
   virtual bool Hitarea( double &hitX, double &hitY);
+  virtual bool SetTargetX( Player* opponent );
 };
 
 #endif // _comPenDrive_

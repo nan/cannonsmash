@@ -35,9 +35,6 @@ HowtoView::Init( Howto *howto ) {
   int i, j, k;
 #ifndef HAVE_LIBZ
   FILE *fp;
-#else
-  gzFile fp;
-#endif
 
   static char fname[][30] = {"images/Mouse1.ppm", "images/Mouse2.ppm",
 			     "images/Mouse3.ppm", "images/Mouse4.ppm"};
@@ -48,6 +45,21 @@ HowtoView::Init( Howto *howto ) {
   static char howtoText[][30] = {"images/Howto1.ppm", "images/Howto2.ppm", 
 				 "images/Howto3.ppm", "images/Howto4.ppm", 
 				 "images/Howto5.ppm"};
+#else
+  gzFile fp;
+
+  static char fname[][30] = {"images/Mouse1.ppm.gz", "images/Mouse2.ppm.gz",
+			     "images/Mouse3.ppm.gz", "images/Mouse4.ppm.gz"};
+  static char arrowname[][30] = {"images/rightArrow.ppm.gz",
+				 "images/downArrow.ppm.gz",
+				 "images/leftArrow.ppm.gz",
+				 "images/upArrow.ppm.gz"};
+  static char howtoText[][30] = {"images/Howto1.ppm.gz",
+				 "images/Howto2.ppm.gz",
+				 "images/Howto3.ppm.gz",
+				 "images/Howto4.ppm.gz",
+				 "images/Howto5.ppm.gz"};
+#endif
 
   m_howto = howto;
 
@@ -123,7 +135,11 @@ HowtoView::Init( Howto *howto ) {
   }
 
   glGenTextures( 1, m_keyboard );
+#ifdef HAVE_LIBZ
+  image.LoadPPM( "images/Keyboard.ppm.gz" );
+#else
   image.LoadPPM( "images/Keyboard.ppm" );
+#endif
   for ( j = 0 ; j < image.GetWidth() ; j++ ) {
     for ( k = 0 ; k < image.GetHeight() ; k++ ) {
       if ( image.GetPixel( j, k, 0 ) == 255 ||

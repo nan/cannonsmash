@@ -34,10 +34,20 @@ PlayerSelectView::~PlayerSelectView() {
 bool
 PlayerSelectView::Init( PlayerSelect *playerSelect ) {
   ImageData image;
-  int i, j;
+  int i, j, k;
 
+#ifdef HAVE_LIBZ
+  static char menu[][30] = {"images/Easy.ppm.gz", "images/Normal.ppm.gz",
+			    "images/Hard.ppm.gz", "images/Tsuborish.ppm.gz"};
+  static char pname[][30] = {"images/PenSmash.ppm.gz",
+			     "images/ShakeCut.ppm.gz",
+			     "images/PenDrive.ppm.gz"};
+#else
+  static char menu[][30] = {"images/Easy.ppm", "images/Normal.ppm",
+			    "images/Hard.ppm", "images/Tsuborish.ppm"};
   static char pname[][30] = {"images/PenSmash.ppm", "images/ShakeCut.ppm",
 			     "images/PenDrive.ppm"};
+#endif
 
   m_playerSelect = playerSelect;
 
@@ -67,7 +77,7 @@ PlayerSelectView::Init( PlayerSelect *playerSelect ) {
   }
 #else
   gzFile fp;
-  if (NULL == (fp = gzopenx("images/SelectPlayer.ppm", "rs"))) return false;
+  if (NULL == (fp = gzopenx("images/SelectPlayer.ppm.gz", "rs"))) return false;
 #endif
 
   for ( i = 69 ; i >= 0 ; i-- ) {
@@ -82,12 +92,37 @@ PlayerSelectView::Init( PlayerSelect *playerSelect ) {
   gzclose(fp);
 #endif
 
+  for ( i = 0 ; i < 4 ; i++ ) {
+#ifndef HAVE_LIBZ
+    if( (fp = fopen(&menu[i][0], "r")) == NULL ) {
+      return false;
+    }
+#else
+    if (NULL == (fp = gzopenx(&menu[i][0], "rs"))) return false;
+#endif
+
+    for ( j = 69 ; j >= 0 ; j-- ) {
+      for ( k = 0 ; k < 400/8 ; k++ ) {
+	m_choice[i][j*50+k] = strtol( getWord(fp), NULL, 16 );
+      }
+    }
+
+#ifndef HAVE_LIBZ
+    fclose(fp);
+#else
+    gzclose(fp);
+#endif
+  }
+
   return true;
 }
 
 bool
 PlayerSelectView::Redraw() {
   int i;
+
+  if ( m_playerSelect->GetSelected() == 1 )
+    return true;
 
   glEnable(GL_TEXTURE_2D);
 
@@ -169,6 +204,51 @@ PlayerSelectView::Redraw() {
   }
 
   glDisable(GL_TEXTURE_2D);
+
+  return true;
+}
+
+bool
+PlayerSelectView::RedrawAlpha() {
+  int i;
+
+  if ( m_playerSelect->GetSelected() != 1 )
+    return true;
+
+  glColor4f( 1.0, 1.0, 1.0, 0.0 );
+
+  glPushMatrix();
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  gluOrtho2D( 0.0, (GLfloat)winWidth, 0.0, (GLfloat)winHeight );
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+
+  glDepthMask(0);
+
+  for ( i = 0 ; i < 4 ; i++ ) {
+    if ( i < 3 )
+      glColor4f( 1.0, 1.0, 1.0, 0.0 );
+    else
+      glColor4f( 0.0, 0.0, 0.0, 0.0 );
+
+    glRasterPos2i( 300, 430-i*100 );
+    glBitmap( 400, 70, 0.0, 0.0, 0.0, 0, &m_choice[i][0] );
+  }
+
+  glColor4f( 1.0, 1.0, 0.0, 0.0 );
+  glBegin(GL_TRIANGLES);
+  glVertex2i( 220, 430-m_playerSelect->GetLevel()*100 );
+  glVertex2i( 280, 465-m_playerSelect->GetLevel()*100 );
+  glVertex2i( 220, 500-m_playerSelect->GetLevel()*100 );
+  glEnd();
+  glDepthMask(1);
+
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
 
   return true;
 }

@@ -1,3 +1,189 @@
 pkgdatadir = $(datadir)/@PACKAGE@/Motion
-pkgdata_DATA = $(wildcard *.bin)
-EXTRA_DIST = $(pkgdata_DATA)
+
+pkgdata_DATA = Fnormal1.bin@PKGDATA@ Fnormal2.bin@PKGDATA@ \
+		 Fnormal3.bin@PKGDATA@ Fnormal4.bin@PKGDATA@ \
+		Fnormal5.bin@PKGDATA@ Fnormal6.bin@PKGDATA@ \
+		Fnormal7.bin@PKGDATA@ Fnormal8.bin@PKGDATA@ \
+		Fnormal9.bin@PKGDATA@ Fnormal10.bin@PKGDATA@ \
+		Fnormal11.bin@PKGDATA@ Fnormal12.bin@PKGDATA@ \
+		Fnormal13.bin@PKGDATA@ Fnormal14.bin@PKGDATA@ \
+		Fnormal15.bin@PKGDATA@ Fnormal16.bin@PKGDATA@ \
+		Fnormal17.bin@PKGDATA@ Fnormal18.bin@PKGDATA@ \
+		Fnormal19.bin@PKGDATA@ Fnormal20.bin@PKGDATA@ \
+		Fnormal21.bin@PKGDATA@ Fnormal22.bin@PKGDATA@ \
+		Fnormal23.bin@PKGDATA@ Fnormal24.bin@PKGDATA@ \
+		Fnormal25.bin@PKGDATA@ Fnormal26.bin@PKGDATA@ \
+		Fnormal27.bin@PKGDATA@ Fnormal28.bin@PKGDATA@ \
+		Fnormal29.bin@PKGDATA@ Fnormal30.bin@PKGDATA@ \
+		Fnormal31.bin@PKGDATA@ Fnormal32.bin@PKGDATA@ \
+		Fnormal33.bin@PKGDATA@ Fnormal34.bin@PKGDATA@ \
+		Fnormal35.bin@PKGDATA@ Fnormal36.bin@PKGDATA@ \
+		Fnormal37.bin@PKGDATA@ Fnormal38.bin@PKGDATA@ \
+		Fnormal39.bin@PKGDATA@ Fnormal40.bin@PKGDATA@ \
+		Fnormal41.bin@PKGDATA@ Fnormal42.bin@PKGDATA@ \
+		Fnormal43.bin@PKGDATA@ Fnormal44.bin@PKGDATA@ \
+		Fnormal45.bin@PKGDATA@ Fnormal46.bin@PKGDATA@ \
+		Fnormal47.bin@PKGDATA@ Fnormal48.bin@PKGDATA@ \
+		Fnormal49.bin@PKGDATA@ Fnormal50.bin@PKGDATA@ \
+		Fcut1.bin@PKGDATA@ Fcut2.bin@PKGDATA@ Fcut3.bin@PKGDATA@ \
+		Fcut4.bin@PKGDATA@ Fcut5.bin@PKGDATA@ Fcut6.bin@PKGDATA@ \
+		Fcut7.bin@PKGDATA@ Fcut8.bin@PKGDATA@ Fcut9.bin@PKGDATA@ \
+		Fcut10.bin@PKGDATA@ Fcut11.bin@PKGDATA@ Fcut12.bin@PKGDATA@ \
+		Fcut13.bin@PKGDATA@ Fcut14.bin@PKGDATA@ Fcut15.bin@PKGDATA@ \
+		Fcut16.bin@PKGDATA@ Fcut17.bin@PKGDATA@ Fcut18.bin@PKGDATA@ \
+		Fcut19.bin@PKGDATA@ Fcut20.bin@PKGDATA@ Fcut21.bin@PKGDATA@ \
+		Fcut22.bin@PKGDATA@ Fcut23.bin@PKGDATA@ Fcut24.bin@PKGDATA@ \
+		Fcut25.bin@PKGDATA@ Fcut26.bin@PKGDATA@ Fcut27.bin@PKGDATA@ \
+		Fcut28.bin@PKGDATA@ Fcut29.bin@PKGDATA@ Fcut30.bin@PKGDATA@ \
+		Fcut31.bin@PKGDATA@ Fcut32.bin@PKGDATA@ Fcut33.bin@PKGDATA@ \
+		Fcut34.bin@PKGDATA@ Fcut35.bin@PKGDATA@ Fcut36.bin@PKGDATA@ \
+		Fcut37.bin@PKGDATA@ Fcut38.bin@PKGDATA@ Fcut39.bin@PKGDATA@ \
+		Fcut40.bin@PKGDATA@ Fcut41.bin@PKGDATA@ Fcut42.bin@PKGDATA@ \
+		Fcut43.bin@PKGDATA@ Fcut44.bin@PKGDATA@ Fcut45.bin@PKGDATA@ \
+		Fcut46.bin@PKGDATA@ Fcut47.bin@PKGDATA@ Fcut48.bin@PKGDATA@ \
+		Fcut49.bin@PKGDATA@ Fcut50.bin@PKGDATA@ \
+		Fdrive1.bin@PKGDATA@ Fdrive2.bin@PKGDATA@ \
+		Fdrive3.bin@PKGDATA@ Fdrive4.bin@PKGDATA@ \
+		Fdrive5.bin@PKGDATA@ Fdrive6.bin@PKGDATA@ \
+		Fdrive7.bin@PKGDATA@ Fdrive8.bin@PKGDATA@ \
+		Fdrive9.bin@PKGDATA@ Fdrive10.bin@PKGDATA@ \
+		Fdrive11.bin@PKGDATA@ Fdrive12.bin@PKGDATA@ \
+		Fdrive13.bin@PKGDATA@ Fdrive14.bin@PKGDATA@ \
+		Fdrive15.bin@PKGDATA@ Fdrive16.bin@PKGDATA@ \
+		Fdrive17.bin@PKGDATA@ Fdrive18.bin@PKGDATA@ \
+		Fdrive19.bin@PKGDATA@ Fdrive20.bin@PKGDATA@ \
+		Fdrive21.bin@PKGDATA@ Fdrive22.bin@PKGDATA@ \
+		Fdrive23.bin@PKGDATA@ Fdrive24.bin@PKGDATA@ \
+		Fdrive25.bin@PKGDATA@ Fdrive26.bin@PKGDATA@ \
+		Fdrive27.bin@PKGDATA@ Fdrive28.bin@PKGDATA@ \
+		Fdrive29.bin@PKGDATA@ Fdrive30.bin@PKGDATA@ \
+		Fdrive31.bin@PKGDATA@ Fdrive32.bin@PKGDATA@ \
+		Fdrive33.bin@PKGDATA@ Fdrive34.bin@PKGDATA@ \
+		Fdrive35.bin@PKGDATA@ Fdrive36.bin@PKGDATA@ \
+		Fdrive37.bin@PKGDATA@ Fdrive38.bin@PKGDATA@ \
+		Fdrive39.bin@PKGDATA@ Fdrive40.bin@PKGDATA@ \
+		Fdrive41.bin@PKGDATA@ Fdrive42.bin@PKGDATA@ \
+		Fdrive43.bin@PKGDATA@ Fdrive44.bin@PKGDATA@ \
+		Fdrive45.bin@PKGDATA@ Fdrive46.bin@PKGDATA@ \
+		Fdrive47.bin@PKGDATA@ Fdrive48.bin@PKGDATA@ \
+		Fdrive49.bin@PKGDATA@ Fdrive50.bin@PKGDATA@ \
+		Fpeck1.bin@PKGDATA@ Fpeck2.bin@PKGDATA@ Fpeck3.bin@PKGDATA@ \
+		Fpeck4.bin@PKGDATA@ Fpeck5.bin@PKGDATA@ Fpeck6.bin@PKGDATA@ \
+		Fpeck7.bin@PKGDATA@ Fpeck8.bin@PKGDATA@ Fpeck9.bin@PKGDATA@ \
+		Fpeck10.bin@PKGDATA@ Fpeck11.bin@PKGDATA@ \
+		Fpeck12.bin@PKGDATA@ Fpeck13.bin@PKGDATA@ \
+		Fpeck14.bin@PKGDATA@ Fpeck15.bin@PKGDATA@ \
+		Fpeck16.bin@PKGDATA@ Fpeck17.bin@PKGDATA@ \
+		Fpeck18.bin@PKGDATA@ Fpeck19.bin@PKGDATA@ \
+		Fpeck20.bin@PKGDATA@ Fpeck21.bin@PKGDATA@ \
+		Fpeck22.bin@PKGDATA@ Fpeck23.bin@PKGDATA@ \
+		Fpeck24.bin@PKGDATA@ Fpeck25.bin@PKGDATA@ \
+		Fpeck26.bin@PKGDATA@ Fpeck27.bin@PKGDATA@ \
+		Fpeck28.bin@PKGDATA@ Fpeck29.bin@PKGDATA@ \
+		Fpeck30.bin@PKGDATA@ Fpeck31.bin@PKGDATA@ \
+		Fpeck32.bin@PKGDATA@ Fpeck33.bin@PKGDATA@ \
+		Fpeck34.bin@PKGDATA@ Fpeck35.bin@PKGDATA@ \
+		Fpeck36.bin@PKGDATA@ Fpeck37.bin@PKGDATA@ \
+		Fpeck38.bin@PKGDATA@ Fpeck39.bin@PKGDATA@ \
+		Fpeck40.bin@PKGDATA@ Fpeck41.bin@PKGDATA@ \
+		Fpeck42.bin@PKGDATA@ Fpeck43.bin@PKGDATA@ \
+		Fpeck44.bin@PKGDATA@ Fpeck45.bin@PKGDATA@ \
+		Fpeck46.bin@PKGDATA@ Fpeck47.bin@PKGDATA@ \
+		Fpeck48.bin@PKGDATA@ Fpeck49.bin@PKGDATA@ \
+		Fpeck50.bin@PKGDATA@ \
+		Fsmash1.bin@PKGDATA@ Fsmash2.bin@PKGDATA@ \
+		Fsmash3.bin@PKGDATA@ Fsmash4.bin@PKGDATA@ \
+		Fsmash5.bin@PKGDATA@ Fsmash6.bin@PKGDATA@ \
+		Fsmash7.bin@PKGDATA@ Fsmash8.bin@PKGDATA@ \
+		Fsmash9.bin@PKGDATA@ Fsmash10.bin@PKGDATA@ \
+		Fsmash11.bin@PKGDATA@ Fsmash12.bin@PKGDATA@ \
+		Fsmash13.bin@PKGDATA@ Fsmash14.bin@PKGDATA@ \
+		Fsmash15.bin@PKGDATA@ Fsmash16.bin@PKGDATA@ \
+		Fsmash17.bin@PKGDATA@ Fsmash18.bin@PKGDATA@ \
+		Fsmash19.bin@PKGDATA@ Fsmash20.bin@PKGDATA@ \
+		Fsmash21.bin@PKGDATA@ Fsmash22.bin@PKGDATA@ \
+		Fsmash23.bin@PKGDATA@ Fsmash24.bin@PKGDATA@ \
+		Fsmash25.bin@PKGDATA@ Fsmash26.bin@PKGDATA@ \
+		Fsmash27.bin@PKGDATA@ Fsmash28.bin@PKGDATA@ \
+		Fsmash29.bin@PKGDATA@ Fsmash30.bin@PKGDATA@ \
+		Fsmash31.bin@PKGDATA@ Fsmash32.bin@PKGDATA@ \
+		Fsmash33.bin@PKGDATA@ Fsmash34.bin@PKGDATA@ \
+		Fsmash35.bin@PKGDATA@ Fsmash36.bin@PKGDATA@ \
+		Fsmash37.bin@PKGDATA@ Fsmash38.bin@PKGDATA@ \
+		Fsmash39.bin@PKGDATA@ Fsmash40.bin@PKGDATA@ \
+		Fsmash41.bin@PKGDATA@ Fsmash42.bin@PKGDATA@ \
+		Fsmash43.bin@PKGDATA@ Fsmash44.bin@PKGDATA@ \
+		Fsmash45.bin@PKGDATA@ Fsmash46.bin@PKGDATA@ \
+		Fsmash47.bin@PKGDATA@ Fsmash48.bin@PKGDATA@ \
+		Fsmash49.bin@PKGDATA@ Fsmash50.bin@PKGDATA@ \
+		Bnormal1.bin@PKGDATA@ Bnormal2.bin@PKGDATA@ \
+		Bnormal3.bin@PKGDATA@ Bnormal4.bin@PKGDATA@ \
+		Bnormal5.bin@PKGDATA@ Bnormal6.bin@PKGDATA@ \
+		Bnormal7.bin@PKGDATA@ Bnormal8.bin@PKGDATA@ \
+		Bnormal9.bin@PKGDATA@ Bnormal10.bin@PKGDATA@ \
+		Bnormal11.bin@PKGDATA@ Bnormal12.bin@PKGDATA@ \
+		Bnormal13.bin@PKGDATA@ Bnormal14.bin@PKGDATA@ \
+		Bnormal15.bin@PKGDATA@ Bnormal16.bin@PKGDATA@ \
+		Bnormal17.bin@PKGDATA@ Bnormal18.bin@PKGDATA@ \
+		Bnormal19.bin@PKGDATA@ Bnormal20.bin@PKGDATA@ \
+		Bnormal21.bin@PKGDATA@ Bnormal22.bin@PKGDATA@ \
+		Bnormal23.bin@PKGDATA@ Bnormal24.bin@PKGDATA@ \
+		Bnormal25.bin@PKGDATA@ Bnormal26.bin@PKGDATA@ \
+		Bnormal27.bin@PKGDATA@ Bnormal28.bin@PKGDATA@ \
+		Bnormal29.bin@PKGDATA@ Bnormal30.bin@PKGDATA@ \
+		Bnormal31.bin@PKGDATA@ Bnormal32.bin@PKGDATA@ \
+		Bnormal33.bin@PKGDATA@ Bnormal34.bin@PKGDATA@ \
+		Bnormal35.bin@PKGDATA@ Bnormal36.bin@PKGDATA@ \
+		Bnormal37.bin@PKGDATA@ Bnormal38.bin@PKGDATA@ \
+		Bnormal39.bin@PKGDATA@ Bnormal40.bin@PKGDATA@ \
+		Bnormal41.bin@PKGDATA@ Bnormal42.bin@PKGDATA@ \
+		Bnormal43.bin@PKGDATA@ Bnormal44.bin@PKGDATA@ \
+		Bnormal45.bin@PKGDATA@ Bnormal46.bin@PKGDATA@ \
+		Bnormal47.bin@PKGDATA@ Bnormal48.bin@PKGDATA@ \
+		Bnormal49.bin@PKGDATA@ Bnormal50.bin@PKGDATA@ \
+		Bcut1.bin@PKGDATA@ Bcut2.bin@PKGDATA@ Bcut3.bin@PKGDATA@ \
+		Bcut4.bin@PKGDATA@ Bcut5.bin@PKGDATA@ Bcut6.bin@PKGDATA@ \
+		Bcut7.bin@PKGDATA@ Bcut8.bin@PKGDATA@ Bcut9.bin@PKGDATA@ \
+		Bcut10.bin@PKGDATA@ Bcut11.bin@PKGDATA@ Bcut12.bin@PKGDATA@ \
+		Bcut13.bin@PKGDATA@ Bcut14.bin@PKGDATA@ Bcut15.bin@PKGDATA@ \
+		Bcut16.bin@PKGDATA@ Bcut17.bin@PKGDATA@ Bcut18.bin@PKGDATA@ \
+		Bcut19.bin@PKGDATA@ Bcut20.bin@PKGDATA@ Bcut21.bin@PKGDATA@ \
+		Bcut22.bin@PKGDATA@ Bcut23.bin@PKGDATA@ Bcut24.bin@PKGDATA@ \
+		Bcut25.bin@PKGDATA@ Bcut26.bin@PKGDATA@ Bcut27.bin@PKGDATA@ \
+		Bcut28.bin@PKGDATA@ Bcut29.bin@PKGDATA@ Bcut30.bin@PKGDATA@ \
+		Bcut31.bin@PKGDATA@ Bcut32.bin@PKGDATA@ Bcut33.bin@PKGDATA@ \
+		Bcut34.bin@PKGDATA@ Bcut35.bin@PKGDATA@ Bcut36.bin@PKGDATA@ \
+		Bcut37.bin@PKGDATA@ Bcut38.bin@PKGDATA@ Bcut39.bin@PKGDATA@ \
+		Bcut40.bin@PKGDATA@ Bcut41.bin@PKGDATA@ Bcut42.bin@PKGDATA@ \
+		Bcut43.bin@PKGDATA@ Bcut44.bin@PKGDATA@ Bcut45.bin@PKGDATA@ \
+		Bcut46.bin@PKGDATA@ Bcut47.bin@PKGDATA@ Bcut48.bin@PKGDATA@ \
+		Bcut49.bin@PKGDATA@ Bcut50.bin@PKGDATA@ \
+		Bpeck1.bin@PKGDATA@ Bpeck2.bin@PKGDATA@ Bpeck3.bin@PKGDATA@ \
+		Bpeck4.bin@PKGDATA@ Bpeck5.bin@PKGDATA@ Bpeck6.bin@PKGDATA@ \
+		Bpeck7.bin@PKGDATA@ Bpeck8.bin@PKGDATA@ Bpeck9.bin@PKGDATA@ \
+		Bpeck10.bin@PKGDATA@ Bpeck11.bin@PKGDATA@ \
+		Bpeck12.bin@PKGDATA@ Bpeck13.bin@PKGDATA@ \
+		Bpeck14.bin@PKGDATA@ Bpeck15.bin@PKGDATA@ \
+		Bpeck16.bin@PKGDATA@ Bpeck17.bin@PKGDATA@ \
+		Bpeck18.bin@PKGDATA@ Bpeck19.bin@PKGDATA@ \
+		Bpeck20.bin@PKGDATA@ Bpeck21.bin@PKGDATA@ \
+		Bpeck22.bin@PKGDATA@ Bpeck23.bin@PKGDATA@ \
+		Bpeck24.bin@PKGDATA@ Bpeck25.bin@PKGDATA@ \
+		Bpeck26.bin@PKGDATA@ Bpeck27.bin@PKGDATA@ \
+		Bpeck28.bin@PKGDATA@ Bpeck29.bin@PKGDATA@ \
+		Bpeck30.bin@PKGDATA@ Bpeck31.bin@PKGDATA@ \
+		Bpeck32.bin@PKGDATA@ Bpeck33.bin@PKGDATA@ \
+		Bpeck34.bin@PKGDATA@ Bpeck35.bin@PKGDATA@ \
+		Bpeck36.bin@PKGDATA@ Bpeck37.bin@PKGDATA@ \
+		Bpeck38.bin@PKGDATA@ Bpeck39.bin@PKGDATA@ \
+		Bpeck40.bin@PKGDATA@ Bpeck41.bin@PKGDATA@ \
+		Bpeck42.bin@PKGDATA@ Bpeck43.bin@PKGDATA@ \
+		Bpeck44.bin@PKGDATA@ Bpeck45.bin@PKGDATA@ \
+		Bpeck46.bin@PKGDATA@ Bpeck47.bin@PKGDATA@ \
+		Bpeck48.bin@PKGDATA@ Bpeck49.bin@PKGDATA@ \
+		Bpeck50.bin@PKGDATA@
+
+EXTRA_DIST = $(wildcard *.bin)
+
+%.bin.gz: %.bin
+	@GZIP@ -c $< > $<.gz

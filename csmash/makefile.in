@@ -58,12 +58,14 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 CXX = @CXX@
+GZIP = @GZIP@
 MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
+PKGDATA = @PKGDATA@
 VERSION = @VERSION@
 
 bin_PROGRAMS = csmash
-csmash_SOURCES = main.cpp Ball.cpp Event.cpp BaseView.cpp BallView.cpp View.cpp Player.cpp comPlayer.cpp PlayerView.cpp HitMark.cpp PenAttack.cpp ShakeCut.cpp PenDrive.cpp comPenAttack.cpp comShakeCut.cpp comPenDrive.cpp PlayerSelect.cpp PlayerSelectView.cpp Title.cpp TitleView.cpp Howto.cpp HowtoView.cpp Sound.cpp LoadImage.cpp ttinc.h Ball.h Event.h BaseView.h BallView.h View.h Player.h comPlayer.h PlayerView.h HitMark.h PenAttack.h ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h comPenDrive.h PlayerSelect.h PlayerSelectView.h Title.h TitleView.h Howto.h HowtoView.h Sound.h LoadImage.h
+csmash_SOURCES = main.cpp Ball.cpp Event.cpp BaseView.cpp BallView.cpp View.cpp Player.cpp comPlayer.cpp PlayerView.cpp HitMark.cpp PenAttack.cpp ShakeCut.cpp PenDrive.cpp comPenAttack.cpp comShakeCut.cpp comPenDrive.cpp PlayerSelect.cpp PlayerSelectView.cpp Title.cpp TitleView.cpp Howto.cpp HowtoView.cpp Sound.cpp LoadImage.cpp z.cpp ttinc.h Ball.h Event.h BaseView.h BallView.h View.h Player.h comPlayer.h PlayerView.h HitMark.h PenAttack.h ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h comPenDrive.h PlayerSelect.h PlayerSelectView.h Title.h TitleView.h Howto.h HowtoView.h Sound.h LoadImage.h z.h
 SUBDIRS = Motion images wav
 EXTRA_DIST = README.nt Makefile.nt
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -80,7 +82,7 @@ csmash_OBJECTS =  main.o Ball.o Event.o BaseView.o BallView.o View.o \
 Player.o comPlayer.o PlayerView.o HitMark.o PenAttack.o ShakeCut.o \
 PenDrive.o comPenAttack.o comShakeCut.o comPenDrive.o PlayerSelect.o \
 PlayerSelectView.o Title.o TitleView.o Howto.o HowtoView.o Sound.o \
-LoadImage.o
+LoadImage.o z.o
 csmash_LDADD = $(LDADD)
 csmash_DEPENDENCIES = 
 csmash_LDFLAGS = 
@@ -101,6 +103,13 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
+DEP_FILES =  .deps/Ball.P .deps/BallView.P .deps/BaseView.P \
+.deps/Event.P .deps/HitMark.P .deps/Howto.P .deps/HowtoView.P \
+.deps/LoadImage.P .deps/PenAttack.P .deps/PenDrive.P .deps/Player.P \
+.deps/PlayerSelect.P .deps/PlayerSelectView.P .deps/PlayerView.P \
+.deps/ShakeCut.P .deps/Sound.P .deps/Title.P .deps/TitleView.P \
+.deps/View.P .deps/comPenAttack.P .deps/comPenDrive.P .deps/comPlayer.P \
+.deps/comShakeCut.P .deps/main.P .deps/z.P
 SOURCES = $(csmash_SOURCES)
 OBJECTS = $(csmash_OBJECTS)
 
@@ -108,9 +117,9 @@ all: all-redirect
 .SUFFIXES:
 .SUFFIXES: .S .c .cpp .o .s
 $(srcdir)/makefile.in: makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu makefile
 
-makefile: $(srcdir)/makefile.in  $(top_builddir)/config.status
+makefile: $(srcdir)/makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
@@ -146,9 +155,6 @@ uninstall-binPROGRAMS:
 	list='$(bin_PROGRAMS)'; for p in $$list; do \
 	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
 	done
-
-.c.o:
-	$(COMPILE) -c $<
 
 .s.o:
 	$(COMPILE) -c $<
@@ -299,6 +305,11 @@ distdir: $(DISTFILES)
 	-rm -rf $(distdir)
 	mkdir $(distdir)
 	-chmod 777 $(distdir)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
@@ -319,206 +330,57 @@ distdir: $(DISTFILES)
 	      || exit 1; \
 	  fi; \
 	done
-Ball.o: Ball.cpp ttinc.h LoadImage.h Ball.h Event.h View.h BaseView.h \
-	BallView.h Player.h comPlayer.h PenAttack.h ShakeCut.h \
-	PenDrive.h comPenAttack.h comShakeCut.h comPenDrive.h \
-	PlayerView.h HitMark.h PlayerSelect.h PlayerSelectView.h \
-	Title.h TitleView.h Howto.h HowtoView.h Sound.h
-BallView.o: BallView.cpp ttinc.h LoadImage.h Ball.h Event.h View.h \
-	BaseView.h BallView.h Player.h comPlayer.h PenAttack.h \
-	ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h \
-	comPenDrive.h PlayerView.h HitMark.h PlayerSelect.h \
-	PlayerSelectView.h Title.h TitleView.h Howto.h HowtoView.h \
-	Sound.h
-BaseView.o: BaseView.cpp ttinc.h LoadImage.h Ball.h Event.h View.h \
-	BaseView.h BallView.h Player.h comPlayer.h PenAttack.h \
-	ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h \
-	comPenDrive.h PlayerView.h HitMark.h PlayerSelect.h \
-	PlayerSelectView.h Title.h TitleView.h Howto.h HowtoView.h \
-	Sound.h
-Event.o: Event.cpp ttinc.h LoadImage.h Ball.h Event.h View.h BaseView.h \
-	BallView.h Player.h comPlayer.h PenAttack.h ShakeCut.h \
-	PenDrive.h comPenAttack.h comShakeCut.h comPenDrive.h \
-	PlayerView.h HitMark.h PlayerSelect.h PlayerSelectView.h \
-	Title.h TitleView.h Howto.h HowtoView.h Sound.h
-HitMark.o: HitMark.cpp ttinc.h LoadImage.h Ball.h Event.h View.h \
-	BaseView.h BallView.h Player.h comPlayer.h PenAttack.h \
-	ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h \
-	comPenDrive.h PlayerView.h HitMark.h PlayerSelect.h \
-	PlayerSelectView.h Title.h TitleView.h Howto.h HowtoView.h \
-	Sound.h
-Howto.o: Howto.cpp ttinc.h LoadImage.h Ball.h Event.h View.h BaseView.h \
-	BallView.h Player.h comPlayer.h PenAttack.h ShakeCut.h \
-	PenDrive.h comPenAttack.h comShakeCut.h comPenDrive.h \
-	PlayerView.h HitMark.h PlayerSelect.h PlayerSelectView.h \
-	Title.h TitleView.h Howto.h HowtoView.h Sound.h
-HowtoView.o: HowtoView.cpp ttinc.h LoadImage.h Ball.h Event.h View.h \
-	BaseView.h BallView.h Player.h comPlayer.h PenAttack.h \
-	ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h \
-	comPenDrive.h PlayerView.h HitMark.h PlayerSelect.h \
-	PlayerSelectView.h Title.h TitleView.h Howto.h HowtoView.h \
-	Sound.h
-LoadImage.o: LoadImage.cpp ttinc.h LoadImage.h Ball.h Event.h View.h \
-	BaseView.h BallView.h Player.h comPlayer.h PenAttack.h \
-	ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h \
-	comPenDrive.h PlayerView.h HitMark.h PlayerSelect.h \
-	PlayerSelectView.h Title.h TitleView.h Howto.h HowtoView.h \
-	Sound.h
-Peko.o: Peko.cpp ttinc.h LoadImage.h Ball.h Event.h View.h BaseView.h \
-	BallView.h Player.h comPlayer.h Peko.h ShakeCut.h PenDrive.h \
-	comPeko.h comShakeCut.h comPenDrive.h PlayerView.h HitMark.h \
-	PlayerSelect.h PlayerSelectView.h Title.h TitleView.h Howto.h \
-	HowtoView.h Sound.h
-PenAttack.o: PenAttack.cpp ttinc.h LoadImage.h Ball.h Event.h View.h \
-	BaseView.h BallView.h Player.h comPlayer.h PenAttack.h \
-	ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h \
-	comPenDrive.h PlayerView.h HitMark.h PlayerSelect.h \
-	PlayerSelectView.h Title.h TitleView.h Howto.h HowtoView.h \
-	Sound.h
-PenDrive.o: PenDrive.cpp ttinc.h LoadImage.h Ball.h Event.h View.h \
-	BaseView.h BallView.h Player.h comPlayer.h PenAttack.h \
-	ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h \
-	comPenDrive.h PlayerView.h HitMark.h PlayerSelect.h \
-	PlayerSelectView.h Title.h TitleView.h Howto.h HowtoView.h \
-	Sound.h
-Player.o: Player.cpp ttinc.h LoadImage.h Ball.h Event.h View.h \
-	BaseView.h BallView.h Player.h comPlayer.h PenAttack.h \
-	ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h \
-	comPenDrive.h PlayerView.h HitMark.h PlayerSelect.h \
-	PlayerSelectView.h Title.h TitleView.h Howto.h HowtoView.h \
-	Sound.h
-PlayerSelect.o: PlayerSelect.cpp ttinc.h LoadImage.h Ball.h Event.h \
-	View.h BaseView.h BallView.h Player.h comPlayer.h PenAttack.h \
-	ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h \
-	comPenDrive.h PlayerView.h HitMark.h PlayerSelect.h \
-	PlayerSelectView.h Title.h TitleView.h Howto.h HowtoView.h \
-	Sound.h
-PlayerSelectView.o: PlayerSelectView.cpp ttinc.h LoadImage.h Ball.h \
-	Event.h View.h BaseView.h BallView.h Player.h comPlayer.h \
-	PenAttack.h ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h \
-	comPenDrive.h PlayerView.h HitMark.h PlayerSelect.h \
-	PlayerSelectView.h Title.h TitleView.h Howto.h HowtoView.h \
-	Sound.h
-PlayerView.o: PlayerView.cpp ttinc.h LoadImage.h Ball.h Event.h View.h \
-	BaseView.h BallView.h Player.h comPlayer.h PenAttack.h \
-	ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h \
-	comPenDrive.h PlayerView.h HitMark.h PlayerSelect.h \
-	PlayerSelectView.h Title.h TitleView.h Howto.h HowtoView.h \
-	Sound.h
-ShakeCut.o: ShakeCut.cpp ttinc.h LoadImage.h Ball.h Event.h View.h \
-	BaseView.h BallView.h Player.h comPlayer.h PenAttack.h \
-	ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h \
-	comPenDrive.h PlayerView.h HitMark.h PlayerSelect.h \
-	PlayerSelectView.h Title.h TitleView.h Howto.h HowtoView.h \
-	Sound.h
-Smile.o: Smile.cpp ttinc.h LoadImage.h Ball.h Event.h View.h BaseView.h \
-	BallView.h Player.h comPlayer.h Peko.h Smile.h PenDrive.h \
-	comPeko.h comSmile.h comPenDrive.h PlayerView.h HitMark.h \
-	PlayerSelect.h PlayerSelectView.h Title.h TitleView.h Howto.h \
-	HowtoView.h Sound.h
-Sound.o: Sound.cpp ttinc.h LoadImage.h Ball.h Event.h View.h BaseView.h \
-	BallView.h Player.h comPlayer.h PenAttack.h ShakeCut.h \
-	PenDrive.h comPenAttack.h comShakeCut.h comPenDrive.h \
-	PlayerView.h HitMark.h PlayerSelect.h PlayerSelectView.h \
-	Title.h TitleView.h Howto.h HowtoView.h Sound.h
-Title.o: Title.cpp ttinc.h LoadImage.h Ball.h Event.h View.h BaseView.h \
-	BallView.h Player.h comPlayer.h PenAttack.h ShakeCut.h \
-	PenDrive.h comPenAttack.h comShakeCut.h comPenDrive.h \
-	PlayerView.h HitMark.h PlayerSelect.h PlayerSelectView.h \
-	Title.h TitleView.h Howto.h HowtoView.h Sound.h
-TitleView.o: TitleView.cpp ttinc.h LoadImage.h Ball.h Event.h View.h \
-	BaseView.h BallView.h Player.h comPlayer.h PenAttack.h \
-	ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h \
-	comPenDrive.h PlayerView.h HitMark.h PlayerSelect.h \
-	PlayerSelectView.h Title.h TitleView.h Howto.h HowtoView.h \
-	Sound.h
-View.o: View.cpp ttinc.h LoadImage.h Ball.h Event.h View.h BaseView.h \
-	BallView.h Player.h comPlayer.h PenAttack.h ShakeCut.h \
-	PenDrive.h comPenAttack.h comShakeCut.h comPenDrive.h \
-	PlayerView.h HitMark.h PlayerSelect.h PlayerSelectView.h \
-	Title.h TitleView.h Howto.h HowtoView.h Sound.h
-canBall.o: canBall.cpp ttinc.h canBall.h canEvent.h canView.h \
-	canBaseView.h canBallView.h canPlayer.h comPlayer.h Peko.h \
-	Smile.h PenDrive.h comPeko.h comSmile.h canPlayerView.h \
-	HitMark.h canPlayerSelect.h canPlayerSelectView.h Sound.h
-canBallView.o: canBallView.cpp ttinc.h canBall.h canEvent.h canView.h \
-	canBaseView.h canBallView.h canPlayer.h comPlayer.h Peko.h \
-	Smile.h PenDrive.h comPeko.h comSmile.h canPlayerView.h \
-	HitMark.h canPlayerSelect.h canPlayerSelectView.h Sound.h
-canBaseView.o: canBaseView.cpp ttinc.h canBall.h canEvent.h canView.h \
-	canBaseView.h canBallView.h canPlayer.h comPlayer.h Peko.h \
-	Smile.h PenDrive.h comPeko.h comSmile.h canPlayerView.h \
-	HitMark.h canPlayerSelect.h canPlayerSelectView.h Sound.h
-canEvent.o: canEvent.cpp ttinc.h canBall.h canEvent.h canView.h \
-	canBaseView.h canBallView.h canPlayer.h comPlayer.h Peko.h \
-	Smile.h PenDrive.h comPeko.h comSmile.h canPlayerView.h \
-	HitMark.h canPlayerSelect.h canPlayerSelectView.h Sound.h
-canPlayer.o: canPlayer.cpp ttinc.h canBall.h canEvent.h canView.h \
-	canBaseView.h canBallView.h canPlayer.h comPlayer.h Peko.h \
-	Smile.h PenDrive.h comPeko.h comSmile.h canPlayerView.h \
-	HitMark.h canPlayerSelect.h canPlayerSelectView.h Sound.h
-canPlayerSelect.o: canPlayerSelect.cpp ttinc.h canBall.h canEvent.h \
-	canView.h canBaseView.h canBallView.h canPlayer.h comPlayer.h \
-	Peko.h Smile.h PenDrive.h comPeko.h comSmile.h canPlayerView.h \
-	HitMark.h canPlayerSelect.h canPlayerSelectView.h Sound.h
-canPlayerSelectView.o: canPlayerSelectView.cpp ttinc.h canBall.h \
-	canEvent.h canView.h canBaseView.h canBallView.h canPlayer.h \
-	comPlayer.h Peko.h Smile.h PenDrive.h comPeko.h comSmile.h \
-	canPlayerView.h HitMark.h canPlayerSelect.h \
-	canPlayerSelectView.h Sound.h
-canPlayerView.o: canPlayerView.cpp ttinc.h canBall.h canEvent.h \
-	canView.h canBaseView.h canBallView.h canPlayer.h comPlayer.h \
-	Peko.h Smile.h PenDrive.h comPeko.h comSmile.h canPlayerView.h \
-	HitMark.h canPlayerSelect.h canPlayerSelectView.h Sound.h
-canView.o: canView.cpp ttinc.h canBall.h canEvent.h canView.h \
-	canBaseView.h canBallView.h canPlayer.h comPlayer.h Peko.h \
-	Smile.h PenDrive.h comPeko.h comSmile.h canPlayerView.h \
-	HitMark.h canPlayerSelect.h canPlayerSelectView.h Sound.h
-comPeko.o: comPeko.cpp ttinc.h LoadImage.h Ball.h Event.h View.h \
-	BaseView.h BallView.h Player.h comPlayer.h Peko.h ShakeCut.h \
-	PenDrive.h comPeko.h comShakeCut.h comPenDrive.h PlayerView.h \
-	HitMark.h PlayerSelect.h PlayerSelectView.h Title.h TitleView.h \
-	Howto.h HowtoView.h Sound.h
-comPenAttack.o: comPenAttack.cpp ttinc.h LoadImage.h Ball.h Event.h \
-	View.h BaseView.h BallView.h Player.h comPlayer.h PenAttack.h \
-	ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h \
-	comPenDrive.h PlayerView.h HitMark.h PlayerSelect.h \
-	PlayerSelectView.h Title.h TitleView.h Howto.h HowtoView.h \
-	Sound.h
-comPenDrive.o: comPenDrive.cpp ttinc.h LoadImage.h Ball.h Event.h View.h \
-	BaseView.h BallView.h Player.h comPlayer.h PenAttack.h \
-	ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h \
-	comPenDrive.h PlayerView.h HitMark.h PlayerSelect.h \
-	PlayerSelectView.h Title.h TitleView.h Howto.h HowtoView.h \
-	Sound.h
-comPlayer.o: comPlayer.cpp ttinc.h LoadImage.h Ball.h Event.h View.h \
-	BaseView.h BallView.h Player.h comPlayer.h PenAttack.h \
-	ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h \
-	comPenDrive.h PlayerView.h HitMark.h PlayerSelect.h \
-	PlayerSelectView.h Title.h TitleView.h Howto.h HowtoView.h \
-	Sound.h
-comShakeCut.o: comShakeCut.cpp ttinc.h LoadImage.h Ball.h Event.h View.h \
-	BaseView.h BallView.h Player.h comPlayer.h PenAttack.h \
-	ShakeCut.h PenDrive.h comPenAttack.h comShakeCut.h \
-	comPenDrive.h PlayerView.h HitMark.h PlayerSelect.h \
-	PlayerSelectView.h Title.h TitleView.h Howto.h HowtoView.h \
-	Sound.h
-comSmile.o: comSmile.cpp ttinc.h LoadImage.h Ball.h Event.h View.h \
-	BaseView.h BallView.h Player.h comPlayer.h Peko.h Smile.h \
-	PenDrive.h comPeko.h comSmile.h comPenDrive.h PlayerView.h \
-	HitMark.h PlayerSelect.h PlayerSelectView.h Title.h TitleView.h \
-	Howto.h HowtoView.h Sound.h
-main.o: main.cpp ttinc.h LoadImage.h Ball.h Event.h View.h BaseView.h \
-	BallView.h Player.h comPlayer.h PenAttack.h ShakeCut.h \
-	PenDrive.h comPenAttack.h comShakeCut.h comPenDrive.h \
-	PlayerView.h HitMark.h PlayerSelect.h PlayerSelectView.h \
-	Title.h TitleView.h Howto.h HowtoView.h Sound.h
-z.o: z.cpp ttinc.h z.h LoadImage.h Ball.h Event.h View.h BaseView.h \
-	BallView.h Player.h comPlayer.h PenAttack.h ShakeCut.h \
-	PenDrive.h comPenAttack.h comShakeCut.h comPenDrive.h \
-	PlayerView.h HitMark.h PlayerSelect.h PlayerSelectView.h \
-	Title.h TitleView.h Howto.h HowtoView.h Sound.h
 
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+
+-include $(DEP_FILES)
+
+mostlyclean-depend:
+
+clean-depend:
+
+distclean-depend:
+	-rm -rf .deps
+
+maintainer-clean-depend:
+
+%.o: %.c
+	@echo '$(COMPILE) -c $<'; \
+	$(COMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.c
+	@echo '$(LTCOMPILE) -c $<'; \
+	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
+
+%.o: %.cpp
+	@echo '$(CXXCOMPILE) -c $<'; \
+	$(CXXCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.cpp
+	@echo '$(LTCXXCOMPILE) -c $<'; \
+	$(LTCXXCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
 info-am:
 info: info-recursive
 dvi-am:
@@ -557,24 +419,25 @@ distclean-generic:
 
 maintainer-clean-generic:
 mostlyclean-am:  mostlyclean-binPROGRAMS mostlyclean-compile \
-		mostlyclean-tags mostlyclean-generic
+		mostlyclean-tags mostlyclean-depend mostlyclean-generic
 
 mostlyclean: mostlyclean-recursive
 
-clean-am:  clean-binPROGRAMS clean-compile clean-tags clean-generic \
-		mostlyclean-am
+clean-am:  clean-binPROGRAMS clean-compile clean-tags clean-depend \
+		clean-generic mostlyclean-am
 
 clean: clean-recursive
 
 distclean-am:  distclean-binPROGRAMS distclean-compile distclean-tags \
-		distclean-generic clean-am
+		distclean-depend distclean-generic clean-am
 
 distclean: distclean-recursive
 	-rm -f config.status
 
 maintainer-clean-am:  maintainer-clean-binPROGRAMS \
 		maintainer-clean-compile maintainer-clean-tags \
-		maintainer-clean-generic distclean-am
+		maintainer-clean-depend maintainer-clean-generic \
+		distclean-am
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 
@@ -590,12 +453,14 @@ uninstall-exec-recursive installdirs-recursive uninstalldirs-recursive \
 all-recursive check-recursive installcheck-recursive info-recursive \
 dvi-recursive mostlyclean-recursive distclean-recursive clean-recursive \
 maintainer-clean-recursive tags tags-recursive mostlyclean-tags \
-distclean-tags clean-tags maintainer-clean-tags distdir info-am info \
-dvi-am dvi check check-am installcheck-am installcheck install-exec-am \
-install-exec install-data-am install-data install-am install \
-uninstall-am uninstall all-redirect all-am all installdirs-am \
-installdirs mostlyclean-generic distclean-generic clean-generic \
-maintainer-clean-generic clean mostlyclean distclean maintainer-clean
+distclean-tags clean-tags maintainer-clean-tags distdir \
+mostlyclean-depend distclean-depend clean-depend \
+maintainer-clean-depend info-am info dvi-am dvi check check-am \
+installcheck-am installcheck install-exec-am install-exec \
+install-data-am install-data install-am install uninstall-am uninstall \
+all-redirect all-am all installdirs-am installdirs mostlyclean-generic \
+distclean-generic clean-generic maintainer-clean-generic clean \
+mostlyclean distclean maintainer-clean
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

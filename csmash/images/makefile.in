@@ -56,13 +56,16 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 CXX = @CXX@
+GZIP = @GZIP@
 MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
+PKGDATA = @PKGDATA@
 VERSION = @VERSION@
 
 pkgdatadir = $(datadir)/@PACKAGE@/images
-pkgdata_DATA = $(wildcard *.ppm)
-EXTRA_DIST = $(pkgdata_DATA)
+pkgdata_DATA = Bad.ppm@PKGDATA@ Easy.ppm@PKGDATA@ Floor.ppm@PKGDATA@ 		Hard.ppm@PKGDATA@ Howto.ppm@PKGDATA@ Howto1.ppm@PKGDATA@ 		Howto2.ppm@PKGDATA@ Howto3.ppm@PKGDATA@ Howto4.ppm@PKGDATA@ 		Howto5.ppm@PKGDATA@ Keyboard.ppm@PKGDATA@ Mouse1.ppm@PKGDATA@ 		Mouse2.ppm@PKGDATA@ Mouse3.ppm@PKGDATA@ Mouse4.ppm@PKGDATA@ 		Nice.ppm@PKGDATA@ Normal.ppm@PKGDATA@ PenDrive.ppm@PKGDATA@ 		PenSmash.ppm@PKGDATA@ Quit.ppm@PKGDATA@ 		SelectPlayer.ppm@PKGDATA@ ShakeCut.ppm@PKGDATA@ 		StartGame.ppm@PKGDATA@ Title.ppm@PKGDATA@ 		Tsuborish.ppm@PKGDATA@ downArrow.ppm@PKGDATA@ 		eight.ppm@PKGDATA@ five.ppm@PKGDATA@ four.ppm@PKGDATA@ 		leftArrow.ppm@PKGDATA@ lose.ppm@PKGDATA@ nine.ppm@PKGDATA@ 		one.ppm@PKGDATA@ rightArrow.ppm@PKGDATA@ seven.ppm@PKGDATA@ 		six.ppm@PKGDATA@ three.ppm@PKGDATA@ two.ppm@PKGDATA@ 		upArrow.ppm@PKGDATA@ win.ppm@PKGDATA@ zero.ppm@PKGDATA@
+
+EXTRA_DIST = $(wildcard *.ppm)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
 DATA =  $(pkgdata_DATA)
@@ -77,9 +80,9 @@ GZIP_ENV = --best
 all: all-redirect
 .SUFFIXES:
 $(srcdir)/makefile.in: makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu --include-deps images/makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu images/makefile
 
-makefile: $(srcdir)/makefile.in  $(top_builddir)/config.status
+makefile: $(srcdir)/makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
@@ -111,6 +114,11 @@ distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 subdir = images
 
 distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu images/makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
@@ -182,6 +190,9 @@ install uninstall-am uninstall all-redirect all-am all installdirs \
 mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
+
+%.ppm.gz: %.ppm
+	@GZIP@ -c $< > $<.gz
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

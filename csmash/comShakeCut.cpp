@@ -22,6 +22,8 @@ extern Ball   theBall;
 extern Player *thePlayer;
 extern Player *comPlayer;
 
+extern long    gameLevel;
+
 ComShakeCut::ComShakeCut() {
   ::ShakeCut();
 
@@ -154,7 +156,8 @@ ComShakeCut::Think() {
     if ( ((tmpBall->GetStatus() == 3 && m_side == 1) ||
 	  (tmpBall->GetStatus() == 1 && m_side == -1)) &&
 	 (m_y-tmpBall->GetY())*m_side < 0.3 &&
-	 (m_y-tmpBall->GetY())*m_side > -0.6 && RAND(3) == 0 ){
+	 (m_y-tmpBall->GetY())*m_side > -0.6 && RAND(2) == 0 &&
+	 fabs(m_y-tmpBall->GetY()) > 0.15-gameLevel*0.05 ){
       _hitX = tmpBall->GetX();
       _hitY = tmpBall->GetY();
 
@@ -164,70 +167,7 @@ ComShakeCut::Think() {
       else
 	opponent = comPlayer;
 
-      if ( opponent->GetPlayerType() == PLAYER_PENDRIVE ) {
-	switch ( RAND(6) ) {
-	case 0:
-	  m_targetX = -TABLEWIDTH*7/16;
-	  break;
-	case 1:
-	  m_targetX = -TABLEWIDTH*5/16;
-	  break;
-	case 2:
-	  m_targetX = -TABLEWIDTH*3/16;
-	  break;
-	case 3:
-	  m_targetX = -TABLEWIDTH*1/16;
-	  break;
-	case 4:
-	  m_targetX = TABLEWIDTH*3/16;
-	  break;
-	case 5:
-	  m_targetX = TABLEWIDTH*7/16;
-	  break;
-	}
-      } else {
-	switch ( RAND(8) ) {
-	case 0:
-	  m_targetX = -TABLEWIDTH*7/16;
-	  break;
-	case 1:
-	  m_targetX = -TABLEWIDTH*5/16;
-	  break;
-	case 2:
-	  m_targetX = -TABLEWIDTH*3/16;
-	  break;
-	case 3:
-	  m_targetX = -TABLEWIDTH*1/16;
-	  break;
-	case 4:
-	  m_targetX = TABLEWIDTH*1/16;
-	  break;
-	case 5:
-	  m_targetX = TABLEWIDTH*3/16;
-	  break;
-	case 6:
-	  m_targetX = TABLEWIDTH*5/16;
-	  break;
-	case 7:
-	  m_targetX = TABLEWIDTH*7/16;
-	  break;
-	}
-      }
-
-      if ( m_vx > 1.5 ) {
-	m_targetX += TABLEWIDTH/2;
-      } else if ( m_vx > 0.5 ) {
-	m_targetX += TABLEWIDTH/4;
-      } else if ( m_vx < -1.5 ) {
-	m_targetX -= TABLEWIDTH/2;
-      } else if ( m_vx < -0.5 ) {
-	m_targetX -= TABLEWIDTH/4;
-      }
-
-      if ( m_targetX > TABLEWIDTH/2 )
-	m_targetX = TABLEWIDTH*7/16;
-      if ( m_targetX < -TABLEWIDTH/2 )
-	m_targetX = -TABLEWIDTH*7/16;
+      SetTargetX( opponent );
 
       if ( (tmpBall->GetZ()-TABLEHEIGHT)/fabs(m_y - m_targetY) < 0.0 ) {
 	m_targetY = TABLELENGTH/6*m_side;
@@ -302,4 +242,81 @@ ComShakeCut::Hitarea( double &hitX, double &hitY ) {
     hitY = -(TABLELENGTH/2+0.2)*m_side;
   }
     return true;
+}
+
+bool
+ComShakeCut::SetTargetX( Player *opponent ) {
+  double width;
+
+  switch ( gameLevel ) {
+  case LEVEL_EASY:
+    width = TABLEWIDTH/4;
+    break;
+  case LEVEL_NORMAL:
+    width = TABLEWIDTH/2;
+    break;
+  case LEVEL_HARD:
+  case LEVEL_TSUBORISH:
+    width = TABLEWIDTH;
+    break;
+  }
+
+  if ( opponent->GetPlayerType() == PLAYER_PENDRIVE ) {
+    switch ( RAND(4) ) {
+    case 0:
+      m_targetX = -width*7/16;
+      break;
+    case 1:
+      m_targetX = -width*5/16;
+      break;
+    case 2:
+      m_targetX = -width*3/16;
+      break;
+    case 3:
+      m_targetX = -width*1/16;
+      break;
+    }
+  } else {
+    switch ( RAND(8) ) {
+    case 0:
+      m_targetX = -width*7/16;
+      break;
+    case 1:
+      m_targetX = width*5/16;
+      break;
+    case 2:
+      m_targetX = -width*3/16;
+      break;
+    case 3:
+      m_targetX = -width*1/16;
+      break;
+    case 4:
+      m_targetX = width*1/16;
+      break;
+    case 5:
+      m_targetX = width*3/16;
+      break;
+    case 6:
+      m_targetX = width*5/16;
+      break;
+    case 7:
+      m_targetX = width*7/16;
+      break;
+    }
+  }
+
+  if ( m_vx > 1.5 ) {
+    m_targetX += TABLEWIDTH/2;
+  } else if ( m_vx > 0.5 ) {
+    m_targetX += TABLEWIDTH/4;
+  } else if ( m_vx < -1.5 ) {
+    m_targetX -= TABLEWIDTH/2;
+  } else if ( m_vx < -0.5 ) {
+    m_targetX -= TABLEWIDTH/4;
+  }
+
+  if ( m_targetX > TABLEWIDTH/2 )
+    m_targetX = TABLEWIDTH*7/16;
+  if ( m_targetX < -TABLEWIDTH/2 )
+    m_targetX = -TABLEWIDTH*7/16;
 }

@@ -43,7 +43,7 @@ MotionData::~MotionData() {
 
 bool
 MotionData::LoadData( char *fname, int points ) {
-  int i, j;
+  int i, j, k;
   long poly;
 
   for ( i = 0 ; i < 50 ; i++ ) {
@@ -81,6 +81,64 @@ MotionData::LoadData( char *fname, int points ) {
 
     gzclose(fp);
 #endif
+
+// test implement. ポリゴンをsortして手前から描くようにすれば速くなるか?
+#if 0
+    int flag;
+    double max;
+    long p0, p1, p2, p3;
+    double maxTable[1024];
+
+    for ( j = 0 ; ; j++ ) {
+      if ( m_poly[i][j][0] < 0 )
+	break;
+
+      maxTable[j] = -300.0;
+      if ( m_points[i][m_poly[i][j][0]][1] > maxTable[j] )
+	maxTable[j] = m_points[i][m_poly[i][j][0]][1];
+      if ( m_points[i][m_poly[i][j][1]][1] > maxTable[j] )
+	maxTable[j] = m_points[i][m_poly[i][j][1]][1];
+      if ( m_points[i][m_poly[i][j][2]][1] > maxTable[j] )
+	maxTable[j] = m_points[i][m_poly[i][j][2]][1];
+      if (m_poly[i][j][3]>=0 && m_points[i][m_poly[i][j][3]][1]>maxTable[j])
+	maxTable[j] = m_points[i][m_poly[i][j][3]][1];
+    }
+
+    while (1) {
+      flag = 0;
+      for ( j = 1 ; ; j++ ) {
+	if ( m_poly[i][j][0] < 0 )
+	  break;
+
+	if ( maxTable[j] > maxTable[j-1] ) {
+	  flag = 1;
+	  p0 = m_poly[i][j][0];
+	  p1 = m_poly[i][j][1];
+	  p2 = m_poly[i][j][2];
+	  p3 = m_poly[i][j][3];
+
+	  m_poly[i][j][0] = m_poly[i][j-1][0];
+	  m_poly[i][j][1] = m_poly[i][j-1][1];
+	  m_poly[i][j][2] = m_poly[i][j-1][2];
+	  m_poly[i][j][3] = m_poly[i][j-1][3];
+
+	  m_poly[i][j-1][0] = p0;
+	  m_poly[i][j-1][1] = p1;
+	  m_poly[i][j-1][2] = p2;
+	  m_poly[i][j-1][3] = p3;
+
+	  max = maxTable[j];
+	  maxTable[j] = maxTable[j-1];
+	  maxTable[j-1] = max;
+	}
+      }
+      if ( !flag )
+	break;
+    }
+
+    printf( "%d\n", i );
+#endif
+// end test implement
 
     for ( j = 0 ; ; j++ ) {
       int p0, p1, p2;

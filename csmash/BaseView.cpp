@@ -109,7 +109,11 @@ BaseView::Init() {
 // テクスチャの設定. 
   ImageData image;
 
+#ifdef HAVE_LIBZ
+  image.LoadPPM( "images/Floor.ppm.gz" );
+#else
   image.LoadPPM( "images/Floor.ppm" );
+#endif
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glGenTextures( 1, &m_floor );
@@ -125,7 +129,11 @@ BaseView::Init() {
 
   glGenTextures( 1, &m_title );
 
+#ifdef HAVE_LIBZ
+  image.LoadPPM( "images/Title.ppm.gz" );
+#else
   image.LoadPPM( "images/Title.ppm" );
+#endif
   for ( i = 0 ; i < image.GetWidth() ; i++ ) {
     for ( j = 0 ; j < image.GetHeight() ; j++ ) {
       if ( image.GetPixel( i, j, 0 ) != 0 ||
@@ -198,6 +206,7 @@ BaseView::RedrawAll() {
 
   glColor4f(0.4, 0.2, 0.0, 0.0);
 
+  glDisable(GL_BLEND);
   Redraw();
 
   view = m_View;
@@ -222,6 +231,8 @@ BaseView::RedrawAll() {
 
     view = view->m_next;
   }
+
+  glEnable(GL_BLEND);
 
   RedrawAlpha();
 
@@ -631,7 +642,11 @@ BaseView::RemoveView( View *view ) {
 // 終了処理. 
 void
 BaseView::EndGame() {
+#ifdef HAVE_LIBZ
+  static char file[][30] = {"images/win.ppm.gz", "images/lose.ppm.gz"};
+#else
   static char file[][30] = {"images/win.ppm", "images/lose.ppm"};
+#endif
   GLubyte bmp[400*70/8];
 #ifndef HAVE_LIBZ
   FILE *fp;

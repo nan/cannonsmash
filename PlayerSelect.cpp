@@ -24,6 +24,7 @@ extern long mode;
 extern Player *thePlayer;
 
 extern long winWidth;
+extern long winHeight;
 extern Sound theSound;
 
 extern long wins;
@@ -60,7 +61,7 @@ PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   // 次の対戦相手
   if ( wins > 0 && m_selected == 0 ) {
-    m_selected = 1;
+    m_selected = 2;
     m_rotate = (thePlayer->GetPlayerType()-1)*(360/PLAYERS);
     return true;
   }
@@ -82,46 +83,55 @@ PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( m_selected == 0 ) {
       m_selected = 1;
       theSound.Play( SOUND_CLICK );
+    } else if ( m_selected == 1 ) {
+      m_selected = 2;
+      theSound.Play( SOUND_CLICK );
     } else if ( m_selected > 100 ) {
       mode = MODE_PLAY;
       return true;
     }
   }
 
-  if ( m_selected > 0 ) {
+  if ( m_selected > 1 ) {
     m_selected++;
     return true;
   }
 
-  if ( lastRotate == 0 ) {
-    if ( MouseXHistory[Histptr] - winWidth/2 > 10 ) {
-      nothing = 0;
-      lastRotate = 2;
-    } else if ( MouseXHistory[Histptr] - winWidth/2 < -10 ) {
-      nothing = 0;
-      lastRotate = -2;
-    } else
-      nothing++;
+  if ( m_selected == 0 ) {
+    if ( lastRotate == 0 ) {
+      if ( MouseXHistory[Histptr] - winWidth/2 > 10 ) {
+	nothing = 0;
+	lastRotate = 2;
+      } else if ( MouseXHistory[Histptr] - winWidth/2 < -10 ) {
+	nothing = 0;
+	lastRotate = -2;
+      } else
+	nothing++;
 
-    m_rotate += lastRotate;
-    if ( m_rotate < 0 )
-      m_rotate += 360;
-    else
-      m_rotate %= 360;
-  } else {
-    long nextRotate = m_rotate + lastRotate;
+      m_rotate += lastRotate;
+      if ( m_rotate < 0 )
+	m_rotate += 360;
+      else
+	m_rotate %= 360;
+    } else {
+      long nextRotate = m_rotate + lastRotate;
 
-    if ( nextRotate < 0 )
-      nextRotate += 360;
-    else
-      nextRotate %= 360;
+      if ( nextRotate < 0 )
+	nextRotate += 360;
+      else
+	nextRotate %= 360;
 
-    if ( m_rotate/(360/PLAYERS) != nextRotate/(360/PLAYERS) ) {
-      m_rotate = (nextRotate+360/PLAYERS/2)/(360/PLAYERS)*(360/PLAYERS);
-      lastRotate = 0;
-      theSound.Play( SOUND_CLICK );
-    } else
-      m_rotate = nextRotate;
+      if ( m_rotate/(360/PLAYERS) != nextRotate/(360/PLAYERS) ) {
+	m_rotate = (nextRotate+360/PLAYERS/2)/(360/PLAYERS)*(360/PLAYERS);
+	lastRotate = 0;
+	theSound.Play( SOUND_CLICK );
+      } else
+	m_rotate = nextRotate;
+    }
+  } else if ( m_selected == 1 ) {
+    m_level = MouseYHistory[Histptr]*3/winHeight;
+    if ( m_level > 2 )
+      m_level = 2;
   }
 
   if ( nothing > 1000 ) {
@@ -135,6 +145,11 @@ PlayerSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
 long
 PlayerSelect::GetRotate() {
   return m_rotate;
+}
+
+long
+PlayerSelect::GetLevel() {
+  return m_level;
 }
 
 long

@@ -34,8 +34,13 @@ HitMark::Init() {
   int i, j;
 
   if ( m_textures[0] == 0 ) {
+#ifdef HAVE_LIBZ
+    errorImage[0].LoadPPM( "images/Nice.ppm.gz" );
+    errorImage[1].LoadPPM( "images/Bad.ppm.gz" );
+#else
     errorImage[0].LoadPPM( "images/Nice.ppm" );
     errorImage[1].LoadPPM( "images/Bad.ppm" );
+#endif
 
     for ( i = 0 ; i < errorImage[0].GetWidth() ; i++ ) {
       for ( j = 0 ; j < errorImage[0].GetHeight() ; j++ ) {

@@ -3,6 +3,7 @@ AC_INIT(ShakeCut.h)
 
 dnl Checks for programs.
 AC_PROG_CXX
+AC_PATH_PROG(GZIP, gzip)
 
 AC_PATH_X
 
@@ -21,7 +22,15 @@ AC_CHECK_LIB(GLU, gluPerspective, , [AC_CHECK_LIB(MesaGLU, gluPerspective, , [AC
 AC_CHECK_LIB(glut, glutCreateWindow, , [AC_CHECK_LIB(glut32, main)])
 AC_CHECK_LIB(esd, esd_play_stream)
 AC_CHECK_LIB(pthread, pthread_create)
-dnl AC_CHECK_LIB(z, gzdopen)
+AC_CHECK_LIB(z, gzdopen)
+
+if test x$ac_cv_lib_z_gzdopen = xyes; then
+  PKGDATA=.gz
+else
+  PKGDATA=
+fi
+AC_SUBST(PKGDATA)
+
 
 dnl AC_CHECK_LIB(pthread, pthread_create, [AC_DEFINE(PTHREAD)
 dnl 				LIBS="$LIBS -lpthread"])
@@ -37,7 +46,7 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 
-AM_INIT_AUTOMAKE(csmash, 0.3.4, no-define)
+AM_INIT_AUTOMAKE(csmash, 0.3.5, no-define)
 
 AC_DEFINE_UNQUOTED(CANNONSMASH_DATADIR, "@prefix@/share/$PACKAGE/")
 

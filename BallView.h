@@ -26,6 +26,7 @@ public:
   virtual ~BallView();
 
   virtual bool Redraw();
+  virtual bool RedrawAlpha();
 private:
   static GLuint m_number[10];
 };

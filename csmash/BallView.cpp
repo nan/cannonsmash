@@ -36,11 +36,19 @@ BallView::~BallView() {
 bool
 BallView::Init() {
   ImageData numImage;
+#ifdef HAVE_LIBZ
+  static char num[][20] = {"images/zero.ppm.gz", "images/one.ppm.gz",
+			   "images/two.ppm.gz", "images/three.ppm.gz",
+			   "images/four.ppm.gz", "images/five.ppm.gz",
+			   "images/six.ppm.gz", "images/seven.ppm.gz",
+			   "images/eight.ppm.gz", "images/nine.ppm.gz"};
+#else
   static char num[][20] = {"images/zero.ppm", "images/one.ppm",
 			   "images/two.ppm", "images/three.ppm",
 			   "images/four.ppm", "images/five.ppm",
 			   "images/six.ppm", "images/seven.ppm",
 			   "images/eight.ppm", "images/nine.ppm"};
+#endif
 
   if ( m_number[0] == 0 ) {
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -159,6 +167,11 @@ BallView::Redraw() {
     delete tmpBall;
   }
 
+  return true;
+}
+
+bool
+BallView::RedrawAlpha() {
   // Score
 
   if ( mode == MODE_PLAY || mode == MODE_DEMO ){
@@ -167,7 +180,6 @@ BallView::Redraw() {
 
     glEnable(GL_TEXTURE_2D);
     glColor3f( 0.0, 0.0, 0.0 );
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     if ( theBall.GetScore(thePlayer) < 10 ) {
       glBindTexture(GL_TEXTURE_2D, m_number[theBall.GetScore(thePlayer)] );
@@ -219,11 +231,8 @@ BallView::Redraw() {
       glEnd();
     }
 
-//    glBlendFunc(GL_ONE, GL_SRC_ALPHA);
     glDisable(GL_TEXTURE_2D);
 
     glPopMatrix();
   }
-
-  return true;
 }

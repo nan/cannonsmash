@@ -57,6 +57,7 @@ long winWidth	= WINXSIZE;
 long winHeight	= WINYSIZE;
 
 long wins	= 0;		// 勝ち抜き数
+long gameLevel  = LEVEL_NORMAL;	// 強さ
 
 PlayerSelect* theSelect = NULL;
 Title*        theTitle  = NULL;
@@ -415,21 +416,32 @@ LoadData( void *dum ) {
 #endif
 
   motion_Fnormal = new MotionData();
-  motion_Fnormal->LoadData( "Motion/Fnormal%d.bin", 706 );
   motion_Bnormal = new MotionData();
-  motion_Bnormal->LoadData( "Motion/Bnormal%d.bin", 706 );
   motion_Fdrive = new MotionData();
-  motion_Fdrive->LoadData( "Motion/Fdrive%d.bin", 706 );
   motion_Fcut = new MotionData();
-  motion_Fcut->LoadData( "Motion/Fcut%d.bin", 706 );
   motion_Bcut = new MotionData();
-  motion_Bcut->LoadData( "Motion/Bcut%d.bin", 706 );
   motion_Fpeck = new MotionData();
-  motion_Fpeck->LoadData( "Motion/Fpeck%d.bin", 706 );
   motion_Bpeck = new MotionData();
-  motion_Bpeck->LoadData( "Motion/Bpeck%d.bin", 664 );
   motion_Fsmash = new MotionData();
+#ifdef HAVE_LIBZ
+  motion_Fnormal->LoadData( "Motion/Fnormal%d.bin.gz", 706 );
+  motion_Bnormal->LoadData( "Motion/Bnormal%d.bin.gz", 706 );
+  motion_Fdrive->LoadData( "Motion/Fdrive%d.bin.gz", 706 );
+  motion_Fcut->LoadData( "Motion/Fcut%d.bin.gz", 706 );
+  motion_Bcut->LoadData( "Motion/Bcut%d.bin.gz", 706 );
+  motion_Fpeck->LoadData( "Motion/Fpeck%d.bin.gz", 706 );
+  motion_Bpeck->LoadData( "Motion/Bpeck%d.bin.gz", 664 );
+  motion_Fsmash->LoadData( "Motion/Fsmash%d.bin.gz", 664 );
+#else
+  motion_Fnormal->LoadData( "Motion/Fnormal%d.bin", 706 );
+  motion_Bnormal->LoadData( "Motion/Bnormal%d.bin", 706 );
+  motion_Fdrive->LoadData( "Motion/Fdrive%d.bin", 706 );
+  motion_Fcut->LoadData( "Motion/Fcut%d.bin", 706 );
+  motion_Bcut->LoadData( "Motion/Bcut%d.bin", 706 );
+  motion_Fpeck->LoadData( "Motion/Fpeck%d.bin", 706 );
+  motion_Bpeck->LoadData( "Motion/Bpeck%d.bin", 664 );
   motion_Fsmash->LoadData( "Motion/Fsmash%d.bin", 664 );
+#endif
 
   theSound.Init();
 

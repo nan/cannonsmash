@@ -26,6 +26,7 @@ extern PlayerSelect* theSelect;
 extern Title* theTitle;
 extern Howto* theHowto;
 extern long mode;
+extern long gameLevel;
 
 extern void Timer( int value );
 struct timeb m_lastTime = {0, 0, 0, 0};	// 直前にTimerEventが呼ばれたときの時刻
@@ -171,6 +172,8 @@ Event::IdleFunc() {
 	  p = (360+(theSelect->GetRotate()%360))/(360/PLAYERS);
 	else
 	  p = (theSelect->GetRotate()%360)/(360/PLAYERS);
+
+	gameLevel = theSelect->GetLevel();
 	PlayInit( p, (p+wins+1)%PLAYERS );
 	break;
       case MODE_SELECT:
@@ -210,6 +213,9 @@ Event::IdleFunc() {
     if ( mode == MODE_TITLE ) {
       m_MouseXHistory[m_Histptr] = x;
       m_MouseYHistory[m_Histptr] = y;
+    } else if ( mode == MODE_SELECT ) {
+      m_MouseXHistory[m_Histptr] = winWidth/2 + (x-winWidth/2)*15/16;
+      m_MouseYHistory[m_Histptr] = y;
     } else {
       m_MouseXHistory[m_Histptr] = winWidth/2 + (x-winWidth/2)*15/16;
       m_MouseYHistory[m_Histptr] = winHeight/2 + (y-winHeight/2)*15/16;
@@ -230,7 +236,8 @@ Event::IdleFunc() {
 #if HAVE_LIBPTHREAD & USETHREAD
   pthread_mutex_lock( &drawMutex );
 #endif
-  glutWarpPointer( m_MouseXHistory[m_Histptr], m_MouseYHistory[m_Histptr] );
+  if ( mode != MODE_TITLE )
+    glutWarpPointer( m_MouseXHistory[m_Histptr], m_MouseYHistory[m_Histptr] );
 
   if ( reDraw )
     glutPostRedisplay();

@@ -1,3 +1,21 @@
 pkgdatadir = $(datadir)/@PACKAGE@/images
-pkgdata_DATA = $(wildcard *.ppm)
-EXTRA_DIST = $(pkgdata_DATA)
+pkgdata_DATA = $(wildcard *.ppm@PKGDATA@)
+pkgdata_DATA = Bad.ppm@PKGDATA@ Easy.ppm@PKGDATA@ Floor.ppm@PKGDATA@ \
+		Hard.ppm@PKGDATA@ Howto.ppm@PKGDATA@ Howto1.ppm@PKGDATA@ \
+		Howto2.ppm@PKGDATA@ Howto3.ppm@PKGDATA@ Howto4.ppm@PKGDATA@ \
+		Howto5.ppm@PKGDATA@ Keyboard.ppm@PKGDATA@ Mouse1.ppm@PKGDATA@ \
+		Mouse2.ppm@PKGDATA@ Mouse3.ppm@PKGDATA@ Mouse4.ppm@PKGDATA@ \
+		Nice.ppm@PKGDATA@ Normal.ppm@PKGDATA@ PenDrive.ppm@PKGDATA@ \
+		PenSmash.ppm@PKGDATA@ Quit.ppm@PKGDATA@ \
+		SelectPlayer.ppm@PKGDATA@ ShakeCut.ppm@PKGDATA@ \
+		StartGame.ppm@PKGDATA@ Title.ppm@PKGDATA@ \
+		Tsuborish.ppm@PKGDATA@ downArrow.ppm@PKGDATA@ \
+		eight.ppm@PKGDATA@ five.ppm@PKGDATA@ four.ppm@PKGDATA@ \
+		leftArrow.ppm@PKGDATA@ lose.ppm@PKGDATA@ nine.ppm@PKGDATA@ \
+		one.ppm@PKGDATA@ rightArrow.ppm@PKGDATA@ seven.ppm@PKGDATA@ \
+		six.ppm@PKGDATA@ three.ppm@PKGDATA@ two.ppm@PKGDATA@ \
+		upArrow.ppm@PKGDATA@ win.ppm@PKGDATA@ zero.ppm@PKGDATA@
+EXTRA_DIST = $(wildcard *.ppm)
+
+%.ppm.gz: %.ppm
+	@GZIP@ -c $< > $<.gz
