@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -102,7 +102,7 @@ int main(int argc, char** argv) {
     char buf[256];
     GetLocaleInfo( LOCALE_SYSTEM_DEFAULT, LOCALE_SENGLANGUAGE, buf, 256 );
     if ( strcmp( buf, "Japanese" ) == 0 ) {
-      gettext_putenv("LANGUAGE=ja"); // Japanese
+      putenv("LANGUAGE=ja"); // Japanese
       ic = iconv_open("UTF-8", "EUC-JP");
       if ( ic == (iconv_t)-1 ) {
 	perror( _("iconv_open failed\n") );

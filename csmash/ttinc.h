@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,6 +18,10 @@
 
 #ifndef _ttinc_
 #define _ttinc_
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #ifdef _WIN32
 # define WIN32
@@ -136,10 +140,6 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 
 // Log
 #define LOGGING
-
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 
 #ifndef MKDEP_IGN_SYSINC
 
