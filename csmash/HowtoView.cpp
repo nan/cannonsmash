@@ -57,23 +57,6 @@ HowtoView::Init( Howto *howto ) {
     glGenTextures( 4, m_textures );
 
     for ( i = 0 ; i < 4 ; i++ ){
-#if 1
-    SDL_Surface *image;
-    image = SDL_GL_LoadTexture( &(fname[i][0]) );
-
-    glBindTexture( GL_TEXTURE_2D, m_textures[i] );
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, 4, image->w, image->h,
-		 0, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels );
-
-    SDL_FreeSurface(image); /* No longer needed */
-#else
       image.LoadFile( &(fname[i][0]) );
       for ( j = 0 ; j < image.GetWidth() ; j++ ) {
 	for ( k = 0 ; k < image.GetHeight() ; k++ ) {
@@ -96,7 +79,6 @@ HowtoView::Init( Howto *howto ) {
 
       glTexImage2D(GL_TEXTURE_2D, 0, 4, image.GetWidth(), image.GetHeight(), 
 		   0, GL_RGBA, GL_UNSIGNED_BYTE, image.GetImage() );
-#endif
     }
   }
 

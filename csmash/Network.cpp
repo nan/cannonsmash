@@ -356,7 +356,11 @@ findhostname( struct addrinfo *saddr ) {
     int error;
 
     memset(&hent, 0, sizeof(hent));
-    hent.ai_family = PF_UNSPEC;
+    if ( theRC->protocol == IPv6 )
+      hent.ai_family = PF_UNSPEC;
+    else
+      hent.ai_family = PF_INET;
+
     hent.ai_socktype = SOCK_STREAM;
 
     error = getaddrinfo( theRC->serverName, NULL, &hent, &res );
@@ -366,7 +370,9 @@ findhostname( struct addrinfo *saddr ) {
       exit(1);
     }
 
+    saddr->ai_addr = (struct sockaddr *)malloc(res->ai_addrlen);
     memcpy( saddr->ai_addr, res->ai_addr, res->ai_addrlen );
+    freeaddrinfo(res);
   }
 }
 #endif

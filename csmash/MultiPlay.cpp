@@ -75,84 +75,44 @@ MultiPlay::StartClient() {
   char buf[128];
   int i;
 
-  if ( theRC->protocol == IPv6 ) {
 #ifdef ENABLE_IPV6
-    struct addrinfo saddr, *res, *res0;
-    char hbuf[32], sbuf[32];
-    char port[10];
-    int error;
+  struct addrinfo saddr, *res, *res0;
+  char hbuf[32], sbuf[32];
+  char port[10];
+  int error;
 
-    sprintf( port, "%d", theRC->csmash_port );
-    memset(&saddr, 0, sizeof(saddr));
+  sprintf( port, "%d", theRC->csmash_port );
+  memset(&saddr, 0, sizeof(saddr));
 
-    findhostname(&saddr);
+  findhostname(&saddr);
 
-    if ( getnameinfo( saddr.ai_addr, saddr.ai_addrlen,
-		      hbuf, sizeof(hbuf), sbuf, sizeof(sbuf), 0 ) == 0 )
-      printf( "server is %s\n", hbuf );
+  if ( getnameinfo( saddr.ai_addr, saddr.ai_addrlen,
+		    hbuf, sizeof(hbuf), sbuf, sizeof(sbuf), 0 ) == 0 )
+    printf( "server is %s\n", hbuf );
 
+  if ( theRC->protocol == IPv6 )
     saddr.ai_family = PF_UNSPEC;
-    saddr.ai_socktype = SOCK_STREAM;
-    error = getaddrinfo( hbuf, port, &saddr, &res0 );
-    if (error) {
-      xerror("%s: %s(%d) getaddrinfo",
-	     gai_strerror(error), __FILE__, __LINE__);
-      exit(1);
-    }
+  else
+    saddr.ai_family = PF_INET;
+  saddr.ai_socktype = SOCK_STREAM;
+  error = getaddrinfo( hbuf, port, &saddr, &res0 );
+  if (error) {
+    xerror("%s: %s(%d) getaddrinfo",
+	   gai_strerror(error), __FILE__, __LINE__);
+    exit(1);
+  }
 
-    theSocket = -1;
+  theSocket = -1;
 
-    for ( res = res0 ; res ; res = res->ai_next ) {
-      if ( (theSocket = socket( res->ai_family, res->ai_socktype,
-				res->ai_protocol )) < 0 ) 
-	continue;
-
-      setsockopt(theSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(int));
-
-      for ( i = 0 ; i < 10 ; i++ ) {
-	if ( !connect( theSocket, res->ai_addr, res->ai_addrlen ) )
-	  break;
-#ifdef WIN32
-	Sleep(3000);
-#else
-	sleep(3);
-#endif
-      }
-
-      if ( i < 10 )
-	break;
-
-      close(theSocket);
-      theSocket = -1;
+  for ( res = res0 ; res ; res = res->ai_next ) {
+    if ( (theSocket = socket( res->ai_family, res->ai_socktype,
+			      res->ai_protocol )) < 0 ) 
       continue;
-    }
 
-    if ( theSocket < 0 ) {
-      xerror("%s(%d) connect", __FILE__, __LINE__);
-      exit(1);
-    }
-
-    freeaddrinfo(res0);
-#endif
-  } else {
-    struct sockaddr_in saddr;
-    memset(&saddr, 0, sizeof(saddr));
-
-    findhostname(&saddr);
-
-    printf("server is %s\n", inet_ntoa(saddr.sin_addr));
-    saddr.sin_family = AF_INET;
-    saddr.sin_port = htons(theRC->csmash_port);
-
-    // connect
-    if ( (theSocket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
-      xerror("%s(%d) socket", __FILE__, __LINE__);
-      exit(1);
-    }
     setsockopt(theSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(int));
 
     for ( i = 0 ; i < 10 ; i++ ) {
-      if ( !connect( theSocket, (struct sockaddr *)&saddr, sizeof(saddr) ) )
+      if ( !connect( theSocket, res->ai_addr, res->ai_addrlen ) )
 	break;
 #ifdef WIN32
       Sleep(3000);
@@ -161,11 +121,52 @@ MultiPlay::StartClient() {
 #endif
     }
 
-    if ( i == 10 ) {
-      xerror("%s(%d) connect", __FILE__, __LINE__);
-      exit(1);
-    }
+    if ( i < 10 )
+      break;
+
+    close(theSocket);
+    theSocket = -1;
+    continue;
   }
+
+  if ( theSocket < 0 ) {
+    xerror("%s(%d) connect", __FILE__, __LINE__);
+    exit(1);
+  }
+
+  freeaddrinfo(res0);
+#else
+  struct sockaddr_in saddr;
+  memset(&saddr, 0, sizeof(saddr));
+
+  findhostname(&saddr);
+
+  printf("server is %s\n", inet_ntoa(saddr.sin_addr));
+  saddr.sin_family = AF_INET;
+  saddr.sin_port = htons(theRC->csmash_port);
+
+  // connect
+  if ( (theSocket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
+    xerror("%s(%d) socket", __FILE__, __LINE__);
+    exit(1);
+  }
+  setsockopt(theSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(int));
+
+  for ( i = 0 ; i < 10 ; i++ ) {
+    if ( !connect( theSocket, (struct sockaddr *)&saddr, sizeof(saddr) ) )
+      break;
+#ifdef WIN32
+    Sleep(3000);
+#else
+    sleep(3);
+#endif
+  }
+
+  if ( i == 10 ) {
+    xerror("%s(%d) connect", __FILE__, __LINE__);
+    exit(1);
+  }
+#endif
 
   // Respond server's AdjustClock()
   for ( i = 0 ; i < 16 ; i++ ) {
@@ -342,126 +343,129 @@ MultiPlay::WaitForClient() {
 #endif
 
   if ( listenSocket == 0 ) {
-    if ( theRC->protocol == IPv6 ) {
 #ifdef ENABLE_IPV6
-      int error;
-      struct addrinfo saddr, *res;
-
-      memset( &saddr, 0, sizeof(saddr) );
-      saddr.ai_family = AF_INET6;
-      saddr.ai_socktype = SOCK_STREAM;
-      saddr.ai_flags = AI_PASSIVE;
-      error = getaddrinfo( NULL, port, &saddr, &res );
-      if (error || res->ai_next) {
-	xerror("%s(%d) getaddrinfo", __FILE__, __LINE__);
-	return false;
-      }
-
-      if ( (listenSocket = socket( res->ai_family, res->ai_socktype,
-				   res->ai_protocol )) < 0 ) {
-	xerror("%s(%d) socket", __FILE__, __LINE__);
-	return false;
-      }
-
-#ifdef IPV6_V6ONLY
-      if ( res->ai_family == AF_INET6 &&
-	   setsockopt( s, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on) ) < 0 ) {
-	close(listenSocket);
-	xerror("%s(%d) setsockopt", __FILE__, __LINE__);
-	return false;
-      }
-#endif
-
-      setsockopt( listenSocket, IPPROTO_TCP, TCP_NODELAY,
-		  (char*)&one, sizeof(int) );
-
-      if ( bind( listenSocket, res->ai_addr, res->ai_addrlen ) < 0 ) {
-	xerror("%s(%d) bind", __FILE__, __LINE__);
-	return false;
-      }
-
-      if ( listen( listenSocket, 1 ) < 0 ) {
-	xerror("%s(%d) socket", __FILE__, __LINE__);
-	exit(1);
-      }
-#endif
-    } else {
-      struct sockaddr_in saddr;
-
-      if ( (listenSocket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
-	xerror("%s(%d) socket", __FILE__, __LINE__);
-	exit(1);
-      }
-
-      setsockopt( listenSocket, IPPROTO_TCP, TCP_NODELAY,
-		  (char*)&one, sizeof(int) );
-
-      saddr.sin_addr.s_addr = htonl(INADDR_ANY);
-      saddr.sin_family = AF_INET;
-      saddr.sin_port = htons(theRC->csmash_port);
-      if ( bind(listenSocket, (struct sockaddr *)&saddr, sizeof(saddr) ) < 0) {
-	xerror("%s(%d) bind", __FILE__, __LINE__);
-	exit(1);
-      }
-
-      if ( listen( listenSocket, 1 ) < 0 ) {
-	xerror("%s(%d) socket", __FILE__, __LINE__);
-	exit(1);
-      }
-    }
-  }
-
-  unsigned int sb;
-  if ( theRC->protocol == IPv6 ) {
-#ifdef ENABLE_IPV6
-    struct addrinfo sba;
-    struct addrinfo *res;
-    memset(&sba, 0, sizeof(sba));
-
     int error;
-    sba.ai_family = AF_INET6;
-    sba.ai_socktype = SOCK_DGRAM;
-    sba.ai_flags = AI_PASSIVE;
-    error = getaddrinfo( NULL, port, &sba, &res );
+    struct addrinfo saddr, *res;
+
+    memset( &saddr, 0, sizeof(saddr) );
+    if ( theRC->protocol == IPv6 )
+      saddr.ai_family = AF_INET6;
+    else
+      saddr.ai_family = AF_INET;
+    saddr.ai_socktype = SOCK_STREAM;
+    saddr.ai_flags = AI_PASSIVE;
+    error = getaddrinfo( NULL, port, &saddr, &res );
     if (error || res->ai_next) {
       xerror("%s(%d) getaddrinfo", __FILE__, __LINE__);
-      exit(1);
+      return false;
     }
 
-    if ( 0 > (sb = socket( res->ai_family, res->ai_socktype,
-			   res->ai_protocol )) ) {
+    if ( (listenSocket = socket( res->ai_family, res->ai_socktype,
+				 res->ai_protocol )) < 0 ) {
       xerror("%s(%d) socket", __FILE__, __LINE__);
-      exit(1);
+      return false;
     }
 
 #ifdef IPV6_V6ONLY
     if ( res->ai_family == AF_INET6 &&
 	 setsockopt( s, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on) ) < 0 ) {
-      close(sb);
+      close(listenSocket);
       xerror("%s(%d) setsockopt", __FILE__, __LINE__);
       return false;
     }
 #endif
 
-    if (0 > bind(sb, res->ai_addr, res->ai_addrlen)) {
+    setsockopt( listenSocket, IPPROTO_TCP, TCP_NODELAY,
+		(char*)&one, sizeof(int) );
+
+    if ( bind( listenSocket, res->ai_addr, res->ai_addrlen ) < 0 ) {
       xerror("%s(%d) bind", __FILE__, __LINE__);
-      exit(1);
+      return false;
     }
-#endif
-  } else {
-    struct sockaddr_in sba;
-    if (0 > (sb = socket(PF_INET, SOCK_DGRAM, 0))) {
+
+    if ( listen( listenSocket, 1 ) < 0 ) {
       xerror("%s(%d) socket", __FILE__, __LINE__);
       exit(1);
     }
-    sba.sin_addr.s_addr = INADDR_ANY;
-    sba.sin_family = AF_INET;
-    sba.sin_port = htons(theRC->csmash_port);
-    if (0 > bind(sb, (struct sockaddr*)&sba, sizeof(sba))) {
+#else
+    struct sockaddr_in saddr;
+
+    if ( (listenSocket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
+      xerror("%s(%d) socket", __FILE__, __LINE__);
+      exit(1);
+    }
+
+    setsockopt( listenSocket, IPPROTO_TCP, TCP_NODELAY,
+		(char*)&one, sizeof(int) );
+
+    saddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    saddr.sin_family = AF_INET;
+    saddr.sin_port = htons(theRC->csmash_port);
+    if ( bind(listenSocket, (struct sockaddr *)&saddr, sizeof(saddr) ) < 0) {
       xerror("%s(%d) bind", __FILE__, __LINE__);
       exit(1);
     }
+
+    if ( listen( listenSocket, 1 ) < 0 ) {
+      xerror("%s(%d) socket", __FILE__, __LINE__);
+      exit(1);
+    }
+#endif
   }
+
+  unsigned int sb;
+#ifdef ENABLE_IPV6
+  struct addrinfo sba;
+  struct addrinfo *res;
+  memset(&sba, 0, sizeof(sba));
+
+  int error;
+  if ( theRC->protocol == IPv6 )
+    sba.ai_family = AF_INET6;
+  else
+    sba.ai_family = AF_INET;
+
+  sba.ai_socktype = SOCK_DGRAM;
+  sba.ai_flags = AI_PASSIVE;
+  error = getaddrinfo( NULL, port, &sba, &res );
+  if (error || res->ai_next) {
+    xerror("%s(%d) getaddrinfo", __FILE__, __LINE__);
+    exit(1);
+  }
+
+  if ( 0 > (sb = socket( res->ai_family, res->ai_socktype,
+			 res->ai_protocol )) ) {
+    xerror("%s(%d) socket", __FILE__, __LINE__);
+    exit(1);
+  }
+
+#ifdef IPV6_V6ONLY
+  if ( res->ai_family == AF_INET6 &&
+       setsockopt( s, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on) ) < 0 ) {
+    close(sb);
+    xerror("%s(%d) setsockopt", __FILE__, __LINE__);
+    return false;
+  }
+#endif
+
+  if (0 > bind(sb, res->ai_addr, res->ai_addrlen)) {
+    xerror("%s(%d) bind", __FILE__, __LINE__);
+    exit(1);
+  }
+#else
+  struct sockaddr_in sba;
+  if (0 > (sb = socket(PF_INET, SOCK_DGRAM, 0))) {
+    xerror("%s(%d) socket", __FILE__, __LINE__);
+    exit(1);
+  }
+  sba.sin_addr.s_addr = INADDR_ANY;
+  sba.sin_family = AF_INET;
+  sba.sin_port = htons(theRC->csmash_port);
+  if (0 > bind(sb, (struct sockaddr*)&sba, sizeof(sba))) {
+    xerror("%s(%d) bind", __FILE__, __LINE__);
+    exit(1);
+  }
+#endif
 
   // wait for connection / broadcast packet
   printf("server selecting\n");
