@@ -36,6 +36,121 @@ extern void QuitGame();
 
 bool isWaiting = false;		// waiting for opponent player on the internet
 
+#ifdef WIN32
+LONG pEditWndProc;
+LONG pParentWndProc;
+
+HWND pChildHWnd;
+LobbyClientView *theLobbyClientView;
+
+// Copyed from gdkim-win32.c of GTK+-2.2. 
+gchar *
+_gdk_ucs2_to_utf8 (const wchar_t *src,
+		   gint           src_len)
+{
+  gint len;
+  const wchar_t *wcp;
+  guchar *mbstr, *bp;
+
+  wcp = src;
+  len = 0;
+  while (wcp < src + src_len)
+    {
+      const wchar_t c = *wcp++;
+
+      if (c < 0x80)
+	len += 1;
+      else if (c < 0x800)
+	len += 2;
+      else
+	len += 3;
+    }
+
+  mbstr = (guchar *) g_malloc (len + 1);
+  
+  wcp = src;
+  bp = mbstr;
+  while (wcp < src + src_len)
+    {
+      int first;
+      wchar_t c = *wcp++;
+
+      if (c < 0x80)
+	{
+	  first = 0;
+	  len = 1;
+	}
+      else if (c < 0x800)
+	{
+	  first = 0xc0;
+	  len = 2;
+	}
+      else
+	{
+	  first = 0xe0;
+	  len = 3;
+	}
+      
+      /* Woo-hoo! */
+      switch (len)
+	{
+	case 3: bp[2] = (c & 0x3f) | 0x80; c >>= 6; /* Fall through */
+	case 2: bp[1] = (c & 0x3f) | 0x80; c >>= 6; /* Fall through */
+	case 1: bp[0] = c | first;
+	}
+
+      bp += len;
+    }
+  *bp = 0;
+
+  return (gchar *)mbstr;
+}
+
+
+LRESULT CALLBACK
+LobbyClientView::EditWindowProc( HWND hwnd, UINT msg,
+				 WPARAM wparam, LPARAM lparam) {
+  if ( msg == WM_CHAR && wparam == 13 ) {
+    char buf[512], unibuf[2048];
+    GetWindowText( hwnd, buf, 512 );
+
+    char locale[10];
+    HKL input_locale = GetKeyboardLayout (0);
+    GetLocaleInfo (MAKELCID (LOWORD (input_locale), SORT_DEFAULT),
+		   LOCALE_IDEFAULTANSICODEPAGE,
+		   locale, sizeof (locale));
+
+    int srclen;
+    srclen = MultiByteToWideChar(atoi(locale), 0, buf, 512,
+				 (LPWSTR)unibuf, 2048 );
+
+    gtk_entry_set_text( GTK_ENTRY(theLobbyClientView->m_chatinput), 
+			_gdk_ucs2_to_utf8((const wchar_t *)unibuf, srclen) );
+
+    GdkEventKey event;
+    event.keyval = GDK_Return;
+
+    LobbyClientView::KeyPress( theLobbyClientView->m_chatinput,
+			       &event, theLobbyClientView );
+
+    SetWindowText( hwnd, NULL );
+    return 0;
+  }
+
+  return CallWindowProc((WNDPROC)pEditWndProc,hwnd,msg,wparam,lparam);
+}
+
+LRESULT CALLBACK
+ParentWindowProc(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam) {
+  if ( msg == WM_SIZE ) {
+    printf( "Resized\n" );
+    MoveWindow( pChildHWnd, 0, 0, lparam&0xFFFF, (lparam>>16)&0xFFFF, TRUE );
+  }
+
+  return CallWindowProc((WNDPROC)pParentWndProc,hwnd,msg,wparam,lparam);
+}
+#endif
+
 void
 getcurrenttimestr( char *buf ) {
   struct tm *ltime;
@@ -71,7 +186,15 @@ LobbyClientView::Init( LobbyClient *lobby ) {
   m_window = gtk_dialog_new();
   gtk_container_border_width (GTK_CONTAINER (m_window), 10);
 
+#ifdef WIN32
+  char windowName[32];
+  for ( int i = 0 ; i < 32 ; i++ )
+    windowName[i] = 'A'+RAND(26);
+
+  gtk_window_set_title( GTK_WINDOW(m_window), windowName);
+#else
   gtk_window_set_title( GTK_WINDOW(m_window), _("Cannon Smash"));
+#endif
   gtk_widget_show(m_window);
   gtk_window_set_modal( (GtkWindow *)m_window, true );
   gtk_widget_set_usize( m_window, 300, 400 );
@@ -100,7 +223,6 @@ LobbyClientView::Init( LobbyClient *lobby ) {
   gtk_widget_show(m_table);
 
   UpdateTable();
-
 
   GtkWidget *notebook = gtk_notebook_new();
   GtkWidget *label;
@@ -164,12 +286,33 @@ LobbyClientView::Init( LobbyClient *lobby ) {
   gtk_widget_show(notebook);
 
   m_chatinput = gtk_entry_new();
+
   gtk_box_pack_start( GTK_BOX(GTK_DIALOG(m_window)->vbox), m_chatinput,
 		      TRUE, TRUE, 10 );
   gtk_signal_connect (GTK_OBJECT (m_chatinput), "key-press-event",
 		      GTK_SIGNAL_FUNC (LobbyClientView::KeyPress), this);
   gtk_widget_show(m_chatinput);
 
+#ifdef WIN32
+  HWND hWnd =  FindWindow( "gdkWindowTopLevel", windowName );
+  gtk_window_set_title( GTK_WINDOW(m_window), _("Cannon Smash"));
+
+  HWND cWnd = NULL;
+  cWnd = FindWindowEx( hWnd, NULL, "gdkWindowChild", NULL );
+  cWnd = FindWindowEx( cWnd, NULL, "gdkWindowChild", NULL );
+
+  pParentWndProc = GetWindowLong(cWnd, GWL_WNDPROC);
+  SetWindowLong(cWnd, GWL_WNDPROC, (LONG)ParentWindowProc);
+
+  pChildHWnd = CreateWindow( "EDIT", NULL, WS_CHILD|WS_VISIBLE, 
+			     CW_USEDEFAULT, CW_USEDEFAULT,
+			     200, 30,
+			     cWnd, NULL, NULL, NULL );
+
+  pEditWndProc = GetWindowLong(pChildHWnd, GWL_WNDPROC);
+  SetWindowLong(pChildHWnd, GWL_WNDPROC, (LONG)LobbyClientView::EditWindowProc);
+  theLobbyClientView = this;
+#endif
 
   m_connectButton = gtk_button_new_with_label (_("connect"));
   gtk_signal_connect (GTK_OBJECT (m_connectButton), "clicked",

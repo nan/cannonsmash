@@ -25,9 +25,9 @@
 class LobbyClient;
 
 static struct {
-  const char *code;
-  const char *langname;
-  const int langID;
+  char *code;
+  char *langname;
+  int langID;
 } table[] = {
   { "aa", "Afar", 0x00 },
   { "ab", "Abkhazian", 0x00 },
@@ -222,6 +222,11 @@ protected:
   static void SwitchChatPage( GtkNotebook *notebook, GtkNotebookPage *page,
 			      gint page_num, gpointer data );
   static void Quit( GtkWidget *widget, gpointer data );
+
+#ifdef WIN32
+  static LRESULT CALLBACK EditWindowProc( HWND hwnd, UINT msg,
+					  WPARAM wparam, LPARAM lparam);
+#endif
 
   guint m_timeout;
   guint m_idle;
