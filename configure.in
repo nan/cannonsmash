@@ -1,0 +1,47 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(ShakeCut.h)
+
+dnl Checks for programs.
+AC_PROG_CXX
+
+AC_PATH_X
+
+LDFLAGS="-L $x_libraries"
+
+dnl Checks for libraries.
+AC_CHECK_LIB(Xmu, main)
+AC_CHECK_LIB(Xt, main)
+AC_CHECK_LIB(ICE, main)
+AC_CHECK_LIB(X11, main)
+AC_CHECK_LIB(Xext, main)
+AC_CHECK_LIB(Xi, main)
+AC_CHECK_LIB(m, fabs)
+AC_CHECK_LIB(GL, glLoadIdentity, , [AC_CHECK_LIB(MesaGL, glLoadIdentity, , [AC_CHECK_LIB(OpenGL32, main, , AC_MSG_ERROR(OpenGL library not found.))])])
+AC_CHECK_LIB(GLU, gluPerspective, , [AC_CHECK_LIB(MesaGLU, gluPerspective, , [AC_CHECK_LIB(GLU32, main, , AC_MSG_ERROR(GLU library not found))])])
+AC_CHECK_LIB(glut, glutCreateWindow, , [AC_CHECK_LIB(glut32, main)])
+AC_CHECK_LIB(esd, esd_play_stream)
+AC_CHECK_LIB(pthread, pthread_create)
+dnl AC_CHECK_LIB(z, gzdopen)
+
+dnl AC_CHECK_LIB(pthread, pthread_create, [AC_DEFINE(PTHREAD)
+dnl 				LIBS="$LIBS -lpthread"])
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(sys/time.h unistd.h)
+
+AC_CHECK_HEADER(windows.h, [AC_DEFINE(WIN32)
+			LIBS="$LIBS -lwinmm"])
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+
+dnl Checks for library functions.
+
+AM_INIT_AUTOMAKE(csmash, 0.3.4, no-define)
+
+AC_DEFINE_UNQUOTED(CANNONSMASH_DATADIR, "@prefix@/share/$PACKAGE/")
+
+AC_OUTPUT(makefile \
+	Motion/makefile \
+	images/makefile \
+	wav/makefile)

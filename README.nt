@@ -1,0 +1,7 @@
+Compile csmash on NT
+
+1. Get glut-3.7 binary package for Win32 from somewhere.
+2. Make directory "GL" at soruce directry, put glut.h, glut32.lib to the
+   directory you just created.
+   Put glut32.dll at source directory.
+3. Run gmake at source directory as "gmake -f NT/Makefile.nt".

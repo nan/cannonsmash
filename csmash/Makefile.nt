@@ -1,0 +1,74 @@
+#
+# Makefile for gmake (NOT for nmake, sorry.)
+#
+############################################################################
+.SUFFIXES: .exe .so .dll .a .lib .o .obj .cpp .cc .c .asm .s .y .h .l
+
+.c.obj:
+ $(CC) $(Cpre) $(CFLAGS) $(Cpost) $<
+.cpp.obj:
+ $(CXX) $(CXXpre) $(CXXFLAGS) $(CXXpost) $<
+.cc.obj:
+ $(CXX) $(CXXpre) $(CXXFLAGS) $(CXXpost) $<
+
+############################################################################
+CC = cl -nologo -W3
+CXX = $(CC)
+
+Cpost = -c -Tc
+CXXpost = -c -Tp
+
+CFLAGS = -MD -Ox -Oa -G6 -vms -DZLIB $(INCDIRS)
+CXXFLAGS=$(CFLAGS) -GX
+
+O = obj
+A = lib
+SO = dll
+EXE = .exe
+AOUT = -Fe
+
+############################################################################
+
+INCDIRS = -I./
+LIBS = GL/glut32.lib zlib.lib
+
+HDRS = \
+ Ball.h BallView.h BaseView.h Event.h HitMark.h Howto.h HowtoView.h \
+ LoadImage.h PenAttack.h PenDrive.h Player.h PlayerSelect.h \
+ PlayerSelectView.h PlayerView.h ShakeCut.h Sound.h Title.h \
+ TitleView.h View.h comPenAttack.h comPenDrive.h comPlayer.h \
+ comShakeCut.h ttinc.h z.h
+
+SRCS = \
+ Ball.cpp BallView.cpp BaseView.cpp Event.cpp HitMark.cpp \
+ Howto.cpp HowtoView.cpp LoadImage.cpp PenAttack.cpp \
+ PenDrive.cpp Player.cpp PlayerSelect.cpp PlayerSelectView.cpp \
+ PlayerView.cpp ShakeCut.cpp Sound.cpp Title.cpp TitleView.cpp \
+ View.cpp comPenAttack.cpp comPenDrive.cpp comPlayer.cpp \
+ comShakeCut.cpp main.cpp z.cpp
+
+OBJS = $(SRCS:.cpp=.obj)
+
+TARGET = csmash$(EXE)
+
+############################################################################
+all: $(TARGET)
+clean:
+ rm -f $(TARGET) *.$(O)
+distclean:
+ rm -f $(TARGET) *.$(O) *~ *.bak
+
+depend:
+ touch depend.nt
+ makedepend -fdepend.nt -D_WIN32 -DHAVE_LIBZ *.cpp
+ cat depend.nt | sed -e "s/.:\/Program.*\/include\/[^ ]*//g" \
+ | grep -v ".*:[ ]*$$" > depend.new
+ mv depend.new depend.nt
+
+$(TARGET): $(OBJS)
+ $(CC) $(CFLAGS) $(AOUT)$@ $(OBJS) $(LIBS)
+
+#-include depend.nt
+############################################################################
+# END
+############################################################################
