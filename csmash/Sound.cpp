@@ -87,6 +87,12 @@ Sound::TheSound() {
  */
 bool
 Sound::Init( long sndMode ) {
+  static char number[][10] = {"zero", "one", "two", "three", "four", "five", 
+			      "six", "seven", "eight", "nine", "ten", "eleven",
+			      "twelve", "thirteen", "fourteen", "fifteen", 
+			      "sixteen", "seventeen", "eighteen", "nineteen",
+			      "twenty", "", "", "", "", "", "", "", "", "",
+			      "thirty"};
   m_soundMode = sndMode;
 
 #ifdef HAVE_LIBSDL_MIXER
@@ -114,28 +120,13 @@ Sound::Init( long sndMode ) {
   m_sound[SOUND_LOVEALL] = Mix_LoadWAV( "wav/loveall.wav" );
   m_sound[SOUND_ALL] = Mix_LoadWAV( "wav/all.wav" );
 
-  m_score[0] = Mix_LoadWAV( "wav/zero.wav" );
-  m_score[1] = Mix_LoadWAV( "wav/one.wav" );
-  m_score[2] = Mix_LoadWAV( "wav/two.wav" );
-  m_score[3] = Mix_LoadWAV( "wav/three.wav" );
-  m_score[4] = Mix_LoadWAV( "wav/four.wav" );
-  m_score[5] = Mix_LoadWAV( "wav/five.wav" );
-  m_score[6] = Mix_LoadWAV( "wav/six.wav" );
-  m_score[7] = Mix_LoadWAV( "wav/seven.wav" );
-  m_score[8] = Mix_LoadWAV( "wav/eight.wav" );
-  m_score[9] = Mix_LoadWAV( "wav/nine.wav" );
-  m_score[10] = Mix_LoadWAV( "wav/ten.wav" );
-  m_score[11] = Mix_LoadWAV( "wav/eleven.wav" );
-  m_score[12] = Mix_LoadWAV( "wav/twelve.wav" );
-  m_score[13] = Mix_LoadWAV( "wav/thirteen.wav" );
-  m_score[14] = Mix_LoadWAV( "wav/fourteen.wav" );
-  m_score[15] = Mix_LoadWAV( "wav/fifteen.wav" );
-  m_score[16] = Mix_LoadWAV( "wav/sixteen.wav" );
-  m_score[17] = Mix_LoadWAV( "wav/seventeen.wav" );
-  m_score[18] = Mix_LoadWAV( "wav/eighteen.wav" );
-  m_score[19] = Mix_LoadWAV( "wav/nineteen.wav" );
-  m_score[20] = Mix_LoadWAV( "wav/twenty.wav" );
-  m_score[30] = Mix_LoadWAV( "wav/thirty.wav" );
+  for ( int i = 0 ; i < 31 ; i++ ) {
+    char numberWAVname[64];
+    if ( number[i][0] ) {
+      sprintf( numberWAVname, _("wav/%s.wav"), number[i] );
+      m_score[i] = Mix_LoadWAV( numberWAVname );
+    }
+  }
 
   Mix_ChannelFinished( Sound::PlayFinishHandler );
 #endif
