@@ -90,3 +90,8 @@ FieldView2D::RedrawAlpha() {
 
   return true;
 }
+
+bool
+FieldView2D::GetDamageRect() {
+  return true;
+}

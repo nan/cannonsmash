@@ -127,7 +127,7 @@ LauncherHeader::GraphicsFrame() {
   button = gtk_radio_button_new_with_label (list, "Normal");
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(button) );
   gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
-  if ( gmode != GMODE_SIMPLE )
+  if ( gmode == GMODE_FULL )
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(button), TRUE );
   gtk_widget_show (button);
 

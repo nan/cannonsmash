@@ -66,7 +66,7 @@ BaseView2D::Init() {
 
   SDL_WM_SetCaption( "CannonSmash", NULL );
 
-  m_fieldView = (FieldView *)new FieldView2D();
+  m_fieldView = new FieldView2D();
   m_fieldView->Init();
 
   m_updateX1 = 0;
@@ -92,6 +92,12 @@ BaseView2D::RedrawAll() {
 
   SetViewPosition();
 
+  m_fieldView->GetDamageRect();
+  thePlayer->GetView()->GetDamageRect();
+  comPlayer->GetView()->GetDamageRect();
+  theBall.GetView()->GetDamageRect();
+  theControl->GetView()->GetDamageRect();
+
   rect.x = m_updateX1;
   rect.y = m_updateY1;
   rect.w = m_updateX2-m_updateX1+1;
@@ -101,18 +107,14 @@ BaseView2D::RedrawAll() {
 
   m_fieldView->Redraw();
 
-  m_updateX1 = m_updateY1 = m_updateX2 = m_updateY2 = 0;
-  SDL_SetClipRect( m_baseSurface, NULL );
-
   if ( comPlayer )
     comPlayer->GetView()->Redraw();
 
   SDL_SetClipRect( m_baseSurface, &rect );
   m_fieldView->RedrawAlpha();
-  SDL_SetClipRect( m_baseSurface, NULL );
 
   if ( thePlayer )
-  thePlayer->GetView()->RedrawAlpha();
+    thePlayer->GetView()->RedrawAlpha();
   theBall.GetView()->Redraw();
 
   if ( theControl->GetView() ) {
@@ -121,11 +123,6 @@ BaseView2D::RedrawAll() {
   }
 
   // Ä•`‰æ—Ìˆæ‚Ì‚İ•`‰æ‚·‚é
-  rect.x = m_updateX1;
-  rect.y = m_updateY1;
-  rect.w = m_updateX2-m_updateX1+1;
-  rect.h = m_updateY2-m_updateY1+1;
-
   SDL_UpdateRects(m_baseSurface, 1, &rect);
 
   return true;
@@ -299,5 +296,7 @@ RenderPoint( double x, double y, double z,
 
   *_x = (int)(x/y*0.87*BaseView::GetWinWidth()+BaseView::GetWinWidth()/2);
   *_y = (int)(-z/y*0.87*BaseView::GetWinHeight()+BaseView::GetWinHeight()/2);
+
+  return true;
 }
 

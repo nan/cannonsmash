@@ -58,7 +58,6 @@ bool
 BallView2D::Redraw() {
   double rad;
   Ball* tmpBall;
-  const static GLfloat mat_yel[] = { 1.0F, 0.8F, 0.0F, 0.0F };
   static SDL_Rect rect = {0, 0, 0, 0};
 
   // Draw the Ball itself
@@ -71,9 +70,7 @@ BallView2D::Redraw() {
 
     if ( rect.x != _rect.x || rect.y != _rect.y ||
 	 rect.w != _rect.w || rect.h != _rect.h ) {
-      ((BaseView2D *)theView)->AddUpdateRect( &rect );
       SDL_FillRect( theView->GetSurface(), &_rect, 0 );
-      ((BaseView2D *)theView)->AddUpdateRect( &_rect );
       rect = _rect;
     }
   }
@@ -88,6 +85,34 @@ BallView2D::Redraw() {
 bool
 BallView2D::RedrawAlpha() {
   // Score
+
+  return true;
+}
+
+bool
+BallView2D::GetDamageRect() {
+  double rad;
+  static SDL_Rect rect = {0, 0, 0, 0};
+
+  // Draw the Ball itself
+  if ( theBall.GetY() > -3.5 ) {
+    SDL_Rect _rect;
+
+    RenderRect( theBall.GetX()-BALL_R/2, theBall.GetY()-BALL_R/2, theBall.GetZ()-BALL_R/2, 
+		theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2, theBall.GetZ()+BALL_R/2, 
+		&_rect );
+
+    if ( rect.x != _rect.x || rect.y != _rect.y ||
+	 rect.w != _rect.w || rect.h != _rect.h ) {
+      ((BaseView2D *)theView)->AddUpdateRect( &rect );
+      ((BaseView2D *)theView)->AddUpdateRect( &_rect );
+      rect = _rect;
+    }
+  }
+
+  // Draw the ball shadow
+
+  // Draw the ball location in the future
 
   return true;
 }

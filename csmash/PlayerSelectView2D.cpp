@@ -61,30 +61,32 @@ PlayerSelectView2D::Redraw() {
 
   if ( m_playerSelect->GetSelected() > 0 ) {
     for ( i = 0 ; i < PLAYERS ; i++ ) {
-      if ( i == player ) {
-	((BaseView2D *)theView)->AddUpdateRect( &rect );
-
+      if ( i == player &&
+	   (rect.x != BaseView::GetWinWidth()/2-m_playerBMP[i]->w/2 ||
+	    rect.y != BaseView::GetWinHeight()/2-m_playerBMP[i]->h/2 ||
+	    rect.w != m_playerBMP[i]->w ||
+	    rect.h != m_playerBMP[i]->h ) ) {
 	rect.x = BaseView::GetWinWidth()/2-m_playerBMP[i]->w/2;
 	rect.y = BaseView::GetWinHeight()/2-m_playerBMP[i]->h/2;
 	rect.w = m_playerBMP[i]->w;
 	rect.h = m_playerBMP[i]->h;
 
 	SDL_BlitSurface(m_playerBMP[i], NULL, theView->GetSurface(), &rect);
-	((BaseView2D *)theView)->AddUpdateRect( &rect );
       }
     }
   } else {
     for ( i = 0 ; i < PLAYERS ; i++ ) {
-      if ( i == player ) {
-	((BaseView2D *)theView)->AddUpdateRect( &rect );
-
+      if ( i == player &&
+	   (rect.x != BaseView::GetWinWidth()/2-m_playerBMP[i]->w/2 ||
+	    rect.y != BaseView::GetWinHeight()/2-m_playerBMP[i]->h/2 ||
+	    rect.w != m_playerBMP[i]->w ||
+	    rect.h != m_playerBMP[i]->h ) ) {
 	rect.x = BaseView::GetWinWidth()/2-m_playerBMP[i]->w/2;
 	rect.y = BaseView::GetWinHeight()/2-m_playerBMP[i]->h/2;
 	rect.w = m_playerBMP[i]->w;
 	rect.h = m_playerBMP[i]->h;
 
 	SDL_BlitSurface(m_playerBMP[i], NULL, theView->GetSurface(), &rect);
-	((BaseView2D *)theView)->AddUpdateRect( &rect );
       }
     }
   }
@@ -94,5 +96,55 @@ PlayerSelectView2D::Redraw() {
 
 bool
 PlayerSelectView2D::RedrawAlpha() {
+  return true;
+}
+
+bool
+PlayerSelectView2D::GetDamageRect() {
+  int i;
+  int player;
+  static SDL_Rect rect = {0, 0, 0, 0};
+
+  if ( m_playerSelect->GetRotate() < 0 )
+    player = (360+(m_playerSelect->GetRotate()%360))/(360/PLAYERS);
+  else
+    player = (m_playerSelect->GetRotate()%360)/(360/PLAYERS);
+
+  if ( m_playerSelect->GetSelected() > 0 ) {
+    for ( i = 0 ; i < PLAYERS ; i++ ) {
+      if ( i == player &&
+	   (rect.x != BaseView::GetWinWidth()/2-m_playerBMP[i]->w/2 ||
+	    rect.y != BaseView::GetWinHeight()/2-m_playerBMP[i]->h/2 ||
+	    rect.w != m_playerBMP[i]->w ||
+	    rect.h != m_playerBMP[i]->h ) ) {
+	((BaseView2D *)theView)->AddUpdateRect( &rect );
+
+	rect.x = BaseView::GetWinWidth()/2-m_playerBMP[i]->w/2;
+	rect.y = BaseView::GetWinHeight()/2-m_playerBMP[i]->h/2;
+	rect.w = m_playerBMP[i]->w;
+	rect.h = m_playerBMP[i]->h;
+
+	((BaseView2D *)theView)->AddUpdateRect( &rect );
+      }
+    }
+  } else {
+    for ( i = 0 ; i < PLAYERS ; i++ ) {
+      if ( i == player &&
+	   (rect.x != BaseView::GetWinWidth()/2-m_playerBMP[i]->w/2 ||
+	    rect.y != BaseView::GetWinHeight()/2-m_playerBMP[i]->h/2 ||
+	    rect.w != m_playerBMP[i]->w ||
+	    rect.h != m_playerBMP[i]->h ) ) {
+	((BaseView2D *)theView)->AddUpdateRect( &rect );
+
+	rect.x = BaseView::GetWinWidth()/2-m_playerBMP[i]->w/2;
+	rect.y = BaseView::GetWinHeight()/2-m_playerBMP[i]->h/2;
+	rect.w = m_playerBMP[i]->w;
+	rect.h = m_playerBMP[i]->h;
+
+	((BaseView2D *)theView)->AddUpdateRect( &rect );
+      }
+    }
+  }
+
   return true;
 }

@@ -31,6 +31,7 @@ public:
 
   virtual bool Redraw();
   virtual bool RedrawAlpha();
+  virtual bool GetDamageRect();
 
 private:
   Player  *m_player;	// Model

@@ -29,6 +29,7 @@ public:
 
   virtual bool Redraw();
   virtual bool RedrawAlpha();
+  virtual bool GetDamageRect();
 
 protected:
   SDL_Surface *m_floor;
