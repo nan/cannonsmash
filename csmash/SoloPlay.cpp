@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -69,10 +69,6 @@ SoloPlay::Create( long player, long com ) {
 
   m_thePlayer->Init();
   m_comPlayer->Init();
-
-  // Move it to view?
-  SDL_ShowCursor(SDL_DISABLE);
-  SDL_WM_GrabInput( SDL_GRAB_ON );
 }
 
 bool

@@ -21,9 +21,6 @@
 
 #include "PlayGame.h"
 
-void StartServer();
-void StartClient();
-
 class ExternalData {
 public:
   ExternalData();
@@ -80,6 +77,16 @@ public:
   virtual bool Read( long sock );
 };
 
+class ExternalPTData : public ExternalData {
+public:
+  ExternalPTData();
+  ExternalPTData( long side );
+
+  virtual bool Apply( Player *targetPlayer, bool &fThePlayer, bool &fComPlayer,
+		      bool &fTheBall );
+  virtual bool Read( long sock );
+};
+
 class ExternalNullData : public ExternalData {
 public:
   virtual bool Apply( Player *targetPlayer, bool &fThePlayer, bool &fComPlayer,
@@ -88,6 +95,12 @@ public:
 
   virtual bool isNull() { return true; };
 };
+
+
+bool WaitForClient();
+bool ConnectToServer();
+void ServerAdjustClock();
+void ClientAdjustClock();
 
 
 class MultiPlay : public PlayGame {
@@ -113,15 +126,13 @@ public:
 
   virtual void EndGame();
 
-  long GetTimeAdj() { return m_timeAdj; };
+  //long GetTimeAdj() { return m_timeAdj; };
 
   void StartServer();
   void StartClient();
 
-  void AdjustClock();
-  bool WaitForClient();
-
   static int WaitForData( void * );
+  static int Connect( void * );
 
   // For exception. 
   struct NetworkError { };
@@ -130,8 +141,6 @@ protected:
   //bool m_smash;
   //long m_smashCount;
   //long m_smashPtr;
-
-  long m_timeAdj;
 };
 
 #endif	// _MultiPlay_

@@ -24,6 +24,10 @@
 #include "BaseView.h"
 #include "RCFile.h"
 #include "Network.h"
+#include "MultiPlayerSelect.h"
+#include "NetPenAttack.h"
+#include "NetPenDrive.h"
+#include "NetShakeCut.h"
 
 #ifdef LOGGING
 #include "Logging.h"
@@ -49,6 +53,7 @@ extern RCFile *theRC;
 extern int theSocket;
 int listenSocket[16] = {-1, -1, -1, -1, -1, -1, -1, -1,
 			-1, -1, -1, -1, -1, -1, -1, -1 };
+long timeAdj = 0;
 
 extern void QuitGame();
 
@@ -58,149 +63,14 @@ SDL_mutex *networkMutex;
 
 void
 MultiPlay::StartServer() {
-
-  WaitForClient();
-  AdjustClock();
-  ReadBI();
-
-  SendPlayerData();
-
-  if ( !(m_comPlayer = ReadPlayerData()) ) {
-    xerror("%s(%d) ReadPlayerData", __FILE__, __LINE__);
-    throw MultiPlay::NetworkError();
-  }
 }
 
 void
 MultiPlay::StartClient() {
-  char buf[128];
-  int i;
-
-#ifdef ENABLE_IPV6
-  struct addrinfo *saddr, saddr2, *res, *res0;
-  char hbuf[32];
-  char port[10];
-  int error;
-
-  sprintf( port, "%d", theRC->csmash_port );
-
-  saddr = findhostname();
-
-  if ( getnameinfo( saddr->ai_addr, saddr->ai_addrlen,
-		    hbuf, sizeof(hbuf), NULL, 0, 0 ) == 0 )
-    printf( "server is %s\n", hbuf );
-
-  memset( &saddr2, 0, sizeof(saddr2) );
-  if ( theRC->protocol == IPv6 )
-    saddr2.ai_family = PF_UNSPEC;
-  else
-    saddr2.ai_family = PF_INET;
-  saddr2.ai_socktype = SOCK_STREAM;
-
-  error = getaddrinfo( hbuf, port, &saddr2, &res0 );
-
-  if (error) {
-    xerror("%s: %s(%d) getaddrinfo",
-	   gai_strerror(error), __FILE__, __LINE__);
-    throw MultiPlay::NetworkError();
-  }
-
-  theSocket = -1;
-
-  for ( res = res0 ; res ; res = res->ai_next ) {
-    if ( (theSocket = socket( res->ai_family, res->ai_socktype,
-			      res->ai_protocol )) < 0 ) 
-      continue;
-
-    setsockopt(theSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(int));
-
-    for ( i = 0 ; i < 10 ; i++ ) {
-      if ( !connect( theSocket, res->ai_addr, res->ai_addrlen ) )
-	break;
-#ifdef WIN32
-      Sleep(3000);
-#else
-      sleep(3);
-#endif
-    }
-
-    if ( i < 10 )
-      break;
-
-    close(theSocket);
-    theSocket = -1;
-    continue;
-  }
-
-  if ( theSocket < 0 ) {
-    xerror("%s(%d) connect", __FILE__, __LINE__);
-    throw MultiPlay::NetworkError();
-  }
-
-  freeaddrinfo(saddr);
-  freeaddrinfo(res0);
-#else
-  struct sockaddr_in saddr;
-  memset(&saddr, 0, sizeof(saddr));
-
-  findhostname(&saddr);
-
-  printf("server is %s\n", inet_ntoa(saddr.sin_addr));
-  saddr.sin_family = AF_INET;
-  saddr.sin_port = htons(theRC->csmash_port);
-
-  // connect
-  if ( (theSocket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
-    xerror("%s(%d) socket", __FILE__, __LINE__);
-    throw MultiPlay::NetworkError();
-  }
-  setsockopt(theSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(int));
-
-  for ( i = 0 ; i < 10 ; i++ ) {
-    if ( !connect( theSocket, (struct sockaddr *)&saddr, sizeof(saddr) ) )
-      break;
-#ifdef WIN32
-    Sleep(3000);
-#else
-    sleep(3);
-#endif
-  }
-
-  if ( i == 10 ) {
-    xerror("%s(%d) connect", __FILE__, __LINE__);
-    throw MultiPlay::NetworkError();
-  }
-#endif
-
-  // Respond server's AdjustClock()
-  for ( i = 0 ; i < 16 ; i++ ) {
-    struct timeb tb;
-
-    ReadTime( theSocket, &tb );	// Dispose
-    getcurrenttime( &tb );
-    ::SendTime( theSocket, &tb );
-  }
-
-  // Send Ball Data
-#ifdef LOGGING
-  Logging::GetLogging()->LogTime( LOG_COMBALL );
-  Logging::GetLogging()->Log( LOG_COMBALL, "send BI\n" );
-#endif
-
-  send( theSocket, "BI", 2, 0 );
-  theBall.Send( buf );
-  send( theSocket, buf, 60, 0 );
-
-  // exchange player data
-  if ( !(m_comPlayer = ReadPlayerData()) ) {
-    xerror("%s(%d) ReadPlayerData", __FILE__, __LINE__);
-    throw MultiPlay::NetworkError();
-  }
-  SendPlayerData();
+  Event::TheEvent()->SendBall();
 }
 
 MultiPlay::MultiPlay() {
-  m_timeAdj = 0;
 }
 
 MultiPlay::~MultiPlay() {
@@ -211,46 +81,6 @@ MultiPlay::Init() {
 #ifdef LOGGING
   Logging::GetLogging()->StartLog();
 #endif
-  m_View = (PlayGameView *)View::CreateView( VIEW_PLAYGAME );
-
-  m_View->Init( this );
-
-  BaseView::TheView()->AddView( m_View );
-
-  return true;
-}
-
-void
-MultiPlay::Create( long player, long com ) {
-  long side;
-
-  Control::ClearControl();
-
-  m_theControl = new MultiPlay();
-  m_theControl->Init();
-
-  if ( !(theRC->serverName[0]) )
-    side = 1;		// server side
-  else
-    side = -1;	// client side
-
-  theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
-
-  if ( m_thePlayer == NULL ) {
-    m_thePlayer = Player::Create( player, side, 0 );
-  }
-
-  if ( side == 1 ) {
-    ((MultiPlay *)m_theControl)->StartServer();
-  } else {
-    ((MultiPlay *)m_theControl)->StartClient();
-  }
-
-  m_thePlayer->Init();
-  m_comPlayer->Init();
-
-  SDL_ShowCursor(SDL_DISABLE);
-  SDL_WM_GrabInput( SDL_GRAB_ON );
 
   theRC->gameLevel = LEVEL_HARD;
   theRC->gameMode = GAME_11PTS;
@@ -273,8 +103,44 @@ MultiPlay::Create( long player, long com ) {
 
   Event::m_lastTime = tb;
 
+  m_View = (PlayGameView *)View::CreateView( VIEW_PLAYGAME );
+
+  m_View->Init( this );
+
+  BaseView::TheView()->AddView( m_View );
+
+  return true;
+}
+
+void
+MultiPlay::Create( long player, long com ) {
+  long side;
+
+  Control::ClearControl();
+
+  m_theControl = new MultiPlay();
+  m_theControl->Init();
+
+  theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
+
+  if ( !(theRC->serverName[0]) )
+    side = 1;	// server side
+  else
+    side = -1;	// client side
+
+  m_thePlayer = Player::Create( player, side, 0 );
+  m_comPlayer = Player::Create( com, -side, 0 );
+
   networkMutex = SDL_CreateMutex();
-  SDL_CreateThread( MultiPlay::WaitForData, NULL );
+
+  if ( side == 1 ) {
+    ((MultiPlay *)m_theControl)->StartServer();
+  } else {
+    ((MultiPlay *)m_theControl)->StartClient();
+  }
+
+  m_thePlayer->Init();
+  m_comPlayer->Init();
 }
 
 bool
@@ -315,7 +181,7 @@ MultiPlay::SendTime( char *buf ) {
   sec = Event::m_lastTime.time;
   count = Event::m_lastTime.millitm/10;
 
-  count += m_timeAdj;
+  count += timeAdj;
 
   while ( count >= 100 ) {
     count -= 100;
@@ -338,7 +204,7 @@ MultiPlay::EndGame() {
 }
 
 bool
-MultiPlay::WaitForClient() {
+WaitForClient() {
   socklen_t fromlen;
 #ifdef ENABLE_IPV6
   char port[10];
@@ -504,8 +370,110 @@ MultiPlay::WaitForClient() {
   return true;
 }
 
+bool
+ConnectToServer() {
+  char buf[128];
+  int i;
+
+#ifdef ENABLE_IPV6
+  struct addrinfo *saddr, saddr2, *res, *res0;
+  char hbuf[32];
+  char port[10];
+  int error;
+
+  sprintf( port, "%d", theRC->csmash_port );
+
+  saddr = findhostname();
+
+  if ( getnameinfo( saddr->ai_addr, saddr->ai_addrlen,
+		    hbuf, sizeof(hbuf), NULL, 0, 0 ) == 0 )
+    printf( "server is %s\n", hbuf );
+
+  memset( &saddr2, 0, sizeof(saddr2) );
+  if ( theRC->protocol == IPv6 )
+    saddr2.ai_family = PF_UNSPEC;
+  else
+    saddr2.ai_family = PF_INET;
+  saddr2.ai_socktype = SOCK_STREAM;
+
+  error = getaddrinfo( hbuf, port, &saddr2, &res0 );
+
+  if (error) {
+    xerror("%s: %s(%d) getaddrinfo",
+	   gai_strerror(error), __FILE__, __LINE__);
+    throw MultiPlay::NetworkError();
+  }
+
+  theSocket = -1;
+
+  for ( res = res0 ; res ; res = res->ai_next ) {
+    if ( (theSocket = socket( res->ai_family, res->ai_socktype,
+			      res->ai_protocol )) < 0 ) 
+      continue;
+
+    setsockopt(theSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(int));
+
+    for ( i = 0 ; i < 10 ; i++ ) {
+      if ( !connect( theSocket, res->ai_addr, res->ai_addrlen ) )
+	break;
+#ifdef WIN32
+      Sleep(3000);
+#else
+      sleep(3);
+#endif
+    }
+
+    if ( i < 10 )
+      break;
+
+    close(theSocket);
+    theSocket = -1;
+    continue;
+  }
+
+  if ( theSocket < 0 ) {
+    xerror("%s(%d) connect", __FILE__, __LINE__);
+    throw MultiPlay::NetworkError();
+  }
+
+  freeaddrinfo(saddr);
+  freeaddrinfo(res0);
+#else
+  struct sockaddr_in saddr;
+  memset(&saddr, 0, sizeof(saddr));
+
+  findhostname(&saddr);
+
+  printf("server is %s\n", inet_ntoa(saddr.sin_addr));
+  saddr.sin_family = AF_INET;
+  saddr.sin_port = htons(theRC->csmash_port);
+
+  // connect
+  if ( (theSocket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
+    xerror("%s(%d) socket", __FILE__, __LINE__);
+    throw MultiPlay::NetworkError();
+  }
+  setsockopt(theSocket, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof(int));
+
+  for ( i = 0 ; i < 10 ; i++ ) {
+    if ( !connect( theSocket, (struct sockaddr *)&saddr, sizeof(saddr) ) )
+      break;
+#ifdef WIN32
+    Sleep(3000);
+#else
+    sleep(3);
+#endif
+  }
+
+  if ( i == 10 ) {
+    xerror("%s(%d) connect", __FILE__, __LINE__);
+    throw MultiPlay::NetworkError();
+  }
+#endif
+}
+
 void
-MultiPlay::AdjustClock() {
+ServerAdjustClock() {
   long adjLog[16];
   int i, j;
 
@@ -555,15 +523,30 @@ MultiPlay::AdjustClock() {
   printf( "\n" );
 
   // Use 8 medium value
-  m_timeAdj = 0;
+  timeAdj = 0;
   for ( i = 4 ; i < 12 ; i++ ) {
-    m_timeAdj += adjLog[i];
+    timeAdj += adjLog[i];
   }
 
-  m_timeAdj /= 80;	/* 8*10 */
+  timeAdj /= 80;	/* 8*10 */
 
-  printf( "%d\n", m_timeAdj );
+  printf( "%d\n", timeAdj );
 }
+
+
+void
+ClientAdjustClock() {
+  // Respond server's AdjustClock()
+  for ( int i = 0 ; i < 16 ; i++ ) {
+    struct timeb tb;
+
+    ReadTime( theSocket, &tb );	// Dispose
+    getcurrenttime( &tb );
+    ::SendTime( theSocket, &tb );
+  }
+}
+
+
 
 int
 MultiPlay::WaitForData( void *dum ) {
@@ -631,7 +614,7 @@ ExternalData::ReadTime( int sd, long *sec, char *count ) {
   memcpy( count, &buf[4], 1 );
 
   ctmp = *count;
-  ctmp -= ((MultiPlay *)Control::TheControl())->GetTimeAdj();
+  ctmp -= timeAdj;
 
   while ( ctmp >= 100 ) {
     ctmp -= 100;
@@ -659,6 +642,9 @@ ExternalData::ReadData( long s ) {
     extNow->Read( theSocket );
   } else if ( !strncmp( buf, "BV", 2 ) ) {
     extNow = new ExternalBVData(s);
+    extNow->Read( theSocket );
+  } else if ( !strncmp( buf, "PT", 2 ) ) {
+    extNow = new ExternalPTData(s);
     extNow->Read( theSocket );
   } else if ( !strncmp( buf, "QT", 2 ) ) {
     QuitGame();
@@ -797,6 +783,47 @@ ExternalBVData::Read( long sock ) {
   Logging::GetLogging()->LogTime( LOG_COMBALL );
   sprintf( buf, "Recv BV: %d.%3d\n", (int)sec, (int)count );
   Logging::GetLogging()->Log( LOG_COMBALL, buf );
+#endif
+
+  return true;
+}
+
+
+ExternalPTData::ExternalPTData() : ExternalData() {
+  dataType = DATA_PT;
+}
+
+ExternalPTData::ExternalPTData( long s ) : ExternalData(s) {
+  dataType = DATA_PT;
+}
+
+bool
+ExternalPTData::Apply( Player *targetPlayer, bool &fThePlayer,
+		       bool &fComPlayer, bool &fTheBall ) {
+  ((MultiPlayerSelect *)Control::TheControl())->ReadPT( data );
+
+#ifdef LOGGING
+  Logging::GetLogging()->LogRecvPTMessage( this );
+#endif
+
+  return true;
+}
+
+bool
+ExternalPTData::Read( long sock ) {
+  //ReadTime( sock, &sec, &count );
+
+  long len = 0;
+  while (1) {
+    if ( (len+=recv( sock, data+len, 4-len, 0 )) == 4 )
+      break;
+  }
+
+#ifdef LOGGING
+  char buf[256];
+  Logging::GetLogging()->LogTime( LOG_COMMISC );
+  sprintf( buf, "Recv BV: %d.%3d\n", (int)sec, (int)count );
+  Logging::GetLogging()->Log( LOG_COMMISC, buf );
 #endif
 
   return true;

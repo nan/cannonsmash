@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002, 2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -44,6 +44,9 @@ PlayGameView::Init( PlayGame *playGame ) {
 
   m_image = new ImageData();
   m_image->LoadFile( filename );
+
+  SDL_ShowCursor(SDL_DISABLE);
+  SDL_WM_GrabInput( SDL_GRAB_ON );
 
   return true;
 }

@@ -104,6 +104,7 @@
 #define MODE_OPENING        (8)	// Opening
 #define MODE_PRACTICESELECT (9)	// Practice Select
 #define MODE_PRACTICE       (10)// Practice
+#define MODE_MULTIPLAYSELECT (11)// Play VS MAN Select
 
 // Sound
 #define SOUND_RACKET (0)
@@ -122,6 +123,7 @@
 #define DATA_PS      (1)
 #define DATA_BT      (2)
 #define DATA_BV      (3)
+#define DATA_PT      (4)
 
 // Sound
 #define SOUND_NONE	0
