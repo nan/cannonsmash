@@ -1,18 +1,9 @@
 pkgdatadir = $(datadir)/games/@PACKAGE@/images
 
-pkgdata_ppm = Bad.ppm Easy.ppm Hard.ppm Howto.ppm Howto1.ppm \
-		Howto2.ppm Howto3.ppm Howto4.ppm Howto5.ppm Keyboard.ppm \
-		Nice.ppm Normal.ppm Config.ppm Quit.ppm \
-		SelectPlayer.ppm StartGame.ppm Training.ppm \
-		Title.ppm Tsuborish.ppm LevelSelect.ppm ModeSelect.ppm \
-		downArrow.ppm leftArrow.ppm lose.ppm rightArrow.ppm \
+pkgdata_ppm = Bad.ppm Keyboard.ppm Nice.ppm Title.ppm \
 		eight.ppm five.ppm four.ppm nine.ppm one.ppm seven.ppm \
 		six.ppm three.ppm two.ppm zero.ppm Max.ppm \
-		upArrow.ppm win.ppm ModeSelect.ppm \
-		5point.ppm 11point.ppm 21point.ppm \
-		Transparent.ppm WireFrame.ppm ArctanX.ppm \
-		Practice.ppm Pause.ppm EasyTutorial.ja.ppm \
-		EasyTutorial.de.ppm EasyTutorial.ppm \
+		EasyTutorial.ja.ppm EasyTutorial.de.ppm EasyTutorial.ppm \
 		11point.ja.pbm 11point.de.pbm 11point.pbm \
 		21point.ja.pbm 21point.de.pbm 21point.pbm \
 		5point.ja.pbm 5point.de.pbm 5point.pbm \
@@ -57,7 +48,7 @@ pkgdata_bmp = BG.bmp BGAlpha.bmp Title.bmp PenAttack.bmp PenDrive.bmp \
 		StartGameY.bmp TrainingW.bmp TrainingY.bmp
 
 pkgdata_DATA = $(pkgdata_ppm:=@PKGDATA@) $(pkgdata_jpg) $(pkgdata_bmp)
-EXTRA_DIST = $(wildcard *.ppm) $(wildcard *.jpg) $(wildcard *.bmp)
+EXTRA_DIST = $(pkgdata_ppm) $(pkgdata_jpg) $(pkgdata_bmp)
 
 %.ppm.gz: %.ppm
 	@GZIP@ -c $< > $<.gz

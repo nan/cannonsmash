@@ -55,7 +55,6 @@ long mode = MODE_OPENING;
 
 SDL_mutex *loadMutex;
 
-extern void QuitGame();
 void StartGame();
 void EndGame();
 void EventLoop();
@@ -299,7 +298,7 @@ void EndGame()
   Event::ClearObject();
   BaseView::TheView()->QuitGame();
   Sound::TheSound()->Clear();
-  
+
   HitMark::m_textures[0] = 0;
   HowtoView::m_textures[0] = 0;
 

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,8 +26,6 @@ extern Player* thePlayer;
 extern Player* comPlayer;
 extern Ball theBall;
 extern long mode;
-
-extern void QuitGame();
 
 PracticePlay::PracticePlay() : SoloPlay() {
 }

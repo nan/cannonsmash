@@ -249,7 +249,7 @@ MultiPlay::SendTime( char *buf ) {
 void
 MultiPlay::EndGame() {
   QuitGame();
-  mode = MODE_TITLE;
+  //mode = MODE_TITLE;
 }
 
 bool
@@ -484,7 +484,7 @@ ExternalData::ReadData( long s ) {
     extNow->Read( theSocket );
   } else if ( !strncmp( buf, "QT", 2 ) ) {
     QuitGame();
-    mode = MODE_TITLE;
+    //mode = MODE_TITLE;
     return NULL;
   } else
     return NULL;

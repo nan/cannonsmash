@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -263,7 +263,7 @@ LobbyClient::PollServerMessage( gpointer data ) {
 	::StartGame();
 	::EventLoop();
 	::EndGame();
-	
+
 	send( lobby->m_socket, "QP", 2, 0 );
 	len = 8;
 	SendLong( lobby->m_socket, len );
@@ -574,16 +574,16 @@ PIDialog::PIOK( GtkWidget *widget, gpointer data ) {
   len = 0;
   SendLong( piDialog->m_parent->GetSocket(), len );
 
-  StartGame();
-  EventLoop();
-  EndGame();
-  
+  ::StartGame();
+  ::EventLoop();
+  ::EndGame();
+
   send( piDialog->m_parent->GetSocket(), "QP", 2, 0 );
   len = 8;
   SendLong( piDialog->m_parent->GetSocket(), len );
 
-  SendLong( piDialog->m_parent->GetSocket(), len );	// Temp
-  SendLong( piDialog->m_parent->GetSocket(), len );
+  SendLong( piDialog->m_parent->GetSocket(), score1 );	// Temp
+  SendLong( piDialog->m_parent->GetSocket(), score2 );
 }
 
 void

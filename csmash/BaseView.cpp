@@ -339,14 +339,10 @@ BaseView::RemoveView( View *view ) {
       
 void
 BaseView::EndGame() {
-  static char file[][30] = {"images/win.ppm", "images/lose.ppm"};
-  GLubyte bmp[400*70/8];
-#ifndef HAVE_LIBZ
-  FILE *fp;
-#else
-  gzFile fp;
-#endif
+  static char file[][30] = {"images/win", "images/lose"};
   int i, j;
+  char filename[256];
+  ImageData image;
 
   glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
@@ -365,37 +361,14 @@ BaseView::EndGame() {
   if ( Control::TheControl()->IsPlaying() && 
        ((PlayGame *)Control::TheControl())->GetScore(thePlayer) >
        ((PlayGame *)Control::TheControl())->GetScore(comPlayer) ) {
-#ifndef HAVE_LIBZ
-    if ( (fp = fopen(&file[0][0], "r")) == NULL )
-      return;
-#else
-    if ( (fp = gzopenx(&file[0][0], "rs")) == NULL )
-      return;
-#endif
+    sprintf( filename, _("%s.pbm"), file[0] );
   }  else {
-#ifndef HAVE_LIBZ
-    if ( (fp = fopen(&file[1][0], "r")) == NULL )
-      return;
-#else
-    if ( (fp = gzopenx(&file[1][0], "rs")) == NULL )
-      return;
-#endif
+    sprintf( filename, _("%s.pbm"), file[1] );
   }
-
-  for ( i = 69 ; i >= 0 ; i-- ) {
-    for ( j = 0 ; j < 400/8 ; j++ ) {
-      bmp[i*50+j] = (unsigned char)strtol( getWord(fp), NULL, 16 );
-    }
-  }
-
-#ifndef HAVE_LIBZ
-  fclose(fp);
-#else
-  gzclose(fp);
-#endif
+  image.LoadFile( filename );
 
   glRasterPos2i( 220, 330 );
-  glBitmap( 400, 70, 0.0F, 0.0F, 0.0F, 0, bmp );
+  glBitmap( 400, 70, 0.0F, 0.0F, 0.0F, 0, image.GetImage() );
 
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
