@@ -44,11 +44,8 @@ void ReadTime( int sd, struct timeb* tb );
 
 void getcurrenttime( struct timeb *tb );
 void ReadBI();
-#ifdef ENABLE_IPV6
 void findhostname( struct addrinfo *saddr );
-#else
 void findhostname( struct sockaddr_in *saddr );
-#endif
 
 void ClearSocket();
 

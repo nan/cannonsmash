@@ -30,6 +30,8 @@ RCFile::RCFile() {
   gameMode = GAME_21PTS;
   sndMode = SOUND_SDL;
 
+  protocol = IPv4;
+
   serverName[0] = '\0';
   nickname[0] = '\0';
   message[0] = '\0';
@@ -100,6 +102,10 @@ RCFile::ReadRCFile() {
       sndMode = buf[10]-'0';
       if ( sndMode > SOUND_SDL || sndMode < SOUND_NONE )
 	sndMode = SOUND_NONE;
+    } else if ( strncmp( buf, "protocol=", 9 ) == 0 ) {
+      protocol = buf[9]-'0';
+      if ( protocol > IPv6 || protocol < IPv4 )
+	protocol = IPv4;
     }
   }
 
@@ -130,6 +136,7 @@ RCFile::WriteRCFile() {
   fprintf( fp, "gamelevel=%d\n", gameLevel );
   fprintf( fp, "gamemode=%d\n", gameMode );
   fprintf( fp, "soundmode=%d\n", sndMode );
+  fprintf( fp, "protocol=%d\n", protocol );
 
   fclose( fp );
 

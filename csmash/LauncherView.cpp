@@ -50,6 +50,11 @@ LauncherHeader::Init( GtkBox *box ) {
   frame = SoundFrame();
   gtk_box_pack_start( box, frame, FALSE, FALSE, 10 );
   gtk_widget_show (frame);
+#ifdef ENABLE_IPV6
+  frame = ProtocolFrame();
+  gtk_box_pack_start( box, frame, FALSE, FALSE, 10 );
+  gtk_widget_show (frame);
+#endif
 }
 
 GtkWidget *
@@ -188,6 +193,48 @@ LauncherHeader::SoundFrame() {
   return frame;
 }
 
+#ifdef ENABLE_IPV6
+GtkWidget *
+LauncherHeader::ProtocolFrame() {
+  GtkWidget *frame;
+  GtkWidget *box;
+  GtkWidget *button;
+  GSList *list;
+
+  frame = gtk_frame_new( "Protocol" );
+
+  box = gtk_hbox_new( FALSE, 10 );
+  gtk_container_border_width (GTK_CONTAINER (box), 5);
+
+  button = gtk_radio_button_new_with_label ((GSList *)NULL, "IPv4");
+  list = gtk_radio_button_group( GTK_RADIO_BUTTON(button) );
+  gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
+  if (theRC->protocol == IPv4)
+    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(button), TRUE );
+  gtk_widget_show (button);
+
+  gtk_signal_connect (GTK_OBJECT (button), "clicked",
+		      GTK_SIGNAL_FUNC (LauncherHeader::ToggleProtocol),
+		      &theRC->protocol);
+
+  button = gtk_radio_button_new_with_label (list, "IPv6");
+  list = gtk_radio_button_group( GTK_RADIO_BUTTON(button) );
+  gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
+  if (theRC->protocol == IPv6)
+    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(button), TRUE );
+  gtk_widget_show (button);
+
+  gtk_signal_connect (GTK_OBJECT (button), "clicked",
+		      GTK_SIGNAL_FUNC (LauncherHeader::ToggleProtocol),
+		      &theRC->protocol);
+
+  gtk_widget_show (box);
+  gtk_container_add (GTK_CONTAINER (frame), box);
+
+  return frame;
+}
+#endif
+
 void
 LauncherHeader::ToggleFullScreen( GtkWidget *widget, gpointer data ) {
   GSList *list = gtk_radio_button_group( (GtkRadioButton *)widget );
@@ -211,6 +258,20 @@ LauncherHeader::ToggleSound( GtkWidget *widget, gpointer data ) {
     theRC->sndMode = SOUND_SDL;
   }
 }
+
+#ifdef ENABLE_IPV6
+void
+LauncherHeader::ToggleProtocol( GtkWidget *widget, gpointer data ) {
+  GSList *list = gtk_radio_button_group( (GtkRadioButton *)widget );
+
+  if ( gtk_toggle_button_get_active
+       ( (GtkToggleButton *)g_slist_nth_data( list, 0 ) ) ) {
+    theRC->protocol = IPv6;
+  } else {
+    theRC->protocol = IPv4;
+  }
+}
+#endif
 
 
 void

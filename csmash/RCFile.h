@@ -32,6 +32,7 @@ public:
   long gameLevel;
   long gameMode;
   long sndMode;
+  long protocol;
 
   char serverName[256];
   char nickname[32];

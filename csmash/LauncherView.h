@@ -34,6 +34,11 @@ protected:
   static void Toggle( GtkWidget *widget, gpointer data );
   static void ToggleFullScreen( GtkWidget *widget, gpointer data );
   static void ToggleSound( GtkWidget *widget, gpointer data );
+
+#ifdef ENABLE_IPV6
+  GtkWidget * ProtocolFrame();
+  static void ToggleProtocol( GtkWidget *widget, gpointer data );
+#endif
 };
 
 

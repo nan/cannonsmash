@@ -109,6 +109,10 @@
 #define SOUND_CLICK  (2)
 #define SOUND_OPENING (3)
 
+// protocol
+#define IPv4 (0)
+#define IPv6 (1)
+
 #define OPENINGFILENAME "danslatristesse2-48.ogg"
 
 // Communication

@@ -34,7 +34,7 @@ extern long mode;
 
 extern void StartGame();
 
-extern unsigned int listenSocket;
+extern int listenSocket;
 extern int one;
 
 // dirty... used by "QP"
@@ -64,130 +64,146 @@ bool
 LobbyClient::Init( char *nick, char *message ) {
   char buf[1024];
 
-  // open listening port
 #ifdef ENABLE_IPV6
-  struct addrinfo saddr, *res, *res0;
   char port[10];
 
   sprintf( port, "%d", theRC->csmash_port );
-#else
-  struct sockaddr_in saddr;
 #endif
 
+  // open listening port
   if ( listenSocket == 0 ) {
+    if ( theRC->protocol == IPv6 ) {
 #ifdef ENABLE_IPV6
-    int error;
+      struct addrinfo saddr, *res, *res0;
+      int error;
 
-    memset( &saddr, 0, sizeof(saddr) );
-    saddr.ai_family = AF_INET6;
-    saddr.ai_socktype = SOCK_STREAM;
-    saddr.ai_flags = AI_PASSIVE;
-    error = getaddrinfo( NULL, port, &saddr, &res );
-    if (error || res->ai_next) {
-      xerror("%s(%d) getaddrinfo", __FILE__, __LINE__);
-      return false;
-    }
+      memset( &saddr, 0, sizeof(saddr) );
+      saddr.ai_family = AF_INET6;
+      saddr.ai_socktype = SOCK_STREAM;
+      saddr.ai_flags = AI_PASSIVE;
+      error = getaddrinfo( NULL, port, &saddr, &res );
+      if (error || res->ai_next) {
+	xerror("%s: %s(%d) getaddrinfo",
+	       gai_strerror(error), __FILE__, __LINE__);
+	return false;
+      }
 
-    if ( (listenSocket = socket( res->ai_family, res->ai_socktype,
-				 res->ai_protocol )) < 0 ) {
-      xerror("%s(%d) socket", __FILE__, __LINE__);
-      return false;
-    }
+      if ( (listenSocket = socket( res->ai_family, res->ai_socktype,
+				   res->ai_protocol )) < 0 ) {
+	xerror("%s(%d) socket", __FILE__, __LINE__);
+	return false;
+      }
 
 #ifdef IPV6_V6ONLY
-    if ( res->ai_family == AF_INET6 &&
-	 setsockopt( s, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on) ) < 0 ) {
-      close(listenSocket);
-      xerror("%s(%d) setsockopt", __FILE__, __LINE__);
-      return false;
-    }
+      if ( res->ai_family == AF_INET6 &&
+	   setsockopt( s, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on) ) < 0 ) {
+	close(listenSocket);
+	xerror("%s(%d) setsockopt", __FILE__, __LINE__);
+	return false;
+      }
 #endif
 
-    setsockopt( listenSocket, IPPROTO_TCP, TCP_NODELAY,
-		(char*)&one, sizeof(int) );
+      setsockopt( listenSocket, IPPROTO_TCP, TCP_NODELAY,
+		  (char*)&one, sizeof(int) );
 
-    if ( bind( listenSocket, res->ai_addr, res->ai_addrlen ) >= 0 ) {
-      xerror("%s(%d) bind", __FILE__, __LINE__);
-      return false;
-    }
+      if ( bind( listenSocket, res->ai_addr, res->ai_addrlen ) < 0 ) {
+	xerror("%s(%d) bind", __FILE__, __LINE__);
+	return false;
+      }
 
-    if ( listen( listenSocket, 1 ) < 0 ) {
-      xerror("%s(%d) socket", __FILE__, __LINE__);
-      return false;
-    }
-    freeaddrinfo( res );
-#else
-    if ( (listenSocket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
-      xerror("%s(%d) socket", __FILE__, __LINE__);
-      return false;
-    }
-
-    setsockopt( listenSocket, IPPROTO_TCP, TCP_NODELAY,
-		(char*)&one, sizeof(int) );
-
-    saddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    saddr.sin_family = AF_INET;
-    saddr.sin_port = htons(theRC->csmash_port);
-    if ( bind( listenSocket, (struct sockaddr *)&saddr, sizeof(saddr) ) < 0 ) {
-      xerror("%s(%d) bind", __FILE__, __LINE__);
-      return false;
-    }
-
-    if ( listen( listenSocket, 1 ) < 0 ) {
-      xerror("%s(%d) socket", __FILE__, __LINE__);
-      return false;
-    }
+      if ( listen( listenSocket, 1 ) < 0 ) {
+	xerror("%s(%d) socket", __FILE__, __LINE__);
+	return false;
+      }
+      freeaddrinfo( res );
 #endif
+    } else {
+      struct sockaddr_in saddr;
+
+      if ( (listenSocket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
+	xerror("%s(%d) socket", __FILE__, __LINE__);
+	return false;
+      }
+
+      setsockopt( listenSocket, IPPROTO_TCP, TCP_NODELAY,
+		  (char*)&one, sizeof(int) );
+
+      saddr.sin_addr.s_addr = htonl(INADDR_ANY);
+      saddr.sin_family = AF_INET;
+      saddr.sin_port = htons(theRC->csmash_port);
+      if ( bind(listenSocket, (struct sockaddr *)&saddr, sizeof(saddr)) < 0 ) {
+	xerror("%s(%d) bind", __FILE__, __LINE__);
+	return false;
+      }
+
+      if ( listen( listenSocket, 1 ) < 0 ) {
+	xerror("%s(%d) socket", __FILE__, __LINE__);
+	return false;
+      }
+    }
   }
 
   // connect to lobby server
-  memset(&saddr, 0, sizeof(saddr));
-
+  if ( theRC->protocol == IPv6 ) {
 #ifdef ENABLE_IPV6
-  saddr.ai_family = PF_UNSPEC;
-  saddr.ai_socktype = SOCK_STREAM;
-  getaddrinfo( LOBBYSERVER_NAME, port, &saddr, &res0 );
+    int error;
+    struct addrinfo saddr, *res, *res0;
 
-  m_socket = -1;
+    memset(&saddr, 0, sizeof(saddr));
 
-  for ( res = res0 ; res ; res = res->ai_next ) {
-    if ( (m_socket = socket( res->ai_family, res->ai_socktype,
-			     res->ai_protocol )) < 0 ) 
-      continue;
-
-    if ( connect( m_socket, res->ai_addr, res->ai_addrlen ) < 0 ) {
-      close(m_socket);
-      m_socket = -1;
-      continue;
+    saddr.ai_family = PF_UNSPEC;
+    saddr.ai_socktype = SOCK_STREAM;
+    error = getaddrinfo( LOBBYSERVER_NAME, port, &saddr, &res0 );
+    if (error) {
+      xerror("%s: %s(%d) getaddrinfo",
+	     gai_strerror(error), __FILE__, __LINE__);
+      return false;
     }
-    break;
-  }
 
-  freeaddrinfo(res0);
+    m_socket = -1;
 
-  if ( m_socket < 0 ) {
-    xerror("%s(%d) connect", __FILE__, __LINE__);
-    return false;
-  }
-#else
-  struct hostent *hent;
+    for ( res = res0 ; res ; res = res->ai_next ) {
+      if ( (m_socket = socket( res->ai_family, res->ai_socktype,
+			       res->ai_protocol )) < 0 ) 
+	continue;
 
-  hent = gethostbyname( LOBBYSERVER_NAME );
-  memcpy( &saddr.sin_addr, hent->h_addr, hent->h_length );
+      if ( connect( m_socket, res->ai_addr, res->ai_addrlen ) < 0 ) {
+	close(m_socket);
+	m_socket = -1;
+	continue;
+      }
+      break;
+    }
 
-  saddr.sin_family = AF_INET;
-  saddr.sin_port = htons(LOBBYSERVER_PORT);
+    freeaddrinfo(res0);
 
-  // connect
-  if ( (m_socket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
-    xerror("%s(%d) socket", __FILE__, __LINE__);
-    return false;
-  }
-  if ( connect( m_socket, (struct sockaddr *)&saddr, sizeof(saddr) ) ) {
-    xerror("%s(%d) connect", __FILE__, __LINE__);
-    return false;
-  }
+    if ( m_socket < 0 ) {
+      xerror("%s(%d) connect", __FILE__, __LINE__);
+      return false;
+    }
 #endif
+  } else {
+    struct hostent *hent;
+    struct sockaddr_in saddr;
+
+    memset(&saddr, 0, sizeof(saddr));
+
+    hent = gethostbyname( LOBBYSERVER_NAME );
+    memcpy( &saddr.sin_addr, hent->h_addr, hent->h_length );
+
+    saddr.sin_family = AF_INET;
+    saddr.sin_port = htons(LOBBYSERVER_PORT);
+
+    // connect
+    if ( (m_socket = socket( PF_INET, SOCK_STREAM, 0 )) < 0 ) {
+      xerror("%s(%d) socket", __FILE__, __LINE__);
+      return false;
+    }
+    if ( connect( m_socket, (struct sockaddr *)&saddr, sizeof(saddr) ) ) {
+      xerror("%s(%d) connect", __FILE__, __LINE__);
+      return false;
+    }
+  }
 
   // Connect to Lobby Server
   send( m_socket, "CN", 2, 0 );
