@@ -65,7 +65,7 @@ MultiPlay::StartServer() {
 
 void
 MultiPlay::StartClient() {
-  Event::TheEvent()->SendBall();
+  //Event::TheEvent()->SendBall();
 }
 
 MultiPlay::MultiPlay() {
@@ -200,7 +200,11 @@ MultiPlay::WaitForData( void *dum ) {
 
     if ( select( theSocket+1, &rdfds, NULL, NULL, NULL ) > 0 ) {
       bool ret;
-      long side = -1;
+      long side;
+      if ( !(theRC->serverName[0]) )
+	side = -1;
+      else
+	side = 1;
 
       if ( m_comPlayer )
 	side = m_comPlayer->GetSide();
@@ -468,7 +472,7 @@ ExternalPTData::Read( long sock ) {
 #ifdef LOGGING
   char buf[256];
   Logging::GetLogging()->LogTime( LOG_COMMISC );
-  sprintf( buf, "Recv PT: %d.%3d\n", (int)sec, (int)count );
+  sprintf( buf, "Recv PT: \n" );
   Logging::GetLogging()->Log( LOG_COMMISC, buf );
 #endif
 
