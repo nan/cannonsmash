@@ -61,11 +61,19 @@ pthread_mutex_t loadMutex = PTHREAD_MUTEX_INITIALIZER;
 
 int WINAPI WinMain_(HINSTANCE, HINSTANCE, LPSTR, int);
 
+#if 0
 int main( int argc, char *argv[] )
 {
   HINSTANCE hInstance = GetModuleHandle(NULL);
   return WinMain_(hInstance, NULL, GetCommandLine(), SW_SHOW);
 }
+
+#else
+int WINAPI WinMain(HINSTANCE hI, HINSTANCE hP, LPSTR, int nCmdShow)
+{
+  return WinMain_(hI, hP, GetCommandLine(), nCmdShow);
+}
+#endif
 
 int WINAPI WinMain_(HINSTANCE hInstance, HINSTANCE hPrevInstance,
       LPSTR lpCmdLine, int nCmdShow )

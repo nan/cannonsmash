@@ -2,7 +2,7 @@
 # Makefile for win32
 #
 ############################################################################
-.SUFFIXES: .exe .so .dll .a .lib .o .obj .cpp .cc .c .asm .s .y .h .l
+.SUFFIXES: .exe .so .dll .res .a .lib .o .obj .cpp .cc .c .asm .s .y .h .rc .l
 
 .c.obj:
 	$(CC) $(Cpre) $(CFLAGS) $(Cpost) $<
@@ -10,6 +10,8 @@
 	$(CXX) $(CXXpre) $(CXXFLAGS) $(CXXpost) $<
 .cc.obj:
 	$(CXX) $(CXXpre) $(CXXFLAGS) $(CXXpost) $<
+.rc.res:
+	$(RC) $(RCpre) $(RCFLAGS) $(RCpost) $<
 
 ############################################################################
 CC = cl -nologo -W3
@@ -19,9 +21,11 @@ Cpost = -c -Tc
 CXXpost = -c -Tp
 
 #CFLAGS = -MD -Ox -G6 -vms $(INCDIRS)
-#CFLAGS = -MD -Ox -G6 -vms -DHAVE_LIBZ $(INCDIRS)
 
 CXXFLAGS=$(CFLAGS) -GX
+
+RC	= rc
+RCFLAGS	=
 
 O = obj
 A = lib
@@ -32,17 +36,17 @@ AOUT = -Fe
 ############################################################################
 INCDIRS	= -I.
 
-OBJS = GetArgs.obj wsaerror.obj getopt.obj
+OBJS = GetArgs.obj wsaerror.obj getopt.obj wsainit.obj
 
-TARGET = $(OBJS) wsainit.obj
+TARGET = $(OBJS) csmash.res
 
 ############################################################################
 all: $(TARGET)
 	touch all
 clean:
-	rm -f $(TARGET) *.$(O) all
+	rm -f $(TARGET) *.$(O) *.res all
 distclean:
-	rm -f $(TARGET) *.$(O) *~ *.bak depend.nt all
+	rm -f $(TARGET) *.$(O) *.res *~ *.bak depend.nt all
 
 depend:
 	touch depend.nt

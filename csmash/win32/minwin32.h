@@ -27,6 +27,11 @@
 
 #include <windows.h>
 
+#ifndef snprintf
+# define snprintf _snprintf
+# define vsnprintf _vsnprintf
+#endif
+
 /* __END__END__ */
 /***********************************************************************/
 #endif
