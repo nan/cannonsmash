@@ -379,7 +379,7 @@ StartServer() {
     tb2.millitm = tv.tv_usec/1000;
 #endif
 
-    diff = (long)(tb2.time-tb1.time)*1000 + tb2.millitm-tb1.millitm;
+    diff = ((long)(tb2.time-tb1.time)*1000 + tb2.millitm-tb1.millitm)/2;
     long mtm = tb1.millitm+diff;
     while ( mtm >= 1000 ) {
       mtm -= 1000;
