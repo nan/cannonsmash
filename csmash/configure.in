@@ -93,6 +93,7 @@ dnl AC_DEFINE_UNQUOTED(CANNONSMASH_DATADIR, "@prefix@/share/$PACKAGE/")
 
 AC_OUTPUT([Makefile  m4/Makefile \
 	Parts/Makefile \
+	Parts/model/Makefile \
 	Parts/Bcut/Makefile \
 	Parts/Bnormal/Makefile \
 	Parts/Bpeck/Makefile \

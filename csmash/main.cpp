@@ -89,7 +89,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR CmdLine, int nShow)
 #endif /* WIN32CONSOLE */
 #endif /* WIN32 */
 
-#define PROBE_FILE "Parts/Fnormal/Fnormal-head01.dat"
+#define PROBE_FILE "Parts/model/head01.dat"
 
 int main(int argc, char** argv) {
   char *dataDir = NULL;

@@ -294,14 +294,16 @@ public:
 class partsmotion
 {
 public:
-    int numParts;
-
     static polyhedron **polyparts;
+    static int numParts;
+
     affineanim *origin;
     quaternionanim **qanim;
 
     partsmotion(const char *basename);
     virtual ~partsmotion();
+
+    static bool loadmodel(const char *basename);
 
     virtual bool render(int frame, float xdiff, float ydiff, float zdiff);
     virtual bool render(double frame, float xdiff, float ydiff, float zdiff);

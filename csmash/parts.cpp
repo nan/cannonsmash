@@ -849,10 +849,8 @@ partsmotion::drawbody( vector3F neck, vector3F waist,
 /***********************************************************************
  *	Class partsmotion
  ***********************************************************************/
-polyhedron **partsmotion::polyparts = NULL;
-
 partsmotion::partsmotion(const char *basename)
-  : numParts(0), origin(NULL), qanim(NULL)
+  : origin(NULL), qanim(NULL)
 {
     const char *partnames[] = {
 	"head", "chest", "hip", "racket",
@@ -860,18 +858,6 @@ partsmotion::partsmotion(const char *basename)
 	"Rthigh"/*, "Rknee"*/, "Rshin"/*, "Rankle"*/, "Rfoot",
 	"Lshoulder", "Larm", "Lelbow", "Lforearm", "Lhand",
 	"Lthigh"/*, "Lknee"*/, "Lshin"/*, "Lankle"*/, "Lfoot" };
-
-    numParts = sizeof(partnames) / sizeof(const char *);
-    if ( polyparts == NULL ) {
-	polyparts = new polyhedron*[numParts];
-
-	for ( int i = 0 ; i < numParts ; i++ ) {
-	    char ref[128];
-	    snprintf(ref, sizeof(ref), "%s-%s01.dat", basename, partnames[i]);
-	    polyparts[i] = new polyhedron(ref);
-	    polyparts[i]->getNormal();
-	}
-    }
 
     qanim = new quaternionanim*[numParts];
     for ( int i = 0 ; i < numParts ; i++ ) {
@@ -903,6 +889,29 @@ partsmotion::~partsmotion()
     }
 }
     
+polyhedron **partsmotion::polyparts = NULL;
+int partsmotion::numParts = 0;
+
+bool partsmotion::loadmodel(const char *basename)
+{
+    const char *partnames[] = {
+	"head", "chest", "hip", "racket",
+	"Rshoulder", "Rarm", "Relbow", "Rforearm", "Rhand",
+	"Rthigh"/*, "Rknee"*/, "Rshin"/*, "Rankle"*/, "Rfoot",
+	"Lshoulder", "Larm", "Lelbow", "Lforearm", "Lhand",
+	"Lthigh"/*, "Lknee"*/, "Lshin"/*, "Lankle"*/, "Lfoot" };
+
+    numParts = sizeof(partnames) / sizeof(const char *);
+    polyparts = new polyhedron*[numParts];
+
+    for ( int i = 0 ; i < numParts ; i++ ) {
+        char ref[128];
+	snprintf(ref, sizeof(ref), "%s%s01.dat", basename, partnames[i]);
+	polyparts[i] = new polyhedron(ref);
+	polyparts[i]->getNormal();
+    }
+}
+
 bool partsmotion::render(int frame, float xdiff, float ydiff, float zdiff)
 {
     return render( (double)frame, xdiff, ydiff, zdiff );
