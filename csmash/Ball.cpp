@@ -171,7 +171,7 @@ Ball::Move() {
 
       m_status = 8;
 
-      if ( ((PlayGame *)theControl)->IsGameEnd() == true ){
+      if ( &theBall == this && ((PlayGame *)theControl)->IsGameEnd() == true ){
 	theView->EndGame();
 	((PlayGame *)theControl)->EndGame();
       }
