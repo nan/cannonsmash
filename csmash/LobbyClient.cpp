@@ -217,6 +217,8 @@ LobbyClient::UpdateTable() {
     row[1] = m_player[i].m_message;
     gtk_clist_append( GTK_CLIST(m_table), row );
   }
+
+  gtk_clist_columns_autosize( GTK_CLIST(m_table) );
 }
 
 void

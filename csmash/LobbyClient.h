@@ -18,8 +18,7 @@
 
 #include <gtk/gtk.h>
 
-//#define LOBBYSERVER_NAME	"nan.p.utmc.or.jp"
-#define LOBBYSERVER_NAME	"192.168.1.184"
+#define LOBBYSERVER_NAME	"nan.p.utmc.or.jp"
 #define LOBBYSERVER_PORT	(5733)
 
 class PlayerInfo;

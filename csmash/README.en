@@ -8,27 +8,24 @@
 represent various strategy of tabletennis on computer game. 
 
 2. Requirements
- This program requires OpenGL and GLUT. Please install these components 
+ This program requires OpenGL and SDL. Please install these components 
 first. If your machine doesn't have 3D accelaration video card, this 
 program runs very slowly.
 
 OpenGL:
   Windows 95    You have nothing to do if your Window 95 is OSR2 or newer. 
                 If not, please get 
-                ftp://ftp.microsoft.com/softlib/msfiles/opengl95.exe
+                ftp://ftp.microsoft.com/softlib/mslfiles/opengl95.exe
                 and install. 
   Windows 98    You have nothing to do. 
   Windows NT4.0 You have nothing to do. 
   Windows 2000  You have nothing to do. 
   Linux 2.2.x   Please install Mesa3D. 
 
-GLUT:
-  Please install GLUT3.7. 
-  Get GLUT 3.7 from http://reality.sgi.com/mjk/glut3/glut3.html and install. 
-
-Others:(Optional)
-  Sound effect becomes available if you install esd (on Linux). 
-  Install pthread and this program runs faster. 
+SDL:
+  Please install SDL 1.1.7 or later. If you install SDL_Mixer, sound will be
+  enabled. 
+  Get SDL from http://www.libsdl.org/ and install. 
 
 3. Install
 3.1. Install from source code
@@ -47,11 +44,23 @@ If your path is correct, you can start game by typing like this.
 We have binary packages for some platforms(Windows, Linux). But some 
 of them are old, so please install from source package if you can. 
 
-4. Multiplayer mode
+4. How to start game
+Input like this.
+# csmash
+
+or doubleclick csmash icon if you can. 
+
+Then, you can see the initial window. There are some buttons, but at
+first, push "Game Start!" to start game. Please read
+http://CannonSmash.SourceForge.net/ for details of initial window. 
+
+5. Multiplayer play
 Cannon Smash supports multiplayer mode since version 0.4.0. 
 Two PC connected by LAN or the internet is needed to play
-multiplayer game. You have to run the program in the sequence
-described below. 
+multiplayer game. 
+To play on LAN or the Internet, you have to input some information
+in ititial window. Refer to http://CannonSmash.SourceForge.net/ for
+the information. 
 
 
   [About Cannon Smash over the internet]
@@ -73,47 +82,8 @@ described below.
   multiplayer mode. 
 
 
-(1) Start game on server machine with "-s" option. 
-    You can use "-p" option to change port number, but usually you 
-    don't have to set this option. 
-
-Ex.
-# csmash -s
-
-(2) You can see "Player Select" on server machine. Select player and
-    wait for a while until client machine will be connected. 
-
-(3) Start game on client machine with server machine name.
-    You can use "-p" option to change port number, but usually you 
-    don't have to set this option. 
-
-Ex.
-# csmash servername.xxx.com
-
-(4) You can see Player Select on client machine. After you select player, 
-    client machine makes connection with server machine and game starts. 
-
-5. Other options
-(1) Fullscreen mode  '-f'
-You can play the game on fullscreen if you specify this option. 
-With some video cards like VooDoo2, you should specify this option
-to play this game correctly. 
-
-Ex.
-# csmash -f
-
-(2) Simple mode  '-S'
-If you specify this option, you will see very 'simple' window
-is displayed. If the game runs too slowly on your machine, 
-try this option. 
-
-Ex.
-# csmash -S
-
-(3) OSS sound mode '-O'
-Play sound by OSS. On Windows, this option is disabled. 
-
-Ex.
-#csmash -O
+6. Other options
+There are other options in initial window. Please refer to 
+http://CannonSmash.Sourceforge.net/ 
 
 Enjoy!
