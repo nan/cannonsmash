@@ -72,7 +72,7 @@ LobbyClient::Init( char *nick, char *message ) {
 
   // open listening port
   if ( listenSocket[0] < 0 ) {
-    if ( !GetSocket() )
+    if ( !::GetSocket() )
       return false;
   }
 
