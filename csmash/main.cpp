@@ -118,6 +118,13 @@ int main(int argc, char** argv) {
     printf("\nlocale=%s\n", localedir);
     bindtextdomain ("csmash", localedir);
     textdomain ("csmash");
+
+    *localedir = '\0';
+    GetCurrentDirectory(MAX_PATH, localedir);
+    strcat( localedir, "\\gtk\\gtkrc" );
+    gtk_rc_add_default_file( localedir );
+
+    free( localedir );
 #else
     bindtextdomain (PACKAGE, LOCALEDIR);
     textdomain (PACKAGE);
