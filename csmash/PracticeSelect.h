@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of PracticeSelect class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
 //
@@ -22,6 +27,9 @@
 #include "PlayerSelect.h"
 #include "PracticeSelectView.h"
 
+/**
+ * PracticeSelect class is a controller classes for selecting player on practice play. 
+ */
 class PracticeSelect : public PlayerSelect {
 public:
   PracticeSelect();
@@ -35,13 +43,13 @@ public:
 		     long *MouseYHistory, unsigned long *MouseBHistory,
 		     int Histptr );
 
-  virtual long GetOpponentRotate() { return m_opponentRotate; };
+  virtual long GetOpponentRotate() { return m_opponentRotate; }	///< Getter method of m_opponentRotate. 
   virtual long GetOpponentNum();
-  virtual long GetOpponentSelected() { return m_opponentSelected; };
+  virtual long GetOpponentSelected() { return m_opponentSelected; }	///< Getter method of m_opponentSelected. 
 
 protected:
-  long m_opponentRotate;	// Rotation of players
-  long m_opponentSelected;	// Selected : m_selected > 0
+  long m_opponentRotate;	///< Rotation of opponent player in degree
+  long m_opponentSelected;	///< If the opponent player is selected, m_selected > 0
 };
 
 #endif	// _PracticeSelect_

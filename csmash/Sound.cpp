@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of Sound class. 
+ * @author KANNA Yoshihiro
+ * $Id$
+ */
 
 // Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
@@ -29,6 +34,9 @@ extern SDL_mutex *loadMutex;
 
 Sound* Sound::m_theSound = NULL;
 
+/**
+ * Default constructor. 
+ */
 Sound::Sound() {
 #ifdef HAVE_LIBSDL_MIXER
   m_queuehead = m_queuetail = 0;
@@ -37,6 +45,10 @@ Sound::Sound() {
 #endif
 }
 
+/**
+ * Destructor. 
+ * Free registered sounds. 
+ */
 Sound::~Sound() {
 #ifdef HAVE_LIBSDL_MIXER
   for ( int i = 0 ; i < 16 ; i++ ) {
@@ -55,6 +67,9 @@ Sound::~Sound() {
 #endif
 }
 
+/**
+ * Getter method of singleton Sound object. 
+ */
 Sound*
 Sound::TheSound() {
   if ( Sound::m_theSound )
@@ -63,6 +78,13 @@ Sound::TheSound() {
     return (Sound::m_theSound = new Sound());
 }
 
+/**
+ * Initializer method. 
+ * Load sound files. 
+ * 
+ * @param sndMode sound mode (SDL or none). 
+ * @return returns true if succeeds. 
+ */
 bool
 Sound::Init( long sndMode ) {
   m_soundMode = sndMode;
@@ -121,6 +143,9 @@ Sound::Init( long sndMode ) {
   return true;
 }
 
+/**
+ * Cleanup registered sound handlers. 
+ */
 void
 Sound::Clear() {
 #ifdef HAVE_LIBSDL_MIXER
@@ -141,6 +166,12 @@ Sound::Clear() {
 #endif
 }
 
+/**
+ * Play sound. 
+ * 
+ * @param soundID ID of sound handler to be played. 
+ * @param x location of the source of sound. 
+ */
 bool
 Sound::Play( long soundID, vector3d x ) {
   if ( m_soundMode == SOUND_NONE )
@@ -172,6 +203,13 @@ Sound::Play( long soundID, vector3d x ) {
   return true;
 }
 
+/**
+ * Play score reading voice. 
+ * 
+ * @param score1 score of near side
+ * @param score2 score of far side
+ * @return returns true if succeeds. 
+ */
 bool
 Sound::PlayScore( long score1, long score2 ) {
   if ( m_soundMode == SOUND_NONE )
@@ -208,6 +246,12 @@ Sound::PlayScore( long score1, long score2 ) {
   return true;
 }
 
+/**
+ * Play number voice. 
+ * 
+ * @param number number to be played. 
+ * @return returns true if succees. 
+ */
 bool
 Sound::PlayNumber( long number ) {
   if ( m_soundMode == SOUND_NONE )
@@ -228,8 +272,14 @@ Sound::PlayNumber( long number ) {
   return true;
 }
 
-/* Play the sound on blocking mode */
 #ifdef HAVE_LIBSDL_MIXER
+/**
+ * Play the sound on blocking mode
+ * 
+ * @param channel sound channel ID
+ * @param chunk sound handler to be played
+ * @return returns true if succeeds. 
+ */
 bool
 Sound::PlayBlocking( int channel, Mix_Chunk *chunk ) {
   if ( !Mix_Playing( channel ) ) {
@@ -242,6 +292,13 @@ Sound::PlayBlocking( int channel, Mix_Chunk *chunk ) {
   return true;
 }
 
+/**
+ * Callback method to play queued sound. 
+ * This method checks the queue of sound handler. If a sound handler is queued,
+ * it is played. 
+ * 
+ * @param channel sound channel ID
+ */
 void
 Sound::PlayFinishHandler( int channel ) {
   if ( channel != 1 )
@@ -258,11 +315,17 @@ Sound::PlayFinishHandler( int channel ) {
 }
 #endif
 
+/**
+ * Getter method of m_soundMode
+ */
 long
 Sound::GetSoundMode() {
   return m_soundMode;
 }
 
+/**
+ * Load BGM file. 
+ */
 long
 Sound::InitBGM( char *filename ) {
   if ( m_soundMode == SOUND_NONE )
@@ -278,7 +341,9 @@ Sound::InitBGM( char *filename ) {
   return 0;
 }
 
-// It is better to move it to other thread
+/**
+ * Play BGM. 
+ */
 long
 Sound::PlayBGM() {
   if ( m_soundMode == SOUND_NONE )
@@ -291,6 +356,9 @@ Sound::PlayBGM() {
   return 0;
 }
 
+/**
+ * Fade out BGM when it should be stopped. 
+ */
 long
 Sound::StopBGM() {
   if ( m_soundMode == SOUND_NONE )

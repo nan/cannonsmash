@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of RCFile class. 
+ * @author KANNA Yoshihiro
+ * $Id$
+ */
 
 // Copyright (C) 2001, 2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
@@ -21,6 +26,10 @@
 
 RCFile* RCFile::m_rcFile = NULL;
 
+/**
+ * Default constructor. 
+ * Set to member variables to default. 
+ */
 RCFile::RCFile() {
   isTexture = true;
   fullScreen = false;
@@ -40,6 +49,11 @@ RCFile::RCFile() {
 
 }
 
+/**
+ * Get singleton RCFile object. 
+ * 
+ * @return returns singleton RCFile object. 
+ */
 RCFile*
 RCFile::GetRCFile() {
   if ( !RCFile::m_rcFile )
@@ -48,6 +62,11 @@ RCFile::GetRCFile() {
   return m_rcFile;
 }
 
+/**
+ * Read RCFile from .csmashrc (csmash.rc). 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 RCFile::ReadRCFile() {
   FILE *fp = OpenRCFile( "r" );
@@ -115,6 +134,11 @@ RCFile::ReadRCFile() {
   return true;
 }
 
+/**
+ * Write settings to .csmashrc (csmash.rc). 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 RCFile::WriteRCFile() {
   FILE *fp = OpenRCFile( "w" );
@@ -146,6 +170,12 @@ RCFile::WriteRCFile() {
   return true;
 }
 
+/**
+ * Open rc file. 
+ * 
+ * @param file open mode (second argument for fopen()). 
+ * @return returns FILE descriptor. 
+ */
 FILE *
 RCFile::OpenRCFile( char *mode ) {
   char *csmashrc;

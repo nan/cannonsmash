@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of PracticeSelectView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
 //
@@ -20,6 +25,9 @@
 #define _PracticeSelectView_
 #include "PlayerSelectView.h"
 
+/**
+ * PracticeSelectView class is a view class which corresponds to PracticeSelect object. 
+ */
 class PracticeSelectView : public PlayerSelectView {
 public:
   PracticeSelectView();

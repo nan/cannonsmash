@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of RCFile class. 
+ * @author KANNA Yoshihiro
+ * $Id$
+ */
 
 // Copyright (C) 2001, 2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
@@ -21,24 +26,27 @@
 
 #include "ttinc.h"
 
+/**
+ * RCFile class is for loading/saving .csmashrc (csmash.rc) file. 
+ */
 class RCFile {
 public:
   static RCFile *GetRCFile();
 
-  bool isTexture;
-  bool fullScreen;
-  long myModel;
-  long gmode;
-  long gameLevel;
-  long gameMode;
-  long sndMode;
-  long protocol;
+  bool isTexture;	///< Texture is enabled/disabled
+  bool fullScreen;	///< window mode/fullscreen mode
+  long myModel;		///< Model is arm only/transparent/wire frame
+  long gmode;		///< Graphic mode is simple/normal
+  long gameLevel;	///< Game level is easy/normal/hard/tsuborish
+  long gameMode;	///< Game mode is 5pts/11pts/21pts
+  long sndMode;		///< Sound mode is none/SDL
+  long protocol;	///< Network protocol is IPV4/IPV6
 
-  char serverName[256];
-  char nickname[32];
-  char message[64];
+  char serverName[256];	///< Default server name
+  char nickname[32];	///< Default nickname
+  char message[64];	///< Default message
 
-  short csmash_port;
+  short csmash_port;	///< Default port number
 
   bool ReadRCFile();
   bool WriteRCFile();
@@ -46,7 +54,7 @@ public:
 private:
   RCFile();
 
-  static RCFile* m_rcFile;
+  static RCFile* m_rcFile;	///< Reference to singleton RCFile object. 
 
   FILE * OpenRCFile( char *mode );
 };

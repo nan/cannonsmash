@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of ShakeCut class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -20,6 +25,9 @@
 #define _ShakeCut_
 #include "Player.h"
 
+/**
+ * ShakeCut class is a Player class of shake cut type player. 
+ */
 class ShakeCut : public Player {
 public:
   ShakeCut();

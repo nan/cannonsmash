@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of Training class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -27,12 +32,19 @@
 extern Ball theBall;
 extern long mode;
 
+/**
+ * Default constructor. 
+ */
 Training::Training() {
   m_View = NULL;
   m_trainingCount = 0;
   m_trainingMax = 0;
 }
 
+/**
+ * Destructor. 
+ * Detatch view and delete it. 
+ */
 Training::~Training() {
   if ( m_View ){
     BaseView::TheView()->RemoveView( m_View );
@@ -40,6 +52,12 @@ Training::~Training() {
   }
 }
 
+/**
+ * Initializer method. 
+ * Create TrainingView and attach it to this object. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 Training::Init() {
   m_View = (TrainingView *)View::CreateView( VIEW_TRAINING );
@@ -51,6 +69,13 @@ Training::Init() {
   return true;
 }
 
+/**
+ * Training object creater. 
+ * This method creates singleton Training object and two players. 
+ * 
+ * @param player type of the player controlled by this game player. 
+ * @param com type of the player controlled by the opponent game player. 
+ */
 void
 Training::Create( long player, long com ) {
   Control::ClearControl();
@@ -67,6 +92,17 @@ Training::Create( long player, long com ) {
   // Move it to view?
 }
 
+/**
+ * Move valid objects. 
+ * Call Move method of the ball and players. 
+ * 
+ * @param KeyHistory history of keyboard input
+ * @param MouseXHistory history of mouse cursor move
+ * @param MouseYHistory history of mouse cursor move
+ * @param MouseBHistory history of mouse button push/release
+ * @param Histptr current position of histories described above. 
+ * @return returns true if it is neccesary to redraw. 
+ */
 bool
 Training::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		long *MouseYHistory, unsigned long *MouseBHistory,
@@ -95,6 +131,13 @@ Training::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   return reDraw;
 }
 
+/**
+ * Set camera position and direction. 
+ * 
+ * @param srcX camera position [out]
+ * @param destX point where the camera is directed. [out]
+ * @return returns true if succeeds. 
+ */
 bool
 Training::LookAt( vector3d &srcX, vector3d &destX ) {
   if (m_thePlayer) {
@@ -105,6 +148,9 @@ Training::LookAt( vector3d &srcX, vector3d &destX ) {
   return true;
 }
 
+/**
+ * For each rally, training count is incremented. 
+ */
 void
 Training::AddTrainingCount() {
   m_trainingCount++;

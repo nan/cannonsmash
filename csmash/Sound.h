@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of Sound class. 
+ * @author KANNA Yoshihiro
+ * $Id$
+ */
 
 // Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
@@ -30,6 +35,9 @@ struct buffer {
   unsigned long length;
 };
 
+/**
+ * Sound class is a utility class to play sound effect and BGM. 
+ */
 class Sound {
 public:
   virtual ~Sound();
@@ -50,26 +58,23 @@ public:
   long PlayBGM();
   long StopBGM();
 
-  // For BGM
-  char *m_bgmSound;
-
 #ifdef HAVE_LIBSDL_MIXER
-  Mix_Chunk *m_sound[16];
-  Mix_Chunk *m_score[31];
-  Mix_Music *m_opening;
+  Mix_Chunk *m_sound[16];	///< Handler for sound effect wav file
+  Mix_Chunk *m_score[31];	///< Handler for score reading wav file
+  Mix_Music *m_opening;		///< Handler for opening BGM
 
   static void PlayFinishHandler( int channel );
 #endif
 
-  long m_soundMode;
+  long m_soundMode;		///< Sound mode (SDL or none)
 private:
   Sound();
-  static Sound *m_theSound;
+  static Sound *m_theSound;	///< Singleton Sound object
 
 #ifdef HAVE_LIBSDL_MIXER
-  Mix_Chunk *m_chunkqueue[SOUND_QUEUESIZE];
-  int m_queuehead;
-  int m_queuetail;
+  Mix_Chunk *m_chunkqueue[SOUND_QUEUESIZE];	///< Queue of handlers for playing in blocking mode
+  int m_queuehead;		///< Head of the queue
+  int m_queuetail;		///< Tail of the queue
 
   bool PlayBlocking( int channel, Mix_Chunk *chunk );
 #endif

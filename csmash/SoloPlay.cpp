@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of SoloPlay class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -33,15 +38,27 @@ extern long wins;
 //extern void CopyPlayerData( struct PlayerData& dest, Player* src );
 extern void CopyPlayerData( Player& dest, Player* src );
 
+/**
+ * Default constructor. 
+ */
 SoloPlay::SoloPlay() {
   m_smash = false;
   m_smashCount = 0;
   m_smashPtr = -1;
 }
 
+/**
+ * Destructor. Do nothing. 
+ */
 SoloPlay::~SoloPlay() {
 }
 
+/**
+ * Initializer method. 
+ * Create PlayGameView and attach it to this object. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 SoloPlay::Init() {
   m_View = (PlayGameView *)View::CreateView( VIEW_PLAYGAME );
@@ -53,6 +70,13 @@ SoloPlay::Init() {
   return true;
 }
 
+/**
+ * SoloPlay object creater. 
+ * This method creates singleton SoloPlay object, and two players. 
+ * 
+ * @param player type of the player controlled by this game player. 
+ * @param com type of the player controlled by the opponent game player. 
+ */
 void
 SoloPlay::Create( long player, long com ) {
   Control::ClearControl();
@@ -72,6 +96,17 @@ SoloPlay::Create( long player, long com ) {
   m_comPlayer->Init();
 }
 
+/**
+ * Move valid objects. 
+ * Call Move method of the ball and players. Or show smash replay. 
+ * 
+ * @param KeyHistory history of keyboard input
+ * @param MouseXHistory history of mouse cursor move
+ * @param MouseYHistory history of mouse cursor move
+ * @param MouseBHistory history of mouse button push/release
+ * @param Histptr current position of histories described above. 
+ * @return returns true if it is neccesary to redraw. 
+ */
 bool
 SoloPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		    long *MouseYHistory, unsigned long *MouseBHistory,
@@ -139,6 +174,13 @@ SoloPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   return true;
 }
 
+/**
+ * Set camera position and direction. 
+ * 
+ * @param srcX camera position [out]
+ * @param destX point where the camera is directed. [out]
+ * @return returns true if succeeds. 
+ */
 bool
 SoloPlay::LookAt( vector3d &srcX, vector3d &destX ) {
   if (m_thePlayer) {
@@ -172,6 +214,13 @@ SoloPlay::LookAt( vector3d &srcX, vector3d &destX ) {
   return true;
 }
 
+/**
+ * To show smash replay, rollback the status of players and ball. 
+ * 
+ * @param start if smash replay is just started, it is true. 
+ * @param histPtr history pointer of which players and ball should be rollbacked. 
+ * @return history pointer of smash replay. 
+ */
 long
 SoloPlay::SmashEffect( bool start, long histPtr ) {
   static Player p1, p2;
@@ -213,6 +262,11 @@ SoloPlay::SmashEffect( bool start, long histPtr ) {
   return smashPtr;
 }
 
+/**
+ * Do smash replay action. 
+ * 
+ * @param Histptr history pointer of rollbacked smash action. 
+ */
 void 
 SoloPlay::ReplayAction( int &Histptr ) {
   static long delayCounter = 0;

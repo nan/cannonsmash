@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of PracticeSelectView class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2001, 2002, 2003  神南 吉宏(Kanna Yoshihiro)
 //
@@ -25,12 +30,24 @@
 
 extern RCFile *theRC;
 
+/**
+ * Default constructor. 
+ */
 PracticeSelectView::PracticeSelectView() : PlayerSelectView() {
 }
 
+/**
+ * Destructor. 
+ * Delete image handler. 
+ */
 PracticeSelectView::~PracticeSelectView() {
 }
 
+/**
+ * Redraw background and player panels. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 PracticeSelectView::Redraw() {
   int i;
@@ -162,6 +179,12 @@ PracticeSelectView::Redraw() {
   return true;
 }
 
+/**
+ * Redraw transparent objects. 
+ * Do nothing. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 PracticeSelectView::RedrawAlpha() {
   return true;

@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of Title class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2001, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -33,6 +38,9 @@
 
 class MenuItem;
 
+/**
+ * Title class is a controller class for showing title menu. 
+ */
 class Title : public Control {
 public:
   Title();
@@ -53,17 +61,18 @@ public:
 
   virtual bool LookAt( vector3d &srcX, vector3d &destX );
 
-  virtual bool IsPlaying() { return false; };
+  virtual bool IsPlaying() { return false; }	///< Always returns false. 
 
-  virtual View *GetView() { return m_View; };
+  virtual View *GetView() { return m_View; }	///< Getter method fo m_View
 protected:
-  TitleView *m_View;
-  long m_selected;	// Selected : m_selected > 0
-  long m_selectMode;	// Normal   : 0
-			// config   : 1
-  long m_count;
+  TitleView *m_View;	///< Reference to attached TitleView object
+  long m_selected;	///< If something is selected, m_selected > 0
+  long m_selectMode;	/**< If it is normal, m_selectMode == 0
+			 *   If it is config, m_selectMode == 1
+			 */
+  long m_count;		///< TICKs from this title menu is started
 
-  MenuItem *m_menuItem[16];
+  MenuItem *m_menuItem[16];	///< List of menu items
 
   void CreateMenu( long menuMajorNum );
   long SetSelected( long selected );

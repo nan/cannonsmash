@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of TitleView class. 
+ * @author KANNA Yoshihiro
+ * $Id$
+ */
 
 // Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
@@ -26,13 +31,27 @@
 
 extern RCFile *theRC;
 
+/**
+ * Default constructor. 
+ */
 TitleView::TitleView() {
   m_View = NULL;
 }
 
+/**
+ * Destructor. 
+ * Do nothing. 
+ */
 TitleView::~TitleView() {
 }
 
+/**
+ * Initializer method. 
+ * Load config title image texture. 
+ * 
+ * @param title attached Title object. 
+ * @return returns true if succeeds. 
+ */
 bool
 TitleView::Init( Title *title ) {
   int i;
@@ -55,6 +74,12 @@ TitleView::Init( Title *title ) {
   return true;
 }
 
+/**
+ * Add view to list of views managed by this object. 
+ * 
+ * @param view View object attached to this object. 
+ * @return returns true if succeeds. 
+ */
 bool
 TitleView::AddView( View *view ) {
   view->m_next = m_View;
@@ -63,6 +88,13 @@ TitleView::AddView( View *view ) {
   return true;
 }
 
+/**
+ * Remove a view class from the list of view classes. 
+ * 
+ * @param view a view class which should be removeed from the list of view classes. 
+ * @retval returns true if succeeds. 
+ * @retval returns false if the view class is not found in the list of view classes. 
+ */
 bool
 TitleView::RemoveView( View *view ) {
   View* _view = m_View;
@@ -83,6 +115,11 @@ TitleView::RemoveView( View *view ) {
   return false;
 }
       
+/**
+ * Redraw valid objects. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 TitleView::Redraw() {
   View *view;
@@ -96,6 +133,11 @@ TitleView::Redraw() {
   return true;
 }
 
+/**
+ * Redraw transparent objects. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 TitleView::RedrawAlpha() {
   View *view;

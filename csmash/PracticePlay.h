@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of PracticePlay class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
 //
@@ -20,6 +25,9 @@
 #define _PracticePlay_
 #include "SoloPlay.h"
 
+/**
+ * PracticePlay is a controller class for practice play. 
+ */
 class PracticePlay : public SoloPlay {
 public:
   PracticePlay();

@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of Title class. 
+ * @author KANNA Yoshihiro
+ * $Id$
+ */
 
 // Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
@@ -36,6 +41,10 @@ extern void QuitGame();
 
 extern Ball theBall;
 
+/**
+ * Constructor. 
+ * Initialize member variables to 0 or NULL. 
+ */
 Title::Title() {
   m_View = NULL;
   m_selected = 0;
@@ -46,6 +55,10 @@ Title::Title() {
     m_menuItem[i] = NULL;
 }
 
+/**
+ * Destructor. 
+ * Delete menu items. Detach attached view class and delete it. 
+ */
 Title::~Title() {
   for ( int i = 0 ; i < 16 ; i++ ) {
     if ( m_menuItem[i] )
@@ -58,6 +71,12 @@ Title::~Title() {
   }
 }
 
+/**
+ * Initializer method. 
+ * Create TitleView object, two players and initialize them. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 Title::Init() {
   m_View = (TitleView *)View::CreateView( VIEW_TITLE );
@@ -77,6 +96,10 @@ Title::Init() {
   return true;
 }
 
+/**
+ * Title object creater. 
+ * This method creates singleton Title object. 
+ */
 void
 Title::Create() {
   Control::ClearControl();
@@ -85,6 +108,18 @@ Title::Create() {
   m_theControl->Init();
 }
 
+/**
+ * Move valid objects. 
+ * Call Move method of the ball and players. 
+ * Additionally, this method handles the selection of menu. 
+ * 
+ * @param KeyHistory history of keyboard input
+ * @param MouseXHistory history of mouse cursor move
+ * @param MouseYHistory history of mouse cursor move
+ * @param MouseBHistory history of mouse button push/release
+ * @param Histptr current position of histories described above. 
+ * @return returns true if it is neccesary to redraw. 
+ */
 bool
 Title::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 	     long *MouseYHistory, unsigned long *MouseBHistory,
@@ -225,21 +260,41 @@ Title::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   return true;
 }
 
+/**
+ * Getter method of selected MenuItem. 
+ * 
+ * @return returns selected MenuItem object. 
+ */
 MenuItem *
 Title::GetSelected() {
   return m_menuItem[m_selected];
 }
 
+/**
+ * Return whether main menu is shown or config menu is shown. 
+ * 
+ * @returns returns type of menu. 
+ */
 long
 Title::GetSelectMode() {
   return m_selectMode;
 }
 
+/**
+ * Getter method of m_count. 
+ */
 long
 Title::GetCount() {
   return m_count;
 }
 
+/**
+ * Getter method of the number of menu shown currently. 
+ * 
+ * @param major major menu ID (main or config)
+ * @param minor minor menu ID (all menu, level menu, mode menu, etc. )
+ * @return returns the number of menus
+ */
 long
 Title::GetMenuNum( long major, long minor ) {
   switch ( major ) {
@@ -261,6 +316,13 @@ Title::GetMenuNum( long major, long minor ) {
   return -1;
 }
 
+/**
+ * Set camera position and direction. 
+ * 
+ * @param srcX camera position [out]
+ * @param destX point where the camera is directed. 
+ * @return returns true if succeeds. 
+ */
 bool
 Title::LookAt( vector3d &srcX, vector3d &destX ) {
   srcX[0] = TABLELENGTH*2*cos(GetCount()*3.14159265/720.0);
@@ -270,6 +332,11 @@ Title::LookAt( vector3d &srcX, vector3d &destX ) {
   return true;
 }
 
+/**
+ * Create the list of MenuItem objects. 
+ * 
+ * @param menuMajorNum major menu ID (main or config)
+ */
 void
 Title::CreateMenu( long menuMajorNum ) {
   static char menu[][30] = {"images/StartGame", "images/Practice", 
@@ -328,7 +395,12 @@ Title::CreateMenu( long menuMajorNum ) {
   }
 }
 
-
+/**
+ * Make specified menu item selected. 
+ * 
+ * @param selected ID of selected menu item
+ * @return returns selected menu ID
+ */
 long
 Title::SetSelected( long selected ) {
   if ( selected < 0 || selected >= GetMenuNum( m_selectMode ) )
@@ -351,6 +423,13 @@ Title::SetSelected( long selected ) {
   return m_selected;
 }
 
+/**
+ * Check whether the mouse pointer is on some menu item or not. 
+ * 
+ * @param x x location of mouse pointer
+ * @param y y location of mouse pointer
+ * @return returns menu ID of which mouse pointer is hit. If mouse pointer is on no menu item, returns -1. 
+ */
 long 
 Title::HitTest( long x, long y ) {
   if ( theRC->gmode != GMODE_2D )

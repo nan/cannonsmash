@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of Title class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
@@ -23,6 +28,9 @@
 
 class Title;
 
+/**
+ * TitleView class is a view class which corresponds to Title object. 
+ */
 class TitleView : public View {
 public:
   TitleView();
@@ -36,10 +44,10 @@ public:
   virtual bool AddView( View *view );
   virtual bool RemoveView( View *view );
 protected:
-  Title       *m_title;
-  View        *m_View;
+  Title       *m_title;		///< Attached Title object. 
+  View        *m_View;		///< List of MenuItemView objects attached to this view. 
 
-  ImageData    m_configTitle[4];
+  ImageData    m_configTitle[4];///< Handler for config title images
 };
 
 #endif	// _TitleView_

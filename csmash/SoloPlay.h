@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of SoloPlay class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -20,6 +25,9 @@
 #define _SoloPlay_
 #include "PlayGame.h"
 
+/**
+ * SoloPlay class is the controller class for solo play (play with com) mode. 
+ */
 class SoloPlay : public PlayGame {
 public:
   SoloPlay();
@@ -33,15 +41,15 @@ public:
 		     long *MouseYHistory, unsigned long *MouseBHistory,
 		     int Histptr );
 
-  long GetSmashPtr() { return m_smashPtr; };
+  long GetSmashPtr() { return m_smashPtr; }	///< Getter method of m_smashPtr
 
   virtual bool LookAt( vector3d &srcX, vector3d &destX );
   long SmashEffect( bool start, long histPtr );
 
 protected:
-  bool m_smash;
-  long m_smashCount;
-  long m_smashPtr;
+  bool m_smash;		///< Whether smash is done or not. 
+  long m_smashCount;	///< counter of smash replay
+  long m_smashPtr;	///< HistPtr of smash replay
 
   void ReplayAction( int &Histptr );
 };

@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of PracticeSelect class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2001, 2002, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -31,15 +36,28 @@ extern bool isComm;
 
 extern long wins;
 
+/**
+ * Default constructor. 
+ * Initialize member variables to 0 or NULL. 
+ */
 PracticeSelect::PracticeSelect() {
   m_rotate = 0; m_opponentRotate = 0;
   m_View = NULL;
   m_selected = 0; m_opponentSelected = 0;
 }
 
+/**
+ * Destructor. 
+ */
 PracticeSelect::~PracticeSelect() {
 }
 
+/**
+ * Initializer method. 
+ * Create PracticeSelectView object and attach it to this object. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 PracticeSelect::Init() {
   m_View = (PracticeSelectView *)View::CreateView( VIEW_PRACTICESELECT );
@@ -51,6 +69,10 @@ PracticeSelect::Init() {
   return true;
 }
 
+/**
+ * PracticeSelect object creater. 
+ * This method creates singleton PracticeSelect object. 
+ */
 void
 PracticeSelect::Create() {
   Control::ClearControl();
@@ -59,6 +81,16 @@ PracticeSelect::Create() {
   m_theControl->Init();
 }
 
+/**
+ * Move player panels as the game player moves mouse. 
+ * 
+ * @param KeyHistory history of keyboard input
+ * @param MouseXHistory history of mouse cursor move
+ * @param MouseYHistory history of mouse cursor move
+ * @param MouseBHistory history of mouse button push/release
+ * @param Histptr current position of histories described above. 
+ * @return returns true if it is neccesary to redraw. 
+ */
 bool
 PracticeSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		    long *MouseYHistory, unsigned long *MouseBHistory,
@@ -150,6 +182,11 @@ PracticeSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     return true;
 }
 
+/**
+ * Get player ID of the opponent player type of which the panel is shown in front. 
+ * 
+ * @return returns player ID
+ */
 long
 PracticeSelect::GetOpponentNum() {
   if ( GetOpponentRotate() < 0 )

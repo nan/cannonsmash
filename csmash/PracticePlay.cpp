@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of PracticePlay class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2001, 2002, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -25,12 +30,26 @@
 extern Ball theBall;
 extern long mode;
 
+/**
+ * Default constructor. 
+ */
 PracticePlay::PracticePlay() : SoloPlay() {
 }
 
+/**
+ * Destructor. 
+ * Do nothing. 
+ */
 PracticePlay::~PracticePlay() {
 }
 
+/**
+ * PracticePlay object creater. 
+ * This method creates singleton PracticePlay object. 
+ * 
+ * @param player type of the player controlled by this game player. 
+ * @param com type of the player controlled by the opponent game player. 
+ */
 void
 PracticePlay::Create( long player, long com ) {
   Control::ClearControl();
@@ -47,6 +66,9 @@ PracticePlay::Create( long player, long com ) {
   // Move it to view?
 }
 
+/**
+ * A method to quit game. 
+ */
 void
 PracticePlay::EndGame() {
   mode = MODE_TITLE;
