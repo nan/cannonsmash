@@ -20,15 +20,15 @@
 #include "LobbyClient.h"
 #include "MultiPlay.h"
 
-#if !defined(_WIN32)
+#if !defined(WIN32)
 #include <netinet/tcp.h>
 #endif
 
-#if defined(_WIN32) || defined(__FreeBSD__)
+#if defined(WIN32) || defined(__FreeBSD__)
 
 typedef int socklen_t;		/* mimic Penguin's typedef */
 
-#else	/* ! _WIN32 */
+#else	/* ! WIN32 */
 
 #define closesocket(FD) close(FD)
 

@@ -19,9 +19,11 @@
 #ifndef _Sound_
 #define _Sound_
 
+#ifdef HAVE_LIBVORBIS
 #include <ogg/ogg.h>
 #include <vorbis/vorbisfile.h>
 #include <vorbis/codec.h>
+#endif
 
 struct buffer {
   unsigned char const *start;
