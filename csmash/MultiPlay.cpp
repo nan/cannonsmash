@@ -60,6 +60,7 @@ bool endian;
 int listenSocket = 0;
 
 extern long gameLevel;
+extern long gameMode;
 
 extern void QuitGame();
 
@@ -703,6 +704,7 @@ MultiPlay::Create( long player, long com ) {
   SDL_WM_GrabInput( SDL_GRAB_ON );
 
   gameLevel = LEVEL_HARD;
+  gameMode = GAME_21PTS;
 
   return newMultiPlay;
 }
@@ -723,16 +725,13 @@ MultiPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
 #ifdef LOGGING
   long prevStatus = theBall.GetStatus();
   theBall.Move();
-  if ( prevStatus != theBall.GetStatus() && prevStatus >= -1 ) {
-    Logging::GetLogging()->LogBall( LOG_ACTBALL, &theBall );
-  }
 
   double prevVx = thePlayer->GetVX();
   double prevVy = thePlayer->GetVY();
   long   prevSwing = thePlayer->GetSwing();
   reDraw |= thePlayer->Move( KeyHistory, MouseXHistory,
 			     MouseYHistory, MouseBHistory, Histptr );
-  if ( prevVx != thePlayer->GetVX() || prevVy == thePlayer->GetVY() ||
+  if ( prevVx != thePlayer->GetVX() || prevVy != thePlayer->GetVY() ||
        prevSwing != thePlayer->GetSwing() ) {
     Logging::GetLogging()->LogPlayer( LOG_ACTTHEPLAYER, thePlayer );
   }
@@ -741,9 +740,13 @@ MultiPlay::Move( unsigned long *KeyHistory, long *MouseXHistory,
   prevVy = comPlayer->GetVY();
   prevSwing = comPlayer->GetSwing();
   reDraw |= comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
-  if ( prevVx != comPlayer->GetVX() || prevVy == comPlayer->GetVY() ||
+  if ( prevVx != comPlayer->GetVX() || prevVy != comPlayer->GetVY() ||
        prevSwing != comPlayer->GetSwing() ) {
     Logging::GetLogging()->LogPlayer( LOG_ACTCOMPLAYER, comPlayer );
+  }
+
+  if ( prevStatus != theBall.GetStatus() && prevStatus >= -1 ) {
+    Logging::GetLogging()->LogBall( LOG_ACTBALL, &theBall );
   }
 #else
   theBall.Move();
@@ -870,6 +873,7 @@ ExternalData::ReadData( long s ) {
     extNow->Read( theSocket );
   } else if ( !strncmp( buf, "QT", 2 ) ) {
     QuitGame();
+    mode = MODE_TITLE;
     return NULL;
   } else
     return NULL;

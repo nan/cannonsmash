@@ -61,6 +61,7 @@ public:
   long m_mouseButton;					// For skip replay
 protected:
   bool Move();
+  bool IsModeChanged( long preMode );
   void Record();
   void ReadData();
 

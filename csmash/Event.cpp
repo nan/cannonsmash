@@ -173,8 +173,11 @@ Event::IdleFunc() {
   if ( isWaiting ) {
   }
 
-  if ( mode == MODE_MULTIPLAY )
+  if ( mode == MODE_MULTIPLAY ) {
+    long preMode = mode;
     theEvent.ReadData();
+    theEvent.IsModeChanged( preMode );
+  }
 
   if ( mode != MODE_OPENING && mode != MODE_TITLE )
     SDL_WarpMouse((unsigned short)theEvent.m_MouseXHistory[theEvent.m_Histptr],
@@ -186,12 +189,17 @@ Event::IdleFunc() {
 
 bool
 Event::Move() {
-  bool reDraw = false;
   long preMode = mode;
+  bool reDraw = false;
 
   reDraw |= theControl->Move( m_KeyHistory, m_MouseXHistory,
 			      m_MouseYHistory, m_MouseBHistory, m_Histptr );
 
+  return reDraw | IsModeChanged( preMode );
+}
+
+bool
+Event::IsModeChanged( long preMode ) {
   if ( mode != preMode ){	// モード変更あり
     long p;
 
@@ -225,13 +233,12 @@ Event::Move() {
       break;
     }
 
-    preMode = mode;
-    reDraw = true;
-
     ClearBacktrack();
+
+    return true;
   }
 
-  return reDraw;
+  return false;
 }
 
 void

@@ -29,6 +29,9 @@ Logging::Logging() {
 }
 
 Logging::~Logging() {
+  for ( int i = 0 ; i < 8 ; i++ ) {
+    fclose( m_fp[i] );
+  }
 }
 
 Logging*
@@ -57,6 +60,7 @@ Logging::Init() {
 bool
 Logging::Log( long logType, char *logString ) {
   fputs( logString, m_fp[logType] );
+  fflush( m_fp[logType] );
 
   return true;
 }
@@ -79,7 +83,7 @@ Logging::StartLog() {
   tb.millitm = tv.tv_usec/1000;
 #endif
 
-  sprintf( buf, "--- START LOGGING %d.%3d ---", (int)tb.time, (int)tb.millitm );
+  sprintf( buf, "--- START LOGGING %d.%3d ---\n", (int)tb.time, (int)tb.millitm );
 
   for ( int i = 0 ; i < 7 ; i++ )
     Log( i, buf );
