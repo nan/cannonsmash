@@ -99,6 +99,10 @@ int WINAPI WinMain_(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   GetArgs(&argc, &argv, lpCmdLine);
 #else
+
+#ifdef main
+# undef main
+#endif
 int main(int argc, char **argv) {
 
 #endif
