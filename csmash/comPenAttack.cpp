@@ -95,36 +95,42 @@ ComPenAttack::Think() {
   else
     mx = m_x-m_side*0.3;
 
-  if ( hitTX > 0.0 ) {
-    if ( m_vx > 0 && mx + m_vx*hitTX < _hitX )
-      m_vx += 0.1;
-    else if ( m_vx < 0 && mx + m_vx*hitTX > _hitX )
-      m_vx -= 0.1;
-    else if ( m_vx*fabs(m_vx*0.1)/2 < _hitX - mx )
-      m_vx += 0.1;
-    else
-      m_vx -= 0.1;
+  if ( m_swing > 10 && m_swing <= 20 ) {
   } else {
-    if ( m_vx*fabs(m_vx*0.1)/2 < _hitX - mx )
-      m_vx += 0.1;
-    else
-      m_vx -= 0.1;
+    if ( hitTX > 0.0 ) {
+      if ( m_vx > 0 && mx + m_vx*hitTX < _hitX )
+	m_vx += 0.1;
+      else if ( m_vx < 0 && mx + m_vx*hitTX > _hitX )
+	m_vx -= 0.1;
+      else if ( m_vx*fabs(m_vx*0.1)/2 < _hitX - mx )
+	m_vx += 0.1;
+      else
+	m_vx -= 0.1;
+    } else {
+      if ( m_vx*fabs(m_vx*0.1)/2 < _hitX - mx )
+	m_vx += 0.1;
+      else
+	m_vx -= 0.1;
+    }
   }
 
-  if ( hitTY > 0.0 ) {
-    if ( m_vy > 0 && m_y + m_vy*hitTY < _hitY )
-      m_vy += 0.1;
-    else if ( m_vy < 0 && m_y + m_vy*hitTY > _hitY )
-      m_vy -= 0.1;
-    else if ( m_vy*fabs(m_vy*0.1)/2 < _hitY - m_y )
-      m_vy += 0.1;
-    else
-      m_vy -= 0.1;
+  if ( m_swing > 10 && m_swing <= 20 ) {
   } else {
-    if ( m_vy*fabs(m_vy*0.1)/2 < _hitY - m_y )
-      m_vy += 0.1;
-    else
-      m_vy -= 0.1;
+    if ( hitTY > 0.0 ) {
+      if ( m_vy > 0 && m_y + m_vy*hitTY < _hitY )
+	m_vy += 0.1;
+      else if ( m_vy < 0 && m_y + m_vy*hitTY > _hitY )
+	m_vy -= 0.1;
+      else if ( m_vy*fabs(m_vy*0.1)/2 < _hitY - m_y )
+	m_vy += 0.1;
+      else
+	m_vy -= 0.1;
+    } else {
+      if ( m_vy*fabs(m_vy*0.1)/2 < _hitY - m_y )
+	m_vy += 0.1;
+      else
+	m_vy -= 0.1;
+    }
   }
 
   if ( m_vx > 5.0 )
@@ -165,15 +171,14 @@ ComPenAttack::Think() {
 
     for ( int i = 0 ; i < 9 ; i++ )
       tmpBall->Move();
-    tmpX = m_x+m_vx*0.09;
-    tmpY = m_y+m_vy*0.09;
+    tmpX = m_x+m_vx*0.08;
+    tmpY = m_y+m_vy*0.08;
 
     if ( ((tmpBall->GetStatus() == 3 && m_side == 1) ||
 	  (tmpBall->GetStatus() == 1 && m_side == -1)) &&
 	 (tmpY-tmpBall->GetY())*m_side < 0.3 &&
 	 (tmpY-tmpBall->GetY())*m_side > -0.6 &&
-	 m_swing <= 10 &&
-	 fabs(tmpY-tmpBall->GetY()) > LEVELMARGIN ) {
+	 m_swing <= 10 ) {
 
       tmpBallX = tmpBall->GetX();
       tmpBallY = tmpBall->GetY();
@@ -182,11 +187,14 @@ ComPenAttack::Think() {
       // If the ball location becomes better at 1/100 second later, wait. 
       tmpBall->Move();
       if ( fabs(tmpY+m_vy*0.01-tmpBall->GetY()) < fabs(tmpY-tmpBallY) &&
-	   fabs(tmpY+m_vy*0.01-tmpBall->GetY()) > LEVELMARGIN ) {
+	   fabs(tmpY-tmpBallY) > LEVELMARGIN ) {
 	delete tmpBall;
 	return true;
       }
 
+      printf( "tmpBallY: %f tmpPlayer: %f\n", tmpBallY, tmpY );
+      printf( "tmpBallY: %f tmpPlayer: %f\n",
+	      tmpBall->GetY(), tmpY+m_vy*0.01 );
       _hitX = tmpBallX;
       _hitY = tmpBallY;
 

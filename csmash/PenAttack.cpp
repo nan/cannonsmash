@@ -236,6 +236,8 @@ PenAttack::HitBall() {
 
       // Hit the ball too fast --- net miss
       // Hit the ball too slow --- over miss
+      printf( "Ball: y= %f vy= %f Player: %f\n",
+	      theBall.GetY(), theBall.GetVY(), m_y );
       if ( (m_y-theBall.GetY())*m_side < 0 )
 	radRand = (RAND(180)+180)*3.141592/180.0;
       else
