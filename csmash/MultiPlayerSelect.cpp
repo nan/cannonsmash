@@ -63,7 +63,7 @@ MultiPlayerSelect::Init() {
   BaseView::TheView()->AddView( m_View );
 
   networkMutex = SDL_CreateMutex();
-  SDL_CreateThread( MultiPlayerSelect::Connect, NULL );
+  m_connectThread = SDL_CreateThread( MultiPlayerSelect::Connect, NULL );
 
   return true;
 }
@@ -96,6 +96,16 @@ MultiPlayerSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   }
 
   if ( m_selected > 0 ) {
+    if (m_selected > 500 && m_connectThread) {
+      int status;
+      SDL_WaitThread(m_connectThread, &status);
+
+      if ( status != 0 )
+	throw NetworkError();
+
+      m_connectThread = NULL;
+    }
+
     m_selected++;
   } else {
     if ( m_lastRotate == 0 ) {
@@ -176,7 +186,7 @@ MultiPlayerSelect::Connect( void *dum ) {
       WaitForClient();
     } catch ( NetworkError ) {
       xerror("%s(%d) WaitForClient", __FILE__, __LINE__);
-      exit(1);
+      return 1;
     }
     ServerAdjustClock();
   } else {
@@ -184,7 +194,7 @@ MultiPlayerSelect::Connect( void *dum ) {
       ConnectToServer();
     } catch ( NetworkError ) {
       xerror("%s(%d) ConnectToServer", __FILE__, __LINE__);
-      exit(1);
+      return 1;
     }
 
     ClientAdjustClock();

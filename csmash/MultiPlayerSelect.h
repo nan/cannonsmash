@@ -53,6 +53,8 @@ protected:
   long m_lastOpponentRotate;
 
   bool m_isConnected;
+
+  SDL_Thread *m_connectThread;
 };
 
 #endif	// _MultiPlayerSelect_

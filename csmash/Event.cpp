@@ -812,6 +812,9 @@ QuitGame() {
   backTracks = 0;
   _backTrackCount = 0;
 
+  close(theSocket);
+  theSocket = -1;
+
   SDL_WM_GrabInput( SDL_GRAB_OFF );
 
   SDL_Event e;
