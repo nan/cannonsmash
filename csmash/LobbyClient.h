@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001-2003  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
+// Copyright (C) 2001-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,9 +28,9 @@ class PlayerInfo;
 class LobbyClientView;
 
 static struct {
-  const char *code;
-  const char *langname;
-  const int langID;
+  char *code;
+  char *langname;
+  int langID;
 } table[] = {
   { "aa", _("Afar"), 0x00 },
   { "ab", _("Abkhazian"), 0x00 },

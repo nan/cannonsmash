@@ -84,9 +84,6 @@ Opening::Init() {
   m_telop[0] = new MenuItem();
   m_telop[0]->Init( 0, 0, 800, 600, telop[0], NULL );
 
-  if ( theRC->gmode != GMODE_SIMPLE )
-    theRC->isWireFrame = false;
-
   Sound::TheSound()->InitBGM( OPENINGFILENAME );
 
   return true;
@@ -1234,8 +1231,6 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   if ( KeyHistory[Histptr].unicode == SDLK_ESCAPE || MouseBHistory[Histptr] 
        || phrase > 350 ) {
     mode = MODE_TITLE;
-    if ( theRC->gmode != GMODE_SIMPLE )
-      theRC->isWireFrame = true;
     Sound::TheSound()->StopBGM();
   }
 
