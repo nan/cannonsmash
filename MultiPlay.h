@@ -50,6 +50,12 @@ public:
   virtual bool Apply( Player *targetPlayer, bool &fThePlayer, bool &fComPlayer,
 		      bool &fTheBall ) = 0;
   virtual bool Read( long sock ) = 0;
+
+  static ExternalData* ReadData( int sd, long s );
+
+  virtual bool isNull() { return false; };
+protected:
+  void ReadTime( int sd, long *sec, char *count );
 };
 
 class ExternalPVData : public ExternalData {
@@ -80,6 +86,15 @@ public:
   virtual bool Apply( Player *targetPlayer, bool &fThePlayer, bool &fComPlayer,
 		      bool &fTheBall );
   virtual bool Read( long sock );
+};
+
+class ExternalNullData : public ExternalData {
+public:
+  virtual bool Apply( Player *targetPlayer, bool &fThePlayer, bool &fComPlayer,
+		      bool &fTheBall ) { return false; };
+  virtual bool Read( long sock ) { return false; };
+
+  virtual bool isNull() { return true; };
 };
 
 

@@ -43,13 +43,12 @@ extern long winHeight;
 extern long wins;
 
 extern bool isComm;
-extern char serverName[256];
 
 long _perfCount;
 long perfs;
 
 void CopyPlayerData( struct PlayerData& dest, Player* src );
-bool GetExternalData( ExternalData **ext, int sd, long side );
+bool GetExternalData( ExternalData *&ext, int sd, long side );
 
 Event::Event() {
   m_KeyHistory[0] = 0;
@@ -83,6 +82,9 @@ Event::Init() {
   }
 
   theBall.Init();
+
+  if (isComm)
+    m_External = new ExternalNullData();
 
   glutKeyboardFunc( Event::KeyboardFunc );
 
@@ -349,33 +351,6 @@ CopyPlayerData( struct PlayerData& dest, Player* src ) {
   dest.stamina = src->GetStamina();
 }
 
-void
-ReadTime( int sd, long *sec, char *count ) {
-  char buf[256];
-  long len = 0;
-  long ctmp;
-
-  while (1) {
-    if ( (len+=recv( sd, buf+len, 5-len, 0 )) == 5 )
-      break;
-  }
-  memcpy( sec, &buf[0], 4 );
-  memcpy( count, &buf[4], 1 );
-
-  ctmp = *count;
-  ctmp -= timeAdj;
-
-  while ( ctmp >= 100 ) {
-    ctmp -= 100;
-    (*sec)++;
-  }
-  while ( ctmp < 0 ) {
-    ctmp += 100;
-    (*sec)--;
-  }
-  *count = ctmp;
-}
-
 void SendTime( int sd ) {
   char v;
   long time, millitm;
@@ -400,89 +375,28 @@ void SendTime( int sd ) {
 }
 
 bool
-GetExternalData( ExternalData **ext, int sd, long side ) {
+GetExternalData( ExternalData *&ext, int sd, long side ) {
   char buf[256];
   ExternalData *extNow;
-  long len;
 
-  if ( recv( sd, buf, 2, 0 ) != 2 )
+  if ( !(extNow = ExternalData::ReadData( sd, side )) )
     return false;
 
-#if 0
-  extNow = new ExternalData();
-  extNow->side = side;
-  memset( extNow->data, 0, 256 );
-  extNow->next = NULL;
-#endif
-
-  if ( !strncmp( buf, "PV", 2 ) ) {
-#if 0
-    extNow->dataType = DATA_PV;
-    ReadTime( sd, &extNow->sec, &extNow->count );
-
-    len = 0;
-    while (1) {
-      if ( (len+=recv( sd, extNow->data+len, 48-len, 0 )) == 48 )
-	break;
-    }
-//    printf( "Get PV : %d %d\n", extNow->sec, extNow->count );
-#else
-    extNow = new ExternalPVData(side);
-    extNow->Read( sd );
-#endif
-  } else if ( !strncmp( buf, "PS", 2 ) ) {
-#if 0
-    extNow->dataType = DATA_PS;
-    ReadTime( sd, &extNow->sec, &extNow->count );
-
-    len = 0;
-    while (1) {
-      if ( (len+=recv( sd, extNow->data+len, 20-len, 0 )) == 20 )
-	break;
-    }
-#else
-    extNow = new ExternalPSData(side);
-    extNow->Read( sd );
-#endif
-  } else if ( !strncmp( buf, "BV", 2 ) ) {
-#if 0
-    extNow->dataType = DATA_BV;
-    ReadTime( sd, &extNow->sec, &extNow->count );
-
-    len = 0;
-    while (1) {
-      if ( (len+=recv( sd, extNow->data+len, 60-len, 0 )) == 60 )
-	break;
-    }
-#else
-    extNow = new ExternalBVData(side);
-    extNow->Read( sd );
-#endif
-  } else
-    return false;
-
-  if ( !(*ext) ) {
-    extNow->next = NULL;
-    *ext = extNow;
-  } else if ( (*ext)->sec > extNow->sec || 
-	      ((*ext)->sec == extNow->sec && (*ext)->count > extNow->count) ) {
-    extNow->next = *ext;
-    *ext = extNow;
+  if ( ext->isNull() || ext->sec > extNow->sec || 
+	      (ext->sec == extNow->sec && ext->count > extNow->count) ) {
+    extNow->next = ext;
+    ext = extNow;
   } else {
-    ExternalData *ext2 = *ext;
-
-    while ( ext2->next ) {
-      if ( ext2->next->sec > extNow->sec || 
-	   (ext2->next->sec == extNow->sec &&
-	    ext2->next->count > extNow->count ) ) {
-	extNow->next = ext2->next;
-	ext2->next = extNow;
-	break;
-      }
-      ext2 = ext2->next;
+    ExternalData *extTmp = ext;
+    while ( !extTmp->next->isNull() &&
+	    (extTmp->next->sec < extNow->sec || 
+	    (extTmp->next->sec == extNow->sec &&
+	     extTmp->next->count < extNow->count) ) ) {
+      extTmp = extTmp->next;
     }
-    if ( !ext2->next )
-      ext2->next = extNow;
+
+    extNow->next = extTmp->next;
+    extTmp->next = extNow;
   }
 
   return true;
@@ -571,7 +485,7 @@ Event::ReadData() {
     to.tv_sec = to.tv_usec = 0;
 
     if ( select( theSocket+1, &rdfds, NULL, NULL, &to ) > 0 ) {
-      GetExternalData( &m_External, theSocket, comPlayer->GetSide());
+      GetExternalData( m_External, theSocket, comPlayer->GetSide() );
     } else
       break;
     //printf( "External\n" );
@@ -581,7 +495,7 @@ Event::ReadData() {
   long btCount;
   ExternalData *externalOld;
   long btHistptr;
-  while ( m_External ) {	// 捨てる?
+  while ( !(m_External->isNull()) ) {	// 捨てる?
     //printf( "External2\n" );
     btCount = (m_lastTime.time-m_External->sec)*100 + 
       (m_lastTime.millitm/10-m_External->count);
@@ -590,12 +504,12 @@ Event::ReadData() {
       m_External = m_External->next;
       delete externalOld;
       continue;
-    }
+    } 
     if ( btCount <= MAX_HISTORY )
       break;
   }
 
-  if ( m_External ) {
+  if ( !(m_External->isNull()) ) {
     if ( btCount >= 0 ) {
       btHistptr = m_Histptr - btCount;
       if ( btHistptr < 0 )
@@ -626,7 +540,7 @@ Event::ReadData() {
 	if ( fComPlayer )
 	  comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
 
-	while ( m_External &&
+	while ( !(m_External->isNull()) &&
 		m_External->sec == m_lastTime.time &&
 		m_External->count == m_lastTime.millitm/10 ) {
 	  Player *targetPlayer;
@@ -637,46 +551,8 @@ Event::ReadData() {
 	  else
 	    exit(1);
 
-#if 0&0
-	  switch ( m_External->dataType ) {
-	  case DATA_PV:
-	    targetPlayer->Warp( m_External->data );
-	    if ( targetPlayer == thePlayer )
-	      fThePlayer = true;
-	    else if ( targetPlayer == comPlayer )
-	      fComPlayer = true;
-
-//	    printf( "PV: sec = %d count = %d\n",
-//		    m_External->sec, m_External->count);
-//	    printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n",
-//		    x, y, z, vx, vy, vz );
-//	    fflush(0);
-	    break;
-	  case DATA_PS:
-	    targetPlayer->ExternalSwing( m_External->data );
-	    if ( targetPlayer == thePlayer )
-	      fThePlayer = true;
-	    else if ( targetPlayer == comPlayer )
-	      fComPlayer = true;
-
-//	    printf( "PS: sec = %d count = %d swing = %d\n",
-//		    m_External->sec, m_External->count, targetPlayer->GetSwing());
-//	    fflush(0);
-	    break;
-	  case DATA_BV:
-	    theBall.Warp( m_External->data );
-	    fTheBall = true;
-
-//	    printf( "BV: sec = %d count = %d\n",
-//		    m_External->sec, m_External->count);
-//	    printf( "x=%f y=%f z=%f vx=%f vy=%f vz=%f\n",
-//		    x, y, z, vx, vy, vz );
-//	    fflush(0);
-	    break;
-	  }
-#else
 	  m_External->Apply( targetPlayer, fThePlayer, fComPlayer, fTheBall );
-#endif
+
 	  externalOld = m_External;
 	  m_External = m_External->next;
 	  delete externalOld;

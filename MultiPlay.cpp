@@ -39,8 +39,6 @@ extern long timeAdj;
 extern int theSocket;
 bool endian;
 
-extern void ReadTime( int sd, long *sec, char *count );
-
 // endian変換
 double
 SwapDbl( double d ) {
@@ -607,6 +605,56 @@ ExternalData::ExternalData( long s ) {
 }
 
 ExternalData::~ExternalData() {
+}
+
+void
+ExternalData::ReadTime( int sd, long *sec, char *count ) {
+  char buf[256];
+  long len = 0;
+  long ctmp;
+
+  while (1) {
+    if ( (len+=recv( sd, buf+len, 5-len, 0 )) == 5 )
+      break;
+  }
+  memcpy( sec, &buf[0], 4 );
+  memcpy( count, &buf[4], 1 );
+
+  ctmp = *count;
+  ctmp -= timeAdj;
+
+  while ( ctmp >= 100 ) {
+    ctmp -= 100;
+    (*sec)++;
+  }
+  while ( ctmp < 0 ) {
+    ctmp += 100;
+    (*sec)--;
+  }
+  *count = ctmp;
+}
+
+ExternalData *
+ExternalData::ReadData( int sd, long s ) {
+  char buf[256];
+  ExternalData *extNow;
+
+  if ( recv( sd, buf, 2, 0 ) != 2 )
+    return NULL;
+
+  if ( !strncmp( buf, "PV", 2 ) ) {
+    extNow = new ExternalPVData(s);
+    extNow->Read( sd );
+  } else if ( !strncmp( buf, "PS", 2 ) ) {
+    extNow = new ExternalPSData(s);
+    extNow->Read( sd );
+  } else if ( !strncmp( buf, "BV", 2 ) ) {
+    extNow = new ExternalBVData(s);
+    extNow->Read( sd );
+  } else
+    return NULL;
+
+  return extNow;
 }
 
 
