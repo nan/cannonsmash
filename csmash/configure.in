@@ -21,8 +21,14 @@ AC_CHECK_LIB(jpeg, jpeg_std_error)
 AC_CHECK_LIB(GL, glLoadIdentity, , [AC_CHECK_LIB(MesaGL, glLoadIdentity, , [AC_CHECK_LIB(OpenGL32, main, , AC_MSG_ERROR(OpenGL library not found.))])])
 AC_CHECK_LIB(GLU, gluPerspective, , [AC_CHECK_LIB(MesaGLU, gluPerspective, , [AC_CHECK_LIB(GLU32, main, , AC_MSG_ERROR(GLU library not found))])])
 AC_CHECK_LIB(z, gzdopen)
-AC_CHECK_LIB(pthread, pthread_create, ,AC_MSG_ERROR(thread library not found.))
-AC_CHECK_LIB(SDL, SDL_Init, ,AC_MSG_ERROR(SDL library not found.))
+dnl Check for SDL
+SDL_VERSION=1.2.0
+AM_PATH_SDL($SDL_VERSION,
+            :,
+        AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
+)
+CFLAGS="$CFLAGS $SDL_CFLAGS"
+LIBS="$LIBS $SDL_LIBS"
 AC_CHECK_LIB(SDL_mixer, Mix_OpenAudio)
 
 AM_PATH_GTK( 1.2.0, [LIBS="$LIBS $GTK_LIBS" CFLAGS="$CFLAGS $GTK_CFLAGS" CPPFLAGS="$CPPFLAGS $GTK_CFLAGS"], )
