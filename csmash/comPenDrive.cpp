@@ -143,7 +143,7 @@ ComPenDrive::Think() {
   if ( theBall.GetStatus() == 8 &&
        ( (Control::TheControl()->IsPlaying() &&
 	  ((PlayGame *)Control::TheControl())->GetService() == GetSide()) ||
-	 GetSide() == 1 ) &&
+	 (!Control::TheControl()->IsPlaying() && GetSide() == 1) ) &&
        fabs(m_vx) < 0.1 && fabs(m_vy) < 0.1 &&
        fabs(m_x+m_side*0.3-_hitX) < 0.1 && fabs(m_y-_hitY) < 0.1 &&
        m_swing == 0 ){
@@ -225,7 +225,6 @@ ComPenDrive::Think() {
 // (2) Calc hit point from current ball location or bound location
 bool
 ComPenDrive::Hitarea( double &hitX, double &hitY ) {
-  Ball *tmpBall;
   double max = -1.0;             /* highest point of the ball */
   double maxX = 0.0, maxY = 0.0;
 
@@ -235,24 +234,7 @@ ComPenDrive::Hitarea( double &hitX, double &hitY ) {
        (theBall.GetStatus() == 1 && m_side == -1) ||
        (theBall.GetStatus() == 4 && m_side == -1) ||
        (theBall.GetStatus() == 5 && m_side == 1) ) {
-    tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
-			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
-			theBall.GetSpin(), theBall.GetStatus() );
-
-    while ( tmpBall->GetStatus() != -1 ) {
-      if ( (tmpBall->GetStatus() == 3 && m_side == 1) ||
-	   (tmpBall->GetStatus() == 1 && m_side == -1) ) {
-	if ( tmpBall->GetZ() > max &&
-	     fabs(tmpBall->GetY()) < TABLELENGTH/2+1.0 ) {
-	  max = tmpBall->GetZ();
-	  maxX = tmpBall->GetX();
-	  maxY = tmpBall->GetY();
-	}
-      }
-      tmpBall->Move();
-    }
-
-    delete tmpBall;
+    max = GetBallTop( maxX, maxY, this );
 
     if ( max > 0 ) {
       hitX = maxX;
