@@ -25,6 +25,12 @@
 #define LOG_ACTCOMPLAYER	6
 #define LOG_ACTMISC		7
 
+class Player;
+class Ball;
+class ExternalBVData;
+class ExternalPVData;
+class ExternalPSData;
+
 class Logging {
 public:
   ~Logging();

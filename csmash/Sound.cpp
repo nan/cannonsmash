@@ -72,6 +72,10 @@ Sound::Init( long sndMode ) {
     perror( "SDL Mix_OpenAudio failed\n" );
   }
 
+  for ( int i = 0 ; i < 16 ; i++ ) {
+    m_sound[i] = 0;
+  }
+
   m_sound[SOUND_RACKET] = Mix_LoadWAV( "wav/racket.wav" );
   m_sound[SOUND_TABLE] = Mix_LoadWAV( "wav/table.wav" );
   m_sound[SOUND_CLICK] = Mix_LoadWAV( "wav/click.wav" );

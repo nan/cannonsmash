@@ -19,6 +19,7 @@
 #include "ttinc.h"
 #include "LobbyClient.h"
 #include "MultiPlay.h"
+#include "Network.h"
 #include "RCFile.h"
 
 #if !defined(WIN32)

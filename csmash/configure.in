@@ -9,6 +9,7 @@ AC_PATH_PROG(GZIP, gzip)
 
 AC_PATH_X
 
+CPPFLAGS="-I $x_includes"
 LDFLAGS="-L /usr/local/lib -L $x_libraries -L $libdir"
 CPPFLAGS="$CFLAGS -Wall"
 

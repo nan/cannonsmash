@@ -16,24 +16,10 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#ifndef _MultiPlyaer_
-#define _MultiPlayer_
+#ifndef _MultiPlay_
+#define _MultiPlay_
 
 #include "PlayGame.h"
-
-void EndianCheck();
-
-double SwapDbl( double d );
-long SwapLong( long l );
-
-bool SendDouble( int sd, double d );
-bool SendLong( int sd, long l );
-char *ReadDouble( char *buf, double& d );
-char *ReadLong( char *buf, long& l );
-
-void WritePlayerData();
-Player *ReadPlayerData();
-bool AcceptClient();
 
 void StartServer();
 void StartClient();
@@ -130,6 +116,9 @@ public:
 
   void StartServer();
   void StartClient();
+
+  void AdjustClock();
+  bool WaitForClient();
 protected:
   //bool m_smash;
   //long m_smashCount;
@@ -138,4 +127,4 @@ protected:
   long m_timeAdj;
 };
 
-#endif	// _MultiPlayer_
+#endif	// _MultiPlay_

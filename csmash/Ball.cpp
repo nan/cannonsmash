@@ -23,7 +23,7 @@
 #include "PlayGame.h"
 #include "Sound.h"
 #include "Event.h"
-#include "MultiPlay.h"
+#include "Network.h"
 #include "RCFile.h"
 
 #ifdef LOGGING

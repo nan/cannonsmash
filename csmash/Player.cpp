@@ -34,7 +34,7 @@
 #include "ComTrainingPenDrive.h"
 #include "HitMark.h"
 #include "PlayGame.h"
-#include "MultiPlay.h"
+#include "Network.h"
 #include "RCFile.h"
 #ifdef LOGGING
 #include "Logging.h"

@@ -22,7 +22,7 @@
 #include "BaseView.h"
 #include "Player.h"
 #include "PlayerView.h"
-#include "MultiPlay.h"
+#include "Network.h"
 #include "Event.h"
 #include "Control.h"
 #include "Launcher.h"
