@@ -66,6 +66,8 @@ RCFile::ReadRCFile() {
 	isTexture = false;
       } else if ( strncmp( &buf[9], "2D", 2 ) == 0 ) {
 	gmode = GMODE_2D;
+      } else if ( strncmp( &buf[9], "toon", 2 ) == 0 ) {
+	gmode = GMODE_TOON;
       }
     } else if ( strncmp( buf, "server=", 7 ) == 0 ) {
       strncpy( serverName , &buf[7], 256 );
@@ -124,6 +126,8 @@ RCFile::WriteRCFile() {
     fprintf( fp, "simple\n" );
   else if ( gmode == GMODE_2D )
     fprintf( fp, "2D\n" );
+  else if ( gmode == GMODE_TOON )
+    fprintf( fp, "toon\n" );
   else
     fprintf( fp, "full\n" );
 

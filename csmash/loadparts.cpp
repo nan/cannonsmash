@@ -128,6 +128,35 @@ bool loadAffine4F(const char *str, affine4F *pm)
 }
 
 END_ANONYMOUS
+
+/***********************************************************************
+ *
+ ***********************************************************************/
+static GLuint tex_animelight = 0;
+
+bool initanimelight()
+{
+    ImageData img;
+    img.LoadJPG("images/animelight.jpg");
+    glGetError();
+
+    glGenTextures(1, &tex_animelight);
+    glBindTexture(GL_TEXTURE_1D, tex_animelight);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, img.GetWidth(), 0,
+		 GL_RGBA, GL_UNSIGNED_BYTE, img.GetImage());
+    return true;
+}
+
+void uninitanimelight()
+{
+    glDeleteTextures(1, &tex_animelight);
+    tex_animelight = 0;
+}
+
 /***********************************************************************
  *	Class parts
  ***********************************************************************/
@@ -201,11 +230,17 @@ bool parts::realizeobjects()
     for (parts_map::iterator i = partsmap.begin(); i != partsmap.end(); ++i) {
 	r &= (i->second)->realize();
     }
+    if ( theRC->gmode == GMODE_TOON ) {
+        initanimelight();
+    }
     return r;
 }
 
 void parts::unrealizeobjects()
 {
+    if ( theRC->gmode == GMODE_TOON ) {
+        uninitanimelight();
+    }
     for (parts_map::iterator i = partsmap.begin(); i != partsmap.end(); ++i) {
 	(i->second)->unrealize();
     }
@@ -574,6 +609,24 @@ void polyhedron_parts::render() const
     float NanTheBLACK[4] = { 0, 0, 0, 1 };
     float ManOfVirtue[4] = { 1, 1, 1, 1 };
 
+    if ( theRC->gmode == GMODE_TOON ) {
+	affine4F t;
+	glGetFloatv(GL_PROJECTION_MATRIX, (float*)&t);
+	affine4F it = ~t;
+	float _light[] = {1,1,-1};
+//	vector3F _light;
+//	_light = 1.0f, 1.0f, -1.0f;
+	vector3F light = (vector3F(_light) ^ it).norm();
+
+	glActiveTextureARB(GL_TEXTURE1_ARB);
+	glEnable(GL_TEXTURE_1D);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glBindTexture(GL_TEXTURE_1D, tex_animelight);
+	glActiveTextureARB(GL_TEXTURE0_ARB);
+
+	glDisable(GL_LIGHTING);
+    }
+
     polyhedron &poly = *object;
     if (tex && poly.texcoord && tex->object) {
 	glEnable(GL_TEXTURE_2D);
@@ -583,9 +636,14 @@ void polyhedron_parts::render() const
 	    const polygon &face = poly.getPolygon(i);
 	    glBegin(face.glBeginSize());
 	    for (int j = 0; face.size > j; ++j) {
-		poly.cmap[face.c()].glBind();
+		if ( theRC->gmode != GMODE_TOON ) {
+		    poly.cmap[face.c()].glBind();
+		}
 		glNormal3fv((float*)&face.rn(j));
 		glTexCoord2fv((float*)&face.rst(j));
+		if ( theRC->gmode == GMODE_TOON ) {
+		    glMultiTexCoord1fARB(GL_TEXTURE1_ARB, clamp(0.0f, light*face.rn(j), 1.0f));
+		}
 		glVertex3fv((float*)&face.rv(j));
 	    }
 	    glEnd();
@@ -598,10 +656,21 @@ void polyhedron_parts::render() const
 	    for (int j = 0; face.size > j; ++j) {
 		poly.cmap[face.c()].glBind();
 		glNormal3fv((float*)&face.rn(j));
+		if ( theRC->gmode == GMODE_TOON ) {
+		    glMultiTexCoord1fARB(GL_TEXTURE1_ARB, clamp(0.0f, light*face.rn(j), 1.0f));
+		}
 		glVertex3fv((float*)&face.rv(j));
 	    }
 	    glEnd();
 	}
+    }
+
+    if ( theRC->gmode == GMODE_TOON ) {
+	glEnable(GL_LIGHTING);
+
+	glActiveTextureARB(GL_TEXTURE1_ARB);
+	glDisable(GL_TEXTURE_1D);
+	glActiveTextureARB(GL_TEXTURE0_ARB);
     }
 }
 

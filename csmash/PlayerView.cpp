@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -445,16 +445,25 @@ PlayerView::DrawPlayer() {
 	       0.0F, 0.0F, 1.0F );
 
     if ( theRC->gmode == GMODE_SIMPLE ) {
+#ifndef CHIYO
       if ( Control::TheControl()->GetThePlayer() == m_player &&
 	   theRC->myModel == MODEL_ARMONLY )
 	motion->renderArmOnly(swing, m_xdiff, m_ydiff, m_zdiff);
       else
 	motion->renderWire(swing, m_xdiff, m_ydiff, m_zdiff);
+#else
+      motion->renderWire(swing);
+#endif
     } else {
       if (Control::TheControl()->GetComPlayer() == m_player) {
+#ifndef CHIYO
 	motion->render(swing, m_xdiff, m_ydiff, m_zdiff);
+#else
+	motion->render(swing);
+#endif
       }
       if (Control::TheControl()->GetThePlayer() == m_player) {
+#ifndef CHIYO
 	switch ( theRC->myModel ) {
 	case MODEL_TRANSPARENT:
 	  glEnable(GL_CULL_FACE);
@@ -472,6 +481,22 @@ PlayerView::DrawPlayer() {
 	  motion->renderArmOnly(swing, m_xdiff, m_ydiff, m_zdiff);
 	  break;
 	}
+#else
+	switch ( theRC->myModel ) {
+	case MODEL_TRANSPARENT:
+	  glEnable(GL_CULL_FACE);
+	  glDisable(GL_DEPTH_TEST);
+	  glDepthMask(0);
+	  motion->render(swing);
+	  glDepthMask(1);
+	  glEnable(GL_DEPTH_TEST);
+	  glDisable(GL_CULL_FACE);
+	  break;
+	case MODEL_WIREFRAME:
+          motion->renderWire(swing);
+	  break;
+	}
+#endif
       }
     }
 

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -96,6 +96,7 @@
 #define GMODE_FULL          (0)
 #define GMODE_SIMPLE        (1)
 #define GMODE_2D            (2)
+#define GMODE_TOON          (3)
 
 // Play mode
 #define MODE_SOLOPLAY       (1)	// Play VS COM
@@ -180,6 +181,7 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 #include <ctype.h>
 #include <math.h>
 #include <float.h>
+#include <assert.h>
 
 #ifndef WIN32
 #include <sys/time.h>
@@ -223,5 +225,9 @@ typedef int socklen_t;		/* mimic Penguin's socklen type */
 #endif
 
 void xerror(const char *str, ...);
+
+#ifdef WIN32
+#pragma warning(disable: 4244 4305)
+#endif
 
 #endif // _ttinc_
