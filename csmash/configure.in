@@ -21,7 +21,7 @@ AC_PATH_X
 
 CFLAGS="-I $x_includes"
 LDFLAGS="-L /usr/local/lib -L $x_libraries -L $libdir"
-CPPFLAGS="$CFLAGS -Wall"
+CXXFLAGS="$CFLAGS -Wall"
 
 dnl Checks for libraries.
 AC_CHECK_LIB(Xmu, main)
@@ -42,7 +42,7 @@ AM_PATH_SDL($SDL_VERSION,
         AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
 )
 CFLAGS="$CFLAGS $SDL_CFLAGS"
-CPPFLAGS="$CPPFLAGS $SDL_CFLAGS"
+CXXFLAGS="$CXXFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
 
 AC_CHECK_LIB(SDL_mixer, Mix_OpenAudio)
@@ -103,4 +103,5 @@ AC_OUTPUT([Makefile  m4/Makefile \
 	Parts/Fsmash/Makefile \
 	images/Makefile \
 	wav/Makefile \
-	win32/Makefile ])
+	win32/Makefile \
+	po/Makefile.in ])
