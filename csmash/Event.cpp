@@ -163,7 +163,7 @@ Event::IdleFunc() {
   _perfCount++;
 
 #ifdef SCREENSHOT
-  diffcount = 4;
+  diffcount = 3;
 #endif
 
   for ( int i = 0 ; i < diffcount ; i++ ) {

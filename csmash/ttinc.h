@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,9 +30,11 @@
 # endif
 #endif
 
+//#define SCREENSHOT
+
 #define MAJOR_VERSION	0
 #define MIDDLE_VERSION	6
-#define MINOR_VERSION	5
+#define MINOR_VERSION	6
 
 #define CSMASH_PORT	3573	// TCP Port num. 
 
