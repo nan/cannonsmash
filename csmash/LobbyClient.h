@@ -236,6 +236,8 @@ public:
   char m_nickname[32];
 
   long GetLang() { return m_lang; };
+
+  bool GetCanBeServer() { return m_canBeServer; };
 protected:
   void ReadUI();
   void UpdateTable();
@@ -263,6 +265,7 @@ public:
   ~PlayerInfo();
 
   bool m_canBeServer;
+  bool m_playing;
   long m_ID;
   char m_nickname[32];
   char m_message[64];

@@ -327,6 +327,12 @@ LobbyClient::ReadUI() {
       m_player[i].m_canBeServer = false;
     len++;
 
+    if ( buffer[len] )
+      m_player[i].m_playing = true;
+    else
+      m_player[i].m_playing = false;
+    len++;
+
     ReadLong( buffer+len, m_player[i].m_ID );
     len += 4;
 

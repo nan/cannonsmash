@@ -38,8 +38,12 @@ public:
 
 protected:
   static gint IdleFunc( gpointer data );
-  static void SelectRow( GtkCList *clist, gint row, gint column,
-			 GdkEventButton *event, gpointer data );
+  static gboolean checkSelection( GtkTreeSelection *selection,
+				  GtkTreeModel *model,
+				  GtkTreePath *path,
+				  gboolean path_currently_selected,
+				  gpointer data);
+
   static void Connect( GtkWidget *widget, gpointer data );
   static void WarmUp( GtkWidget *widget, gpointer data );
   static gboolean KeyPress( GtkWidget *widget, GdkEventKey *event, gpointer data );

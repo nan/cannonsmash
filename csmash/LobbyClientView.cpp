@@ -21,6 +21,7 @@
 #include "LobbyClientView.h"
 #include "RCFile.h"
 #include <time.h>
+#include <string>
 
 extern RCFile *theRC;
 
@@ -197,7 +198,7 @@ LobbyClientView::Init( LobbyClient *lobby ) {
 #endif
   gtk_widget_show(m_window);
   gtk_window_set_modal( (GtkWindow *)m_window, true );
-  gtk_widget_set_usize( m_window, 300, 400 );
+  gtk_widget_set_usize( m_window, 600, 400 );
 
   GtkWidget *scrolled_window;
   GtkWidget *button;
@@ -210,19 +211,39 @@ LobbyClientView::Init( LobbyClient *lobby ) {
 		      TRUE, TRUE, 0 );
   gtk_widget_show (scrolled_window);
 
-  gchar *titles[3] = { _("Nickname"), _("Message") };
-  m_table = gtk_clist_new_with_titles( 2, titles );
+  GtkTreeViewColumn *column;
+  GtkCellRenderer *renderer;
+  GtkListStore *store;
 
-  gtk_clist_set_shadow_type( GTK_CLIST(m_table), GTK_SHADOW_OUT );
-  gtk_clist_set_column_width( GTK_CLIST(m_table), 0, 150 );
+  store = gtk_list_store_new( 2, G_TYPE_STRING, G_TYPE_STRING );
+  m_table = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
+
+  renderer = gtk_cell_renderer_text_new();
+  column = gtk_tree_view_column_new_with_attributes( _("Nickname"), renderer, 
+						     "markup", 0, 
+						     NULL );
+  gtk_tree_view_column_set_resizable( column, TRUE );
+  gtk_tree_view_append_column( GTK_TREE_VIEW(m_table), column );
+
+  renderer = gtk_cell_renderer_text_new();
+  column = gtk_tree_view_column_new_with_attributes( _("Message"), renderer,
+						     "markup", 1, 
+						     NULL );
+  gtk_tree_view_column_set_resizable( column, TRUE );
+  gtk_tree_view_append_column( GTK_TREE_VIEW(m_table), column );
 
   gtk_scrolled_window_add_with_viewport ( GTK_SCROLLED_WINDOW(scrolled_window),
 					  m_table );
-  gtk_signal_connect (GTK_OBJECT (m_table), "select-row",
-		      GTK_SIGNAL_FUNC (LobbyClientView::SelectRow), this);
-  gtk_widget_show(m_table);
+  GtkTreeSelection *select =
+    gtk_tree_view_get_selection(GTK_TREE_VIEW(m_table));
 
-  UpdateTable();
+  gtk_tree_selection_set_mode( select, GTK_SELECTION_SINGLE );
+
+  gtk_tree_selection_set_select_function( select,
+					  LobbyClientView::checkSelection,
+					  this,
+					  NULL);
+  gtk_widget_show(m_table);
 
   GtkWidget *notebook = gtk_notebook_new();
   GtkWidget *label;
@@ -326,27 +347,65 @@ LobbyClientView::Init( LobbyClient *lobby ) {
 
 void
 LobbyClientView::UpdateTable() {
-  gchar *row[3];
+  GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(m_table));
 
-  gtk_clist_clear( GTK_CLIST(m_table) );
+  gtk_list_store_clear( GTK_LIST_STORE(model) );
+
+  std::string nickname, message;
 
   for ( int i = 0 ; i < m_parent->m_playerNum ; i++ ) {
-    row[0] = m_parent->m_player[i].m_nickname;
-    row[1] = m_parent->m_player[i].m_message;
-    gtk_clist_append( GTK_CLIST(m_table), row );
+    GtkTreeIter iter;
+    gtk_list_store_append( GTK_LIST_STORE(model), &iter );
+    if ( m_parent->m_player[i].m_playing ||
+	 (m_parent->GetCanBeServer() == false &&
+	  m_parent->m_player[i].m_canBeServer == false) ) {
+      nickname = "<span color=\"gray\">";
+      nickname += m_parent->m_player[i].m_nickname;
+      nickname += "</span>";
+      message = "<span color=\"gray\">";
+      message += m_parent->m_player[i].m_message;
+      message += "</span>";
+    } else {
+      nickname = "<span color=\"black\">";
+      nickname += m_parent->m_player[i].m_nickname;
+      nickname += "</span>";
+      message = "<span color=\"black\">";
+      message += m_parent->m_player[i].m_message;
+      message += "</span>";
+    }
+    gtk_list_store_set( GTK_LIST_STORE(model), &iter,
+			0, nickname.c_str(), 
+			1, message.c_str(), 
+			-1 );
   }
 
-  gtk_clist_columns_autosize( GTK_CLIST(m_table) );
+  gtk_widget_set_sensitive(m_connectButton, false);
 }
 
-void
-LobbyClientView::SelectRow( GtkCList *clist, gint row, gint column,
-			GdkEventButton *event, gpointer data ) {
+gboolean
+LobbyClientView::checkSelection( GtkTreeSelection *selection,
+				 GtkTreeModel *model,
+				 GtkTreePath *path,
+				 gboolean path_currently_selected,
+				 gpointer data ) {
   LobbyClientView *lobby = (LobbyClientView *)data;
 
-  lobby->m_parent->m_selected = row;
-  gtk_widget_set_sensitive (lobby->m_connectButton, true);
+  gchar* pathstr = gtk_tree_path_to_string(path);
+  int selected = atoi( pathstr );
+  g_free(pathstr);
+
+  PlayerInfo selectedPlayer = lobby->m_parent->m_player[selected];
+  if ( selectedPlayer.m_playing ||
+       (lobby->m_parent->GetCanBeServer() == false &&
+	selectedPlayer.m_canBeServer == false) ) {
+    return FALSE;
+  } else {
+    lobby->m_parent->m_selected = selected;
+    gtk_widget_set_sensitive(lobby->m_connectButton, true);
+    return TRUE;
+  }
 }
+
 
 void
 LobbyClientView::WarmUp( GtkWidget *widget, gpointer data ) {
