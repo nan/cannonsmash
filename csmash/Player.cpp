@@ -422,7 +422,8 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   // Automatically move towards the ball
   // Only for human. 
-  if ( (mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY) && KeyHistory ) {
+  if ( (mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
+	mode == MODE_PRACTICE) && KeyHistory ) {
     if ( m_swing > 10 && m_swing < 20 ) {
       Ball *tmpBall;
 

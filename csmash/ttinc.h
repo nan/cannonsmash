@@ -96,6 +96,8 @@
 #define MODE_TRAININGSELECT (6)	// Training Select
 #define MODE_TRAINING       (7)	// Training
 #define MODE_OPENING        (8)	// Opening
+#define MODE_PRACTICESELECT (9)	// Practice Select
+#define MODE_PRACTICE       (10)// Practice
 
 // Sound
 #define SOUND_RACKET (0)

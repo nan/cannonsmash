@@ -38,7 +38,6 @@ extern long mode;
 extern Sound theSound;
 
 extern long gameMode;
-extern long wins;
 
 extern long gmode;
 

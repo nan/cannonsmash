@@ -44,10 +44,6 @@ PracticeSelect::PracticeSelect() {
 }
 
 PracticeSelect::~PracticeSelect() {
-  if ( m_View ){
-    theView->RemoveView( m_View );
-    delete m_View;
-  }
 }
 
 bool
@@ -99,11 +95,11 @@ PracticeSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
   }
 
   if ( m_opponentSelected > 500 ) {
-    mode = MODE_SOLOPLAY;
+    mode = MODE_PRACTICE;
     return true;
   }
 
-  if ( m_selected > 500 ) {
+  if ( m_selected > 100 ) {
     rotate = &m_opponentRotate;
     selected = &m_opponentSelected;
   } else {
@@ -125,7 +121,7 @@ PracticeSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
   }
 
   if ( *selected > 0 ) {
-    *selected++;
+    (*selected)++;
     return true;
   }
 
@@ -174,7 +170,7 @@ PracticeSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
 }
 
 long
-PracticeSelect::GetOpponentPlayerNum() {
+PracticeSelect::GetOpponentNum() {
   if ( GetOpponentRotate() < 0 )
     return (360+(GetOpponentRotate()%360))/(360/PLAYERS);
   else

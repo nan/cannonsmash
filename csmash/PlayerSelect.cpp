@@ -180,6 +180,11 @@ PlayerSelect::GetPlayerNum() {
     return (GetRotate()%360)/(360/PLAYERS);
 }
 
+long
+PlayerSelect::GetOpponentNum() {
+  return (GetPlayerNum()+wins+1)%PLAYERS;
+}
+
 bool
 PlayerSelect::LookAt( double &srcX, double &srcY, double &srcZ,
 		      double &destX, double &destY, double &destZ ) {

@@ -102,11 +102,9 @@ Sound::Play( char *sndData, long size ) {
 
 bool
 Sound::Play( long soundID ) {
-  if ( mode != MODE_MULTIPLAY ) {
 #ifdef HAVE_LIBSDL_MIXER
-    Mix_PlayChannel( 0, m_sound[soundID], 0 );
+  Mix_PlayChannel( 0, m_sound[soundID], 0 );
 #endif
-  }
 
   return true;
 }

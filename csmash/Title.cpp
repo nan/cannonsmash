@@ -197,20 +197,25 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
 	mode = MODE_SELECT;
 	break;
-      case 1:	// Training
+      case 1:	// Practice
+	//theBall.EndGame();
+	theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
+	mode = MODE_PRACTICESELECT;
+	break;
+      case 2:	// Training
 	//theBall.EndGame();
 	theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
 	mode = MODE_TRAININGSELECT;
 	break;
-      case 2:	// Howto
+      case 3:	// Howto
 	//theBall.EndGame();
 	theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
 	mode = MODE_HOWTO;
 	break;
-      case 3:	// Config...
+      case 4:	// Config...
 	m_selectMode = MENU_CONFIG;
 	break;
-      case 4:	// Quit
+      case 5:	// Quit
 	QuitGame();
 	break;
       }
@@ -261,7 +266,7 @@ long
 Title::GetMenuNum( long major, long minor ) {
   switch ( major ) {
   case MENU_MAIN:
-    return 5;
+    return 6;
   case MENU_CONFIG:
     switch ( minor ) {
     case MENU_ALL:
@@ -290,9 +295,9 @@ Title::LookAt( double &srcX, double &srcY, double &srcZ,
 
 void
 Title::CreateMenu( long menuMajorNum ) {
-  static char menu[][30] = {"images/StartGame", "images/Training",
-			    "images/Howto", "images/Config",
-			    "images/Quit"};
+  static char menu[][30] = {"images/StartGame", "images/Practice", 
+			    "images/Training",  "images/Howto",
+			    "images/Config", "images/Quit"};
   static char configMenu[][30] = {"images/Easy", "images/Normal",
 				  "images/Hard", "images/Tsuborish", 
 				  "images/5point", "images/11point",
@@ -319,7 +324,7 @@ Title::CreateMenu( long menuMajorNum ) {
   switch ( menuMajorNum ) {
   case MENU_MAIN:
     for ( i = 0 ; i < GetMenuNum( MENU_MAIN ) ; i++ )
-      m_menuItem[i]->Init( 200, 450-i*100, 400, 70, &menu[i][0], this );
+      m_menuItem[i]->Init( 200, 500-i*90, 400, 70, &menu[i][0], this );
     break;
   case MENU_CONFIG:
     for ( i = 0 ; i < GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL ) ; i++ )

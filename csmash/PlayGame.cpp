@@ -67,7 +67,8 @@ PlayGame::GetService() {
 
 long
 PlayGame::GetScore( Player *p ) {
-  if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ) {
+  if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
+       mode == MODE_PRACTICE ) {
     if ( p->GetSide() > 0 )
       return m_Score1;
     else
@@ -79,7 +80,8 @@ PlayGame::GetScore( Player *p ) {
 
 long
 PlayGame::GetScore( long side ) {
-  if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ) {
+  if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
+       mode == MODE_PRACTICE) {
     if ( side > 0 )
       return m_Score1;
     else
@@ -91,7 +93,8 @@ PlayGame::GetScore( long side ) {
 
 void
 PlayGame::ChangeScore() {
-  if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ) {
+  if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
+       mode == MODE_PRACTICE) {
     if ( theBall.GetStatus() == 0 || theBall.GetStatus() == 3 ||
 	 theBall.GetStatus() == 4 || theBall.GetStatus() == 6 ) {
       m_Score2++;

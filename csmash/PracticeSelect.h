@@ -19,7 +19,7 @@
 #ifndef _PracticeSelect_
 #define _PracticeSelect_
 
-#include "Control.h"
+#include "PlayerSelect.h"
 #include "PracticeSelectView.h"
 
 class PracticeSelect : public PlayerSelect {
@@ -36,16 +36,10 @@ public:
 		     int Histptr );
 
   virtual long GetOpponentRotate() { return m_opponentRotate; };
+  virtual long GetOpponentNum();
   virtual long GetOpponentSelected() { return m_opponentSelected; };
 
-  virtual bool LookAt( double &srcX, double &srcY, double &srcZ,
-		       double &destX, double &destY, double &destZ );
-
-  virtual bool IsPlaying() { return false; };
-
-  virtual View *GetView() { return m_View; };
 protected:
-  PlayerSelectView *m_View;
   long m_opponentRotate;	// Rotation of players
   long m_opponentSelected;	// Selected : m_selected > 0
 };

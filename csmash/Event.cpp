@@ -22,6 +22,7 @@
 #include "BaseView.h"
 #include "BaseView2D.h"
 #include "SoloPlay.h"
+#include "PracticePlay.h"
 #include "MultiPlay.h"
 #include "PlayerSelect.h"
 #include "Title.h"
@@ -29,6 +30,7 @@
 #include "Howto.h"
 #include "TrainingSelect.h"
 #include "Training.h"
+#include "PracticeSelect.h"
 
 extern BaseView* theView;
 extern Ball theBall;
@@ -201,12 +203,14 @@ Event::Move() {
 bool
 Event::IsModeChanged( long preMode ) {
   if ( mode != preMode ){	// モード変更あり
-    long p;
+    long p, q;
 
     switch ( mode ) {
     case MODE_SOLOPLAY:
       p = ((PlayerSelect *)theControl)->GetPlayerNum();
-      theControl = SoloPlay::Create( p, (p+wins+1)%PLAYERS );
+      q = ((PlayerSelect *)theControl)->GetOpponentNum();
+      //theControl = SoloPlay::Create( p, (p+wins+1)%PLAYERS );
+      theControl = SoloPlay::Create( p, q );
       break;
     case MODE_MULTIPLAY:
       p = ((PlayerSelect *)theControl)->GetPlayerNum();
@@ -230,6 +234,14 @@ Event::IsModeChanged( long preMode ) {
     case MODE_TRAINING:
       p = ((PlayerSelect *)theControl)->GetPlayerNum();
       theControl = Training::Create( p, p );
+      break;
+    case MODE_PRACTICESELECT:
+      theControl = PracticeSelect::Create();
+      break;
+    case MODE_PRACTICE:
+      p = ((PlayerSelect *)theControl)->GetPlayerNum();
+      q = ((PlayerSelect *)theControl)->GetOpponentNum();
+      theControl = PracticePlay::Create( p, q );
       break;
     }
 
@@ -274,7 +286,7 @@ Event::Record() {
 	  m_BacktrackBuffer[m_Histptr].theBall.GetStatus() );
 #endif
 
-  if ( mode == MODE_SOLOPLAY && theControl &&
+  if ( (mode == MODE_SOLOPLAY || mode == MODE_PRACTICE) && theControl &&
        ((SoloPlay *)theControl)->GetSmashPtr() >= 0 )
     return;
 
@@ -282,7 +294,8 @@ Event::Record() {
   if ( mode == MODE_TITLE ) {
     m_MouseXHistory[m_Histptr] = x;
     m_MouseYHistory[m_Histptr] = y;
-  } else if ( mode == MODE_SELECT || mode == MODE_TRAININGSELECT ) {
+  } else if ( mode == MODE_SELECT || mode == MODE_TRAININGSELECT ||
+	      mode == MODE_PRACTICESELECT ) {
     m_MouseXHistory[m_Histptr] = BaseView::GetWinWidth()/2 +
       (x-BaseView::GetWinWidth()/2)*15/16;
     m_MouseYHistory[m_Histptr] = y;
@@ -305,7 +318,8 @@ Event::Record() {
   CopyPlayerData( m_BacktrackBuffer[m_Histptr].thePlayer, thePlayer );
   CopyPlayerData( m_BacktrackBuffer[m_Histptr].comPlayer, comPlayer );
 
-  if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ) {
+  if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
+       mode == MODE_PRACTICE ) {
     m_BacktrackBuffer[m_Histptr].score1 =
       ((PlayGame *)theControl)->GetScore(1);
     m_BacktrackBuffer[m_Histptr].score2 =
@@ -342,8 +356,10 @@ Event::KeyboardFunc( SDL_Event key, int x, int y ) {
     return;
   }
   if ( key.key.keysym.unicode == 'Q' ) {
-    if ( mode == MODE_SOLOPLAY || mode == MODE_SELECT || mode == MODE_HOWTO ||
-	 mode == MODE_TRAININGSELECT || mode == MODE_TRAINING ) {
+    if ( mode == MODE_SOLOPLAY || mode == MODE_PRACTICE ||
+	 mode == MODE_SELECT || mode == MODE_HOWTO ||
+	 mode == MODE_TRAININGSELECT || mode == MODE_TRAINING ||
+	 mode == MODE_PRACTICESELECT ) {
     } else
       QuitGame();
   }
@@ -548,7 +564,8 @@ Event::BackTrack( long Histptr ) {
   thePlayer->Reset( &m_BacktrackBuffer[Histptr].thePlayer );
   comPlayer->Reset( &m_BacktrackBuffer[Histptr].comPlayer );
 
-  if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ) {
+  if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
+       mode == MODE_PRACTICE) {
     ((PlayGame *)theControl)->ChangeScore( m_BacktrackBuffer[Histptr].score1,
 					   m_BacktrackBuffer[Histptr].score2 );
   }

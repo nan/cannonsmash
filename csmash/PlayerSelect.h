@@ -37,6 +37,7 @@ public:
 
   virtual long GetRotate() { return m_rotate; };
   virtual long GetPlayerNum();
+  virtual long GetOpponentNum();
   virtual long GetSelected() { return m_selected; };
 
   virtual bool LookAt( double &srcX, double &srcY, double &srcZ,

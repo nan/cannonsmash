@@ -200,7 +200,7 @@ BallView::Redraw() {
 bool
 BallView::RedrawAlpha() {
   // Score
-  if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ){
+  if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY || mode == MODE_PRACTICE ){
     glPushMatrix();
     glTranslatef( -TABLEWIDTH/2-0.3F, 0, TABLEHEIGHT );
 
