@@ -67,15 +67,12 @@ PlayerView2D::SubRedraw() {
 
     RenderPoint( m_player->GetX(), m_player->GetY(), 1.7, &x, &y );
 
-    if ( rect.x != x-m_playerBMP->w/2 || rect.y != y ||
-	 rect.w != m_playerBMP->w || rect.h != m_playerBMP->h ) {
-      rect.x = x-m_playerBMP->w/2;
-      rect.y = y;
-      rect.w = m_playerBMP->w;
-      rect.h = m_playerBMP->h;
+    rect.x = x-m_playerBMP->w/2;
+    rect.y = y;
+    rect.w = m_playerBMP->w;
+    rect.h = m_playerBMP->h;
 
-      SDL_BlitSurface(m_playerBMP, NULL, theView->GetSurface(), &rect);
-    }
+    SDL_BlitSurface(m_playerBMP, NULL, theView->GetSurface(), &rect);
   }
 
   return true;

@@ -71,8 +71,8 @@ BaseView2D::Init() {
 
   m_updateX1 = 0;
   m_updateY1 = 0;
-  m_updateX2 = BaseView::GetWinWidth();
-  m_updateY2 = BaseView::GetWinHeight();
+  m_updateX2 = BaseView::GetWinWidth()-1;
+  m_updateY2 = BaseView::GetWinHeight()-1;
 
   m_fieldView->Redraw();
   m_fieldView->RedrawAlpha();
@@ -93,10 +93,13 @@ BaseView2D::RedrawAll() {
   SetViewPosition();
 
   m_fieldView->GetDamageRect();
-  thePlayer->GetView()->GetDamageRect();
-  comPlayer->GetView()->GetDamageRect();
+  if ( thePlayer )
+    thePlayer->GetView()->GetDamageRect();
+  if ( comPlayer )
+    comPlayer->GetView()->GetDamageRect();
   theBall.GetView()->GetDamageRect();
-  theControl->GetView()->GetDamageRect();
+  if ( theControl->GetView() )
+    theControl->GetView()->GetDamageRect();
 
   rect.x = m_updateX1;
   rect.y = m_updateY1;

@@ -61,11 +61,7 @@ PlayerSelectView2D::Redraw() {
 
   if ( m_playerSelect->GetSelected() > 0 ) {
     for ( i = 0 ; i < PLAYERS ; i++ ) {
-      if ( i == player &&
-	   (rect.x != BaseView::GetWinWidth()/2-m_playerBMP[i]->w/2 ||
-	    rect.y != BaseView::GetWinHeight()/2-m_playerBMP[i]->h/2 ||
-	    rect.w != m_playerBMP[i]->w ||
-	    rect.h != m_playerBMP[i]->h ) ) {
+      if ( i == player ){
 	rect.x = BaseView::GetWinWidth()/2-m_playerBMP[i]->w/2;
 	rect.y = BaseView::GetWinHeight()/2-m_playerBMP[i]->h/2;
 	rect.w = m_playerBMP[i]->w;
@@ -76,11 +72,7 @@ PlayerSelectView2D::Redraw() {
     }
   } else {
     for ( i = 0 ; i < PLAYERS ; i++ ) {
-      if ( i == player &&
-	   (rect.x != BaseView::GetWinWidth()/2-m_playerBMP[i]->w/2 ||
-	    rect.y != BaseView::GetWinHeight()/2-m_playerBMP[i]->h/2 ||
-	    rect.w != m_playerBMP[i]->w ||
-	    rect.h != m_playerBMP[i]->h ) ) {
+      if ( i == player ){
 	rect.x = BaseView::GetWinWidth()/2-m_playerBMP[i]->w/2;
 	rect.y = BaseView::GetWinHeight()/2-m_playerBMP[i]->h/2;
 	rect.w = m_playerBMP[i]->w;

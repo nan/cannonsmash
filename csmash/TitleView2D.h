@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,32 +16,28 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#ifndef _TitleView_
-#define _TitleView_
-#include "View.h"
+#ifndef _TitleView2D_
+#define _TitleView2D_
+#include "TitleView.h"
 
 class Title;
 
-class TitleView : public View {
+class TitleView2D : public TitleView {
 public:
-  TitleView();
-  virtual ~TitleView();
+  TitleView2D();
+  virtual ~TitleView2D();
 
   virtual bool Init( Title * );
 
   virtual bool Redraw();
   virtual bool RedrawAlpha();
 
-  bool AddView( View *view );
-  bool RemoveView( View *view );
+  //bool AddView( View *view );
+  //bool RemoveView( View *view );
 protected:
   Title       *m_title;
   View        *m_View;
-
-  GLubyte      m_image[800*100/8];
-  GLubyte      m_choice[8][400*70/8];
-  GLubyte      m_configChoice[16][200*35/8];
-  GLubyte      m_configTitle[4][200*35/8];
+  SDL_Surface *m_triangleBMP;
 };
 
 #endif	// _TitleView_

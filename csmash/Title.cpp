@@ -24,6 +24,7 @@
 #include "Player.h"
 #include "Ball.h"
 #include "TitleView.h"
+#include "TitleView2D.h"
 #include "Event.h"
 #include "MenuItem.h"
 
@@ -36,6 +37,7 @@ extern long gameLevel;
 extern long gameMode;
 
 extern bool isWireFrame;
+extern long gmode;
 
 extern void QuitGame();
 
@@ -67,7 +69,11 @@ Title::~Title() {
 
 bool
 Title::Init() {
-  m_View = new TitleView();
+  if ( gmode == GMODE_2D )
+    m_View = new TitleView2D();
+  else
+    m_View = new TitleView();
+
   m_View->Init( this );
 
   theView->AddView( m_View );

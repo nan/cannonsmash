@@ -68,11 +68,8 @@ BallView2D::Redraw() {
 		theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2, theBall.GetZ()+BALL_R/2, 
 		&_rect );
 
-    if ( rect.x != _rect.x || rect.y != _rect.y ||
-	 rect.w != _rect.w || rect.h != _rect.h ) {
-      SDL_FillRect( theView->GetSurface(), &_rect, 0 );
-      rect = _rect;
-    }
+    SDL_FillRect( theView->GetSurface(), &_rect, 0 );
+    rect = _rect;
   }
 
   // Draw the ball shadow
