@@ -7,10 +7,6 @@
  *	the "Artistic license". See "ARTISTIC" for detail.
  *
  ***********************************************************************/
-#include <libintl.h>
-#define  gettext_noop(String)  (String)
-#define _(String) gettext (String)
-#define N_(String) gettext_noop (String)
 
 #include "ttinc.h"
 #include "LoadImage.h"

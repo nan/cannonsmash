@@ -4,6 +4,7 @@ AC_INIT(csmash, 0.6.4, nan@utmc.or.jp)
 AC_CONFIG_SRCDIR(main.cpp)
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE(csmash, 0.6.4)
+AM_CONFIG_HEADER(config.h)
 
 dnl this must be defined before AM_GNU_GETTEXT
 ALL_LINGUAS="de ja"
@@ -58,7 +59,7 @@ dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(sys/time.h unistd.h)
 
-AC_CHECK_HEADER(windows.h, [AC_DEFINE(WIN32)
+AC_CHECK_HEADER(windows.h, [AC_DEFINE(WIN32,,[Are we on Windows?])
 			LIBS="$LIBS -lwinmm"])
 
 case "$target" in
@@ -76,7 +77,7 @@ dnl Checks for library functions.
 # moved to makefile.am
 #AC_DEFINE_UNQUOTED(CANNONSMASH_DATADIR, "@prefix@/share/$PACKAGE/")
 
-AC_OUTPUT(makefile \
+AC_OUTPUT([makefile \
 	Parts/makefile \
 	Parts/Bcut/makefile \
 	Parts/Bnormal/makefile \
@@ -90,4 +91,4 @@ AC_OUTPUT(makefile \
 	wav/makefile \
 	win32/makefile \
 	intl/Makefile \
-	po/Makefile.in )
+	po/Makefile.in ])

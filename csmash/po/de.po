@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2002-01-22 02:43+0900\n"
+"POT-Creation-Date: 2002-01-24 16:43+0900\n"
 "PO-Revision-Date: 2002-01-20 22:22GMT\n"
 "Last-Translator: J. Henning Schwentner <hschwentner@hamburg.de>\n"
 "Language-Team: Deutsch <de@li.org>\n"
@@ -14,190 +14,190 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 0.9.5\n"
 
-#: BaseView.cpp:88
+#: BaseView.cpp:83
 msgid "CannonSmash"
 msgstr "CannonSmash"
 
-#: BaseView.cpp:366
+#: BaseView.cpp:361
 #, c-format
 msgid "EndGame %d : %d\n"
 msgstr "Endstand: %d : %d\n"
 
-#: Event.cpp:318
+#: Event.cpp:313
 #, c-format
 msgid "Toggled fullscreen mode - now %s\n"
 msgstr "Vollbildmodus umgestellt - jetzt: %s\n"
 
-#: Event.cpp:319
+#: Event.cpp:314
 msgid "fullscreen"
 msgstr "Vollbild"
 
-#: Event.cpp:319
+#: Event.cpp:314
 msgid "windowed"
 msgstr "Fenster"
 
-#: Event.cpp:321
+#: Event.cpp:316
 msgid "Unable to toggle fullscreen mode\n"
 msgstr "Kann Vollbildmodus nicht umschalten\n"
 
-#: Event.cpp:714
+#: Event.cpp:709
 #, c-format
 msgid "Avg = %f\n"
 msgstr "Durchschnitt = %f\n"
 
-#: Event.cpp:715
+#: Event.cpp:710
 #, c-format
 msgid "BackTrack = %f\n"
 msgstr "BackTrack = %f\n"
 
-#: Launcher.cpp:67
+#: Launcher.cpp:62
 msgid "FullScreen"
 msgstr "Vollbild"
 
-#: Launcher.cpp:72
+#: Launcher.cpp:67
 msgid "On"
 msgstr "An"
 
-#: Launcher.cpp:83
+#: Launcher.cpp:78
 msgid "Off"
 msgstr "Aus"
 
-#: Launcher.cpp:107
+#: Launcher.cpp:102
 msgid "Graphics"
 msgstr "Grafik"
 
-#: Launcher.cpp:120
+#: Launcher.cpp:115
 msgid "Simple"
 msgstr "Einfach"
 
-#: Launcher.cpp:128
+#: Launcher.cpp:123
 msgid "Normal"
 msgstr "Normal"
 
-#: Launcher.cpp:246
+#: Launcher.cpp:241
 msgid "Solo"
 msgstr "Allein"
 
-#: Launcher.cpp:251
+#: Launcher.cpp:246
 msgid "LAN"
 msgstr "LAN"
 
-#: Launcher.cpp:256
+#: Launcher.cpp:251
 msgid "Internet(Experimental)"
 msgstr "Internet (experimentell)"
 
 #. lowest area(start button)
-#: Launcher.cpp:271 Launcher.cpp:336
+#: Launcher.cpp:266 Launcher.cpp:331
 msgid "Game Start!"
 msgstr "Spiel starten!"
 
-#: Launcher.cpp:297
+#: Launcher.cpp:292
 msgid "Server"
 msgstr "Server"
 
-#: Launcher.cpp:301
+#: Launcher.cpp:296
 msgid "Client"
 msgstr "Client"
 
-#: Launcher.cpp:315
+#: Launcher.cpp:310
 msgid "Server name:"
 msgstr "Servername:"
 
-#: Launcher.cpp:358
+#: Launcher.cpp:353
 msgid "Nickname:"
 msgstr "Spitzname:"
 
-#: Launcher.cpp:368
+#: Launcher.cpp:363
 msgid "Message:"
 msgstr "Nachricht:"
 
-#: Launcher.cpp:381
+#: Launcher.cpp:376
 msgid "Connect to Lobby Server"
 msgstr "Zu Lobby Server verbinden"
 
-#: Launcher.cpp:452 LobbyClient.cpp:156 LobbyClient.cpp:518
+#: Launcher.cpp:447 LobbyClient.cpp:151 LobbyClient.cpp:513
 msgid "Cannon Smash"
 msgstr "Cannon Smash"
 
-#: Launcher.cpp:469
+#: Launcher.cpp:464
 msgid "Quit"
 msgstr "Beenden"
 
-#: LobbyClient.cpp:172
+#: LobbyClient.cpp:167
 msgid "Nickname"
 msgstr "Spitzname"
 
-#: LobbyClient.cpp:172
+#: LobbyClient.cpp:167
 msgid "Message"
 msgstr "Nachricht"
 
-#: LobbyClient.cpp:186
+#: LobbyClient.cpp:181
 msgid "connect"
 msgstr "verbinden"
 
-#: LobbyClient.cpp:194
+#: LobbyClient.cpp:189
 msgid "warm up"
 msgstr "aufwdrmen"
 
-#: LobbyClient.cpp:201
+#: LobbyClient.cpp:196
 msgid "close"
 msgstr "schlie_en"
 
-#: LobbyClient.cpp:527
+#: LobbyClient.cpp:522
 #, c-format
 msgid "\"%s\" (message: %s)want to play with you. OK?\n"
 msgstr "\"%s\" (Nachricht: %s) will mit dir spielen. OK?\n"
 
-#: LobbyClient.cpp:542
+#: LobbyClient.cpp:537
 msgid "OK!"
 msgstr "OK!"
 
-#: LobbyClient.cpp:553
+#: LobbyClient.cpp:548
 msgid "No!"
 msgstr "Nein!"
 
-#: main.cpp:167 main.cpp:182
+#: main.cpp:162 main.cpp:177
 msgid "No datafile directory.\n"
 msgstr "Kein Datenverzeichnis.\n"
 
-#: main.cpp:234 main.cpp:239 main.cpp:245
+#: main.cpp:229 main.cpp:234 main.cpp:240
 msgid "SDL initialize failed\n"
 msgstr "Konnte SDL nicht initialisieren.\n"
 
-#: parts.cpp:132
+#: parts.cpp:128
 #, c-format
 msgid "%s:%d vertex buffer overflow\n"
 msgstr "%s:%d vertex buffer overflow\n"
 
-#: parts.cpp:154
+#: parts.cpp:150
 #, c-format
 msgid "%s:%d loop buffer overflow\n"
 msgstr "%s:%d loop buffer overflow\n"
 
-#: parts.cpp:429
+#: parts.cpp:425
 #, c-format
 msgid "%s:%d matrix buffer overflow\n"
 msgstr "%s:%d matrix buffer overflow\n"
 
-#: Player.cpp:277
+#: Player.cpp:272
 #, c-format
 msgid "no player %ld\n"
 msgstr "kein Spieler %ld\n"
 
-#: PlayGame.cpp:157
+#: PlayGame.cpp:152
 #, c-format
 msgid "You : %d -  %d : Opponent\n"
 msgstr "Du : %d -  %d : Gegner\n"
 
-#: RCFile.cpp:157
+#: RCFile.cpp:152
 msgid "No home directory.\n"
 msgstr "Kein \"home\"-Verzeichnis\n"
 
-#: RCFile.cpp:177
+#: RCFile.cpp:172
 #, c-format
 msgid "Cannot open rc file %s.\n"
 msgstr "Kann Konfigurationsdatei %s nicht vffnen.\n"
 
-#: Sound.cpp:89
+#: Sound.cpp:84
 msgid "SDL Mix_OpenAudio failed\n"
 msgstr "SDL Mix_OpenAudio failed\n"

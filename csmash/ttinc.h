@@ -137,6 +137,10 @@ enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 // Log
 #define LOGGING
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #ifndef MKDEP_IGN_SYSINC
 
 #ifdef WIN32
@@ -189,6 +193,11 @@ typedef int socklen_t;		/* mimic Penguin's socklen type */
 #ifdef HAVE_LIBSDL_MIXER
 #include <SDL/SDL_mixer.h>
 #endif
+
+#include <libintl.h>
+#define  gettext_noop(String)  (String)
+#define _(String) gettext (String)
+#define N_(String) gettext_noop (String)
 
 #endif /* MKDEP_IGN_SYSINC */
 
