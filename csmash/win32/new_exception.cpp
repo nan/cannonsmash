@@ -17,6 +17,7 @@
 
 // Force my_global_new_handler_object be initialized
 // prior to other global objects.
+#pragma warning(disable: 4073)
 #pragma init_seg(lib)
 
 namespace {
