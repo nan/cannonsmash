@@ -41,7 +41,7 @@ public:
     byte* element_array() { return (byte*)this; }
     const byte* element_array() const { return (byte*)this; }
 
-    void glBind() const { glColor4bv((const GLbyte*)element_array()); }
+    void glBind() const { glColor4ubv((const GLubyte*)element_array()); }
 };
 
 class color4f

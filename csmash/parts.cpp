@@ -102,7 +102,7 @@ bool colormap::load(const char *file)
 polyhedron::polyhedron(const char* filename)
   : numPoints(0), numPolygons(0), numEdges(0),
     points(NULL), texcoord(NULL), polygons(NULL),
-    normals(NULL), planeNormal(NULL), edges(NULL),
+    cindex(NULL), normals(NULL), planeNormal(NULL), edges(NULL),
     filename(strdup(filename))
 {
     FILE *in = fopen(filename, "r");
