@@ -135,7 +135,7 @@ Logging::LogBall( long logType, Ball *ball ) {
            "status = %2d x = %4.2f y = %4.2f z = %4.2f "
            "vx = %4.2f vy = %4.2f vz = %4.2f spin = %3.2f\n",
 	   (int)ball->GetStatus(), ball->GetX(), ball->GetY(), ball->GetZ(),
-           ball->GetVX(), ball->GetVY(), ball->GetVZ(), ball->GetSpin() );
+           ball->GetVX(), ball->GetVY(), ball->GetVZ(), ball->GetSpinY() );
   Log( logType, buf );
 
   return true;
@@ -185,7 +185,7 @@ Logging::LogRecvBVMessage( ExternalBVData *bv ) {
             "vx=%4.2f vy=%4.2f vz=%4.2f spin=%3.2f status=%2d\n",
 	   tmpBall->GetX(), tmpBall->GetY(), tmpBall->GetZ(), 
 	   tmpBall->GetVX(), tmpBall->GetVY(), tmpBall->GetVZ(), 
-	   tmpBall->GetSpin(), (int)tmpBall->GetStatus() );
+	   tmpBall->GetSpinY(), (int)tmpBall->GetStatus() );
   Log( LOG_COMBALL, buf );
 
   return true;
