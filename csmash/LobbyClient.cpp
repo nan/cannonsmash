@@ -233,7 +233,7 @@ LobbyClient::PollServerMessage( gpointer data ) {
 	  delete buffer;
 
 	  isComm = true;
-	  mode = MODE_SELECT;
+	  mode = MODE_MULTIPLAYSELECT;
 
 	  if ( lobby->m_canBeServer == true ) {	// I can be server
 	    theRC->serverName[0] = '\0';

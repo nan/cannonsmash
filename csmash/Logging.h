@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002, 2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ class Ball;
 class ExternalBVData;
 class ExternalPVData;
 class ExternalPSData;
+class ExternalPTData;
 
 class Logging {
 public:
@@ -52,6 +53,7 @@ public:
   bool LogRecvPVMessage( ExternalPVData *pv );
   bool LogSendPSMessage( Player *player );
   bool LogRecvPSMessage( ExternalPSData *ps );
+  bool LogRecvPTMessage( ExternalPTData *pt );
 
 private:
   Logging();

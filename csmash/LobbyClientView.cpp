@@ -437,7 +437,7 @@ PIDialog::PIOK( GtkWidget *widget, gpointer data ) {
   gtk_widget_destroy( GTK_WIDGET(piDialog->m_window) );
 
   isComm = true;
-  mode = MODE_SELECT;
+  mode = MODE_MULTIPLAYSELECT;
 
   piDialog->m_parent->SendAP( piDialog->m_uniqID );
   piDialog->m_parent->SendSP();

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001, 2002  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2001, 2002, 2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -260,4 +260,21 @@ Logging::LogRecvPSMessage( ExternalPSData *ps ) {
 
   return true;
 }
+
+bool
+Logging::LogRecvPTMessage( ExternalPTData *pt ) {
+  char buf[256];
+
+  LogTime( LOG_COMMISC );
+  snprintf( buf, sizeof(buf),
+            "recv PT: %d.%3d ", (int)pt->sec, (int)pt->count );
+  Log( LOG_COMMISC, buf );
+
+  snprintf( buf, sizeof(buf), "fixed=%d type=%d\n", pt->data[0],
+	    *((long *)(&(pt->data[1]))) );
+  Log( LOG_COMMISC, buf );
+
+  return true;
+}
+
 #endif
