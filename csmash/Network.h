@@ -37,11 +37,15 @@ void WritePlayerData();
 Player *ReadPlayerData();
 void SendPlayerData();
 
+void SendSwing( Player *player );
+
 void SendTime( int sd, struct timeb* tb );
 void ReadTime( int sd, struct timeb* tb );
 
 void getcurrenttime( struct timeb *tb );
 void ReadBI();
 void findhostname( struct sockaddr_in *saddr );
+
+void ClearSocket();
 
 #endif	// _Network_

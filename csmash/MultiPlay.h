@@ -45,6 +45,7 @@ public:
   static ExternalData* ReadData( long s );
 
   virtual bool isNull() { return false; };
+
 protected:
   void ReadTime( int sd, long *sec, char *count );
 };
@@ -119,6 +120,8 @@ public:
 
   void AdjustClock();
   bool WaitForClient();
+
+  static int WaitForData( void * );
 protected:
   //bool m_smash;
   //long m_smashCount;

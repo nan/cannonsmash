@@ -24,6 +24,7 @@
 #include "SoloPlay.h"
 #include "PracticePlay.h"
 #include "MultiPlay.h"
+#include "Network.h"
 #include "PlayerSelect.h"
 #include "Title.h"
 #include "Opening.h"
@@ -541,28 +542,6 @@ Event::GetExternalData( ExternalData *&ext, long side ) {
 }
 
 bool
-Event::SendSwing( Player *player ) {
-  char buf[256];
-
-  if ( m_backtrack || mode != MODE_MULTIPLAY )
-    return false;
-
-  strncpy( buf, "PS", 2 );
-  ((MultiPlay *)Control::TheControl())->SendTime( &(buf[2]) );
-
-  player->SendSwing( &(buf[7]) );
-
-  // Player 位置情報も送信する
-  strncpy( &(buf[31]), "PV", 2 );
-  ((MultiPlay *)Control::TheControl())->SendTime( &(buf[33]) );
-
-  player->SendLocation( &(buf[38]) );
-
-  send( theSocket, buf, 31+55, 0 );
-  return true;
-}
-
-bool
 Event::SendPlayer( Player *player ) {
   char buf[256];
 
@@ -623,11 +602,7 @@ Event::ClearObject() {
   if ( thePlayer && wins == 0 ) {
     delete thePlayer;
     thePlayer = NULL;
-    if ( theSocket >= 0 ) {
-      send( theSocket, "QT", 2, 0 );
-      closesocket( theSocket );
-      theSocket = -1;
-    }
+    ClearSocket();
   }
   if ( comPlayer ) {
     delete comPlayer;
@@ -665,20 +640,6 @@ Event::ReadData() {
   struct timeval to;
 
   // Caution!! exchanged with WaitForData()
-#if 0
-  while (1) {
-    FD_ZERO( &rdfds );
-    FD_SET( (unsigned int)theSocket, &rdfds );
-
-    to.tv_sec = to.tv_usec = 0;
-
-    if ( select( theSocket+1, &rdfds, NULL, NULL, &to ) > 0 ) {
-      if ( !GetExternalData( m_External, comPlayer->GetSide() ) )
-	break;
-    } else
-      break;
-  }
-#endif
 
   SDL_mutexP( networkMutex );
 
@@ -898,31 +859,6 @@ Event::RemainingLog() {
 }
 
 #endif
-
-int
-Event::WaitForData( void *dum ) {
-  fd_set rdfds;
-  struct timeval to;
-
-  while (1) {
-    FD_ZERO( &rdfds );
-    FD_SET( (unsigned int)theSocket, &rdfds );
-
-    if ( select( theSocket+1, &rdfds, NULL, NULL, NULL ) > 0 ) {
-      bool ret;
-
-      SDL_mutexP( networkMutex );
-      ret = Event::TheEvent()->GetExternalData( comPlayer->GetSide() );
-      SDL_mutexV( networkMutex );
-
-      if ( !ret )
-	break;
-    } else
-      break;
-  }
-
-  return 0;
-}
 
 bool
 Event::GetExternalData( long side ) {

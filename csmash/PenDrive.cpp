@@ -20,6 +20,7 @@
 #include "PenDrive.h"
 #include "Ball.h"
 #include "Event.h"
+#include "Network.h"
 
 extern Ball   theBall;
 extern Player *thePlayer;
@@ -103,7 +104,7 @@ PenDrive::Swing( long spin ) {
   delete tmpBall;
 
   if ( thePlayer == this && mode == MODE_MULTIPLAY )
-    Event::TheEvent()->SendSwing( this );
+    ::SendSwing( this );
 
   return true;
 }
@@ -148,7 +149,7 @@ PenDrive::StartSwing( long spin ) { // Argument is valid only on serve
       m_swingSide = true;
 
       if ( thePlayer == this && mode == MODE_MULTIPLAY )
-	Event::TheEvent()->SendSwing( this );
+	::SendSwing( this );
     } else {
       if ( (m_x-tmpBall->GetX())*m_side > 0 )
 	m_swingSide = false;

@@ -66,7 +66,10 @@ public:
   void RemainingLog();
 #endif
 
-  static int WaitForData( void * );
+  bool IsBackTracking() { return m_backtrack; };
+
+  bool GetExternalData( ExternalData *&ext, long side );
+  bool GetExternalData( long side );
 protected:
   bool Move();
   bool IsModeChanged( long preMode );
@@ -78,9 +81,6 @@ protected:
   void SelectInit();
   void TrainingInit( long player, long com );
   void TrainingSelectInit();
-
-  bool GetExternalData( ExternalData *&ext, long side );
-  bool GetExternalData( long side );
 
   static void ClearBacktrack();
 

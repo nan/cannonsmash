@@ -212,7 +212,7 @@ MultiPlay::Create( long player, long com ) {
   Event::m_lastTime = tb;
 
   networkMutex = SDL_CreateMutex();
-  SDL_CreateThread( Event::WaitForData, NULL );
+  SDL_CreateThread( MultiPlay::WaitForData, NULL );
 }
 
 bool
@@ -436,6 +436,37 @@ MultiPlay::AdjustClock() {
   m_timeAdj /= 80;	/* 8*10 */
 
   printf( "%d\n", m_timeAdj );
+}
+
+int
+MultiPlay::WaitForData( void *dum ) {
+  fd_set rdfds;
+  struct timeval to;
+
+  while (1) {
+    FD_ZERO( &rdfds );
+    FD_SET( (unsigned int)theSocket, &rdfds );
+
+    if ( select( theSocket+1, &rdfds, NULL, NULL, NULL ) > 0 ) {
+      bool ret;
+
+      SDL_mutexP( networkMutex );
+      ret = Event::TheEvent()->GetExternalData( comPlayer->GetSide() );
+      SDL_mutexV( networkMutex );
+
+      if ( !ret ) {
+	printf( "GetExternalData failed\n" );
+	break;
+      } else {
+	printf( "GetExternalData succeeded\n" );
+      }
+    } else {
+      printf( "Select failed\n" );
+      break;
+    }
+  }
+
+  return 0;
 }
 
 

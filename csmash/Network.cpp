@@ -18,6 +18,8 @@
 
 #include "ttinc.h"
 #include "Network.h"
+#include "MultiPlay.h"
+#include "Event.h"
 #include "Ball.h"
 #include "Player.h"
 #include "NetPenAttack.h"
@@ -51,6 +53,8 @@ extern Ball theBall;
 extern Player *thePlayer;
 
 extern RCFile *theRC;
+
+extern long mode;
 
 // convert endian
 double
@@ -274,6 +278,28 @@ ReadPlayerData() {
   return player;
 }
 
+// Send PlayerSwing using "PS" and "PV" protocol
+void
+SendSwing( Player *player ) {
+  char buf[256];
+
+  if ( Event::TheEvent()->IsBackTracking() || mode != MODE_MULTIPLAY )
+    return;
+
+  strncpy( buf, "PS", 2 );
+  ((MultiPlay *)Control::TheControl())->SendTime( &(buf[2]) );
+
+  player->SendSwing( &(buf[7]) );
+
+  // Player 位置情報も送信する
+  strncpy( &(buf[31]), "PV", 2 );
+  ((MultiPlay *)Control::TheControl())->SendTime( &(buf[33]) );
+
+  player->SendLocation( &(buf[38]) );
+
+  send( theSocket, buf, 31+55, 0 );
+}
+
 void
 getcurrenttime( struct timeb *tb ) {
 #ifdef WIN32
@@ -382,5 +408,14 @@ findhostname( struct sockaddr_in *saddr ) {
     struct hostent *hent;
     hent = gethostbyname( theRC->serverName );
     memcpy( &saddr->sin_addr, hent->h_addr, hent->h_length );
+  }
+}
+
+void
+ClearSocket() {
+  if ( theSocket >= 0 ) {
+    send( theSocket, "QT", 2, 0 );
+    closesocket( theSocket );
+    theSocket = -1;
   }
 }
