@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Implementation of Ball class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -39,6 +44,9 @@ extern long mode;
 #if 0
 inline double LOG(double f) { return log(f); }
 #else
+/**
+ * Safety log(f)
+ */
 inline double LOG(double f)
 {
     if (f <= 0) {
@@ -50,6 +58,9 @@ inline double LOG(double f)
 }
 #endif
 
+/**
+ * Default Constructor. 
+ */
 Ball::Ball() : m_x(0.0), m_v(0.0), m_spin(0.0) {
   m_status = -1000;
 
@@ -58,6 +69,14 @@ Ball::Ball() : m_x(0.0), m_v(0.0), m_spin(0.0) {
   m_lastSendCount = 0;
 }
 
+/**
+ * Constructs a ball of specified location, velocity, spin, status. 
+ * 
+ * @param _x location vector of the ball. 
+ * @param _v volocity vector of the ball. 
+ * @param _spin spin of the ball. 
+ * @param _status ball status
+ */
 Ball::Ball( const vector3d _x, const vector3d _v, const vector2d _spin, long _status ) {
   m_x = _x;
   m_v = _v;
@@ -69,6 +88,11 @@ Ball::Ball( const vector3d _x, const vector3d _v, const vector2d _spin, long _st
   m_lastSendCount = 0;
 }
 
+/**
+ * Constructs a copy of specified ball. 
+ * 
+ * @param ball ball object to be copied. 
+ */
 Ball::Ball( Ball *ball ) {
   m_x = ball->m_x;
   m_v = ball->m_v;
@@ -81,6 +105,9 @@ Ball::Ball( Ball *ball ) {
 }
 
 
+/**
+ * Destructs a ball. 
+ */
 Ball::~Ball() {
   if ( m_View && &theBall == this ){
     BaseView::TheView()->RemoveView( m_View );
@@ -88,6 +115,12 @@ Ball::~Ball() {
   }
 }
 
+/**
+ * Initialize a Ball. 
+ * A BallView object is constructed and attached to this object. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 Ball::Init() {
   m_View = (BallView *)View::CreateView( VIEW_BALL );
@@ -98,6 +131,13 @@ Ball::Init() {
   return true;
 }
 
+/**
+ * Move a ball. 
+ * Caluculate location/velocity/spin/status of the ball at TICK
+ * second later. 
+ * 
+ * @return returns true if it is necessary to redraw. 
+ */
 bool
 Ball::Move() {
   vector3d oldX, oldV;
@@ -116,8 +156,8 @@ Ball::Move() {
 
   m_v[2] -= GRAVITY(m_spin[1])*TICK;	// Gravity
 
-  // TODO: Apply spinX
   /*
+  //TODO: apply spinX
   double rotVx = m_v[0]*cos(m_spin[0])-m_v[1]*sin(m_spin[0]);
   double rotVy = m_v[0]*sin(m_spin[0])+m_v[1]*cos(m_spin[0]);
 
@@ -135,7 +175,15 @@ Ball::Move() {
   return true;
 }
 
-// Ball inpact
+/** 
+ * Hit the ball with racket. 
+ * Sets location/velocity of the ball after it is hit. 
+ * 
+ * @param v velocity vector of the ball. 
+ * @param spin spin of the ball. 
+ * @param player Player who hit the ball. 
+ * @return returns true if succeeds. 
+ */
 bool
 Ball::Hit( const vector3d v, const vector2d spin, Player *player ) {
   // Normal inpact
@@ -171,6 +219,14 @@ Ball::Hit( const vector3d v, const vector2d spin, Player *player ) {
   return true;
 }
 
+/**
+ * Toss the ball. 
+ * The ball is tossed up vertically, and the ball status is changed. 
+ * 
+ * @param player player who toss the ball. 
+ * @param power not used. 
+ * @return returns true if succeeds. 
+ */
 bool
 Ball::Toss( Player *player , long power ) {
   m_v[2] = 2.5;
@@ -189,6 +245,15 @@ Ball::Toss( Player *player , long power ) {
   return true;
 }
 
+/**
+ * Ignoring physics, move the ball. 
+ * The ball location/velocity/spin/status is changed to specified value. 
+ * 
+ * @param x location
+ * @param v velocity
+ * @param spin spin
+ * @param status ball status
+ */
 void
 Ball::Warp( const vector3d x, const vector3d v, const vector2d spin, long status ) {
   m_x = x;
@@ -198,6 +263,12 @@ Ball::Warp( const vector3d x, const vector3d v, const vector2d spin, long status
   m_status = status;
 }
 
+/**
+ * Ignoring physics, move the ball. 
+ * The ball location/velocity/spin/status is changed to specified value. 
+ * 
+ * @param buf stream of location/velocity/spin/status data. 
+ */
 void
 Ball::Warp( char *buf ) {
   char *b = buf;
@@ -220,10 +291,19 @@ Ball::Warp( char *buf ) {
     m_status = nextStatus;
 }
 
-// Get ball initial speed from current ball location, target, height
-// target --- The point where ball will bound
-// level ---  hit power(percentage)
-// TODO: apply m_spinX
+/**
+ * Calculate initial ball speed. 
+ * Return the ball speed to reach target. 
+ * 
+ * @param target The point where ball should bound
+ * @param level hitting power(percentage)
+ * @param spin ball spin
+ * @param v velocity (return value)
+ * @param vMin minimum velocity
+ * @param vMax maximum velocity
+ * \todo apply m_spinX
+ * @return returns true of succeeds. 
+ */
 bool
 Ball::TargetToV( vector2d target, double level, const vector2d spin, 
 		 vector3d &v, double vMin, double vMax ) {
@@ -306,7 +386,17 @@ Ball::TargetToV( vector2d target, double level, const vector2d spin,
   return true;
 }
 
-//TODO: apply m_spinX
+/**
+ * Calculate initial ball speed of serve. 
+ * Return the ball speed to reach target. 
+ * 
+ * @param target The point where ball should bound
+ * @param level hitting power(percentage)
+ * @param spin ball spin
+ * @param v velocity (return value)
+ * \todo apply m_spinX
+ * @return returns true if succeeds. 
+ */
 bool
 Ball::TargetToVS( vector2d target, double level, 
 		  const vector2d spin, vector3d &v ) {
@@ -389,6 +479,9 @@ Ball::TargetToVS( vector2d target, double level,
   return true;
 }
 
+/**
+ * When the ball is dead, change the score and set the ball status dead. 
+ */
 void
 Ball::BallDead() {
   if ( m_status >= 0 ) {
@@ -413,6 +506,12 @@ Ball::BallDead() {
 }
 
 
+/**
+ * Send the ball location/velocity/spin/status to the opponent. 
+ * 
+ * @param buf ball location/velocity/spin/status are set to this buffer. 
+ * @return returns pointer to buf. 
+ */
 char *
 Ball::Send( char *buf ) {
   long l;
@@ -448,7 +547,11 @@ Ball::Send( char *buf ) {
   return buf;
 }
 
-// Reset ball location and status
+/**
+ * Reset ball location and status. 
+ * 
+ * @return returns true if succeeds. 
+ */
 bool
 Ball::Reset() {
   PlayGame *control = (PlayGame *)Control::TheControl();
@@ -501,6 +604,14 @@ Ball::Reset() {
   return true;
 }
 
+/**
+ * Check whether the ball bounces on the table, net or floor. 
+ * If it bouces, change location, velocity, status of the ball. 
+ * 
+ * @param x ball location of previous TICK. 
+ * @param v ball velocity of previous TICK. 
+ * @return returns true if succeeds. 
+ */
 bool
 Ball::CollisionCheck( vector3d &x, vector3d &v ) {
   double netT , tableT;        /* Flag for bound on the table, hit net */

@@ -1,4 +1,9 @@
-/* $Id$ */
+/**
+ * @file
+ * @brief Definition of Ball class. 
+ * @author KANNA Yoshihiro
+ * @version $Id$
+ */
 
 // Copyright (C) 2000, 2003, 2004  神南 吉宏(Kanna Yoshihiro)
 //
@@ -28,6 +33,9 @@
 typedef Vector<3, double> vector3d;
 typedef Vector<2, double> vector2d;
 
+/**
+ * Ball class. 
+ */
 class Ball {
   friend class Opening;
 public:
@@ -39,52 +47,82 @@ public:
 
   virtual bool Init();
 
+  /**
+   * Returns the location vector of this object. 
+   */
   vector3d GetX() { return m_x; }
+
+  /**
+   * Returns the velocity vector of this object. 
+   */
   vector3d GetV() { return m_v; }
+
+  /**
+   * Returns the spin of this object. 
+   */
   vector2d GetSpin() { return m_spin; }
 
+  /**
+   * Returns the status of this object. 
+   */
   long GetStatus() { return m_status; }
 
-  bool Move();	// move to 1turn(0.01 sec) later
+  bool Move();
 
-  bool Hit( const vector3d v, const vector2d spin, Player *player );	// hit ball
-  bool Toss( Player *player, long power );				// toss
+  bool Hit( const vector3d v, const vector2d spin, Player *player );
+  bool Toss( Player *player, long power );
 
   void Warp( const vector3d x, const vector3d v, const vector2d spin, long status );
   void Warp( char *buf );
 
-  // Calc vx, vy, vz from bound location
   bool TargetToV( vector2d target, double level, const vector2d spin, 
 		  vector3d &v, double vMin = 0.1, double vMax = 30.0 );
-  // For serve
   bool TargetToVS( vector2d target, double level, 
 		   const vector2d spin, vector3d &v );
 
   char * Send( char *buf );
 
+  /**
+   * Returns the BallView object attached to this object. 
+   */
   BallView *GetView() { return m_View; };
 protected:
-  vector3d m_x;		// ball location
-  vector3d m_v;		// ball velocity
-  vector2d m_spin;	// spin[0] plus  --- ball moves to right
-			//         minus --- ball moves to left
-			// spin[1] plus  --- top spin
-			//         minus --- back spin
+  vector3d m_x;		///< location vector
+  vector3d m_v;		///< velocity vector
+  vector2d m_spin;	/**< spin vector
+			 *   <ul>
+			 *     <li> spin[0]
+			 *       <ul>
+			 *         <li> plus  --- ball moves to right
+			 *         <li> minus --- ball moves to left
+			 *       </ul>
+			 *     <li> spin[1]
+			 *       <ul>
+			 *         <li>  plus  --- top spin\n
+			 *         <li>  minus --- back spin
+			 *       </ul>
+			 *   </ul>
+			 */
+  long m_status;	/**< ball status
+			 *   <ul>
+			 *     <li> 0 --- From the time side=1 hit to bound
+			 *     <li> 1 --- During side=-1 can hit
+			 *     <li> 2 --- From the time side=-1 hit to bound
+			 *     <li> 3 --- During side=1 can hit
+			 *     <li> 4 --- From the time side=1 serve to bound
+			 *     <li> 5 --- From the time side=-1 serve to bound
+			 *     <li> 6 --- From the time side=1 toss to hit
+			 *     <li> 7 --- From the time side=-1 toss to hit
+			 *     <li> 8 --- Until player serve
+			 *     <li> -1 --- Ball dead
+			 *   </ul>
+			 */
 
-  long m_status;	// 0 --- From the time side=1 hit to bound
-			// 1 --- During side=-1 can hit
-			// 2 --- From the time side=-1 hit to bound
-			// 3 --- During side=1 can hit
-			// 4 --- From the time side=1 serve to bound
-			// 5 --- From the time side=-1 serve to bound
-			// 6 --- From the time side=1 toss to hit
-			// 7 --- From the time side=-1 toss to hit
-			// 8 --- Until player serve
-			//-1 --- Ball dead
+  BallView* m_View;	///< BallView object attached to this object
 
-  BallView* m_View;
-
-  long m_lastSendCount;
+  long m_lastSendCount;	/**< Counts how many TICKs are passed from the time
+			 *   when ball information is send to the opponent.
+			 */
 private:
   void BallDead();
   bool Reset();
