@@ -19,10 +19,6 @@
 #include "ttinc.h"
 #include "LoadImage.h"
 
-extern "C" {
-#include <jpeglib.h>
-}
-
 #ifdef HAVE_LIBZ
 #include "z.h"
 #endif
@@ -243,60 +239,17 @@ getWord( FILE *fp ) {
 
 bool ImageData::LoadJPG(const char *filename)
 {
-    FILE *fp = fopen(filename, "rb");
-    if (NULL == fp) {
-	printf("%s fopen\n", filename);
-	return false;
-    }
+  SDL_Surface *img = SDL_GL_LoadTexture((char *)filename);
+  m_width = img->w;
+  m_height = img->h;
+  m_bytes = 4;
 
-    jpeg_decompress_struct cinfo;
-    jpeg_error_mgr jerr;
+  m_image = new GLubyte[m_width*m_height*m_bytes];
+  memcpy( m_image, img->pixels, m_width*m_height*m_bytes );
 
-    cinfo.err = jpeg_std_error(&jerr);
-    jpeg_create_decompress(&cinfo);
-    jpeg_stdio_src(&cinfo, fp);
-    if (JPEG_SUSPENDED == jpeg_read_header(&cinfo, TRUE)) {
-	jpeg_destroy_decompress(&cinfo);
-	fclose(fp);
-	printf("%s readheader\n", filename);
-	return false;
-    }
-    jpeg_start_decompress(&cinfo);
+  SDL_FreeSurface(img);
 
-    m_width = cinfo.output_width;
-    m_height = cinfo.output_height;
-    m_bytes = 4;
-    int planes = cinfo.output_components;	// should be 1 or 3
-    m_image = new GLubyte[m_width * m_height * m_bytes];
-
-    JSAMPARRAY row_buf
-	= (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo,
-				     JPOOL_IMAGE, m_width * planes, 1);
-    int idx = 0;
-    while (cinfo.output_width > cinfo.output_scanline) {
-	jpeg_read_scanlines(&cinfo, row_buf, 1);
-	for (int i = 0; m_width * planes > i; i+= planes) {
-	    switch (planes) {
-	    case 1:
-		m_image[idx++] = row_buf[0][i];
-		m_image[idx++] = row_buf[0][i];
-		m_image[idx++] = row_buf[0][i];
-		m_image[idx++] = 255;
-		break;
-	    case 3:
-		m_image[idx++] = row_buf[0][i+0];
-		m_image[idx++] = row_buf[0][i+1];
-		m_image[idx++] = row_buf[0][i+2];
-		m_image[idx++] = 255;
-		break;
-	    }
-	}
-    }
-    jpeg_finish_decompress(&cinfo);
-    jpeg_destroy_decompress(&cinfo);
-
-    fclose(fp);
-    return true;
+  return true;
 }
 
 inline bool extmatch(const char *filename, const char *ext)

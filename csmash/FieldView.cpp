@@ -37,24 +37,6 @@ FieldView::Init() {
 // Set texture
   ImageData image;
 
-#if 1
-  SDL_Surface *img;
-  img = SDL_GL_LoadTexture( "images/Floor.jpg" );
-
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glBindTexture( GL_TEXTURE_2D, m_floor );
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-
-  glTexImage2D(GL_TEXTURE_2D, 0, 3, img->w, img->h,
-	       0, GL_RGBA, GL_UNSIGNED_BYTE, img->pixels );
-
-  SDL_FreeSurface(img); /* No longer needed */
-
-#else
   image.LoadFile( "images/Floor.jpg" );
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -68,7 +50,6 @@ FieldView::Init() {
 
   glTexImage2D(GL_TEXTURE_2D, 0, 3, image.GetWidth(), image.GetHeight(),
 	       0, GL_RGBA, GL_UNSIGNED_BYTE, image.GetImage() );
-#endif
 
   static char pname[][30] = {"images/Left.jpg", "images/Front.jpg", 
 			     "images/Right.jpg", "images/Back.jpg" };
@@ -79,23 +60,6 @@ FieldView::Init() {
 
   glGenTextures( 4, m_wall );
   for ( i = 0 ; i < 4 ; i++ ) {
-#if 1
-    SDL_Surface *image;
-    image = SDL_GL_LoadTexture( &(pname[i][0]) );
-
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glBindTexture( GL_TEXTURE_2D, m_wall[i] );
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, image->w, image->h,
-		 0, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels );
-
-    SDL_FreeSurface(image); /* No longer needed */
-#else
     image.LoadFile( &(pname[i][0]) );
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -108,7 +72,6 @@ FieldView::Init() {
 
     glTexImage2D(GL_TEXTURE_2D, 0, 3, image.GetWidth(), image.GetHeight(),
 		 0, GL_RGBA, GL_UNSIGNED_BYTE, image.GetImage() );
-#endif
   }
 
   glGenTextures( 4, m_tutorial );
