@@ -313,7 +313,7 @@ affineanim::affineanim(const char *filename)
     std::vector<affine4F> mat;
 
     char line[512];
-    const char *delim = " \t(,);\n";
+    const char *delim = " \t(,);\r\n";
     while (NULL != fgets(line, sizeof(line), in)) {
 	char *token = strtok(line, delim);
 	if (!token) continue;
