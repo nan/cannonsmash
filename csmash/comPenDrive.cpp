@@ -61,7 +61,6 @@ ComPenDrive::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   Think();
 
-  printf( "aa\n" );
   return true;
 }
 
