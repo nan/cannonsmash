@@ -222,7 +222,10 @@ PenDrive::StartSwing( long spin ) { // Argument is valid only on serve
 	m_swingType = SWING_POKE;
 	break;
       case 2:
-	m_spin[0] = 0.0;
+#if 0	// sidespin
+#else
+	m_spin[0] = 1.0;
+#endif
 	m_spin[1] = -0.6;
 	m_swingType = SWING_POKE;
 	break;
@@ -300,7 +303,6 @@ PenDrive::HitBall() {
 
     // If your target is near the edge of the table, much more status point
     // is necessary. 
-
     if ((m_status-StatusBorder())*3/2000.0 <
 	fabs(fabs(m_x[0]-theBall.GetX()[0])-0.3))
       AddError(v);
@@ -359,6 +361,10 @@ PenDrive::SwingType( Ball *ball, long spin ) {
       if ( ForeOrBack() ) {
 	m_swingType = SWING_DRIVE;
 	//m_spin = spin*0.3+0.4;
+#if 0	// sidespin
+#else
+	m_spin[0] = 1.0;
+#endif
 	m_spin[1] = 1.0;
       } else {
 	if ( ball->GetSpin()[1] < 0 ) {
@@ -459,8 +465,13 @@ PenDrive::CalcLevel( Ball *ball, double &diff, double &level, double &maxVy ) {
 	(fabs(m_spin[1])+fabs(ball->GetSpin()[1]))*3.0;
       break;
     case SWING_DRIVE:
+#if 0	// sidespin
       maxVy = hypot(ball->GetV()[0], ball->GetV()[1])*0.4 + 15.0 -
 	(fabs(m_spin[1])+fabs(ball->GetSpin()[1])/2)*3.0;
+#else
+      maxVy = hypot(ball->GetV()[0], ball->GetV()[1])*0.4 + 13.0 -
+	(fabs(m_spin[1])+fabs(ball->GetSpin()[1])/2)*3.0;
+#endif
       break;
     case SWING_SMASH:
       maxVy = hypot(ball->GetV()[0], ball->GetV()[1])*0.4 + 20.0 -
