@@ -56,7 +56,7 @@ polyhedron::polyhedron(const char* filename)
     std::vector<plane_t> loop;
 
     char line[512];
-    const char *delim = " \t(,);\n";
+    const char *delim = " \t(,);\r\n";
 
     while (NULL != fgets(line, sizeof(line), in)) {
 	char *token = strtok(line, delim);
