@@ -26,9 +26,11 @@ gzFile gzopenx(const char *filename, const char *mode) {
 
 #ifdef _WIN32
   m |= O_BINARY;
+#ifndef __MINGW32__
   if (NULL != strchr(mode, 's')) {
     m |= O_SEQUENTIAL;
   }
+#endif
 #endif
   if (NULL != strchr(mode, 'a')) {
     m |= O_APPEND;
