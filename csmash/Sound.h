@@ -25,6 +25,7 @@ public:
   virtual ~Sound();
 
   virtual bool Init( long sndMode );
+  virtual void Clear();
 
   //bool Play( char *sndData, long count );
   bool Play( long soundID );

@@ -71,6 +71,18 @@ Sound::Init( long sndMode ) {
   return true;
 }
 
+void
+Sound::Clear() {
+#ifdef HAVE_LIBSDL_MIXER
+  for ( int i = 0 ; i < 16 ; i++ ) {
+    if ( m_sound[i] != 0 ) {
+      Mix_FreeChunk( m_sound[i] );
+    }
+  }
+  Mix_CloseAudio();
+#endif
+}
+
 /*
 bool
 Sound::Play( char *sndData, long size ) {

@@ -245,6 +245,7 @@ StartGame() {
       case SDL_QUIT:
 	Event::ClearObject();
 	theView.QuitGame();
+	theSound.Clear();
 
 	SDL_Quit();
 	return;
