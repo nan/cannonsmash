@@ -50,7 +50,7 @@ public:
   virtual void CalcLevel( Ball *ball, double &diff, double &level, double &maxVy );
 protected:
   virtual bool Swing( long spin );
-  virtual bool StartSwing( long spin );
+  virtual bool StartServe( long spin );
 
   virtual bool HitBall();
 

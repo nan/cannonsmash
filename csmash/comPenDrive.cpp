@@ -227,7 +227,7 @@ ComPenDrive::Think() {
        m_swing == 0 ){
 #endif
     theBall.Toss( this, 2 );
-    StartSwing( 3 );
+    StartServe(3);
     m_target[1] = TABLELENGTH/6*m_side;
 
     return true;

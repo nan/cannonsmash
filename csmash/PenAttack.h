@@ -50,12 +50,11 @@ public:
   virtual void CalcLevel( Ball *ball, double &diff, double &level, double &maxVy );
 protected:
   virtual bool Swing( long spin );
-  virtual bool StartSwing( long spin );
 
   virtual bool HitBall();
 
 private:
-  bool SwingType( Ball *ball, long spin );
+  virtual bool SwingType( Ball *ball, long spin );
 };
 
 #endif // _PenAttack__
