@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,6 +22,9 @@
 #include "Event.h"
 #include "Network.h"
 #include "Control.h"
+#include "RCFile.h"
+
+extern RCFile *theRC;
 
 extern Ball   theBall;
 
@@ -60,12 +63,18 @@ bool
 PenAttack::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 	      long *MouseYHistory, unsigned long *MouseBHistory,
 	      int Histptr ) {
+  double prevVx = m_vx;
+  double prevVy = m_vy;
+
   Player::Move( KeyHistory, MouseXHistory, MouseYHistory,MouseBHistory,
 		Histptr );
 
 // Calc status
   if ( hypot( m_vx, m_vy ) < 1.0 ) {
       AddStatus( 1 );
+  }
+  if ( hypot( m_vx-prevVx, m_vy-prevVy ) > 0.8-theRC->gameLevel*0.1 ) {
+    AddStatus(-1);
   }
 
   return true;

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,11 +22,13 @@
 #include "Event.h"
 #include "Network.h"
 #include "Control.h"
+#include "RCFile.h"
+
+extern RCFile *theRC;
 
 extern Ball   theBall;
 
 extern long mode;
-extern bool isComm;
 
 PenDrive::PenDrive() {
   m_playerType = PLAYER_PENDRIVE;
@@ -61,12 +63,19 @@ bool
 PenDrive::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 	      long *MouseYHistory, unsigned long *MouseBHistory,
 	      int Histptr ) {
+  double prevVx = m_vx;
+  double prevVy = m_vy;
+
   Player::Move( KeyHistory, MouseXHistory, MouseYHistory,MouseBHistory,
 		Histptr );
 
 // Calc status
   if ( hypot( m_vx, m_vy ) < 1.5 )
     AddStatus( 2 );
+  if ( hypot( m_vx-prevVx, m_vy-prevVy ) > 0.8-theRC->gameLevel*0.1 ) {
+    AddStatus(-1);
+  }
+
 
   return true;
 }
@@ -218,32 +227,17 @@ PenDrive::HitBall() {
       AddError( vx, vy, vz );
 
     // Reduce status
-    if ( !isComm ) {	// Changed in 0.6.4
-      m_afterSwing = (long)
-	((hypot(theBall.GetVX()*0.8-vx,theBall.GetVY()*0.8+vy)+hypot(vx,vy))
-	 *(4.0+diff*40.0) + fabs(m_spin)*8.0 + fabs(theBall.GetSpin())*4.0);
+    m_afterSwing = (long)
+      (hypot( theBall.GetVX()*0.8-vx, theBall.GetVY()*0.8+vy )
+       * (1.0+diff*10.0) + fabs(m_spin)*5.0 + fabs(theBall.GetSpin())*4.0);
 
-      if ( ForeOrBack() || m_swingType == SWING_POKE )
-	AddStatus( -m_afterSwing/2 );
-      else
-	AddStatus( -m_afterSwing );
+    if ( ForeOrBack() || m_swingType == SWING_POKE )
+      AddStatus( -m_afterSwing*2 );
+    else
+      AddStatus( -m_afterSwing*3 );
 
-      if ( m_status == 1 ) {
-	m_afterSwing *= 3;
-      }
-    } else {
-      m_afterSwing = (long)
-	(hypot( theBall.GetVX()*0.8-vx, theBall.GetVY()*0.8+vy )
-	 * (1.0+diff*10.0) + fabs(m_spin)*5.0 + fabs(theBall.GetSpin())*4.0);
-
-      if ( ForeOrBack() || m_swingType == SWING_POKE )
-	AddStatus( -m_afterSwing*2 );
-      else
-	AddStatus( -m_afterSwing*3 );
-
-      if ( m_status == 1 )
-	m_afterSwing *= 3;
-    }
+    if ( m_status == 1 )
+      m_afterSwing *= 3;
 
     theBall.Hit( vx, vy, vz, m_spin, this );
   } else {

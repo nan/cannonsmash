@@ -299,10 +299,6 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   //static double lastSendVX = 0, lastSendVY = 0, lastSendVZ = 0;
   //static long lastSendCount = 0;
 
-#if 0
-  m_swing = 0;
-#endif
-
 // swing
   if ( m_swing > 0 ){
     if ( m_swing > 30 && m_afterSwing > 0 ) {
@@ -540,7 +536,7 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   if ( hypot( m_vx, m_vy ) > 2.0 )
     AddStatus( -1 );
 
-  if ( m_swing > 0 )
+  if ( m_swing > 10 )
     AddStatus( -1 );
 
   if ( theBall.GetStatus() == 8 || theBall.GetStatus() == -1 )
@@ -666,7 +662,6 @@ const char keytable[][5] = {
       if ( keytable[KeyHistory[Histptr].scancode-8][i]
 	   == KeyHistory[Histptr].unicode ) {
 	code = keytable[KeyHistory[Histptr].scancode-8][0];
-	printf( "Hit\n" );
 	break;
       }
       i++;

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -56,17 +56,25 @@ bool
 ComPenDrive::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		 long *MouseYHistory, unsigned long *MouseBHistory,
 		 int Histptr ) {
+  double prevVx = m_vx;
+  double prevVy = m_vy;
+
   PenDrive::Move( KeyHistory, MouseXHistory, MouseYHistory, MouseBHistory,
 		Histptr );
 
   Think();
+
+// Calc status
+  if ( hypot( m_vx-prevVx, m_vy-prevVy ) > 0.8-theRC->gameLevel*0.1 ) {
+    AddStatus(-1);
+  }
 
   return true;
 }
 
 bool
 ComPenDrive::Think() {
-  double hitTX, hitTY;	// estimation time until ball reaches _hitX, _hitY
+  double hitT;	// estimation time until ball reaches _hitX, _hitY
   double mx;
 
   // If the ball status changes, change _hitX, _hitY
@@ -76,22 +84,17 @@ ComPenDrive::Think() {
     _prevBallstatus = theBall.GetStatus();
   }
 
-  if ( theBall.GetVX() != 0.0 )
-    hitTX = (_hitX - theBall.GetX())/theBall.GetVX();
-  else
-    hitTX = -1.0;
-
   if ( theBall.GetVY() != 0.0 )
-    hitTY = (_hitY - theBall.GetY())/theBall.GetVY();
+    hitT = (_hitY - theBall.GetY())/theBall.GetVY();
   else
-    hitTY = -1.0;
+    hitT = -1.0;
 
   mx = m_x+m_side*0.3;
 
   if ( m_swing > 10 && m_swing <= 20 ) {
   } else {
-    if ( hitTX > 0.0 ) {
-      double vx = (_hitX-mx)/hitTX;
+    if ( hitT > 0.0 ) {
+      double vx = (_hitX-mx)/hitT;
       if ( vx > m_vx+0.1 )
 	m_vx += 0.1;
       else if ( vx < m_vx-0.1 )
@@ -108,8 +111,8 @@ ComPenDrive::Think() {
 
   if ( m_swing > 10 && m_swing <= 20 ) {
   } else {
-    if ( hitTY > 0.0 ) {
-      double vy = (_hitY-m_y)/hitTY;
+    if ( hitT > 0.0 ) {
+      double vy = (_hitY-m_y)/hitT;
       if ( vy > m_vy+0.1 )
 	m_vy += 0.1;
       else if ( vy < m_vy-0.1 )
@@ -150,8 +153,9 @@ ComPenDrive::Think() {
       m_vy = -5.0;
   } else {
     if ( hypot( m_vx, m_vy ) >= 1.5 ) {
-      m_vx /= hypot( m_vx, m_vy )*1.5;
-      m_vy /= hypot( m_vx, m_vy )*1.5;
+      double v = hypot( m_vx, m_vy );
+      m_vx = m_vx/v*1.5;
+      m_vy = m_vy/v*1.5;
     }
   }
 
@@ -229,7 +233,7 @@ ComPenDrive::Think() {
       else
 	Swing(1);
 
-      m_pow = 8;
+      m_pow = 7 + theRC->gameLevel;
     }
     delete tmpBall;
   }
