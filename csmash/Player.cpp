@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -275,10 +275,7 @@ Player::Create( long player, long side, long type ) {
 
 bool
 Player::Init() {
-  if ( theRC->gmode == GMODE_2D )
-    m_View = new PlayerView2D();
-  else
-    m_View = new PlayerView();
+  m_View = (BallView *)View::CreateView( VIEW_PLAYER );
 
   m_View->Init( this );
 

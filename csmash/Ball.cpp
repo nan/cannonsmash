@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -81,10 +81,7 @@ Ball::~Ball() {
 
 bool
 Ball::Init() {
-  if ( theRC->gmode == GMODE_2D )
-    m_View = (BallView *)new BallView2D();
-  else
-    m_View = new BallView();
+  m_View = (BallView *)View::CreateView( VIEW_BALL );
 
   m_View->Init();
   BaseView::TheView()->AddView( m_View );
