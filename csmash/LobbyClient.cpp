@@ -33,6 +33,8 @@
 #include <locale.h>
 #endif
 
+#include <gcrypt.h>
+
 extern RCFile *theRC;
 
 extern bool isComm;
@@ -48,6 +50,36 @@ long score1 = 0;
 long score2 = 0;
 
 LobbyClient* LobbyClient::m_lobbyClient = NULL;
+
+int
+encryptPasswordWithPKey( char *message, int messageLength, unsigned char *encrypted, int encryptedLength ) {
+  char buf[4096];
+
+  // encrypt password
+  gcry_control(GCRYCTL_DISABLE_SECMEM, 0);
+  gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
+
+  gcry_sexp_t pub_key;
+
+  gcry_sexp_sscan(&pub_key, NULL, public_key,
+		  strlen(public_key));
+
+  gcry_mpi_t x;
+  size_t dum;
+  gcry_sexp_t plain;
+  memset(buf, 0, 64);
+  strncpy( buf, message, messageLength );
+  gcry_mpi_scan(&x, GCRYMPI_FMT_USG, (const unsigned char *)buf, 64, &dum);
+  gcry_sexp_build (&plain, NULL, "(data (flags raw) (value %m))", x);
+
+  gcry_sexp_t cipher, l;
+  gcry_pk_encrypt (&cipher, plain, pub_key);
+
+  l = gcry_sexp_find_token (cipher, "a", 1);
+  x = gcry_sexp_nth_mpi (l, 1, GCRYMPI_FMT_USG);
+  gcry_mpi_print(GCRYMPI_FMT_USG, encrypted, encryptedLength, &dum, x);
+  return dum;
+}
 
 /**
  * Default constructor. 
@@ -192,7 +224,7 @@ LobbyClient::Init( char *nick, char *message, bool ping ) {
 
   // Connect to Lobby Server
   send( m_socket, "CN", 2, 0 );
-  long len = 11 + 32 + 64;
+  long len = 11 + 32 + 128;
   SendLong( m_socket, len );
 
   // Send version number(Must be changed)
@@ -209,12 +241,20 @@ LobbyClient::Init( char *nick, char *message, bool ping ) {
   SendLong( m_socket, table[m_lang].langID );
 
   // send nick
+  memset(buf, 0, 32);
   strncpy( buf, nick, 32 );
   send( m_socket, buf, 32, 0 );
 
-  // send message
-  strncpy( buf, message, 64 );
-  send( m_socket, buf, 64, 0 );
+  unsigned char password[4096];
+  if ( strlen(message) > 0 ) {
+    encryptPasswordWithPKey( message, 64, password, 4096 );
+  } else {
+    memset(password, 0, 128);
+  }
+
+  // send password
+  memcpy( buf, (char *)password, 128 );
+  send( m_socket, buf, 128, 0 );
 
   m_view = new LobbyClientView();
   m_view->Init( this );
@@ -581,3 +621,4 @@ PlayerInfo::PlayerInfo() {
  */
 PlayerInfo::~PlayerInfo() {
 }
+

@@ -292,7 +292,7 @@ LobbyClientView::Init( LobbyClient *lobby ) {
   gtk_tree_view_append_column( GTK_TREE_VIEW(m_table), column );
 
   renderer = gtk_cell_renderer_text_new();
-  column = gtk_tree_view_column_new_with_attributes( _("Message"), renderer,
+  column = gtk_tree_view_column_new_with_attributes( _("ID"), renderer,
 						     "markup", 1, 
 						     NULL );
   gtk_tree_view_column_set_resizable( column, TRUE );
