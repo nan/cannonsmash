@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2002  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
+// Copyright (C) 2000, 2002  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -105,6 +105,7 @@ TitleView::RedrawAlpha() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
+  glDisable(GL_DEPTH_TEST);
   glDepthMask(0);
 
   switch ( m_title->GetSelectMode() ) {
@@ -169,6 +170,7 @@ TitleView::RedrawAlpha() {
   }
 
   glDepthMask(1);
+  glEnable(GL_DEPTH_TEST);
 
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
