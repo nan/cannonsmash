@@ -23,6 +23,112 @@
 #include "RCFile.h"
 #include "Network.h"
 
+#ifdef WIN32
+extern gchar *_gdk_ucs2_to_utf8 (const wchar_t *src, gint src_len);
+
+HWND LauncherView::hWnd = NULL;
+LONG ModeNote::pEditWndProc = 0;
+LONG ModeNote::pParentWndProc = 0;
+HWND ModeNote::pChildHWnd = NULL;
+ModeNote *theInternetPlayView;
+
+// Copyed from gdkim-win32.c of GTK+-2.2. 
+gint
+_gdk_utf8_to_ucs2 (wchar_t     *dest,
+                   const gchar *src,
+                   gint         src_len,
+                   gint         dest_max)
+{
+  wchar_t *wcp;
+  guchar *cp, *end;
+  gint n;
+  
+  wcp = dest;
+  cp = (guchar *) src;
+  end = cp + src_len;
+  n = 0;
+  while (cp != end && wcp != dest + dest_max)
+    {
+      gint i, mask = 0, len;
+      guchar c = *cp;
+
+      if (c < 0x80)
+        {
+          len = 1;
+          mask = 0x7f;
+        }
+      else if ((c & 0xe0) == 0xc0)
+        {
+          len = 2;
+          mask = 0x1f;
+        }
+      else if ((c & 0xf0) == 0xe0)
+        {
+          len = 3;
+          mask = 0x0f;
+        }
+      else /* Other lengths are not possible with 16-bit wchar_t! */
+        return -1;
+
+      if (cp + len > end)
+        return -1;
+
+      *wcp = (cp[0] & mask);
+      for (i = 1; i < len; i++)
+        {
+          if ((cp[i] & 0xc0) != 0x80)
+            return -1;
+          *wcp <<= 6;
+          *wcp |= (cp[i] & 0x3f);
+        }
+      if (*wcp == 0xFFFF)
+        return -1;
+
+      cp += len;
+      wcp++;
+      n++;
+    }
+  if (cp != end)
+    return -1;
+
+  return n;
+}
+
+LRESULT CALLBACK
+ModeNote::EditWindowProc( HWND hwnd, UINT msg,
+			  WPARAM wparam, LPARAM lparam) {
+  if ( msg == WM_CHAR ) {
+    char buf[512], unibuf[2048];
+    GetWindowText( hwnd, buf, 512 );
+
+    char locale[10];
+    HKL input_locale = GetKeyboardLayout(0);
+    GetLocaleInfo (MAKELCID (LOWORD (input_locale), SORT_DEFAULT),
+		   LOCALE_IDEFAULTANSICODEPAGE,
+		   locale, sizeof (locale));
+
+    int srclen;
+    srclen = MultiByteToWideChar(atoi(locale), 0, buf, 512,
+				 (LPWSTR)unibuf, 2048 );
+
+    gtk_entry_set_text( GTK_ENTRY(theInternetPlayView->m_lobbyEdit[0]), 
+			_gdk_ucs2_to_utf8((const wchar_t *)unibuf, srclen) );
+  }
+
+  return CallWindowProc((WNDPROC)pEditWndProc,hwnd,msg,wparam,lparam);
+}
+
+LRESULT CALLBACK
+ModeNote::ParentWindowProc(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam) {
+  if ( msg == WM_SIZE ) {
+    MoveWindow( pChildHWnd, 0, 0, lparam&0xFFFF, (lparam>>16)&0xFFFF, TRUE );
+  }
+
+  return CallWindowProc((WNDPROC)ModeNote::pParentWndProc,
+			hwnd,msg,wparam,lparam);
+}
+#endif
+
 extern bool isComm;
 extern long mode;
 
@@ -44,17 +150,13 @@ LauncherHeader::Init( GtkBox *box ) {
 
   frame = FullScreenFrame();
   gtk_box_pack_start( box, frame, FALSE, FALSE, 10 );
-  gtk_widget_show (frame);
   frame = GraphicsFrame();
   gtk_box_pack_start( box, frame, FALSE, FALSE, 10 );
-  gtk_widget_show (frame);
   frame = SoundFrame();
   gtk_box_pack_start( box, frame, FALSE, FALSE, 10 );
-  gtk_widget_show (frame);
 #ifdef ENABLE_IPV6
   frame = ProtocolFrame();
   gtk_box_pack_start( box, frame, FALSE, FALSE, 10 );
-  gtk_widget_show (frame);
 #endif
 }
 
@@ -75,7 +177,6 @@ LauncherHeader::FullScreenFrame() {
   gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
   if (theRC->fullScreen)
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(button), TRUE );
-  gtk_widget_show (button);
 
   gtk_signal_connect (GTK_OBJECT (button), "clicked",
 		      GTK_SIGNAL_FUNC (LauncherHeader::ToggleFullScreen),
@@ -86,13 +187,11 @@ LauncherHeader::FullScreenFrame() {
   gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
   if (!theRC->fullScreen)
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(button), TRUE );
-  gtk_widget_show (button);
 
   gtk_signal_connect (GTK_OBJECT (button), "clicked",
 		      GTK_SIGNAL_FUNC (LauncherHeader::ToggleFullScreen),
 		      &theRC->fullScreen);
 
-  gtk_widget_show (box);
   gtk_container_add (GTK_CONTAINER (frame), box);
 
   return frame;
@@ -126,7 +225,6 @@ LauncherHeader::GraphicsFrame() {
 
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(simpleButton) );
   gtk_box_pack_start( GTK_BOX(box), simpleButton, FALSE, FALSE, 10 );
-  gtk_widget_show (simpleButton);
   if ( theRC->gmode == GMODE_SIMPLE ) {
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(simpleButton), TRUE );
   }
@@ -134,7 +232,6 @@ LauncherHeader::GraphicsFrame() {
   normalButton = gtk_radio_button_new_with_label (list, _("Normal"));
   list = gtk_radio_button_group( GTK_RADIO_BUTTON(normalButton) );
   gtk_box_pack_start( GTK_BOX(box), normalButton, FALSE, FALSE, 10 );
-  gtk_widget_show (normalButton);
   if ( theRC->gmode == GMODE_FULL ) {
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(normalButton), TRUE );
   }
@@ -148,7 +245,6 @@ LauncherHeader::GraphicsFrame() {
   gtk_signal_connect (GTK_OBJECT (normalButton), "clicked",
 		      GTK_SIGNAL_FUNC (LauncherHeader::Toggle), &theRC->gmode);
 
-  gtk_widget_show (box);
   gtk_container_add (GTK_CONTAINER (frame), box);
 
   return frame;
@@ -171,7 +267,6 @@ LauncherHeader::SoundFrame() {
   gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
   if (theRC->sndMode == SOUND_SDL)
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(button), TRUE );
-  gtk_widget_show (button);
 
   gtk_signal_connect (GTK_OBJECT (button), "clicked",
 		      GTK_SIGNAL_FUNC (LauncherHeader::ToggleSound),
@@ -182,13 +277,11 @@ LauncherHeader::SoundFrame() {
   gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
   if (theRC->sndMode == SOUND_NONE)
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(button), TRUE );
-  gtk_widget_show (button);
 
   gtk_signal_connect (GTK_OBJECT (button), "clicked",
 		      GTK_SIGNAL_FUNC (LauncherHeader::ToggleSound),
 		      &theRC->sndMode);
 
-  gtk_widget_show (box);
   gtk_container_add (GTK_CONTAINER (frame), box);
 
   return frame;
@@ -212,7 +305,6 @@ LauncherHeader::ProtocolFrame() {
   gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
   if (theRC->protocol == IPv4)
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(button), TRUE );
-  gtk_widget_show (button);
 
   gtk_signal_connect (GTK_OBJECT (button), "clicked",
 		      GTK_SIGNAL_FUNC (LauncherHeader::ToggleProtocol),
@@ -223,13 +315,11 @@ LauncherHeader::ProtocolFrame() {
   gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
   if (theRC->protocol == IPv6)
     gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(button), TRUE );
-  gtk_widget_show (button);
 
   gtk_signal_connect (GTK_OBJECT (button), "clicked",
 		      GTK_SIGNAL_FUNC (LauncherHeader::ToggleProtocol),
 		      &theRC->protocol);
 
-  gtk_widget_show (box);
   gtk_container_add (GTK_CONTAINER (frame), box);
 
   return frame;
@@ -308,6 +398,9 @@ ModeNote::Init( GtkBox *box ) {
 
   notebook = gtk_notebook_new();
 
+  gtk_box_pack_start( box, notebook, FALSE, FALSE, 10 );
+  gtk_widget_show (notebook);
+
   // Solo Play
   noteBox = InitSoloPlayPanel();
   label = gtk_label_new( _("Solo") );
@@ -323,8 +416,42 @@ ModeNote::Init( GtkBox *box ) {
   label = gtk_label_new( _("Internet(Experimental)") );
   gtk_notebook_append_page( GTK_NOTEBOOK(notebook), noteBox, label);
 
-  gtk_box_pack_start( box, notebook, FALSE, FALSE, 10 );
-  gtk_widget_show (notebook);
+#ifdef WIN32
+  HWND cWnd = NULL;
+  cWnd = FindWindowEx( LauncherView::hWnd, NULL, "gdkWindowChild", NULL );
+  printf( "%x\n", cWnd );
+  cWnd = FindWindowEx( LauncherView::hWnd, cWnd, "gdkWindowChild", NULL );
+  printf( "%x\n", cWnd );
+  cWnd = FindWindowEx( cWnd, NULL, "gdkWindowChild", NULL );
+  printf( "%x\n", cWnd );
+
+  ModeNote::pParentWndProc = GetWindowLong(cWnd, GWL_WNDPROC);
+  SetWindowLong(cWnd, GWL_WNDPROC, (LONG)ModeNote::ParentWindowProc);
+
+  ModeNote::pChildHWnd = CreateWindow( "EDIT", NULL, WS_CHILD|WS_VISIBLE, 
+				       CW_USEDEFAULT, CW_USEDEFAULT,
+				       200, 30,
+				       cWnd, NULL, NULL, NULL );
+
+  char buf[512], unibuf[2048];
+  char locale[10];
+  HKL input_locale = GetKeyboardLayout(0);
+  GetLocaleInfo (MAKELCID (LOWORD (input_locale), SORT_DEFAULT),
+		 LOCALE_IDEFAULTANSICODEPAGE,
+		 locale, sizeof (locale));
+
+  _gdk_utf8_to_ucs2((wchar_t *)unibuf, theRC->nickname, 32, 2048);
+
+  WideCharToMultiByte(atoi(locale), 0, (LPWSTR)unibuf, 2048, 
+		      (LPSTR)buf, 512, NULL, NULL);
+
+  SetWindowText( ModeNote::pChildHWnd, buf );
+
+  ModeNote::pEditWndProc = GetWindowLong(ModeNote::pChildHWnd, GWL_WNDPROC);
+  SetWindowLong(ModeNote::pChildHWnd, GWL_WNDPROC, (LONG)ModeNote::EditWindowProc);
+
+  theInternetPlayView = this;
+#endif
 }
 
 GtkWidget *
@@ -420,7 +547,12 @@ ModeNote::InitInternetPlayPanel() {
   box = gtk_vbox_new( FALSE, 10 );
   gtk_container_border_width (GTK_CONTAINER (box), 5);
 
+  gtk_widget_show (box);
+
   editBox = gtk_table_new( 2, 2, FALSE );
+  gtk_box_pack_start( GTK_BOX(box), editBox, FALSE, FALSE, 5 );
+
+  gtk_widget_show (editBox);
 
   label = gtk_label_new( _("Nickname:") );
   gtk_table_attach( GTK_TABLE(editBox), label, 0, 1, 0, 1,
@@ -429,9 +561,10 @@ ModeNote::InitInternetPlayPanel() {
   m_lobbyEdit[0] = gtk_entry_new();
   gtk_table_attach( GTK_TABLE(editBox), m_lobbyEdit[0], 1, 2, 0, 1,
 		    GTK_FILL, GTK_EXPAND, 0, 0 );
-  gtk_widget_show (m_lobbyEdit[0]);
   gtk_entry_set_text( GTK_ENTRY(m_lobbyEdit[0]), theRC->nickname );
+  gtk_widget_show (m_lobbyEdit[0]);
 
+#if 0
   label = gtk_label_new( _("Message:") );
   gtk_table_attach( GTK_TABLE(editBox), label, 0, 1, 1, 2,
 		    GTK_FILL, GTK_EXPAND, 0, 0 );
@@ -441,9 +574,7 @@ ModeNote::InitInternetPlayPanel() {
 		    GTK_FILL, GTK_EXPAND, 0, 0 );
   gtk_widget_show (m_lobbyEdit[1]);
   gtk_entry_set_text( GTK_ENTRY(m_lobbyEdit[1]), theRC->message );
-
-  gtk_widget_show (editBox);
-  gtk_box_pack_start( GTK_BOX(box), editBox, FALSE, FALSE, 5 );
+#endif
 
   button = gtk_button_new_with_label(_("Connect to Lobby Server"));
   gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 10 );
@@ -451,8 +582,6 @@ ModeNote::InitInternetPlayPanel() {
 
   gtk_signal_connect( GTK_OBJECT(button), "clicked",
 		      GTK_SIGNAL_FUNC(ModeNote::InternetStartGame), m_lobbyEdit);
-
-  gtk_widget_show (box);
 
   return box;
 }
@@ -496,8 +625,13 @@ ModeNote::InternetStartGame( GtkWidget *widget, gpointer data ) {
   LobbyClient *lb;
   lb = LobbyClient::Create();
   if ( lb->
+#if 0
        Init((char *)gtk_entry_get_text(GTK_ENTRY(((GtkWidget **)data)[0])),
 	    (char *)gtk_entry_get_text(GTK_ENTRY(((GtkWidget **)data)[1])))
+#else
+       Init((char *)gtk_entry_get_text(GTK_ENTRY(((GtkWidget **)data)[0])),
+	    "")
+#endif
        == false ) {
     LauncherView::ConnectionFailedDialog();
   }
@@ -531,21 +665,30 @@ LauncherView::Init() {
   /* Window À¸À® */
   m_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_container_border_width (GTK_CONTAINER (m_window), 5);
+
+#ifdef WIN32
+  char windowName[32];
+  int i;
+  for ( i = 0 ; i < 31 ; i++ )
+    windowName[i] = 'A'+RAND(26);
+  windowName[31] = 0;
+
+  gtk_window_set_title( GTK_WINDOW(m_window), windowName);
+#else
   gtk_window_set_title( GTK_WINDOW(m_window), _("Cannon Smash"));
+#endif
+
+  gtk_widget_realize(m_window);
+
+#ifdef WIN32
+  LauncherView::hWnd = FindWindow( "gdkWindowTopLevel", windowName );
+  gtk_window_set_title( GTK_WINDOW(m_window), _("Cannon Smash"));
+#endif
 
   allbox = gtk_hbox_new( FALSE, 5 );
+  gtk_container_add (GTK_CONTAINER (m_window), allbox);
+
   mainbox = gtk_vbox_new( FALSE, 5 );
-
-  m_header = new LauncherHeader();
-  m_header->Init( GTK_BOX(mainbox) );
-  m_note = new ModeNote();
-  m_note->Init( GTK_BOX(mainbox) );
-
-  label = gtk_label_new( "http://CannonSmash.SourceForge.net\nmailto: nan@utmc.or.jp" );
-  gtk_label_set_justify( GTK_LABEL(label), GTK_JUSTIFY_LEFT );
-  gtk_widget_show(label);
-  gtk_box_pack_start( GTK_BOX(mainbox), label, FALSE, TRUE, 0 );
-
   quitBox = gtk_vbox_new( FALSE, 5 );
 
   m_quit = gtk_button_new_with_label (_("Quit"));
@@ -554,19 +697,22 @@ LauncherView::Init() {
   gtk_box_pack_start( GTK_BOX(allbox), mainbox, FALSE, FALSE, 10 );
   gtk_box_pack_start( GTK_BOX(allbox), quitBox, FALSE, TRUE, 10 );
 
+  m_header = new LauncherHeader();
+  m_header->Init( GTK_BOX(mainbox) );
+  gtk_widget_show_all(m_window);
+  m_note = new ModeNote();
+  m_note->Init( GTK_BOX(mainbox) );
+
+  label = gtk_label_new( "http://CannonSmash.SourceForge.net\nmailto: nan@utmc.or.jp" );
+  gtk_label_set_justify( GTK_LABEL(label), GTK_JUSTIFY_LEFT );
+  gtk_box_pack_start( GTK_BOX(mainbox), label, FALSE, TRUE, 0 );
+  gtk_widget_show(label);
+
   gtk_signal_connect( GTK_OBJECT (m_window), "destroy",
 		      GTK_SIGNAL_FUNC (LauncherView::Destroy), this );
   gtk_signal_connect( GTK_OBJECT (m_quit), "clicked",
 		      GTK_SIGNAL_FUNC (LauncherView::Destroy),
 		      this );
-
-  gtk_container_add (GTK_CONTAINER (m_window), allbox);
-
-  gtk_widget_show(m_quit);
-  gtk_widget_show(mainbox);
-  gtk_widget_show(quitBox);
-  gtk_widget_show(allbox);
-  gtk_widget_show(m_window);
 
   gtk_main();
 }
@@ -579,8 +725,10 @@ LauncherView::Destroy(GtkWidget *widget, gpointer data) {
 	   gtk_entry_get_text( GTK_ENTRY(note->m_serverName) ), 256 );
   strncpy( theRC->nickname,
 	   gtk_entry_get_text( GTK_ENTRY(note->m_lobbyEdit[0]) ), 32 );
+#if 0
   strncpy( theRC->message,
 	   gtk_entry_get_text( GTK_ENTRY(note->m_lobbyEdit[1]) ), 64 );
+#endif
 
   theRC->WriteRCFile();
 

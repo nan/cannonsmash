@@ -61,6 +61,15 @@ protected:
   static void StartGame( GtkWidget *widget, gpointer data );
   static void LANStartGame( GtkWidget *widget, gpointer data );
   static void InternetStartGame( GtkWidget *widget, gpointer data );
+
+#ifdef WIN32
+  static LRESULT CALLBACK EditWindowProc( HWND hwnd, UINT msg,
+					  WPARAM wparam, LPARAM lparam);
+  static LRESULT CALLBACK ParentWindowProc(HWND hwnd,UINT msg,WPARAM wparam,LPARAM lparam);
+  static LONG pEditWndProc;
+  static LONG pParentWndProc;
+  static HWND pChildHWnd;
+#endif
 };
 
 class LauncherView {
@@ -72,6 +81,10 @@ public:
 
   static void Destroy(GtkWidget *widget, gpointer data);
   static void ConnectionFailedDialog();
+
+#ifdef WIN32
+  static HWND hWnd;
+#endif
 protected:
   GtkWidget *m_window;		// main window
   LauncherHeader *m_header;	// upper area
