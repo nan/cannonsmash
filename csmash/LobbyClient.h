@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001-2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -57,8 +57,6 @@ public:
   long m_selected;		// Selected row of the table
 
 protected:
-  void ReadHeader( char *buf );
-
   void ReadUI();
   void UpdateTable();
 

@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001, 2002  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2001-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -216,7 +216,7 @@ LobbyClient::PollServerMessage( gpointer data ) {
       if ( !listenIsSet ) {
 	char buf[1024];
 
-	lobby->ReadHeader( buf );
+	ReadHeader( lobby->m_socket, buf );
 
 	if ( !strncmp( buf, "UI", 2 ) ) {
 	  lobby->ReadUI();
@@ -274,34 +274,14 @@ LobbyClient::Connect( GtkWidget *widget, gpointer data ) {
 }
 
 void
-LobbyClient::ReadHeader( char *buf ) {
-  long len = 0;
-  while (1) {
-    if ( (len+=recv( m_socket, buf+len, 2-len, 0 )) == 2 )
-      break;
-  }
-}
-
-void
 LobbyClient::ReadUI() {
   // get length
   long protocolLength;
   long len = 0;
   char buf[1024];
 
-  while (1) {
-    if ( (len+=recv( m_socket, buf+len, 4-len, 0 )) == 4 )
-      break;
-  }
-  ReadLong( buf, protocolLength );
-
-  // First, read all
-  char *buffer = new char[protocolLength];
-  len = 0;
-  while (1) {
-    if ( (len+=recv( m_socket, buffer+len, protocolLength-len, 0 )) == protocolLength )
-      break;
-  }
+  char *buffer;
+  ReadEntireMessage( m_socket, &buffer );
 
   // Get player number
   ReadLong( buffer, m_playerNum );
@@ -328,6 +308,7 @@ LobbyClient::ReadUI() {
     len += 64;
   }	// add protocolLen check later
 
+  delete buffer;
 }
 
 void
@@ -338,20 +319,8 @@ LobbyClient::ReadPI() {
   char buf[1024];
   long uniqID;
 
-  while (1) {
-    if ( (len+=recv( m_socket, buf+len, 4-len, 0 )) == 4 )
-      break;
-  }
-  ReadLong( buf, protocolLength );
-
-  // First, read all
-  char *buffer = new char[protocolLength];
-  len = 0;
-  while (1) {
-    if ( (len+=recv( m_socket, buffer+len, protocolLength-len, 0 ))
-	 == protocolLength )
-      break;
-  }
+  char *buffer;
+  ReadEntireMessage( m_socket, &buffer );
 
   // get uniq ID
   ReadLong( buffer, uniqID );
@@ -365,6 +334,8 @@ LobbyClient::ReadPI() {
   // Is it OK to do this here? 
   PIDialog *piDialog = new PIDialog( this );
   piDialog->PopupDialog( uniqID );
+
+  delete buffer;
 }
 
 void
@@ -374,20 +345,8 @@ LobbyClient::ReadOI() {
   long len = 0;
   char buf[1024];
 
-  while (1) {
-    if ( (len+=recv( m_socket, buf+len, 4-len, 0 )) == 4 )
-      break;
-  }
-  ReadLong( buf, protocolLength );
-
-  // First, read all
-  char *buffer = new char[protocolLength];
-  len = 0;
-  while (1) {
-    if ( (len+=recv( m_socket, buffer+len, protocolLength-len, 0 ))
-	 == protocolLength )
-      break;
-  }
+  char *buffer;
+  ReadEntireMessage( m_socket, &buffer );
 
   // get IP address
   sprintf( theRC->serverName, "%d.%d.%d.%d",
@@ -401,6 +360,8 @@ LobbyClient::ReadOI() {
   // At now, Ignore server or client. 
 
   //printf( "%s %d\n", theRC->serverName, theRC->csmash_port );
+
+  delete buffer;
 }
 
 void
@@ -410,20 +371,8 @@ LobbyClient::ReadOV() {
   long len = 0;
   char buf[1024];
 
-  while (1) {
-    if ( (len+=recv( m_socket, buf+len, 4-len, 0 )) == 4 )
-      break;
-  }
-  ReadLong( buf, protocolLength );
-
-  // First, read all
-  char *buffer = new char[protocolLength];
-  len = 0;
-  while (1) {
-    if ( (len+=recv( m_socket, buffer+len, protocolLength-len, 0 ))
-	 == protocolLength )
-      break;
-  }
+  char *buffer;
+  ReadEntireMessage( m_socket, &buffer );
 
   // get version number
   char version[16];
@@ -431,6 +380,8 @@ LobbyClient::ReadOV() {
 	   (unsigned char)buffer[0], (unsigned char)buffer[1],
 	   (unsigned char)buffer[2] );
   m_view->ShowUpdateDialog(version, &(buffer[3])); // second argument is URL. 
+
+  delete buffer;
 }
 
 void

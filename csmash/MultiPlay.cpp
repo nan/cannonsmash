@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -649,9 +649,7 @@ ExternalData::ReadData( long s ) {
   char buf[256];
   ExternalData *extNow;
 
-  if ( recv( theSocket, buf, 2, 0 ) != 2 ) {
-    return NULL;
-  }
+  ReadHeader( theSocket, buf );
 
   if ( !strncmp( buf, "PV", 2 ) ) {
     extNow = new ExternalPVData(s);
