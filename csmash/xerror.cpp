@@ -14,20 +14,24 @@
 #include <stdarg.h>
 #include <string.h>
 
-#ifdef _WIN32
+#ifdef WIN32
+#ifndef __CYGWIN__
 #include <iostream>
 #include "win32/wsaerror.h"
+#endif
 #endif
 
 void do_xerror(const char *string, va_list va)
 {
-#ifdef _WIN32
+#ifdef WIN32
+#ifndef __CYGWIN__
     DWORD err = WSAGetLastError();
     WSASetLastError(0);
     if (0 != err) {
 	// WSAError!
 	fputs(wsaerrorstring(err), stderr);
     } else 
+#endif
 #endif
       fputs(strerror(errno), stderr);
 

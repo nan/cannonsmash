@@ -28,6 +28,7 @@
 #include "Launcher.h"
 #include "HitMark.h"
 #include "HowtoView.h"
+#include <getopt.h>
 
 int LoadData( void *dum );
 
@@ -73,7 +74,9 @@ void StartGame();
 void EventLoop();
 bool PollEvent();
 
-#ifdef WIN32
+#ifdef __CYGWIN__
+int main(int argc, char** argv) {
+#elif defined(WIN32)
 #include "win32/getopt.h"
 
 #ifndef WIN32CONSOLE
@@ -154,7 +157,7 @@ int main(int argc, char** argv) {
   if ( (access( PROBE_FILE, F_OK ) == 0) ) {
     dataDir = ".";
   } else {
-#if !defined(_WIN32)
+#if !defined(WIN32)
 #ifdef CANNONSMASH_DATADIR
     dataDir = CANNONSMASH_DATADIR;
 #else

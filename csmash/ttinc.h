@@ -26,6 +26,10 @@
 # endif
 #endif
 
+#define MAJOR_VERSION	0
+#define MIDDLE_VERSION	6
+#define MINOR_VERSION	2
+
 #define CSMASH_PORT	3573	// TCP Port num. 
 
 // Window size
@@ -126,7 +130,7 @@
 enum level {LEVEL_EASY, LEVEL_NORMAL, LEVEL_HARD, LEVEL_TSUBORISH};
 enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 
-#ifdef _WIN32
+#ifdef WIN32
 #define NOMINMAX
 #define VC_EXTRALEAN
 #include <winsock2.h>
