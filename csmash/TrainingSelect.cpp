@@ -135,3 +135,12 @@ TrainingSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   return true;
 }
+
+long
+TrainingSelect::GetPlayerNum() {
+  if ( GetRotate() < 0 )
+    return (360+(GetRotate()%360))/(360/TRAININGPLAYERS);
+  else
+    return (GetRotate()%360)/(360/TRAININGPLAYERS);
+}
+

@@ -309,8 +309,10 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   if ( m_swing > 0 ){
     if ( m_swing > 30 && m_afterSwing > 0 ) {
       m_afterSwing--;
+      /*
       if ( m_afterSwing%10 == 0 )
 	m_swing++;
+	*/
     } else {
       if ( theBall.GetStatus() == 6 || theBall.GetStatus() == 7 ) {
 	if ( theBall.GetVZ() < 0 )
@@ -551,7 +553,8 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
   if ( theBall.GetStatus() == 8 || theBall.GetStatus() == -1 )
     AddStatus( 200 );
 
-  KeyCheck( KeyHistory, MouseXHistory, MouseYHistory, MouseBHistory,Histptr );
+  if ( SDL_WM_GrabInput( SDL_GRAB_QUERY ) == SDL_GRAB_ON )
+    KeyCheck( KeyHistory, MouseXHistory, MouseYHistory, MouseBHistory,Histptr );
 
   if ( thePlayer == this && mode == MODE_MULTIPLAY ) {
     m_lastSendCount++;

@@ -174,8 +174,7 @@ Event::IdleFunc() {
     Event::TheEvent()->IsModeChanged( preMode );
   }
 
-  if ( mode != MODE_OPENING && mode != MODE_TITLE &&
-       SDL_WM_GrabInput( SDL_GRAB_QUERY ) == SDL_GRAB_ON )
+  if ( mode != MODE_OPENING && mode != MODE_TITLE )
     SDL_WarpMouse((unsigned short)Event::TheEvent()->m_MouseXHistory[Event::TheEvent()->m_Histptr],
 		  (unsigned short)Event::TheEvent()->m_MouseYHistory[Event::TheEvent()->m_Histptr] );
 
@@ -227,7 +226,7 @@ Event::IsModeChanged( long preMode ) {
       TrainingSelect::Create();
       break;
     case MODE_TRAINING:
-      p = ((PlayerSelect *)Control::TheControl())->GetPlayerNum();
+      p = ((TrainingSelect *)Control::TheControl())->GetPlayerNum();
       Training::Create( p, p );
       break;
     case MODE_PRACTICESELECT:
