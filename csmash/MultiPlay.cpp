@@ -172,6 +172,8 @@ MultiPlay::Create( long player, long com ) {
   else
     side = -1;	// client side
 
+  theBall.Warp( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1000 );
+
   if ( m_thePlayer == NULL ) {
     m_thePlayer = Player::Create( player, side, 0 );
   }
@@ -452,10 +454,10 @@ MultiPlay::WaitForData( void *dum ) {
       SDL_mutexV( networkMutex );
 
       if ( !ret ) {
-	printf( "GetExternalData failed\n" );
+//	printf( "GetExternalData failed\n" );
 	break;
       } else {
-	printf( "GetExternalData succeeded\n" );
+//	printf( "GetExternalData succeeded\n" );
       }
     } else {
       printf( "Select failed\n" );

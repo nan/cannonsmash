@@ -143,7 +143,10 @@ BallView::RedrawAlpha() {
     // get time until the ball reaches hit point
     while ( tmpBall->GetStatus() != -1 ){
       tmpBall->Move();
-      if ( tmpBall->GetY() < thePlayer->GetY() && tmpBall->GetStatus() == 3 )
+      if ( (thePlayer->GetSide() > 0 && tmpBall->GetY() < thePlayer->GetY()
+	   && tmpBall->GetStatus() == 3) ||
+	   (thePlayer->GetSide() < 0 && tmpBall->GetY() > thePlayer->GetY()
+	   && tmpBall->GetStatus() == 1) )
 	break;
       t1++;
     }

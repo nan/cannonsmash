@@ -430,7 +430,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
       if ( ((tmpBall->GetStatus() == 3 && m_side == 1) ||
 	    (tmpBall->GetStatus() == 1 && m_side == -1)) ) {
-	double hitpointX = m_swingSide ? m_x+0.3 : m_x-0.3;
+	double hitpointX = m_swingSide ? m_x+0.3*m_side : m_x-0.3*m_side;
 	double xdiff = tmpBall->GetX() - (hitpointX+m_vx*(20-m_swing)*TICK);
 	double ydiff = tmpBall->GetY() - (m_y+m_vy*(20-m_swing)*TICK);
 
