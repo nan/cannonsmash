@@ -394,7 +394,7 @@ StartServer() {
     timeAdj += (tb3.time-tb1.time)*1000 + tb3.millitm-tb1.millitm;
   }
 
-  timeAdj /= 1000;	/* 100*10 */
+  timeAdj /= 50;	/* 5*10 */
 
   printf( "%d\n", timeAdj );
 
