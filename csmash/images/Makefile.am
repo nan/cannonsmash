@@ -32,6 +32,7 @@ pkgdata_ppm = Bad.ppm Keyboard.ppm Nice.ppm Title.ppm \
 		Transparent.ja.pbm Transparent.de.pbm Transparent.fr.pbm Transparent.pbm \
 		Tsuborish.ja.pbm Tsuborish.de.pbm Tsuborish.fr.pbm Tsuborish.pbm \
 		WireFrame.ja.pbm WireFrame.de.pbm WireFrame.fr.pbm WireFrame.pbm \
+		ArmOnly.ja.pbm ArmOnly.de.pbm ArmOnly.fr.pbm ArmOnly.pbm \
 		downArrow.ja.pbm downArrow.de.pbm downArrow.fr.pbm downArrow.pbm \
 		leftArrow.ja.pbm leftArrow.de.pbm leftArrow.fr.pbm leftArrow.pbm \
 		lose.ja.pbm lose.de.pbm lose.fr.pbm lose.pbm \
