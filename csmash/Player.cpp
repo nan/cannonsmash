@@ -270,7 +270,7 @@ Player::Move( unsigned long *KeyHistory, long *MouseXHistory,
 	  m_swing++;
       } else {
 	if ( m_swing == 10 ) {
-	  if ( theBall.GetStatus() == -1 )
+	  if ( theBall.GetStatus() == -1 || theBall.GetStatus() == 8 )
 	    m_swing = 0;
 	} else
 	  m_swing++;
