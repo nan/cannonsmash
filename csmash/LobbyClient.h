@@ -33,20 +33,42 @@ public:
 
 protected:
   static gint PollServerMessage( gpointer data );
+  static void SelectRow( GtkCList *clist, gint row, gint column,
+			 GdkEventButton *event, gpointer data );
+  static void Connect( GtkWidget *widget, gpointer data );
   static void Quit( GtkWidget *widget, gpointer data );
   guint m_timeout;
 
   void ReadHeader( char *buf );
+
   void ReadUI();
   void UpdateTable();
 
+  void ReadPI();
+  void ReadOI();
+
+  void PopupPIDialog( long uniqID );
+
   GtkWidget *m_window;
   GtkWidget *m_table;
+  GtkWidget *m_connectButton;
 
   int m_socket;
 
   long m_playerNum;
   PlayerInfo *m_player;
+
+  long m_selected;		// テーブルの何番目が選択されているか
+};
+
+class PIDialog {
+public:
+  PIDialog();
+  ~PIDialog();
+
+  GtkWidget *m_window;
+
+  static void PIOK( GtkWidget *widget, gpointer data );
 };
 
 class PlayerInfo {

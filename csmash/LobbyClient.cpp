@@ -21,6 +21,9 @@
 #include "MultiPlay.h"
 
 extern short csmash_port;
+extern bool isComm;
+extern char serverName[256];
+extern long mode;
 
 LobbyClient::LobbyClient() {
   m_timeout = 0;
@@ -85,7 +88,6 @@ LobbyClient::Init( char *nick, char *message ) {
   send( m_socket, buf, 64, 0 );
 
   // データもらう
-
   ReadHeader( buf );
 
   if ( strncmp( buf, "UI", 2 ) ) {
@@ -125,12 +127,21 @@ LobbyClient::Init( char *nick, char *message ) {
 
   gtk_scrolled_window_add_with_viewport ( GTK_SCROLLED_WINDOW(scrolled_window),
 					  m_table );
+  gtk_signal_connect (GTK_OBJECT (m_table), "select-row",
+		      GTK_SIGNAL_FUNC (LobbyClient::SelectRow), this);
   gtk_widget_show(m_table);
 
   UpdateTable();
 
-  button = gtk_button_new_with_label ("close");
+  m_connectButton = gtk_button_new_with_label ("connect");
+  gtk_signal_connect (GTK_OBJECT (m_connectButton), "clicked",
+		      GTK_SIGNAL_FUNC (LobbyClient::Connect), this);
+  gtk_widget_show (m_connectButton);
+  gtk_widget_set_sensitive (m_connectButton, false);
+  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (m_window)->action_area),
+		      m_connectButton, TRUE, TRUE, 0);
 
+  button = gtk_button_new_with_label ("close");
   gtk_signal_connect (GTK_OBJECT (button), "clicked",
 		      GTK_SIGNAL_FUNC (LobbyClient::Quit), this);
   //gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
@@ -153,28 +164,33 @@ LobbyClient::PollServerMessage( gpointer data ) {
   fd_set rdfds;
   struct timeval to;
 
-  FD_ZERO( &rdfds );
-  FD_SET( lobby->m_socket, &rdfds );
+  while (1) {
+    FD_ZERO( &rdfds );
+    FD_SET( lobby->m_socket, &rdfds );
 
-  to.tv_sec = to.tv_usec = 0;
+    to.tv_sec = to.tv_usec = 0;
 
-  if ( select( lobby->m_socket+1, &rdfds, NULL, NULL, &to ) <= 0 )
-    return 1;
-  else {
-    char buf[1024];
+    if ( select( lobby->m_socket+1, &rdfds, NULL, NULL, &to ) <= 0 )
+      return 1;
+    else {
+      char buf[1024];
 
-    lobby->ReadHeader( buf );
+      lobby->ReadHeader( buf );
 
-    if ( strncmp( buf, "UI", 2 ) ) {
-      xerror("%s(%d) read UI header", __FILE__, __LINE__);
-      gtk_main_quit();
-      exit(1);
+      if ( !strncmp( buf, "UI", 2 ) ) {
+	lobby->ReadUI();
+	lobby->UpdateTable();
+      } else if ( !strncmp( buf, "PI", 2 ) ) {
+	lobby->ReadPI();
+	printf( "PI!\n" );
+      } else if ( !strncmp( buf, "OI", 2 ) ) {
+	lobby->ReadOI();
+      } else {
+	xerror("%s(%d) read header", __FILE__, __LINE__);
+	gtk_main_quit();
+	exit(1);
+      }
     }
-
-    lobby->ReadUI();
-    lobby->UpdateTable();
-
-    return 1;
   }
 }
 
@@ -189,6 +205,26 @@ LobbyClient::UpdateTable() {
     row[1] = m_player[i].m_message;
     gtk_clist_append( GTK_CLIST(m_table), row );
   }
+}
+
+void
+LobbyClient::SelectRow( GtkCList *clist, gint row, gint column,
+			GdkEventButton *event, gpointer data ) {
+  LobbyClient *lobby = (LobbyClient *)data;
+
+  lobby->m_selected = row;
+  gtk_widget_set_sensitive (lobby->m_connectButton, true);
+}
+
+void
+LobbyClient::Connect( GtkWidget *widget, gpointer data ) {
+  LobbyClient *lobby = (LobbyClient *)data;
+
+  // Send Private IRC Message(とりあえずIRC ぢゃないけど)
+  send( lobby->m_socket, "PI", 2, 0 );
+  long len = 4;
+  SendLong( lobby->m_socket, len );
+  SendLong( lobby->m_socket, lobby->m_selected );
 }
 
 void
@@ -259,6 +295,135 @@ LobbyClient::ReadUI() {
     strncpy( m_player[i].m_message, &(buffer[len]), 64 );
     len += 64;
   }	// protocolLen の チェックを追加したい...
+}
+
+void
+LobbyClient::ReadPI() {
+  // 長さ取得
+  long protocolLength;
+  long len = 0;
+  char buf[1024];
+  long uniqID;
+
+  while (1) {
+    if ( (len+=recv( m_socket, buf+len, 4-len, 0 )) == 4 )
+      break;
+  }
+  ReadLong( buf, protocolLength );
+
+  // とりあえず全部読む
+  char *buffer = new char[protocolLength];
+  len = 0;
+  while (1) {
+    if ( (len+=recv( m_socket, buffer+len, protocolLength-len, 0 ))
+	 == protocolLength )
+      break;
+  }
+
+  // uniq ID取得
+  ReadLong( buffer, uniqID );
+
+  // ちょっとイレギュラーだが, 相手の情報を取得する. プロトコル要再考. 
+  send( m_socket, "OR", 2, 0 );
+  len = 4;
+  SendLong( m_socket, len );
+  SendLong( m_socket, uniqID );
+
+  // ここに置くのは問題かも
+  PopupPIDialog( uniqID );
+}
+
+void
+LobbyClient::ReadOI() {
+  // 長さ取得
+  long protocolLength;
+  long len = 0;
+  char buf[1024];
+  long uniqID;
+
+  while (1) {
+    if ( (len+=recv( m_socket, buf+len, 4-len, 0 )) == 4 )
+      break;
+  }
+  ReadLong( buf, protocolLength );
+
+  // とりあえず全部読む
+  char *buffer = new char[protocolLength];
+  len = 0;
+  while (1) {
+    if ( (len+=recv( m_socket, buffer+len, protocolLength-len, 0 ))
+	 == protocolLength )
+      break;
+  }
+
+  // IP address取得
+  sprintf( serverName, "%d.%d.%d.%d",
+	   (unsigned char)buffer[0], (unsigned char)buffer[1],
+	   (unsigned char)buffer[2], (unsigned char)buffer[3] );
+  // port number取得
+  long tmpPort;
+  ReadLong( &(buffer[4]), tmpPort );
+  csmash_port = tmpPort;
+
+  // server or client はとりあえず無視. 
+
+  printf( "%s %d\n", serverName, csmash_port );
+}
+
+void
+LobbyClient::PopupPIDialog( long uniqID ) {
+  PIDialog *piDialog = new PIDialog();
+  GtkWidget *label, *button;
+  char buf[256];
+
+  piDialog->m_window = gtk_dialog_new();
+  gtk_container_border_width (GTK_CONTAINER (piDialog->m_window), 10);
+  gtk_window_set_modal( (GtkWindow *)piDialog->m_window, true );
+
+  sprintf( buf, "\"%s\" (message: %s)want to play with you. OK?\n",
+	   m_player[uniqID].m_nickname, m_player[uniqID].m_message );
+  label = gtk_label_new( buf );
+  gtk_label_set_line_wrap( GTK_LABEL(label), true );
+  gtk_widget_show( label );
+
+  gtk_box_pack_start( GTK_BOX(GTK_DIALOG(piDialog->m_window)->vbox), label, 
+		      TRUE, TRUE, 0 );
+
+  gtk_widget_show (piDialog->m_window);
+
+  button = gtk_button_new_with_label ("OK!");
+  gtk_signal_connect (GTK_OBJECT (button), "clicked",
+		      GTK_SIGNAL_FUNC (PIDialog::PIOK), this);
+
+  GTK_WIDGET_SET_FLAGS (button, GTK_CAN_DEFAULT);
+  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (piDialog->m_window)->action_area),
+		      button, TRUE, TRUE, 0);
+
+  gtk_widget_grab_default (button);
+  gtk_widget_show (button);
+
+  button = gtk_button_new_with_label ("No!");
+  gtk_signal_connect_object (GTK_OBJECT (button), "clicked",
+			     (GtkSignalFunc) gtk_widget_destroy,
+			     GTK_OBJECT (piDialog->m_window));
+  gtk_box_pack_start (GTK_BOX (GTK_DIALOG (piDialog->m_window)->action_area),
+		      button, TRUE, TRUE, 0);
+  gtk_widget_show (button);
+}
+
+
+PIDialog::PIDialog() {
+}
+
+PIDialog::~PIDialog() {
+}
+
+void
+PIDialog::PIOK( GtkWidget *widget, gpointer data ) {
+  isComm = true;
+  mode = MODE_SELECT;
+
+  gtk_main_quit();
 }
 
 PlayerInfo::PlayerInfo() {
