@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001, 2002  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
