@@ -410,6 +410,11 @@ StartServer() {
     }
   }
 
+  for ( i = 0 ; i < 16 ; i++ ) {
+    printf( "%d ", adjLog[i] );
+  }
+  printf( "\n" );
+
   // 中央の8値をとる. 
   timeAdj = 0;
   for ( i = 4 ; i < 12 ; i++ ) {
