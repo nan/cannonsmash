@@ -51,6 +51,8 @@ protected:
 
   long m_lastRotate;
   long m_lastOpponentRotate;
+
+  bool m_isConnected;
 };
 
 #endif	// _MultiPlayerSelect_
