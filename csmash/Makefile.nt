@@ -73,7 +73,7 @@ SRCS = \
 	BallView2D.cpp PlayerSelectView2D.cpp TitleView2D.cpp \
 	MenuItemView2D.cpp RCFile.cpp PlayGameView.cpp Network.cpp \
 	NetPenAttack.cpp NetShakeCut.cpp NetPenDrive.cpp \
-	MultiPlayerSelect.cpp \
+	MultiPlayerSelect.cpp glARB.cpp \
 	loadparts.cpp
 
 OBJS = $(SRCS:.cpp=.obj)
@@ -95,7 +95,7 @@ distclean:
 depend:
 	touch .depend.nt
 	makedepend -i -f.depend.nt -DMKDEP_IGN_SYSINC -D_WIN32 $(DFLAGS) \
-	  -I$(BASEDIR) $(BASEDIR)/*.cpp
+	  -I$(BASEDIR) $(BASEDIR)/include $(BASEDIR)/*.cpp
 	cat .depend.nt | sed -e "s/.:\/.*\/[iI]nclude\/[^ ]*//g" \
 	| grep -v ".*:[ ]*$$" > .depend.new
 	mv .depend.new .depend.nt
