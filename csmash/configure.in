@@ -10,6 +10,7 @@ AC_PATH_PROG(GZIP, gzip)
 AC_PATH_X
 
 LDFLAGS="-L /usr/local/lib -L $x_libraries -L $libdir"
+CPPFLAGS="$CFLAGS -Wall"
 
 dnl Checks for libraries.
 AC_CHECK_LIB(Xmu, main)

@@ -52,6 +52,7 @@ bool isLighting	= true;
 bool isTexture	= true;
 bool isPolygon	= true;
 bool isSimple	= false;
+bool is2D	= false;
 bool isWireFrame = true;
 bool fullScreen = false;
 
@@ -204,8 +205,13 @@ int main(int argc, char** argv) {
   loadMutex = SDL_CreateMutex();
   SDL_CreateThread( LoadData, NULL );
 
-  Launcher *launcher = new Launcher();
-  launcher->Init();
+  if ( mode == MODE_OPENING ) {
+    Launcher *launcher = new Launcher();
+    launcher->Init();
+  } else {
+    ::StartGame();
+    ::EventLoop();
+  }
 
   return 0;
 }

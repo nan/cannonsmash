@@ -131,11 +131,11 @@ LobbyClient::Init( char *nick, char *message ) {
 
   // Send version number(Must be changed)
   char ver;
-  ver = 0;
+  ver = MAJOR_VERSION;
   send( m_socket, &ver, 1, 0 );
-  ver = 6;
+  ver = MIDDLE_VERSION;
   send( m_socket, &ver, 1, 0 );
-  ver = 1;
+  ver = MINOR_VERSION;
   send( m_socket, &ver, 1, 0 );
 
   // Send port number(Must be changed, too)
