@@ -27,6 +27,10 @@
 #include "Network.h"
 #include "RCFile.h"
 
+#ifdef LOGGING
+#include "Logging.h"
+#endif
+
 extern long mode;
 
 extern bool isComm;
@@ -43,6 +47,8 @@ MultiPlayerSelect::MultiPlayerSelect() {
   m_selected = 0; m_opponentSelected = 0;
 
   m_lastRotate = m_lastOpponentRotate = 0;
+
+  m_isConnected = false;
 }
 
 MultiPlayerSelect::~MultiPlayerSelect() {
@@ -168,12 +174,24 @@ MultiPlayerSelect::Connect( void *dum ) {
     side = -1;	// client side
 
   if ( side == 1 ) {
-    WaitForClient();
+    try {
+      WaitForClient();
+    } catch ( NetworkError ) {
+      xerror("%s(%d) WaitForClient", __FILE__, __LINE__);
+      exit(1);
+    }
     ServerAdjustClock();
   } else {
-    ConnectToServer();
+    try {
+      ConnectToServer();
+    } catch ( NetworkError ) {
+      xerror("%s(%d) ConnectoToServer", __FILE__, __LINE__);
+      exit(1);
+    }
     ClientAdjustClock();
   }
+
+  ((MultiPlayerSelect *)m_theControl)->m_isConnected = true;
 
   if ( ((MultiPlayerSelect *)m_theControl)->m_selected > 0 )
     ((MultiPlayerSelect *)m_theControl)->SendPT(1);
@@ -210,11 +228,19 @@ void
 MultiPlayerSelect::SendPT( char fixed ) {
   long rotate;
 
-  if ( theSocket < 0 )
+  if ( theSocket < 0 || !m_isConnected )
     return;
 
   send( theSocket, "PT", 2, 0 );
   send( theSocket, &fixed, 1, 0 );
   rotate = GetRotate();
   SendLong( theSocket, rotate );
+
+#ifdef LOGGING
+  char buf[256];
+
+  sprintf( buf, "fixed=%d, rotate=%d\n", fixed, rotate );
+  Logging::GetLogging()->LogTime( LOG_COMMISC );
+  Logging::GetLogging()->Log( LOG_COMMISC, buf );
+#endif
 }
