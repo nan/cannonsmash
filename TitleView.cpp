@@ -23,6 +23,8 @@ extern long gameMode;
 
 extern Sound theSound;
 
+extern bool isWireFrame;
+
 TitleView::TitleView() {
 }
 
@@ -39,7 +41,7 @@ TitleView::Init( Title *title ) {
 				  "images/Hard.ppm", "images/Tsuborish.ppm", 
 				  "images/5point.ppm", "images/11point.ppm",
 				  "images/21point.ppm",
-				  "images/ESD.ppm", "images/OSS.ppm" };
+				  "images/WireFrame.ppm", "images/Transparent.ppm" };
   static char configTitle[][30] = {"images/LevelSelect.ppm",
 				   "images/ModeSelect.ppm",
 				   "images/SoundSelect.ppm" };
@@ -177,12 +179,10 @@ TitleView::RedrawAlpha() {
     glVertex2i( 730, 570 );
     glVertex2i( 430, 570 );
 
-#ifdef HAVE_LIBESD
     glVertex2i( 430, 120 );
     glVertex2i( 730, 120 );
     glVertex2i( 730, 300 );
     glVertex2i( 430, 300 );
-#endif
     glEnd();
 
     glColor4f( 1.0, 1.0, 1.0, 0.0 );
@@ -190,10 +190,8 @@ TitleView::RedrawAlpha() {
     glBitmap( 200, 35, 0.0, 0.0, 0.0, 0, &m_configTitle[0][0] );
     glRasterPos2i( 480, 520 );
     glBitmap( 200, 35, 0.0, 0.0, 0.0, 0, &m_configTitle[1][0] );
-#ifdef HAVE_LIBESD
     glRasterPos2i( 480, 250 );
     glBitmap( 200, 35, 0.0, 0.0, 0.0, 0, &m_configTitle[2][0] );
-#endif
 
     for ( i = 0 ; i < m_title->GetMenuNum(MENU_CONFIG, MENU_CONFIG_LEVEL)-1 ;
 	  i++ ) {
@@ -226,10 +224,17 @@ TitleView::RedrawAlpha() {
 
     for ( i = 0 ; i < m_title->GetMenuNum(MENU_CONFIG, MENU_CONFIG_SOUND) ;
 	  i++ ) {
+#if 0
       if ( theSound.GetSoundMode() == i )
 	glColor4f( 1.0, 1.0, 0.0, 0.0 );
       else
 	glColor4f( 1.0, 1.0, 1.0, 0.0 );
+#else
+      if ( (isWireFrame && i == 0) || (!isWireFrame && i == 1) )
+	glColor4f( 1.0, 1.0, 0.0, 0.0 );
+      else
+	glColor4f( 1.0, 1.0, 1.0, 0.0 );
+#endif
 
       glRasterPos2i( 500, 190-i*60 );
       glBitmap( 200, 35, 0.0, 0.0, 0.0, 0,

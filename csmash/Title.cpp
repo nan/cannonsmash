@@ -26,7 +26,7 @@ extern Sound theSound;
 extern long gameLevel;
 extern long gameMode;
 
-extern Sound theSound;
+extern bool isWireFrame;
 
 extern void Keyboard( unsigned char key, int x, int y );
 extern void KeyUp( unsigned char key, int x, int y );
@@ -169,12 +169,20 @@ Title::Move( unsigned long *KeyHistory, long *MouseXHistory,
 		             GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE ) )
 	gameMode = m_selected-GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL );
       else if ( m_selected < GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )+
-		             GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )+
-		             GetMenuNum( MENU_CONFIG, MENU_CONFIG_SOUND ) )
+		GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE )+
+		GetMenuNum( MENU_CONFIG, MENU_CONFIG_SOUND ) ) {
+#if 0
 	theSound.SetSoundMode( m_selected-GetMenuNum( MENU_CONFIG,
 						      MENU_CONFIG_LEVEL )
 			       -GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE ) );
-      else if ( m_selected == GetMenuNum( MENU_CONFIG, MENU_ALL )-1 )
+#else
+	if ( m_selected-GetMenuNum( MENU_CONFIG, MENU_CONFIG_LEVEL )
+	     -GetMenuNum( MENU_CONFIG, MENU_CONFIG_MODE ) == 0 )
+	  isWireFrame = true;
+	else
+	  isWireFrame = false;
+#endif
+      } else if ( m_selected == GetMenuNum( MENU_CONFIG, MENU_ALL )-1 )
 	m_selectMode = MENU_MAIN;
     }
   }

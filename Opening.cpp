@@ -988,29 +988,20 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
     if ( phrase == 200 && mod == 0 ) {
       thePlayer->m_x = -1.2;
       thePlayer->m_y = -TABLELENGTH*3/2;
-      thePlayer->m_swing = 12;
+      thePlayer->m_swing = 2;
+      thePlayer->m_swingType = SWING_CUT;
 
       comPlayer->m_x = 0.0;
       comPlayer->m_y = TABLELENGTH*3/4;
       comPlayer->m_swing = 30;
+      comPlayer->m_swingType = SWING_DRIVE;
 
       theBall.Warp( 0.2, 0.1, TABLEHEIGHT+NETHEIGHT*2,
 		    -0.1, -3.0, 1.0, 0.6, 0 );
     }
 
-    Ball orgBall = theBall;
-
-    theBall.Move();
-    theBall.m_x = orgBall.m_x + (theBall.m_x-orgBall.m_x)/35;
-    theBall.m_y = orgBall.m_y + (theBall.m_y-orgBall.m_y)/35;
-    theBall.m_z = orgBall.m_z + (theBall.m_z-orgBall.m_z)/35;
-
-    theBall.m_vx = orgBall.m_vx + (theBall.m_vx-orgBall.m_vx)/35;
-    theBall.m_vy = orgBall.m_vy + (theBall.m_vy-orgBall.m_vy)/35;
-    theBall.m_vz = orgBall.m_vz + (theBall.m_vz-orgBall.m_vz)/35;
-
-
-    if ( mod == 0 ) {
+    if ( (m_count%10) == 0 ) {
+      theBall.Move();
       thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
       comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
     }
@@ -1023,25 +1014,15 @@ Opening::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
       comPlayer->m_x = -1.0;
       comPlayer->m_y = TABLELENGTH/2;
-      comPlayer->m_swing = 10;
+      comPlayer->m_swing = 1;
       comPlayer->m_swingType = SWING_DRIVE;
 
       theBall.Warp( 0.6, -TABLELENGTH/2, TABLEHEIGHT+NETHEIGHT,
-		    -1.0, 2.0, 1.0, -0.8, 0 );
+		    -1.0, 2.0, 3.0, -0.8, 0 );
     }
 
-    Ball orgBall = theBall;
-
-    theBall.Move();
-    theBall.m_x = orgBall.m_x + (theBall.m_x-orgBall.m_x)/35;
-    theBall.m_y = orgBall.m_y + (theBall.m_y-orgBall.m_y)/35;
-    theBall.m_z = orgBall.m_z + (theBall.m_z-orgBall.m_z)/35;
-
-    theBall.m_vx = orgBall.m_vx + (theBall.m_vx-orgBall.m_vx)/35;
-    theBall.m_vy = orgBall.m_vy + (theBall.m_vy-orgBall.m_vy)/35;
-    theBall.m_vz = orgBall.m_vz + (theBall.m_vz-orgBall.m_vz)/35;
-
-    if ( mod == 0 ) {
+    if ( (m_count%10) == 0 ) {
+      theBall.Move();
       thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
       comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
     }

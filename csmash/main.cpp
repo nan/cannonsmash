@@ -40,6 +40,7 @@ bool isFog	= true;
 bool isTexture	= true;
 bool isPolygon	= true;
 bool isSimple	= false;
+bool isWireFrame = true;
 
 long wins	= 0;		// 勝ち抜き数
 long gameLevel  = LEVEL_NORMAL;	// 強さ
@@ -48,6 +49,8 @@ long gameMode   = GAME_21PTS;	// ゲームの長さ
 Control*      theControl = NULL;
 
 long mode = MODE_OPENING;
+
+long sndMode;			// あとで引数化
 
 #if HAVE_LIBPTHREAD
 pthread_mutex_t loadMutex = PTHREAD_MUTEX_INITIALIZER;
@@ -77,8 +80,16 @@ int main(int argc, char** argv) {
 #endif
   bool fullScreen = false;
 
+#ifdef HAVE_LIBESD
+  sndMode = SOUND_ESD;
+#elif defined(WIN32)
+  sndMode = SOUND_WIN32;
+#elif
+  sndMode = SOUND_NONE;
+#endif
+
     int c;
-    while(EOF != (c = getopt(argc, argv, "schfS"))) {
+    while(EOF != (c = getopt(argc, argv, "schfSO"))) {
         switch (c) {
         case 'h':
 	    // brief help
@@ -104,6 +115,11 @@ int main(int argc, char** argv) {
 	    // Simple mode
 	    isSimple = true;
 	    isTexture = false;
+	    break;
+	case 'O':
+	    // OSS sound mode
+	    sndMode = SOUND_OSS;
+	    break;
 	}
     }
 
@@ -197,7 +213,7 @@ LoadData( void *dum ) {
 #endif
 
   PlayerView::LoadData(NULL);
-  theSound.Init();
+  theSound.Init( sndMode );
 
 #if HAVE_LIBPTHREAD
   pthread_mutex_unlock( &loadMutex );

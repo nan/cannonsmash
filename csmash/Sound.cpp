@@ -89,7 +89,7 @@ Sound::~Sound() {
 }
 
 bool
-Sound::Init() {
+Sound::Init( long sndMode ) {
 #ifdef HAVE_LIBSDL_MIXER
   if ( SDL_Init(SDL_INIT_AUDIO) < 0 ) {
     perror( "SDL initialize failed\n" );
@@ -101,6 +101,8 @@ Sound::Init() {
   }
 #elif defined(HAVE_LIBESD)
   int rate, fmt, stereo;
+
+  m_soundMode = sndMode;
 
   switch ( m_soundMode ) {
   case SOUND_OSS:
@@ -286,8 +288,7 @@ Sound::SetSoundMode( long mode ) {
       close( m_ossfd );
   }
 
-  m_soundMode = mode;
-  Init();
+  Init( mode );
 #endif
 
   return true;

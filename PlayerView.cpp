@@ -21,6 +21,7 @@
 
 extern bool isPolygon;
 extern bool isLighting;
+extern bool isWireFrame;
 
 #if HAVE_LIBPTHREAD
 extern pthread_mutex_t loadMutex;
@@ -112,14 +113,16 @@ PlayerView::Redraw() {
 
 bool
 PlayerView::RedrawAlpha() {
-//  static GLfloat mat_black[] = { 0.0, 0.0, 0.0, 1.0 };
+  static GLfloat mat_black[] = { 0.0, 0.0, 0.0, 1.0 };
 
   if ( m_player == thePlayer ) {
     if ( isLighting ) {
-// Configで切替えるようにする
-//      glColor4f( 0.01, 0.01, 0.01, 1.0 );
-//      glMaterialfv(GL_FRONT, GL_SPECULAR, mat_black);
-      glColor4f( 1.0, 1.0, 1.0, 1.0 );
+      if ( isWireFrame ) {
+	glColor4f( 1.0, 1.0, 1.0, 1.0 );
+      } else {
+	glColor4f( 0.05, 0.05, 0.05, 1.0 );
+	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_black);
+      }
     } else {
       glColor4f( 0.1, 0.1, 0.1, 1.0 );
     }
@@ -196,7 +199,13 @@ PlayerView::SubRedraw() {
       motion->render(swing);
     }
     if (m_player == thePlayer) {
-      motion->renderWire(swing);
+      if ( isWireFrame )
+	motion->renderWire(swing);
+      else {
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(0);
+	motion->render(swing);
+      }
     }
 //    glDisable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);

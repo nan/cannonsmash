@@ -102,6 +102,12 @@
 #define DATA_BT      (2)
 #define DATA_BV      (3)
 
+// Sound
+#define SOUND_NONE	-1
+#define SOUND_ESD	0
+#define SOUND_OSS	1
+#define SOUND_WIN32	2
+
 // その他
 #define RAND(N) ((int)((double)(N)*rand()/RAND_MAX))
 

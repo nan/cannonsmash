@@ -19,17 +19,12 @@
 #ifndef _Sound_
 #define _Sound_
 
-#define SOUND_NONE	-1
-#define SOUND_ESD	0
-#define SOUND_OSS	1
-#define SOUND_WIN32	2
-
 class Sound {
 public:
   Sound();
   virtual ~Sound();
 
-  virtual bool Init();
+  virtual bool Init( long sndMode );
 
   bool Play( char *sndData, long count );
   bool Play( long soundID );
