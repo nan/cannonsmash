@@ -70,6 +70,15 @@ BaseView2D::Init() {
   m_fieldView = (FieldView *)new FieldView2D();
   m_fieldView->Init();
 
+  m_updateX1 = 0;
+  m_updateY1 = 0;
+  m_updateX2 = BaseView::GetWinWidth();
+  m_updateY2 = BaseView::GetWinHeight();
+
+  m_fieldView->Redraw();
+  m_fieldView->RedrawAlpha();
+  SDL_UpdateRect(m_baseSurface, 0, 0, 0, 0);
+
   return true;
 }
 
@@ -80,30 +89,45 @@ BaseView2D::DisplayFunc() {
 
 bool
 BaseView2D::RedrawAll() {
-  View *view;
+  SDL_Rect rect;
 
   SetViewPosition();
 
+  rect.x = m_updateX1;
+  rect.y = m_updateY1;
+  rect.w = m_updateX2-m_updateX1+1;
+  rect.h = m_updateY2-m_updateY1+1;
+
+  SDL_SetClipRect( m_baseSurface, &rect );
+
   m_fieldView->Redraw();
 
+  m_updateX1 = m_updateY1 = m_updateX2 = m_updateY2 = 0;
+  SDL_SetClipRect( m_baseSurface, NULL );
+
+  if ( comPlayer )
+    comPlayer->GetView()->Redraw();
+
+  SDL_SetClipRect( m_baseSurface, &rect );
   m_fieldView->RedrawAlpha();
+  SDL_SetClipRect( m_baseSurface, NULL );
 
-  comPlayer->GetView()->Redraw();
-
-  // Draw Table
-
+  if ( thePlayer )
   thePlayer->GetView()->RedrawAlpha();
   theBall.GetView()->Redraw();
 
-  // temporal. Ä•`‰æ—Ìˆæ‚Ì‚Ý•`‰æ‚·‚é‚×‚«
-  SDL_Rect dest;
+  if ( theControl->GetView() ) {
+    theControl->GetView()->Redraw();
+    theControl->GetView()->RedrawAlpha();
+  }
 
-  dest.x = 0; 
-  dest.y = 0; 
-  dest.w = 800; 
-  dest.h = 600; 
- 
-  SDL_UpdateRects(m_baseSurface, 1, &dest); 
+  // Ä•`‰æ—Ìˆæ‚Ì‚Ý•`‰æ‚·‚é
+  rect.x = m_updateX1;
+  rect.y = m_updateY1;
+  rect.w = m_updateX2-m_updateX1+1;
+  rect.h = m_updateY2-m_updateY1+1;
+
+  SDL_UpdateRects(m_baseSurface, 1, &rect);
 
   return true;
 }
@@ -203,6 +227,27 @@ BaseView2D::QuitGame() {
   delete m_fieldView;
 }
 
+bool
+BaseView2D::AddUpdateRect( SDL_Rect *r ) {
+  if ( m_updateX2 == 0 && m_updateY2 == 0 ) {
+    m_updateX1 = r->x;
+    m_updateY1 = r->y;
+    m_updateX2 = r->x + r->w - 1;
+    m_updateY2 = r->y + r->h - 1;
+  } else {
+    if ( r->x < m_updateX1 )
+      m_updateX1 = r->x;
+    if ( r->y < m_updateY1 )
+      m_updateY1 = r->y;
+    if ( r->x+r->w-1 > m_updateX2 )
+      m_updateX2 = r->x+r->w-1;
+    if ( r->y+r->h-1 > m_updateY2 )
+      m_updateY2 = r->y+r->h-1;
+  }
+
+  return true;
+}
+
 // For rendering
 bool
 RenderRect( double x1, double y1, double z1, 
@@ -256,3 +301,4 @@ RenderPoint( double x, double y, double z,
   *_x = (int)(x/y*0.87*BaseView::GetWinWidth()+BaseView::GetWinWidth()/2);
   *_y = (int)(-z/y*0.87*BaseView::GetWinHeight()+BaseView::GetWinHeight()/2);
 }
+

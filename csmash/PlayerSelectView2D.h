@@ -16,40 +16,24 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#ifndef _BaseView2D_
-#define _BaseView2D_
+#ifndef _PlayerSelectView2D_
+#define _PlayerSelectView2D_
+#include "PlayerSelectView.h"
 
-#include "BaseView.h"
-#include "FieldView2D.h"
+class PlayerSelect;
 
-bool RenderRect( double x1, double y1, double z1, 
-		 double x2, double y2, double z2, 
-		 SDL_Rect *rect );
-bool RenderPoint( double x, double y, double z, 
-		  int *_x, int *_y );
-
-class BaseView2D : public BaseView {
+class PlayerSelectView2D : public PlayerSelectView {
 public:
-  BaseView2D();
-  ~BaseView2D();
+  PlayerSelectView2D();
+  virtual ~PlayerSelectView2D();
 
-  bool Init();
+  virtual bool Init( PlayerSelect * );
 
-  static void DisplayFunc();
+  virtual bool Redraw();
+  virtual bool RedrawAlpha();
 
-  virtual bool RedrawAll();
-  virtual bool SetViewPosition();
-
-  virtual void EndGame();
-  virtual void QuitGame();
-
-  virtual bool AddUpdateRect( SDL_Rect *r );
 protected:
-  virtual void SetLookAt();
-  long m_updateX1;
-  long m_updateY1;
-  long m_updateX2;
-  long m_updateY2;
+  SDL_Surface *m_playerBMP[PLAYERS];
 };
 
-#endif // _BaseView2D
+#endif	// _PlayerSelectView2D_

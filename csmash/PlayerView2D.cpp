@@ -61,18 +61,25 @@ PlayerView2D::RedrawAlpha() {
 
 bool
 PlayerView2D::SubRedraw() {
+  static SDL_Rect rect = {0, 0, 0, 0};
   if ( m_player->GetY() > -3.5 ) {
-    SDL_Rect rect;
     int x, y;
 
     RenderPoint( m_player->GetX(), m_player->GetY(), 1.7, &x, &y );
 
-    rect.x = x;
-    rect.y = y;
-    rect.w = m_playerBMP->w;
-    rect.h = m_playerBMP->h;
+    if ( rect.x != x-m_playerBMP->w/2 || rect.y != y ||
+	 rect.w != m_playerBMP->w || rect.h != m_playerBMP->h ) {
+      ((BaseView2D *)theView)->AddUpdateRect( &rect );
 
-    SDL_BlitSurface(m_playerBMP, NULL, theView->GetSurface(), &rect);
+      rect.x = x-m_playerBMP->w/2;
+      rect.y = y;
+      rect.w = m_playerBMP->w;
+      rect.h = m_playerBMP->h;
+
+      SDL_BlitSurface(m_playerBMP, NULL, theView->GetSurface(), &rect);
+
+      ((BaseView2D *)theView)->AddUpdateRect( &rect );
+    }
   }
 
   return true;

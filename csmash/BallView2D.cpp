@@ -23,7 +23,7 @@
 #include "Control.h"
 #include "LoadImage.h"
 #include "PlayGame.h"
-#include "BaseView.h"
+#include "BaseView2D.h"
 
 extern Ball   theBall;
 extern Player* thePlayer;
@@ -32,9 +32,6 @@ extern long mode;
 extern BaseView* theView;
 
 extern Control* theControl;
-
-extern bool isLighting;
-extern bool isTexture;
 
 extern bool RenderRect( double x1, double y1, double z1, 
 			double x2, double y2, double z2, 
@@ -62,15 +59,23 @@ BallView2D::Redraw() {
   double rad;
   Ball* tmpBall;
   const static GLfloat mat_yel[] = { 1.0F, 0.8F, 0.0F, 0.0F };
+  static SDL_Rect rect = {0, 0, 0, 0};
 
   // Draw the Ball itself
   if ( theBall.GetY() > -3.5 ) {
-    SDL_Rect rect;
+    SDL_Rect _rect;
+
     RenderRect( theBall.GetX()-BALL_R/2, theBall.GetY()-BALL_R/2, theBall.GetZ()-BALL_R/2, 
 		theBall.GetX()+BALL_R/2, theBall.GetY()+BALL_R/2, theBall.GetZ()+BALL_R/2, 
-		&rect );
+		&_rect );
 
-    SDL_FillRect( theView->GetSurface(), &rect, 0 );
+    if ( rect.x != _rect.x || rect.y != _rect.y ||
+	 rect.w != _rect.w || rect.h != _rect.h ) {
+      ((BaseView2D *)theView)->AddUpdateRect( &rect );
+      SDL_FillRect( theView->GetSurface(), &_rect, 0 );
+      ((BaseView2D *)theView)->AddUpdateRect( &_rect );
+      rect = _rect;
+    }
   }
 
   // Draw the ball shadow

@@ -46,7 +46,7 @@ Event theEvent;
 short csmash_port = CSMASH_PORT;
 int theSocket = -1;
 bool isComm = false;		// Network Play?
-char serverName[256];
+char serverName[256] = {'\0'};
 
 long timeAdj = 0;
 
@@ -76,6 +76,8 @@ extern void QuitGame();
 void StartGame();
 void EventLoop();
 bool PollEvent();
+
+extern bool ReadRCFile();
 
 #ifdef __CYGWIN__
 #include <getopt.h>
@@ -113,6 +115,7 @@ int main(int argc, char** argv) {
 #endif
 
     int c;
+
     while(EOF != (c = getopt(argc, argv, "schfS2Op:"))) {
         switch (c) {
         case 'h':
@@ -148,7 +151,7 @@ int main(int argc, char** argv) {
 	case '2':
 	    // Simple mode
 	    is2D = true;
-	    mode = MODE_TITLE;
+	    mode = MODE_SELECT;
 	    break;
 	}
     }
@@ -213,6 +216,8 @@ int main(int argc, char** argv) {
   SDL_CreateThread( LoadData, NULL );
 
   if ( mode == MODE_OPENING ) {
+    ReadRCFile();
+
     Launcher *launcher = new Launcher();
     launcher->Init();
   } else {

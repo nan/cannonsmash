@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,12 +22,14 @@
 #include "Player.h"
 #include "Sound.h"
 #include "PlayerSelectView.h"
+#include "PlayerSelectView2D.h"
 #include "Event.h"
 
 extern BaseView* theView;
 extern long mode;
 
 extern bool isComm;
+extern bool is2D;
 
 extern Player *thePlayer;
 
@@ -50,7 +52,11 @@ PlayerSelect::~PlayerSelect() {
 
 bool
 PlayerSelect::Init() {
-  m_View = new PlayerSelectView();
+  if ( is2D )
+    m_View = new PlayerSelectView2D();
+  else
+    m_View = new PlayerSelectView();
+
   m_View->Init( this );
 
   theView->AddView( m_View );

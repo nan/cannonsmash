@@ -29,6 +29,11 @@ extern long mode;
 extern void StartGame();
 extern void EventLoop();
 
+extern bool WriteRCFile();
+
+char nickname[32] = {'\0'};
+char message[64] = {'\0'};
+
 LauncherHeader::LauncherHeader() {
 }
 
@@ -194,8 +199,6 @@ ModeNote::InitLANPlayPanel() {
   GtkWidget *toggleButton[2];
   GSList *list;
 
-  serverName[0] = '\0';
-
   box = gtk_vbox_new( FALSE, 5 );
   gtk_container_border_width (GTK_CONTAINER (box), 5);
 
@@ -215,6 +218,9 @@ ModeNote::InitLANPlayPanel() {
   gtk_widget_show (toggleBox);
   gtk_box_pack_start( GTK_BOX(box), toggleBox, FALSE, FALSE, 5 );
 
+  if (serverName[0])
+    gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(toggleButton[1]), TRUE );
+
   // Lower input area for server name
   editBox = gtk_table_new( 2, 2, FALSE );
 
@@ -225,6 +231,7 @@ ModeNote::InitLANPlayPanel() {
   edit = gtk_entry_new ();
   gtk_table_attach( GTK_TABLE(editBox), edit, 1, 2, 1, 2,
 		    GTK_FILL, GTK_EXPAND, 0, 0 );
+  gtk_entry_set_text( GTK_ENTRY(edit), serverName );
 
   gtk_widget_show (editBox);
   gtk_box_pack_start( GTK_BOX(box), editBox, FALSE, FALSE, 5 );
@@ -266,6 +273,7 @@ ModeNote::InitInternetPlayPanel() {
   gtk_table_attach( GTK_TABLE(editBox), edit[0], 1, 2, 0, 1,
 		    GTK_FILL, GTK_EXPAND, 0, 0 );
   gtk_widget_show (edit[0]);
+  gtk_entry_set_text( GTK_ENTRY(edit[0]), nickname );
 
   label = gtk_label_new( "Message:" );
   gtk_table_attach( GTK_TABLE(editBox), label, 0, 1, 1, 2,
@@ -275,6 +283,7 @@ ModeNote::InitInternetPlayPanel() {
   gtk_table_attach( GTK_TABLE(editBox), edit[1], 1, 2, 1, 2,
 		    GTK_FILL, GTK_EXPAND, 0, 0 );
   gtk_widget_show (edit[1]);
+  gtk_entry_set_text( GTK_ENTRY(edit[1]), nickname );
 
   gtk_widget_show (editBox);
   gtk_box_pack_start( GTK_BOX(box), editBox, FALSE, FALSE, 5 );
@@ -324,10 +333,16 @@ ModeNote::LANStartGame( GtkWidget *widget, gpointer data ) {
 void
 ModeNote::InternetStartGame( GtkWidget *widget, gpointer data ) {
   LobbyClient *lb;
-  //printf( "%s\n", gtk_entry_get_text( GTK_ENTRY(((GtkWidget **)data)[0]) ) );
+  strncpy( nickname,
+	   gtk_entry_get_text(GTK_ENTRY(((GtkWidget **)data)[0])), 32 );
+  strncpy( message,
+	   gtk_entry_get_text(GTK_ENTRY(((GtkWidget **)data)[1])), 64 );
   lb = new LobbyClient();
+  /*
   lb->Init( gtk_entry_get_text( GTK_ENTRY(((GtkWidget **)data)[0]) ),
 	    gtk_entry_get_text( GTK_ENTRY(((GtkWidget **)data)[1]) ) );
+  */
+  lb->Init( nickname, message );
 }
 
 
@@ -395,6 +410,8 @@ Launcher::Init() {
 
 void
 Launcher::Destroy(GtkWidget *widget, gpointer data) {
+  WriteRCFile();
+
   gtk_main_quit();
 
   gtk_exit(2);
