@@ -402,15 +402,15 @@ PenAttack::CalcLevel(Ball *ball, double &diff, double &level, double &maxVy) {
     case SWING_POKE:
     case SWING_NORMAL:
     case SWING_DRIVE:
-      maxVy = hypot(ball->GetVX(), ball->GetVY())*0.6 + 10.0 -
-	(fabs(m_spin)+fabs(ball->GetSpin()))*4.0;
-      break;
-    case SWING_SMASH:
       maxVy = hypot(ball->GetVX(), ball->GetVY())*0.6 + 12.0 -
 	(fabs(m_spin)+fabs(ball->GetSpin()))*4.0;
       break;
+    case SWING_SMASH:
+      maxVy = hypot(ball->GetVX(), ball->GetVY())*0.6 + 15.0 -
+	(fabs(m_spin)+fabs(ball->GetSpin()))*4.0;
+      break;
     default:
-      maxVy = hypot(ball->GetVX(), ball->GetVY())*0.6 + 10.0 -
+      maxVy = hypot(ball->GetVX(), ball->GetVY())*0.6 + 12.0 -
 	(fabs(m_spin)+fabs(ball->GetSpin()))*4.0;
     }
   }

@@ -51,6 +51,8 @@ extern short csmash_port;
 extern int theSocket;
 bool endian;
 
+extern long gameLevel;
+
 extern void QuitGame();
 
 int one=1;
@@ -617,6 +619,8 @@ MultiPlay::Create( long player, long com ) {
 
   SDL_ShowCursor(0);
   SDL_WM_GrabInput( SDL_GRAB_ON );
+
+  gameLevel = LEVEL_HARD;
 
   return newMultiPlay;
 }

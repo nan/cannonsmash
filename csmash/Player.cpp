@@ -45,6 +45,7 @@ extern Player *comPlayer;
 extern Event theEvent;
 
 extern long mode;
+extern long gameLevel;
 
 Player::Player() {
   m_side = 1;
@@ -777,10 +778,25 @@ Player::AddStatus( long diff ) {
     }
 
     if ( diff < -3 ) {	// これもいまいち. 移動以外で status が下がった場合
-      m_statusMax = (m_statusMax+m_status)/2;
+      if ( this == thePlayer ) {
+	switch (gameLevel) {
+	case LEVEL_EASY:
+	  m_statusMax = (m_statusMax*3+m_status)/4;
+	  break;
+	case LEVEL_NORMAL:
+	  m_statusMax = (m_statusMax*2+m_status)/3;
+	  break;
+	case LEVEL_HARD:
+	  m_statusMax = (m_statusMax+m_status)/2;
+	  break;
+	case LEVEL_TSUBORISH:
+	  m_statusMax = (m_statusMax+m_status)/2;
+	  break;
+	}
+      } else {
+	m_statusMax = (m_statusMax*3+m_status)/4;	/* 打球位置でのペナルティを相殺 */
+      }
     }
-    //if ( m_status < m_statusMax )
-    //m_statusMax = (m_statusMax+m_status)/2;
   }
 
   return true;

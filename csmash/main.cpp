@@ -52,7 +52,7 @@ bool isWireFrame = true;
 bool fullScreen = false;
 
 long wins	= 0;		// 勝ち抜き数
-long gameLevel  = LEVEL_NORMAL;	// 強さ
+long gameLevel  = LEVEL_EASY;	// 強さ
 long gameMode   = GAME_21PTS;	// ゲームの長さ
 
 Control*      theControl = NULL;
@@ -64,6 +64,19 @@ long sndMode;			// あとで引数化
 SDL_mutex *loadMutex;
 
 extern void QuitGame();
+
+void HotKey_ToggleFullScreen(void)
+{
+  SDL_Surface *screen = SDL_GetVideoSurface();
+  if ( SDL_WM_ToggleFullScreen(screen) ) {
+    fullScreen = (screen->flags & SDL_FULLSCREEN) ? 1 : 0;
+    fprintf(stderr, "Toggled fullscreen mode - now %s\n",
+            fullScreen  ? "fullscreen" : "windowed");
+  } else {
+    fprintf(stderr, "Unable to toggle fullscreen mode\n");
+  }
+}
+
 
 #ifdef WIN32
 #include "win32/getopt.h"
@@ -211,6 +224,13 @@ int main(int argc, char** argv) {
     while ( SDL_PollEvent(&event) ) {
       // このあたり, GLUT 風になっているので SDL 風に直す
       switch ( event.type ) {
+#if 1
+	if ( (event.key.keysym.sym == SDLK_RETURN) &&
+	     (event.key.keysym.mod & KMOD_ALT) ) {
+		HotKey_ToggleFullScreen();
+		break;
+	}
+#endif
       case SDL_KEYDOWN:
 	Event::KeyboardFunc( event, 0, 0 );
 	break;
@@ -244,5 +264,5 @@ LoadData( void *dum ) {
   PlayerView::LoadData(NULL);
   SDL_mutexV( loadMutex );
 
-  return NULL;
+  return 0;
 }

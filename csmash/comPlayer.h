@@ -19,6 +19,9 @@
 #ifndef _comPlayer_
 #define _comPlayer_
 
+#define LEVELMARGIN	(0.20/(gameLevel+1))
+//#define LEVELMARGIN	(0.15-gameLevel*0.05)
+
 class ComPlayer {
 public:
   ComPlayer();

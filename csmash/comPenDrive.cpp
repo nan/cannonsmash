@@ -154,21 +154,39 @@ ComPenDrive::Think() {
     // 0.1秒後のボールの位置を推定する. Swingと二重になるので
     // 要再考. 
     Ball *tmpBall;
+    double tmpBallX, tmpBallY, tmpBallZ;
+    double tmpX, tmpY;
 
     tmpBall = new Ball( theBall.GetX(), theBall.GetY(), theBall.GetZ(),
 			theBall.GetVX(), theBall.GetVY(), theBall.GetVZ(),
 			theBall.GetSpin(), theBall.GetStatus() );
 
-    for ( int i = 0 ; i < 10 ; i++ )
+    for ( int i = 0 ; i < 9 ; i++ )
       tmpBall->Move();
+    tmpX = m_x+m_vx*0.09;
+    tmpY = m_y+m_vy*0.09;
 
     if ( ((tmpBall->GetStatus() == 3 && m_side == 1) ||
 	  (tmpBall->GetStatus() == 1 && m_side == -1)) &&
-	 (m_y-tmpBall->GetY())*m_side < 0.3 &&
-	 (m_y-tmpBall->GetY())*m_side > -0.6 && RAND(2) == 0 &&
-	 fabs(m_y-tmpBall->GetY()) > 0.15-gameLevel*0.05 ){
-      _hitX = tmpBall->GetX();
-      _hitY = tmpBall->GetY();
+	 (tmpY-tmpBall->GetY())*m_side < 0.3 &&
+	 (tmpY-tmpBall->GetY())*m_side > -0.6 &&
+	 m_swing <= 10 &&
+	 fabs(tmpY-tmpBall->GetY()) > LEVELMARGIN ) {
+
+      tmpBallX = tmpBall->GetX();
+      tmpBallY = tmpBall->GetY();
+      tmpBallZ = tmpBall->GetZ();
+
+      // もし, 1/100 秒後により良い状態にあるならそれまで待つ
+      tmpBall->Move();
+      if ( fabs(tmpY+m_vy*0.01-tmpBall->GetY()) < fabs(tmpY-tmpBallY) &&
+	   fabs(tmpY+m_vy*0.01-tmpBall->GetY()) > LEVELMARGIN ) {
+	delete tmpBall;
+	return true;
+      }
+
+      _hitX = tmpBallX;
+      _hitY = tmpBallY;
 
       Player *opponent;
       if ( m_side == -1 )
@@ -178,30 +196,18 @@ ComPenDrive::Think() {
 
       SetTargetX( opponent );
 
-#if 0
-      if ( (tmpBall->GetZ()-TABLEHEIGHT)/fabs(m_y - m_targetY) < 0.0 ) {
+      if ( (tmpBallZ-TABLEHEIGHT)/fabs(tmpBallY - m_targetY) < 0.0 )
 	m_targetY = TABLELENGTH/6*m_side;
-	Swing( 1 );
-      } else if ( (tmpBall->GetZ()-TABLEHEIGHT)/fabs(m_y-m_targetY) < 0.1 ) {
-	m_targetY = TABLELENGTH/4*m_side;
-	Swing( 2 );
-      } else {
-	m_targetY = TABLELENGTH/16*6*m_side;
-	Swing( 3 );
-      }
-#else
-      if ( (tmpBall->GetZ()-TABLEHEIGHT)/fabs(m_y - m_targetY) < 0.0 )
-	m_targetY = TABLELENGTH/6*m_side;
-      else if ( (tmpBall->GetZ()-TABLEHEIGHT)/fabs(m_y-m_targetY) < 0.1 )
+      else if ( (tmpBallZ-TABLEHEIGHT)/fabs(tmpBallY-m_targetY) < 0.1 )
 	m_targetY = TABLELENGTH/4*m_side;
       else
 	m_targetY = TABLELENGTH/16*6*m_side;
 
-      if ( (m_x-tmpBall->GetX())*m_side < 0 )
+      if ( (m_x-tmpBallX)*m_side < 0 )
 	Swing(3);
       else
 	Swing(1);
-#endif
+
       m_pow = 8;
     }
     delete tmpBall;
