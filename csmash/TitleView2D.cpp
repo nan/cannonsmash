@@ -22,7 +22,7 @@
 #include "MenuItem.h"
 #include "LoadImage.h"
 #include "Sound.h"
-#include "BaseView.h"
+#include "BaseView2D.h"
 
 extern long gameLevel;
 extern long gameMode;
@@ -55,6 +55,7 @@ TitleView2D::Init( Title *title ) {
 
 bool
 TitleView2D::Redraw() {
+  return true;
 }
 
 bool
@@ -91,11 +92,61 @@ TitleView2D::RedrawAlpha() {
     break;
   }
 
+  /*
   view = m_View;
   while ( view ){
     view->RedrawAlpha();
     view = view->m_next;
   }
+  */
 
   return true;
+}
+
+bool
+TitleView2D::GetDamageRect() {
+  static SDL_Rect rect = {0, 0, 0, 0};
+  switch ( m_title->GetSelectMode() ) {
+  case MENU_MAIN:
+    if ( rect.x != m_title->GetSelected()->GetX()-80 ||
+	 rect.y != m_title->GetSelected()->GetY() ||
+	 rect.w != m_triangleBMP->w ||
+	 rect.h != m_triangleBMP->h ) {
+      ((BaseView2D *)theView)->AddUpdateRect( &rect );
+      rect.x = m_title->GetSelected()->GetX()-80;
+      rect.y = m_title->GetSelected()->GetY();
+      rect.w = m_triangleBMP->w;
+      rect.h = m_triangleBMP->h;
+      ((BaseView2D *)theView)->AddUpdateRect( &rect );
+    }
+    break;
+  case MENU_CONFIG:
+    // Title
+    if ( m_title->GetSelected()->GetHeight() == 70 ) {
+      if ( rect.x != m_title->GetSelected()->GetX()-80 ||
+	   rect.y != m_title->GetSelected()->GetY() ||
+	   rect.w != m_triangleBMP->w ||
+	   rect.h != m_triangleBMP->h ) {
+	((BaseView2D *)theView)->AddUpdateRect( &rect );
+	rect.x = m_title->GetSelected()->GetX()-80;
+	rect.y = m_title->GetSelected()->GetY();
+	rect.w = m_triangleBMP->w;
+	rect.h = m_triangleBMP->h;
+	((BaseView2D *)theView)->AddUpdateRect( &rect );
+      }
+    } else {
+      if ( rect.x != m_title->GetSelected()->GetX()-40 ||
+	   rect.y != m_title->GetSelected()->GetY() ||
+	   rect.w != m_triangleBMP->w ||
+	   rect.h != m_triangleBMP->h ) {
+	((BaseView2D *)theView)->AddUpdateRect( &rect );
+	rect.x = m_title->GetSelected()->GetX()-40;
+	rect.y = m_title->GetSelected()->GetY();
+	rect.w = m_triangleBMP->w;
+	rect.h = m_triangleBMP->h;
+	((BaseView2D *)theView)->AddUpdateRect( &rect );
+      }
+    }
+    break;
+  }
 }
