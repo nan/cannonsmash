@@ -178,6 +178,8 @@ LobbyClientView::~LobbyClientView() {
 
 void
 LobbyClientView::Init( LobbyClient *lobby ) {
+  int i;
+
   m_parent = lobby;
 
   m_timeout = gtk_timeout_add( 1000, LobbyClient::PollServerMessage,
@@ -189,14 +191,15 @@ LobbyClientView::Init( LobbyClient *lobby ) {
 
 #ifdef WIN32
   char windowName[32];
-  for ( int i = 0 ; i < 32 ; i++ )
+  for ( i = 0 ; i < 31 ; i++ )
     windowName[i] = 'A'+RAND(26);
+  windowName[31] = 0;
 
   gtk_window_set_title( GTK_WINDOW(m_window), windowName);
 #else
   gtk_window_set_title( GTK_WINDOW(m_window), _("Cannon Smash"));
 #endif
-  gtk_widget_show(m_window);
+  gtk_widget_realize(m_window);
   gtk_window_set_modal( (GtkWindow *)m_window, true );
   gtk_widget_set_usize( m_window, 600, 400 );
 
@@ -209,7 +212,6 @@ LobbyClientView::Init( LobbyClient *lobby ) {
 				  GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS );
   gtk_box_pack_start( GTK_BOX(GTK_DIALOG(m_window)->vbox), scrolled_window,
 		      TRUE, TRUE, 0 );
-  gtk_widget_show (scrolled_window);
 
   GtkTreeViewColumn *column;
   GtkCellRenderer *renderer;
@@ -243,11 +245,10 @@ LobbyClientView::Init( LobbyClient *lobby ) {
 					  LobbyClientView::checkSelection,
 					  this,
 					  NULL);
-  gtk_widget_show(m_table);
 
   GtkWidget *notebook = gtk_notebook_new();
   GtkWidget *label;
-  int i = 0;
+  i = 0;
 
   m_langID[i] = table[m_parent->GetLang()].langID;
   if ( m_langID[i] != 0x09 ) {
@@ -259,8 +260,6 @@ LobbyClientView::Init( LobbyClient *lobby ) {
 				   GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 					  m_chat[i] );
-    gtk_widget_show(m_chat[i]);
-    gtk_widget_show(scrolled_window);
 
     label = gtk_label_new( _(table[m_parent->GetLang()].langname) );
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), scrolled_window, label);
@@ -276,8 +275,6 @@ LobbyClientView::Init( LobbyClient *lobby ) {
 				  GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS );
   gtk_scrolled_window_add_with_viewport( GTK_SCROLLED_WINDOW(scrolled_window),
 					 m_chat[i] );
-  gtk_widget_show(m_chat[i]);
-  gtk_widget_show(scrolled_window);
 
   label = gtk_label_new( _("English") );
 
@@ -287,7 +284,6 @@ LobbyClientView::Init( LobbyClient *lobby ) {
 		      TRUE, TRUE, 0 );
   gtk_signal_connect (GTK_OBJECT (notebook), "switch-page",
 		      GTK_SIGNAL_FUNC (LobbyClientView::SwitchChatPage), this);
-  gtk_widget_show(notebook);
 
   m_chatinput = gtk_entry_new();
 
@@ -295,10 +291,12 @@ LobbyClientView::Init( LobbyClient *lobby ) {
 		      TRUE, TRUE, 10 );
   gtk_signal_connect (GTK_OBJECT (m_chatinput), "key-press-event",
 		      GTK_SIGNAL_FUNC (LobbyClientView::KeyPress), this);
-  gtk_widget_show(m_chatinput);
 
 #ifdef WIN32
-  HWND hWnd =  FindWindow( "gdkWindowTopLevel", windowName );
+  gtk_widget_show_all(m_window);                     
+  gtk_widget_show(m_chatinput);
+
+  HWND hWnd = FindWindow( "gdkWindowTopLevel", windowName );
   gtk_window_set_title( GTK_WINDOW(m_window), _("Cannon Smash"));
 
   HWND cWnd = NULL;
@@ -321,7 +319,6 @@ LobbyClientView::Init( LobbyClient *lobby ) {
   m_connectButton = gtk_button_new_with_label (_("connect"));
   gtk_signal_connect (GTK_OBJECT (m_connectButton), "clicked",
 		      GTK_SIGNAL_FUNC (LobbyClient::Connect), m_parent);
-  gtk_widget_show (m_connectButton);
   gtk_widget_set_sensitive (m_connectButton, false);
   gtk_box_pack_start (GTK_BOX (GTK_DIALOG (m_window)->action_area),
 		      m_connectButton, TRUE, TRUE, 0);
@@ -329,7 +326,6 @@ LobbyClientView::Init( LobbyClient *lobby ) {
   m_warmUpButton = gtk_button_new_with_label (_("warm up"));
   gtk_signal_connect (GTK_OBJECT (m_warmUpButton), "clicked",
 		      GTK_SIGNAL_FUNC (LobbyClientView::WarmUp), this);
-  gtk_widget_show (m_warmUpButton);
   gtk_box_pack_start (GTK_BOX (GTK_DIALOG (m_window)->action_area),
 		      m_warmUpButton, TRUE, TRUE, 0);
 
@@ -342,9 +338,8 @@ LobbyClientView::Init( LobbyClient *lobby ) {
 		      button, TRUE, TRUE, 0);
 
   gtk_widget_grab_default (button);
-  gtk_widget_show (button);
   
-  gtk_widget_show (m_window);                     
+  gtk_widget_show_all(m_window);                     
 }
 
 void
@@ -521,12 +516,9 @@ LobbyClientView::ShowUpdateDialog( char *version, char *URL ) {
   gtk_window_set_modal( (GtkWindow *)dialog, true );
 
   gtk_label_set_line_wrap( GTK_LABEL(label), true );
-  gtk_widget_show( label );
 
   gtk_box_pack_start( GTK_BOX(GTK_DIALOG(dialog)->vbox),
 		      label, TRUE, TRUE, 0 );
-
-  gtk_widget_show (dialog);
 
   gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dialog)->action_area),
 		      button, TRUE, TRUE, 0);
@@ -535,7 +527,8 @@ LobbyClientView::ShowUpdateDialog( char *version, char *URL ) {
   gtk_signal_connect_object(GTK_OBJECT(button), "clicked",
 			    GTK_SIGNAL_FUNC(gtk_widget_destroy), 
 			    GTK_OBJECT(dialog));
-  gtk_widget_show (button);
+
+  gtk_widget_show_all(dialog);
 }
 
 void
@@ -610,12 +603,9 @@ PIDialog::PopupDialog( long uniqID ) {
 
   label = gtk_label_new( buf );
   gtk_label_set_line_wrap( GTK_LABEL(label), true );
-  gtk_widget_show( label );
 
   gtk_box_pack_start( GTK_BOX(GTK_DIALOG(m_window)->vbox), label, 
 		      TRUE, TRUE, 0 );
-
-  gtk_widget_show (m_window);
 
   button = gtk_button_new_with_label (_("OK!"));
   gtk_signal_connect (GTK_OBJECT (button), "clicked",
@@ -626,7 +616,6 @@ PIDialog::PopupDialog( long uniqID ) {
 		      button, TRUE, TRUE, 0);
 
   gtk_widget_grab_default (button);
-  gtk_widget_show (button);
 
   button = gtk_button_new_with_label (_("No!"));
   gtk_signal_connect (GTK_OBJECT (button), "clicked",
@@ -634,7 +623,8 @@ PIDialog::PopupDialog( long uniqID ) {
 
   gtk_box_pack_start (GTK_BOX (GTK_DIALOG (m_window)->action_area),
 		      button, TRUE, TRUE, 0);
-  gtk_widget_show (button);
+
+  gtk_widget_show_all(m_window);
 }
 
 void
