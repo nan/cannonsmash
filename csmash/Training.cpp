@@ -70,13 +70,13 @@ Training::Create( long player, long com ) {
 }
 
 bool
-Training::Move( unsigned long *KeyHistory, long *MouseXHistory,
+Training::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		long *MouseYHistory, unsigned long *MouseBHistory,
 		int Histptr ) {
   bool reDraw = false;
   long ballStatus = theBall.GetStatus();
 
-  if ( KeyHistory[Histptr] == 'Q' ) {
+  if ( KeyHistory[Histptr].unicode == 'Q' ) {
     mode = MODE_TITLE;
     return true;
   }

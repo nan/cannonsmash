@@ -53,7 +53,7 @@ TrainingSelect::Create() {
 }
 
 bool
-TrainingSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
+TrainingSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		    long *MouseYHistory, unsigned long *MouseBHistory,
 		    int Histptr ) {
   static long lastRotate = 0;
@@ -66,8 +66,8 @@ TrainingSelect::Move( unsigned long *KeyHistory, long *MouseXHistory,
     return true;
   }
 
-  if ( KeyHistory[Histptr] == SDLK_ESCAPE ||
-       KeyHistory[Histptr] == 'Q' ) {
+  if ( KeyHistory[Histptr].unicode == SDLK_ESCAPE ||
+       KeyHistory[Histptr].unicode == 'Q' ) {
     mode = MODE_TITLE;
     return true;
   }

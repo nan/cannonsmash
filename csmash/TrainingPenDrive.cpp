@@ -53,7 +53,7 @@ TrainingPenDrive::AddStatus( long diff ) {
 }
 
 bool
-TrainingPenDrive::Move( unsigned long *KeyHistory, long *MouseXHistory,
+TrainingPenDrive::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 			long *MouseYHistory, unsigned long *MouseBHistory,
 			int Histptr ) {
   Player::Move( KeyHistory, MouseXHistory, MouseYHistory,MouseBHistory,
@@ -61,8 +61,10 @@ TrainingPenDrive::Move( unsigned long *KeyHistory, long *MouseXHistory,
 
   m_vy = m_vz = 0.0;
   m_y = -(TABLELENGTH/2+0.3)*m_side;
-  m_targetX = -TABLEWIDTH/5*2*m_side;
-  m_targetY = TABLELENGTH/16*5*m_side;
+  //m_targetX = -TABLEWIDTH/5*2*m_side;
+  m_targetX = -TABLEWIDTH/5*m_side;
+  //m_targetY = TABLELENGTH/16*5*m_side;
+  m_targetY = TABLELENGTH/16*4*m_side;
 
   return true;
 }
