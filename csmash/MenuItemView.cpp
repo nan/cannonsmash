@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000, 2001, 2002  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2002  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -65,7 +65,9 @@ MenuItemView::RedrawAlpha() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
+  GLboolean depthtestenabled = glIsEnabled(GL_DEPTH_TEST);
   glDisable(GL_DEPTH_TEST);
+
   glDepthMask(0);
 
   if ( m_menuItem->GetSelected() )
@@ -78,8 +80,7 @@ MenuItemView::RedrawAlpha() {
 	    0.0F, 0.0F, 0.0F, 0, m_image->GetImage() );
 
   glDepthMask(1);
-  if ( theRC->gmode != GMODE_SIMPLE )
-    glEnable(GL_DEPTH_TEST);
+  if (depthtestenabled) glEnable(GL_DEPTH_TEST);
 
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();

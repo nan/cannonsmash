@@ -108,6 +108,7 @@ TitleView::RedrawAlpha() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
+  GLboolean depthtestenabled = glIsEnabled(GL_DEPTH_TEST);
   glDisable(GL_DEPTH_TEST);
   glDepthMask(0);
 
@@ -173,8 +174,7 @@ TitleView::RedrawAlpha() {
   }
 
   glDepthMask(1);
-  if ( theRC->gmode != GMODE_SIMPLE )
-    glEnable(GL_DEPTH_TEST);
+  if (depthtestenabled) glEnable(GL_DEPTH_TEST);
 
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
