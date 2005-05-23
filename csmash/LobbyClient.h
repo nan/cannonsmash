@@ -186,7 +186,7 @@ static struct {
   { "sv", _("Swedish"), 0x1d },
   { "sw", _("Swahili"), 0x41 },
   { "ta", _("Tamil"), 0x49 },
-  { "te", _("Telugu"), 0x0a },
+  { "te", _("Telugu"), 0x4a },
   { "tg", _("Tajik"), 0x00 },
   { "th", _("Thai"), 0x1e },
   { "ti", _("Tigrinya"), 0x00 },
