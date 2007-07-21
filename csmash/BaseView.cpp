@@ -234,9 +234,6 @@ bool
 BaseView::RedrawAll() {
   View *view;
   GLfloat light_position[] = { 1.0F, -1.0F, 1.0F, 0.0F };
-#ifdef SCREENSHOT
-  static int count = 0;
-#endif
 
   SetViewPosition();
 
@@ -331,36 +328,6 @@ BaseView::RedrawAll() {
   glPopMatrix();
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
-
-#ifdef SCREENSHOT
-  SDL_Surface *image;
-  SDL_Surface *temp;
-  int idx;
-  image = SDL_CreateRGBSurface(SDL_SWSURFACE, m_winWidth, m_winHeight,
-			       32, 0x000000FF, 0x0000FF00,
-			       0x00FF0000, 0xFF000000);
-  temp = SDL_CreateRGBSurface(SDL_SWSURFACE, m_winWidth, m_winHeight,
-			      32, 0x000000FF, 0x0000FF00,
-			      0x00FF0000, 0xFF000000);
-
-  glReadPixels(0, 0, m_winWidth, m_winHeight, GL_RGBA,
-	       GL_UNSIGNED_BYTE, image->pixels);
-
-  for (idx = 0; idx < m_winHeight; idx++) {
-    memcpy((char *)temp->pixels + 4 * m_winWidth * idx,
-	   (char *)image->pixels + 4 * m_winWidth*(m_winHeight-1 - idx),
-	   4*m_winWidth);
-  }
-
-  char fname[64];
-  sprintf( fname, "image%06d.bmp", count );
-  SDL_SaveBMP(temp, fname);
-
-  SDL_FreeSurface(image);
-  SDL_FreeSurface(temp);
-  count++;
-#endif
-
 
   SDL_GL_SwapBuffers();
 
