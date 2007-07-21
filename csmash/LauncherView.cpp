@@ -808,9 +808,9 @@ ModeNote::InternetStartGame( GtkWidget *widget, gpointer data ) {
   LobbyClient *lb;
   lb = LobbyClient::Create();
 
-  char *nickname = gtk_entry_get_text(GTK_ENTRY(((GtkWidget **)data)[0]));
-  char *password = gtk_entry_get_text(GTK_ENTRY(((GtkWidget **)data)[1]));
-  bool *ping     = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(((GtkWidget **)data)[2]));
+  char *nickname = (char *)gtk_entry_get_text(GTK_ENTRY(((GtkWidget **)data)[0]));
+  char *password = (char *)gtk_entry_get_text(GTK_ENTRY(((GtkWidget **)data)[1]));
+  bool ping      = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(((GtkWidget **)data)[2]));
 
   if ( strncmp( theRC->message, password, 64 ) ) {
     //TODO: encrypt password. At that time, password buffer should not be overwritten. 
@@ -922,9 +922,9 @@ void
 LauncherView::Destroy(GtkWidget *widget, gpointer data) {
   ModeNote *note = ((LauncherView *)data)->m_note;
 
-  char *serverName = gtk_entry_get_text( GTK_ENTRY(note->m_serverName) );
-  char *nickname   = gtk_entry_get_text( GTK_ENTRY(note->m_lobbyEdit[0]) );
-  char *password   = gtk_entry_get_text( GTK_ENTRY(note->m_lobbyEdit[1]) );
+  char *serverName = (char *)gtk_entry_get_text( GTK_ENTRY(note->m_serverName) );
+  char *nickname   = (char *)gtk_entry_get_text( GTK_ENTRY(note->m_lobbyEdit[0]) );
+  char *password   = (char *)gtk_entry_get_text( GTK_ENTRY(note->m_lobbyEdit[1]) );
   strncpy( theRC->serverName, serverName, 256 );
   strncpy( theRC->nickname, nickname, 256 );
   if ( strncmp( theRC->message, password, 64 ) ) {
