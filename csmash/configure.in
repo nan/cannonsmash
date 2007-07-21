@@ -19,7 +19,7 @@ AC_PATH_PROG(GZIP, gzip)
 
 AC_PATH_X
 
-CFLAGS="-I $x_includes"
+CFLAGS="-I/ $x_includes"
 LDFLAGS="-L/usr/local/lib -L$x_libraries -L$libdir"
 CXXFLAGS="$CFLAGS -Wall"
 
