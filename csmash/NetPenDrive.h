@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2001, 2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001, 2004, 2007  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,11 +24,13 @@ class NetPenDrive : public PenDrive {
 public:
   NetPenDrive();
   NetPenDrive(long side);
-  NetPenDrive( long playerType, long side, const vector3d x, const vector3d v,
-	       long status, long swing, long swingType, bool swingSide,
-	       long afterSwing, long swingError, const vector2d target, 
-	       const vector3d eye, long pow, const vector2d spin, 
-	       double stamina, long statusMax );
+  NetPenDrive( long playerType, long side, const vector3d x,
+	       const vector3d v, long status, long swing, long swingType,
+	       bool swingSide, long afterSwing, long swingError,
+	       const vector2d target, const vector3d eye,
+	       const vector3d lookAt, long pow, const vector2d spin,
+	       double stamina, long statusMax, long dragX, long dragY );
+
   virtual ~NetPenDrive();
 
   virtual bool Move( SDL_keysym *KeyHistory, long *MouseXHistory,

@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -72,7 +72,9 @@ public:
   Player( long playerType, long side, const vector3d x, const vector3d v,
 	  long status, long swing, long swingType, bool swingSide, long afterSwing,
 	  long swingError, const vector2d target, const vector3d eye,
-	  long pow, const vector2d spin, double stamina, long statusMax );
+	  const vector3d lookAt, 
+	  long pow, const vector2d spin, double stamina, long statusMax,
+	  long dragX, long dragY );
 
   virtual ~Player();
 
@@ -105,6 +107,7 @@ public:
   virtual vector3d GetLookAt() { return m_lookAt; }	///< Getter method of m_lookAt
   virtual double GetStamina() { return m_stamina; }	///< Getter method of m_stamina
   virtual long   GetStatus() { return m_status; }	///< Getter method of m_status
+  virtual long   GetStatusMax() { return m_statusMax; }	///< Getter method of m_statusMax
   virtual long   GetSwing() { return m_swing; }		///< Getter method of m_swing
   virtual long   GetSwingType() { return m_swingType; }	///< Getter method of m_swingType
   virtual bool   GetSwingSide() { return m_swingSide; }	///< Getter method of m_swingSide

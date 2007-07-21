@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -73,12 +73,16 @@ ShakeCut::ShakeCut(long side) : Player(side) {
  * @param stamina stamina (not used currently)
  * @param statusMax max of the status
  */
-ShakeCut::ShakeCut( long playerType, long side, const vector3d x, const vector3d v,
-		    long status, long swing, long swingType, bool swingSide, long afterSwing,
-		    long swingError, const vector2d target, const vector3d eye,
-		    long pow, const vector2d spin, double stamina, long statusMax ) :
-  Player( playerType, side, x, v, status, swing, swingType, swingSide, afterSwing,
-	  swingError, target, eye, pow, spin, stamina, statusMax ) {
+ShakeCut::ShakeCut( long playerType, long side, const vector3d x,
+		    const vector3d v, long status, long swing,
+		    long swingType, bool swingSide, long afterSwing,
+		    long swingError, const vector2d target,
+		    const vector3d eye, const vector3d lookAt, 
+		    long pow, const vector2d spin, double stamina,
+		    long statusMax, long dragX, long dragY ) :
+  Player( playerType, side, x, v, status, swing, swingType, swingSide, 
+	  afterSwing, swingError, target, eye, lookAt, pow, spin, 
+	  stamina, statusMax, dragX, dragY ) {
 }
 
 /**

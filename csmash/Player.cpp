@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -150,8 +150,9 @@ Player::Player( long side ) :
 Player::Player( long playerType, long side, vector3d x, const vector3d v,
 		long status, long swing, long swingType, bool swingSide, long afterSwing,
 		long swingError, const vector2d target, const vector3d eye,
-		long pow, const vector2d spin, double stamina,long statusMax ) :
-  m_lookAt((const double[]){0.0, TABLELENGTH/2, TABLEHEIGHT}), 
+		const vector3d lookAt, 
+		long pow, const vector2d spin, double stamina,long statusMax,
+		long dragX, long dragY ) :
   m_lastSendX((const double[]){0.0, 0.0, 0.0}), 
   m_lastSendV((const double[]){0.0, 0.0, 0.0}) {
   m_side = side;
@@ -170,12 +171,17 @@ Player::Player( long playerType, long side, vector3d x, const vector3d v,
 
   m_eye = eye;
 
+  m_lookAt = lookAt;
+
   m_pow = pow;
   m_lookAt[1] *= m_side;
   m_spin = spin;
   m_stamina = stamina;
   m_statusMax = statusMax;
   m_lastSendCount = 0;
+
+  m_dragX = dragX;
+  m_dragY = dragY;
 
   m_View = NULL;
 
