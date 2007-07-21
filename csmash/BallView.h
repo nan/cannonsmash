@@ -40,7 +40,7 @@ public:
 
   static GLuint m_number[10];	///< Score texture. 
 private:
-  void BallView::DrawTargetCircle();
+  void DrawTargetCircle();
   GLUquadricObj *m_quad;	///< glu object. 
 
   void DrawBall();
