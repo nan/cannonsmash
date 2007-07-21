@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -84,13 +84,8 @@ SoloPlay::Create( long player, long com ) {
   m_theControl = new SoloPlay();
   m_theControl->Init();
 
-#ifdef SCREENSHOT
-  m_thePlayer = Player::Create( 0, 1, 1 );
-  m_comPlayer = Player::Create( 0, -1, 1 );
-#else
   m_thePlayer = Player::Create( player, 1, 0 );
   m_comPlayer = Player::Create( com, -1, 1 );
-#endif
 
   m_thePlayer->Init();
   m_comPlayer->Init();
@@ -135,12 +130,8 @@ SoloPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       }
     } else {
       theBall.Move();
-#ifdef SCREENSHOT
-      reDraw |= m_thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
-#else
       reDraw |= m_thePlayer->Move( KeyHistory, MouseXHistory,
 				 MouseYHistory, MouseBHistory, Histptr );
-#endif
       reDraw |= m_comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
 
       Event::TheEvent()->BackTrack(Histptr);
@@ -150,12 +141,8 @@ SoloPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   }
 
   theBall.Move();
-#ifdef SCREENSHOT
-  reDraw |= m_thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
-#else
   reDraw |= m_thePlayer->Move( KeyHistory, MouseXHistory,
 			     MouseYHistory, MouseBHistory, Histptr );
-#endif
   reDraw |= m_comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
 
   // Check smash replay
