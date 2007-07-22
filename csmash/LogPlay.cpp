@@ -126,7 +126,9 @@ LogPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   long sec, cnt;
   long score1, score2;
 
-  theBall.LoadBallLog(fpBall, sec, cnt, score1, score2);
+  if (!theBall.LoadBallLog(fpBall, sec, cnt, score1, score2))
+    exit(1);
+
   ChangeScore(score1, score2);
 
   m_thePlayer->LoadPlayerLog(fpThePlayer, sec, cnt);
@@ -140,9 +142,6 @@ LogPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   } else {
     reDraw = false;
   }
-
-  if (count > 30)
-    exit(0);
 
   return reDraw;
 }
