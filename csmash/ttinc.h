@@ -110,6 +110,7 @@
 #define MODE_PRACTICESELECT (9)	// Practice Select
 #define MODE_PRACTICE       (10)// Practice
 #define MODE_MULTIPLAYSELECT (11)// Play VS MAN Select
+#define MODE_LOGPLAY        (12)// Log file player mode
 
 // Sound
 #define SOUND_RACKET (0)
@@ -154,7 +155,7 @@ enum level {LEVEL_EASY, LEVEL_NORMAL, LEVEL_HARD, LEVEL_TSUBORISH};
 enum mode  {GAME_5PTS, GAME_11PTS, GAME_21PTS};
 
 // Log
-#define LOGGING
+//#define LOGGING
 
 #ifndef MKDEP_IGN_SYSINC
 

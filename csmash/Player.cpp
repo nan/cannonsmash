@@ -318,6 +318,36 @@ Player::Reset( Player *p ) {
   return true;
 }
 
+bool
+Player::LoadPlayerLog( FILE *fp, long &sec, long &cnt ) {
+  fscanf( fp, 
+	  "%ld.%2ld: "
+	  "playerType=%1ld side=%2ld x=%lf y=%lf z=%lf "
+	  "vx=%lf vy=%lf vz=%lf status=%3ld "
+	  "swing=%2ld swingType=%ld swingSide=%d afterSwing=%2ld "
+	  "swingError=%1ld targetX=%lf targetY=%lf "
+	  "eyeX=%lf eyeY=%lf eyeZ=%lf "
+	  "lookAtX=%lf lookAtY=%lf lookAtZ=%lf "
+	  "pow=%1ld spinX=%lf spinY=%lf stamina=%lf statusMax=%ld "
+	  "dragX=%ld dragY=%ld\n",
+	  &sec, &cnt, 
+	  &m_playerType, &m_side, 
+	  &(m_x[0]), &(m_x[1]), &(m_x[2]), 
+	  &(m_v[0]), &(m_v[1]), &(m_v[2]), 
+	  &m_status, &m_swing,
+	  &m_swingType, &m_swingSide,
+	  &m_afterSwing, &m_swingError, 
+	  &(m_target[0]), &(m_target[1]), 
+	  &(m_eye[0]), &(m_eye[1]), &(m_eye[2]), 
+	  &(m_lookAt[0]), &(m_lookAt[1]), &(m_lookAt[2]), 
+	  &m_pow, &(m_spin[0]), &(m_spin[1]),
+	  &m_stamina, &m_statusMax, 
+	  &m_dragX, &m_dragY );
+
+  return true;
+}
+
+
 /**
  * Move this player object. 
  * Move this player and change m_status. 

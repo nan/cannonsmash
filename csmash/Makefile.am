@@ -2,6 +2,7 @@ pkgdatadir = $(datadir)/games/@PACKAGE@
 localedir = $(prefix)/share/locale
 
 bin_PROGRAMS = csmash
+
 csmash_SOURCES = main.cpp Launcher.cpp LobbyClient.cpp Ball.cpp Event.cpp \
 		Control.cpp View.cpp BaseView.cpp FieldView.cpp BallView.cpp \
 		Player.cpp comPlayer.cpp parts.cpp PlayerView.cpp HitMark.cpp \
@@ -20,8 +21,10 @@ csmash_SOURCES = main.cpp Launcher.cpp LobbyClient.cpp Ball.cpp Event.cpp \
 		FieldView2D.cpp PlayerView2D.cpp BallView2D.cpp \
 		PlayerSelectView2D.cpp TitleView2D.cpp MenuItemView2D.cpp \
 		RCFile.cpp loadparts.cpp LobbyClientView.cpp LauncherView.cpp \
-		MultiPlayerSelect.cpp ttinc.cpp \
-		ttinc.h Launcher.h LobbyClient.h Ball.h Event.h Control.h \
+		MultiPlayerSelect.cpp glARB.cpp ttinc.cpp \
+		LogPlay.cpp
+
+noinst_HEADERS = ttinc.h Launcher.h LobbyClient.h Ball.h Event.h Control.h \
 		View.h BaseView.h FieldView.h BallView.h Player.h comPlayer.h \
 		parts.h PlayerView.h HitMark.h PenAttack.h ShakeCut.h \
 		PenDrive.h comPenAttack.h comShakeCut.h comPenDrive.h \
@@ -36,13 +39,15 @@ csmash_SOURCES = main.cpp Launcher.cpp LobbyClient.cpp Ball.cpp Event.cpp \
 		PracticeSelectView.h BaseView2D.h FieldView2D.h \
 		PlayerView2D.h BallView2D.h PlayerSelectView2D.h \
 		TitleView2D.h MenuItemView2D.h RCFile.h loadparts.h \
-		LobbyClientView.h LauncherView.h MultiPlayerSelect.h 
+		LobbyClientView.h LauncherView.h MultiPlayerSelect.h glARB.h \
+		LogPlay.h
+
 
 DEFS = -DLOCALEDIR=\"$(localedir)\" -DCANNONSMASH_DATADIR=\"$(pkgdatadir)\" @DEFS@
 LIBS = @LIBINTL@ @LIBS@
 #INCLUDES = $(INCLUDES) -I../intl -I$(top_srcdir)/intl
 
 SUBDIRS = m4  Parts images wav win32 po
-EXTRA_DIST = config.rpath  config.rpath  README.en README.nt Makefile.nt CREDITS csmash.spec
+EXTRA_DIST = config.rpath README.en README.nt Makefile.nt CREDITS csmash.spec
 
 ACLOCAL_AMFLAGS = -I m4

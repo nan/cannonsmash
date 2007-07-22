@@ -75,6 +75,9 @@ public:
   void Warp( const vector3d x, const vector3d v, const vector2d spin, long status );
   void Warp( char *buf );
 
+  bool LoadBallLog(FILE *fpBall, long &sec, long &cnt, long &score1, long &score2);
+
+
   bool TargetToV( vector2d target, double level, const vector2d spin, 
 		  vector3d &v, double vMin = 0.1, double vMax = 30.0 );
   bool TargetToVS( vector2d target, double level, 

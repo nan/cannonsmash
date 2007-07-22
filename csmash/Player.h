@@ -86,6 +86,7 @@ public:
 
   //virtual bool Reset( struct PlayerData *p );
   virtual bool Reset( Player *p );
+  virtual bool LoadPlayerLog( FILE *fp, long &sec, long &cnt );
 
   virtual bool Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,

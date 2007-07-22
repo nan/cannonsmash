@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -142,6 +142,8 @@ int main(int argc, char** argv) {
     default: break;
     case LANG_JAPANESE: putenv("LANGUAGE=ja"); break;
     case LANG_GERMAN:	putenv("LANGUAGE=de"); break;
+    case LANG_FRENCH:	putenv("LANGUAGE=fr"); break;
+    case LANG_PORTUGUESE:	putenv("LANGUAGE=po"); break;
     case LANG_HINDI:	putenv("LANGUAGE=hi"); break;
     }
 #endif
@@ -178,7 +180,7 @@ int main(int argc, char** argv) {
 #endif
 
     int c;
-    while (EOF != (c = getopt(argc, argv, "schfS2Orp:"))) {
+    while (EOF != (c = getopt(argc, argv, "schfS2Orlp:"))) {
         switch (c) {
         case 'h':
 	    // brief help
@@ -218,6 +220,10 @@ int main(int argc, char** argv) {
 	case 'r':
 	    // Robot mode
 	    robot = 1;
+	    break;
+	case 'l':
+	    // Log replay mode
+	    mode = MODE_LOGPLAY;
 	    break;
 	}
     }

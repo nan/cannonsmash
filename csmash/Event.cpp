@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include "BaseView.h"
 #include "BaseView2D.h"
 #include "SoloPlay.h"
+#include "LogPlay.h"
 #include "PracticePlay.h"
 #include "MultiPlay.h"
 #include "Network.h"
@@ -141,6 +142,9 @@ Event::Init() {
   case MODE_OPENING:
     Opening::Create();
     break;
+  case MODE_LOGPLAY:
+    LogPlay::Create();
+    break;
   }
 
   theBall.Init();
@@ -200,10 +204,6 @@ Event::IdleFunc() {
   perfs +=diffcount;
   _perfCount++;
 
-#ifdef SCREENSHOT
-  diffcount = 3;
-#endif
-
   for ( int i = 0 ; i < diffcount ; i++ ) {
     // While pause, never move objects. (Solo Play)
     if ( Control::TheControl()->IsPlaying() &&
@@ -212,6 +212,8 @@ Event::IdleFunc() {
       reDraw = true;
     } else {
       reDraw |= Event::TheEvent()->Move();
+      if (mode == MODE_LOGPLAY)
+	break;	// Move only once. 
     }
 
     m_lastTime.millitm += 10;
@@ -257,7 +259,9 @@ Event::Move() {
 					 m_Histptr );
 
   reDraw |= IsModeChanged( preMode );
-  Record();
+
+  if (Control::TheControl()->IsPlaying())
+    Record();
 
   return reDraw;
 }
@@ -274,6 +278,11 @@ bool
 Event::IsModeChanged( long preMode ) {
   if ( mode != preMode ) {	// mode change
     long p, q;
+
+#ifdef LOGGING
+  if (Control::TheControl()->IsPlaying())
+    Event::TheEvent()->Event::RemainingLog();
+#endif
 
     switch ( mode ) {
     case MODE_SOLOPLAY:
@@ -350,108 +359,15 @@ Event::Record() {
     m_Histptr = 0;
 
 #ifdef LOGGING
-  long sec = m_BacktrackBuffer[m_Histptr].sec;
-  long cnt = m_BacktrackBuffer[m_Histptr].count;
-  char buf[1024];
-
-  if ( mode == MODE_MULTIPLAY )
-    cnt += timeAdj;
-
-  while ( cnt < 0 ) {
-    sec--;
-    cnt += 100;
-  }
-  while ( cnt >= 100 ) {
-    sec++;
-    cnt -= 100;
-  }
-
-  sprintf( buf, "%d.%2d %d - %d  x = %4.2f y = %4.2f z = %4.2f st = %d\n", 
-	   sec, cnt,
-	   m_BacktrackBuffer[m_Histptr].score1, 
-	   m_BacktrackBuffer[m_Histptr].score2, 
-	   m_BacktrackBuffer[m_Histptr].theBall.GetX()[0], 
-	   m_BacktrackBuffer[m_Histptr].theBall.GetX()[1],
-	   m_BacktrackBuffer[m_Histptr].theBall.GetX()[2],
-	   m_BacktrackBuffer[m_Histptr].theBall.GetStatus() );
-  Logging::GetLogging()->Log( LOG_ACTBALL, buf );
-
-  Player *prevPlayer, *player;
-  if ( m_Histptr == 0 )
-    prevPlayer = &m_BacktrackBuffer[MAX_HISTORY-1].thePlayer;
-  else
-    prevPlayer = &m_BacktrackBuffer[m_Histptr-1].thePlayer;
-  player = &m_BacktrackBuffer[m_Histptr].thePlayer;
-
-  if ( prevPlayer->GetV()[0] != player->GetV()[0] ||
-       prevPlayer->GetV()[1] != player->GetV()[1] ||
-       prevPlayer->GetSwing() != player->GetSwing() ) {
-    sprintf( buf, "%d.%2d: ", sec, cnt );
-    Logging::GetLogging()->Log( LOG_ACTTHEPLAYER, buf );
-
-    snprintf( buf, sizeof(buf),
-	      "playerType=%1d side=%2d x=%4.2f y=%4.2f z=%4.2f "
-	      "vx=%4.2f vy=%4.2f vz=%4.2f status=%2d "
-	      "swing=%2d swingType=%1d swingSide=%2d afterSwing=%2d "
-	      "swingError=%1d targetX=%4.2f targetY=%4.2f "
-	      "eyeX=%4.2f eyeY=%4.2f eyeZ=%4.2f "
-	      "lookAtX=%4.2f lookAtY=%4.2f lookAtZ=%4.2f "
-	      "pow=%1d spinX=%3.2f spinY=%3.2f stamina=%2.0f dragX=%2d dragY=%2d\n",
-	      (int)player->GetPlayerType(), (int)player->GetSide(), 
-	      player->GetX()[0], player->GetX()[1], player->GetX()[2], 
-	      player->GetV()[0], player->GetV()[1], player->GetV()[2], 
-	      (int)player->GetStatus(), (int)player->GetSwing(),
-	      (int)player->GetSwingType(), (int)player->GetSwingSide(),
-	      (int)player->GetAfterSwing(), (int)player->GetSwingError(), 
-	      player->GetTarget()[0], player->GetTarget()[1],
-	      player->GetEye()[0], player->GetEye()[1], player->GetEye()[2],
-	      player->GetLookAt()[0], player->GetLookAt()[1], player->GetLookAt()[2],
-	      (int)player->GetPower(), player->GetSpin()[0], player->GetSpin()[1],
-	      player->GetStamina(),
-	      (int)player->GetDragX(), (int)player->GetDragY() );
-    Logging::GetLogging()->Log( LOG_ACTTHEPLAYER, buf );
-  }
-
-  if ( m_Histptr == 0 )
-    prevPlayer = &m_BacktrackBuffer[MAX_HISTORY-1].comPlayer;
-  else
-    prevPlayer = &m_BacktrackBuffer[m_Histptr-1].comPlayer;
-  player = &m_BacktrackBuffer[m_Histptr].comPlayer;
-
-  if ( prevPlayer->GetV()[0] != player->GetV()[0] ||
-       prevPlayer->GetV()[1] != player->GetV()[1] ||
-       prevPlayer->GetSwing() != player->GetSwing() ) {
-    sprintf( buf, "%d.%2d: ", sec, cnt );
-    Logging::GetLogging()->Log( LOG_ACTCOMPLAYER, buf );
-
-    snprintf( buf, sizeof(buf),
-	      "playerType=%1d side=%2d x=%4.2f y=%4.2f z=%4.2f "
-	      "vx=%4.2f vy=%4.2f vz=%4.2f status=%2d "
-	      "swing=%2d swingType=%1d swingSide=%2d afterSwing=%2d "
-	      "swingError=%1d targetX=%4.2f targetY=%4.2f "
-	      "eyeX=%4.2f eyeY=%4.2f eyeZ=%4.2f "
-	      "lookAtX=%4.2f lookAtY=%4.2f lookAtZ=%4.2f "
-	      "pow=%1d spinX=%3.2f spinY=%3.2f stamina=%2.0f dragX=%2d dragY=%2d\n",
-	      (int)player->GetPlayerType(), (int)player->GetSide(), 
-	      player->GetX()[0], player->GetX()[1], player->GetX()[2], 
-	      player->GetV()[0], player->GetV()[1], player->GetV()[2], 
-	      (int)player->GetStatus(), (int)player->GetSwing(),
-	      (int)player->GetSwingType(), (int)player->GetSwingSide(),
-	      (int)player->GetAfterSwing(), (int)player->GetSwingError(), 
-	      player->GetTarget()[0], player->GetTarget()[1],
-	      player->GetEye()[0], player->GetEye()[1], player->GetEye()[2],
-	      player->GetLookAt()[0], player->GetLookAt()[1], player->GetLookAt()[2],
-	      (int)player->GetPower(), player->GetSpin()[0], player->GetSpin()[1],
-	      player->GetStamina(),
-	      (int)player->GetDragX(), (int)player->GetDragY() );
-    Logging::GetLogging()->Log( LOG_ACTCOMPLAYER, buf );
-  }
+  logRecord();
 #endif
 
+  /*
   if ( (mode == MODE_SOLOPLAY || mode == MODE_PRACTICE) &&
        Control::TheControl() &&
        ((SoloPlay *)Control::TheControl())->GetSmashPtr() >= 0 )
     return;
+  */
 
   // Warp Mouse Pointer
   SetNextMousePointer( x, y );
@@ -753,7 +669,7 @@ Event::BackTrack( long Histptr ) {
   Control::GetComPlayer()->Reset( &m_BacktrackBuffer[Histptr].comPlayer );
 
   if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
-       mode == MODE_PRACTICE) {
+       mode == MODE_PRACTICE || mode == MODE_LOGPLAY) {
     ((PlayGame *)Control::TheControl())->
       ChangeScore( m_BacktrackBuffer[Histptr].score1,
 		   m_BacktrackBuffer[Histptr].score2 );
@@ -958,10 +874,6 @@ Event::ClearBacktrack() {
  */
 void
 QuitGame() {
-#ifdef LOGGING
-  Event::TheEvent()->Event::RemainingLog();
-#endif
-
   printf( _("Avg = %f\n"), (double)perfs/_perfCount );
   if (_backTrackCount) printf( _("BackTrack = %f\n"), backTracks/_backTrackCount);
 
@@ -1007,7 +919,7 @@ Event::SetNextMousePointer( long &x, long &y ) {
  * Get time adjusted with the opponent machine. 
  * 
  * @param sec second
- * @param cnt cound (1/100 second)
+ * @param cnt count (1/100 second)
  */
 void
 Event::GetAdjustedTime( long &sec, long &cnt ) {
@@ -1029,36 +941,109 @@ Event::GetAdjustedTime( long &sec, long &cnt ) {
  */
 void
 Event::RemainingLog() {
-  Logging::GetLogging()->Log( LOG_ACTBALL, "Quit Game\n" );
   for ( int i = 0 ; i < MAX_HISTORY ; i++ ) {
     m_Histptr++;
     if ( m_Histptr == MAX_HISTORY )
       m_Histptr = 0;
-    struct Backtrack *bt = &(m_BacktrackBuffer[m_Histptr]);
-    long sec = bt->sec;
-    long cnt = bt->count;
-    char buf[1024];
 
-    if ( isComm )
-      cnt += timeAdj;
-    while ( cnt < 0 ) {
-      sec--;
-      cnt += 100;
-    }
-    while ( cnt >= 100 ) {
-      sec++;
-      cnt -= 100;
-    }
-
-    sprintf( buf, "sec = %d msec = %d %d - %d  x = %4.2f y = %4.2f z = %4.2f st = %d %d\n",
-             sec, cnt,
-             bt->score1, bt->score2,
-             bt->theBall.GetX()[0],
-             bt->theBall.GetX()[1],
-             bt->theBall.GetX()[2],
-             bt->theBall.GetStatus(), m_Histptr );
-    Logging::GetLogging()->Log( LOG_ACTBALL, buf );
+    logRecord();
   }
+}
+
+void
+Event::logRecord() {
+  long sec = m_BacktrackBuffer[m_Histptr].sec;
+  long cnt = m_BacktrackBuffer[m_Histptr].count;
+  char buf[1024];
+
+  if (m_BacktrackBuffer[m_Histptr].theBall.GetStatus() == -1000)
+    return;	// not valid log. 
+
+  if ( mode == MODE_MULTIPLAY )
+    cnt += timeAdj;
+
+  while ( cnt < 0 ) {
+    sec--;
+    cnt += 100;
+  }
+  while ( cnt >= 100 ) {
+    sec++;
+    cnt -= 100;
+  }
+
+  sprintf( buf, "%d.%2d %d - %d  x=%4.6f y=%4.6f z=%4.6f "
+	   "vx=%4.6f vy=%4.6f vz=%4.6f "
+	   "spinX=%3.6f spinY=%3.6f st=%d\n", 
+	   sec, cnt,
+	   m_BacktrackBuffer[m_Histptr].score1, 
+	   m_BacktrackBuffer[m_Histptr].score2, 
+	   m_BacktrackBuffer[m_Histptr].theBall.GetX()[0], 
+	   m_BacktrackBuffer[m_Histptr].theBall.GetX()[1],
+	   m_BacktrackBuffer[m_Histptr].theBall.GetX()[2],
+	   m_BacktrackBuffer[m_Histptr].theBall.GetV()[0], 
+	   m_BacktrackBuffer[m_Histptr].theBall.GetV()[1],
+	   m_BacktrackBuffer[m_Histptr].theBall.GetV()[2],
+	   m_BacktrackBuffer[m_Histptr].theBall.GetSpin()[0], 
+	   m_BacktrackBuffer[m_Histptr].theBall.GetSpin()[1], 
+	   m_BacktrackBuffer[m_Histptr].theBall.GetStatus() );
+  Logging::GetLogging()->Log( LOG_ACTBALL, buf );
+
+  Player *player;
+  player = &m_BacktrackBuffer[m_Histptr].thePlayer;
+
+  sprintf( buf, "%d.%2d: ", sec, cnt );
+  Logging::GetLogging()->Log( LOG_ACTTHEPLAYER, buf );
+
+  snprintf( buf, sizeof(buf),
+	    "playerType=%1d side=%2d x=%4.6f y=%4.6f z=%4.6f "
+	    "vx=%4.6f vy=%4.6f vz=%4.6f status=%3d "
+	    "swing=%2d swingType=%1d swingSide=%2d afterSwing=%2d "
+	    "swingError=%1d targetX=%4.6f targetY=%4.6f "
+	    "eyeX=%4.6f eyeY=%4.6f eyeZ=%4.6f "
+	    "lookAtX=%4.6f lookAtY=%4.6f lookAtZ=%4.6f "
+	    "pow=%1d spinX=%3.6f spinY=%3.6f stamina=%2.0f statusMax=%3d "
+	    "dragX=%2d dragY=%2d\n",
+	    (int)player->GetPlayerType(), (int)player->GetSide(), 
+	    player->GetX()[0], player->GetX()[1], player->GetX()[2], 
+	    player->GetV()[0], player->GetV()[1], player->GetV()[2], 
+	    (int)player->GetStatus(), (int)player->GetSwing(),
+	    (int)player->GetSwingType(), (int)player->GetSwingSide(),
+	    (int)player->GetAfterSwing(), (int)player->GetSwingError(), 
+	    player->GetTarget()[0], player->GetTarget()[1],
+	    player->GetEye()[0], player->GetEye()[1], player->GetEye()[2],
+	    player->GetLookAt()[0], player->GetLookAt()[1], player->GetLookAt()[2],
+	    (int)player->GetPower(), player->GetSpin()[0], player->GetSpin()[1],
+	    player->GetStamina(), player->GetStatusMax(), 
+	    (int)player->GetDragX(), (int)player->GetDragY() );
+  Logging::GetLogging()->Log( LOG_ACTTHEPLAYER, buf );
+
+  player = &m_BacktrackBuffer[m_Histptr].comPlayer;
+
+  sprintf( buf, "%d.%2d: ", sec, cnt );
+  Logging::GetLogging()->Log( LOG_ACTCOMPLAYER, buf );
+
+  snprintf( buf, sizeof(buf),
+	    "playerType=%1d side=%2d x=%4.6f y=%4.6f z=%4.6f "
+	    "vx=%4.6f vy=%4.6f vz=%4.6f status=%3d "
+	    "swing=%2d swingType=%1d swingSide=%2d afterSwing=%2d "
+	    "swingError=%1d targetX=%4.6f targetY=%4.6f "
+	    "eyeX=%4.6f eyeY=%4.6f eyeZ=%4.6f "
+	    "lookAtX=%4.6f lookAtY=%4.6f lookAtZ=%4.6f "
+	    "pow=%1d spinX=%3.6f spinY=%3.6f stamina=%2.0f statusMax=%3d "
+	    "dragX=%2d dragY=%2d\n",
+	    (int)player->GetPlayerType(), (int)player->GetSide(), 
+	    player->GetX()[0], player->GetX()[1], player->GetX()[2], 
+	    player->GetV()[0], player->GetV()[1], player->GetV()[2], 
+	    (int)player->GetStatus(), (int)player->GetSwing(),
+	    (int)player->GetSwingType(), (int)player->GetSwingSide(),
+	    (int)player->GetAfterSwing(), (int)player->GetSwingError(), 
+	    player->GetTarget()[0], player->GetTarget()[1],
+	    player->GetEye()[0], player->GetEye()[1], player->GetEye()[2],
+	    player->GetLookAt()[0], player->GetLookAt()[1], player->GetLookAt()[2],
+	    (int)player->GetPower(), player->GetSpin()[0], player->GetSpin()[1],
+	    player->GetStamina(), player->GetStatusMax(),
+	    (int)player->GetDragX(), (int)player->GetDragY() );
+  Logging::GetLogging()->Log( LOG_ACTCOMPLAYER, buf );
 }
 #endif
 

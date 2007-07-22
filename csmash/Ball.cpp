@@ -301,6 +301,21 @@ Ball::Warp( char *buf ) {
     m_status = nextStatus;
 }
 
+bool
+Ball::LoadBallLog(FILE *fpBall, long &sec, long &cnt, long &score1, long &score2) {
+  fscanf( fpBall, "%ld.%2ld %ld - %ld  x=%lf y=%lf z=%lf "
+	 "vx=%lf vy=%lf vz=%lf "
+	 "spinX=%lf spinY=%lf st=%ld\n", 
+	  &sec, &cnt,
+	  &score1, &score2,
+	  &(m_x[0]), &(m_x[1]), &(m_x[2]),
+	  &(m_v[0]), &(m_v[1]), &(m_v[2]),
+	  &(m_spin[0]), &(m_spin[1]), 
+	  &m_status );
+
+  return true;
+}
+
 /**
  * Calculate initial ball speed. 
  * Return the ball speed to reach target. 

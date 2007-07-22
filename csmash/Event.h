@@ -78,6 +78,7 @@ public:
 #ifdef LOGGING
   static void GetAdjustedTime( long &sec, long &cnt );
   void RemainingLog();
+  void logRecord();
 #endif
 
   /**
