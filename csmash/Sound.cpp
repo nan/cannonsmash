@@ -5,7 +5,7 @@
  * $Id$
  */
 
-// Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -118,7 +118,7 @@ Sound::Init( long sndMode ) {
   m_sound[SOUND_TABLE] = Mix_LoadWAV( "wav/table.wav" );
   m_sound[SOUND_CLICK] = Mix_LoadWAV( "wav/click.wav" );
   m_sound[SOUND_LOVEALL] = Mix_LoadWAV( "wav/loveall.wav" );
-  m_sound[SOUND_ALL] = Mix_LoadWAV( "wav/all.wav" );
+  m_sound[SOUND_ALL] = Mix_LoadWAV( _("wav/all.wav") );
 
   for ( int i = 0 ; i < 31 ; i++ ) {
     char numberWAVname[64];
