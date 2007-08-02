@@ -23,4 +23,12 @@ objs.*
 *.a
 *.so
 Makefile
+Makefile.in
 
+config.h.in
+config.log
+config.status
+configure
+
+ABOUT-NLS
+stamp-h1
