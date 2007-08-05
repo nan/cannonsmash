@@ -5,7 +5,7 @@
  * $Id$
  */
 
-// Copyright (C) 2001-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2001-2004, 2007  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 #include "Network.h"
 #include "Logging.h"
 
+extern Ball theBall;
 Logging* Logging::m_logging = NULL;
 
 /**
@@ -45,7 +46,7 @@ Logging::Logging() {
  * Delete file pointers. 
  */
 Logging::~Logging() {
-  for ( int i = 0 ; i < 8 ; i++ ) {
+  for ( int i = 0 ; i < LOG_FPSIZE ; i++ ) {
     if (m_fp[i]) fclose( m_fp[i] );
   }
 }
@@ -80,9 +81,10 @@ Logging::Init() {
       "log/act_thePlayer.log", 
       "log/act_comPlayer.log",
       "log/act_misc.log",
+      "log/sound.log",
   };
 
-  for ( int i = 0 ; i < 8; i++ ) {
+  for ( int i = 0 ; i < LOG_FPSIZE; i++ ) {
     if ( (m_fp[i] = fopen( fname[i], "w" )) == 0 )
       return false;
   }
@@ -172,7 +174,7 @@ Logging::LogTime( long logType ) {
   sec = Event::m_lastTime.time;
   count = Event::m_lastTime.millitm/10;
   Event::GetAdjustedTime( sec, count );
-  snprintf( buf, sizeof(buf), "%d.%2d: ", (int)sec, (int)count );
+  snprintf( buf, sizeof(buf), "%d.%3d: ", (int)sec, (int)count*10 );
   Log( logType, buf );
 
   return true;
@@ -190,14 +192,27 @@ bool
 Logging::LogBall( long logType, Ball *ball ) {
   char buf[1024];
 
-  LogTime( logType );
   snprintf( buf, sizeof(buf),
-           "status = %2d x = %4.2f y = %4.2f z = %4.2f "
-           "vx = %4.2f vy = %4.2f vz = %4.2f spinY = %3.2f\n",
-	   (int)ball->GetStatus(),
-	    ball->GetX()[0], ball->GetX()[1], ball->GetX()[2],
-	    ball->GetV()[0], ball->GetV()[1], ball->GetV()[2],
-	    ball->GetSpin()[1] );
+	    "x=%4.6f y=%4.6f z=%4.6f "
+	    "vx=%4.6f vy=%4.6f vz=%4.6f "
+	    "spinX=%3.6f spinY=%3.6f st=%d\n", 
+	    ball->GetX()[0], ball->GetX()[1], ball->GetX()[2], 
+	    ball->GetV()[0], ball->GetV()[1], ball->GetV()[2], 
+	    ball->GetSpin()[0], ball->GetSpin()[1],
+	    ball->GetStatus());
+
+  Log( logType, buf );
+
+  return true;
+}
+
+bool
+Logging::LogScore( long logType, long score1, long score2 ) {
+  char buf[1024];
+
+  snprintf( buf, sizeof(buf),
+	    "%d - %d  ", 
+	    score1, score2 );
   Log( logType, buf );
 
   return true;
@@ -215,30 +230,32 @@ bool
 Logging::LogPlayer( long logType, Player *player ) {
   char buf[1024];
 
-  LogTime( logType );
   snprintf( buf, sizeof(buf),
-            "playerType=%1d side=%2d x=%4.2f y=%4.2f z=%4.2f "
-            "vx=%4.2f vy=%4.2f vz=%4.2f status=%2d "
-            "swing=%2d swingType=%1d swingSide=%2d afterSwing=%2d "
-            "swingError=%1d targetX=%4.2f targetY=%4.2f "
-            "eyeX=%4.2f eyeY=%4.2f eyeZ=%4.2f "
-            "lookAtX=%4.2f lookAtY=%4.2f lookAtZ=%4.2f "
-            "pow=%1d spinY=%3.2f stamina=%2.0f dragX=%2d dragY=%2d\n",
-            (int)player->GetPlayerType(), (int)player->GetSide(), 
-            player->GetX()[0], player->GetX()[1], player->GetX()[2], 
-            player->GetV()[0], player->GetV()[1], player->GetV()[2], 
-            (int)player->GetStatus(), (int)player->GetSwing(),
-            (int)player->GetSwingType(), (int)player->GetSwingSide(),
-            (int)player->GetAfterSwing(), (int)player->GetSwingError(), 
-            player->GetTarget()[0], player->GetTarget()[1],
-            player->GetEye()[0], player->GetEye()[1], player->GetEye()[2],
-            player->GetLookAt()[0], player->GetLookAt()[1], player->GetLookAt()[2],
-            (int)player->GetPower(), player->GetSpin()[1], player->GetStamina(),
-            (int)player->GetDragX(), (int)player->GetDragY() );
+	    "playerType=%1d side=%2d x=%4.6f y=%4.6f z=%4.6f "
+	    "vx=%4.6f vy=%4.6f vz=%4.6f status=%3d "
+	    "swing=%2d swingType=%1d swingSide=%2d afterSwing=%2d "
+	    "swingError=%1d targetX=%4.6f targetY=%4.6f "
+	    "eyeX=%4.6f eyeY=%4.6f eyeZ=%4.6f "
+	    "lookAtX=%4.6f lookAtY=%4.6f lookAtZ=%4.6f "
+	    "pow=%1d spinX=%3.6f spinY=%3.6f stamina=%2.0f statusMax=%3d "
+	    "dragX=%2d dragY=%2d\n",
+	    (int)player->GetPlayerType(), (int)player->GetSide(), 
+	    player->GetX()[0], player->GetX()[1], player->GetX()[2], 
+	    player->GetV()[0], player->GetV()[1], player->GetV()[2], 
+	    (int)player->GetStatus(), (int)player->GetSwing(),
+	    (int)player->GetSwingType(), (int)player->GetSwingSide(),
+	    (int)player->GetAfterSwing(), (int)player->GetSwingError(), 
+	    player->GetTarget()[0], player->GetTarget()[1],
+	    player->GetEye()[0], player->GetEye()[1], player->GetEye()[2],
+	    player->GetLookAt()[0], player->GetLookAt()[1], player->GetLookAt()[2],
+	    (int)player->GetPower(), player->GetSpin()[0], player->GetSpin()[1],
+	    player->GetStamina(), player->GetStatusMax(), 
+	    (int)player->GetDragX(), (int)player->GetDragY() );
   Log( logType, buf );
 
   return true;
 }
+
 
 /**
  * Write BV message to log file when it is sent. 
@@ -416,4 +433,57 @@ Logging::LogRecvPTMessage( ExternalPTData *pt ) {
   return true;
 }
 
+bool
+Logging::LogNullSound() {
+  fputc(0, m_fp[LOG_SOUND]);
+  fflush(m_fp[LOG_SOUND]);
+
+  return true;
+}
+
+bool
+Logging::LogSound(unsigned char *sndData) {
+  fputc(-1, m_fp[LOG_SOUND]);
+  fwrite(sndData, 256, 1, m_fp[LOG_SOUND]);
+  fflush(m_fp[LOG_SOUND]);
+
+  return true;
+}
+
+bool
+isAllZero(void *stream, int len) {
+  for (int i=0; i<len; i++) {
+    if (((char *)stream)[i])
+      return false;
+  }
+
+  return true;
+}
+
+void
+Logging::LogSound(int channel, void *stream, int len, void *udata) {
+  static unsigned char soundData[44100*2*2*300];
+  static long length = 0;
+
+  if (!Control::TheControl()->IsPlaying())
+    return;
+
+  if (length+len > 44100*2*2*300 ||
+      (theBall.GetStatus() == 8 && length >= 256)) {
+    int i;
+    for (i=0; i<length-256; i+=256) {
+      if (isAllZero(&(soundData[i]), 256)) {
+	Logging::GetLogging()->LogNullSound();
+      } else {
+	Logging::GetLogging()->LogSound(&(soundData[i]));
+      }
+    }
+
+    memcpy(soundData, &(soundData[i]), length-i);
+    length = length-i;
+  }
+
+  memcpy(&(soundData[length]), stream, len);
+  length += len;
+}
 #endif

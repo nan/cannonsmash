@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2001-2003, 2007  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2007  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,35 +21,18 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#ifndef _Logging_
-#define _Logging_
+#ifndef _NoLogging_
+#define _NoLogging_
 
-#define LOG_COMBALL		0
-#define LOG_COMTHEPLAYER	1
-#define LOG_COMCOMPLAYER	2
-#define LOG_COMMISC		3
-#define LOG_ACTBALL		4
-#define LOG_ACTTHEPLAYER	5
-#define LOG_ACTCOMPLAYER	6
-#define LOG_ACTMISC		7
-#define LOG_SOUND		8
-
-#define LOG_FPSIZE		9
-
-class Player;
-class Ball;
-class ExternalBVData;
-class ExternalPVData;
-class ExternalPSData;
-class ExternalPTData;
+#include "Logging.h"
 
 /**
  * Logger class. 
  * This class writes logg message, especially for internet play log. 
  */
-class Logging {
+class NoLogging : public Logging {
 public:
-  virtual ~Logging();
+  virtual ~NoLogging();
   static Logging* GetLogging();
   virtual bool Init();
 
@@ -71,12 +54,7 @@ public:
   virtual bool LogSound(unsigned char *sndData);
 
   static void LogSound(int channel, void *stream, int len, void *udata);
-protected:
-  Logging();
-
-  static Logging *m_logging;		///< Singleton Logging object. 
-
-  FILE *m_fp[16];			///< File pointers for logging. 
+private:
+  NoLogging();
 };
-
 #endif

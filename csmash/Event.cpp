@@ -964,86 +964,35 @@ Event::logRecord() {
 
   while ( cnt < 0 ) {
     sec--;
-    cnt += 100;
+    cnt += (int)(1/TICK);
   }
-  while ( cnt >= 100 ) {
+  while ( cnt >= (int)(1/TICK) ) {
     sec++;
-    cnt -= 100;
+    cnt -= (int)(1/TICK);
   }
 
-  sprintf( buf, "%d.%2d %d - %d  x=%4.6f y=%4.6f z=%4.6f "
-	   "vx=%4.6f vy=%4.6f vz=%4.6f "
-	   "spinX=%3.6f spinY=%3.6f st=%d\n", 
-	   sec, cnt,
-	   m_BacktrackBuffer[m_Histptr].score1, 
-	   m_BacktrackBuffer[m_Histptr].score2, 
-	   m_BacktrackBuffer[m_Histptr].theBall.GetX()[0], 
-	   m_BacktrackBuffer[m_Histptr].theBall.GetX()[1],
-	   m_BacktrackBuffer[m_Histptr].theBall.GetX()[2],
-	   m_BacktrackBuffer[m_Histptr].theBall.GetV()[0], 
-	   m_BacktrackBuffer[m_Histptr].theBall.GetV()[1],
-	   m_BacktrackBuffer[m_Histptr].theBall.GetV()[2],
-	   m_BacktrackBuffer[m_Histptr].theBall.GetSpin()[0], 
-	   m_BacktrackBuffer[m_Histptr].theBall.GetSpin()[1], 
-	   m_BacktrackBuffer[m_Histptr].theBall.GetStatus() );
-  Logging::GetLogging()->Log( LOG_ACTBALL, buf );
+  struct timeb tb;
+  tb.time = sec;
+  tb.millitm = cnt*(TICK*1000);
+
+  Logging::GetLogging()->LogTime(LOG_ACTBALL, &tb);
+  Logging::GetLogging()->LogScore(LOG_ACTBALL, 
+				  m_BacktrackBuffer[m_Histptr].score1, 
+				  m_BacktrackBuffer[m_Histptr].score2);
+  Logging::GetLogging()->LogBall(LOG_ACTBALL,
+				 &m_BacktrackBuffer[m_Histptr].theBall);
+
 
   Player *player;
   player = &m_BacktrackBuffer[m_Histptr].thePlayer;
 
-  sprintf( buf, "%d.%2d: ", sec, cnt );
-  Logging::GetLogging()->Log( LOG_ACTTHEPLAYER, buf );
-
-  snprintf( buf, sizeof(buf),
-	    "playerType=%1d side=%2d x=%4.6f y=%4.6f z=%4.6f "
-	    "vx=%4.6f vy=%4.6f vz=%4.6f status=%3d "
-	    "swing=%2d swingType=%1d swingSide=%2d afterSwing=%2d "
-	    "swingError=%1d targetX=%4.6f targetY=%4.6f "
-	    "eyeX=%4.6f eyeY=%4.6f eyeZ=%4.6f "
-	    "lookAtX=%4.6f lookAtY=%4.6f lookAtZ=%4.6f "
-	    "pow=%1d spinX=%3.6f spinY=%3.6f stamina=%2.0f statusMax=%3d "
-	    "dragX=%2d dragY=%2d\n",
-	    (int)player->GetPlayerType(), (int)player->GetSide(), 
-	    player->GetX()[0], player->GetX()[1], player->GetX()[2], 
-	    player->GetV()[0], player->GetV()[1], player->GetV()[2], 
-	    (int)player->GetStatus(), (int)player->GetSwing(),
-	    (int)player->GetSwingType(), (int)player->GetSwingSide(),
-	    (int)player->GetAfterSwing(), (int)player->GetSwingError(), 
-	    player->GetTarget()[0], player->GetTarget()[1],
-	    player->GetEye()[0], player->GetEye()[1], player->GetEye()[2],
-	    player->GetLookAt()[0], player->GetLookAt()[1], player->GetLookAt()[2],
-	    (int)player->GetPower(), player->GetSpin()[0], player->GetSpin()[1],
-	    player->GetStamina(), player->GetStatusMax(), 
-	    (int)player->GetDragX(), (int)player->GetDragY() );
-  Logging::GetLogging()->Log( LOG_ACTTHEPLAYER, buf );
+  Logging::GetLogging()->LogTime(LOG_ACTTHEPLAYER, &tb);
+  Logging::GetLogging()->LogPlayer(LOG_ACTTHEPLAYER, player);
 
   player = &m_BacktrackBuffer[m_Histptr].comPlayer;
 
-  sprintf( buf, "%d.%2d: ", sec, cnt );
-  Logging::GetLogging()->Log( LOG_ACTCOMPLAYER, buf );
-
-  snprintf( buf, sizeof(buf),
-	    "playerType=%1d side=%2d x=%4.6f y=%4.6f z=%4.6f "
-	    "vx=%4.6f vy=%4.6f vz=%4.6f status=%3d "
-	    "swing=%2d swingType=%1d swingSide=%2d afterSwing=%2d "
-	    "swingError=%1d targetX=%4.6f targetY=%4.6f "
-	    "eyeX=%4.6f eyeY=%4.6f eyeZ=%4.6f "
-	    "lookAtX=%4.6f lookAtY=%4.6f lookAtZ=%4.6f "
-	    "pow=%1d spinX=%3.6f spinY=%3.6f stamina=%2.0f statusMax=%3d "
-	    "dragX=%2d dragY=%2d\n",
-	    (int)player->GetPlayerType(), (int)player->GetSide(), 
-	    player->GetX()[0], player->GetX()[1], player->GetX()[2], 
-	    player->GetV()[0], player->GetV()[1], player->GetV()[2], 
-	    (int)player->GetStatus(), (int)player->GetSwing(),
-	    (int)player->GetSwingType(), (int)player->GetSwingSide(),
-	    (int)player->GetAfterSwing(), (int)player->GetSwingError(), 
-	    player->GetTarget()[0], player->GetTarget()[1],
-	    player->GetEye()[0], player->GetEye()[1], player->GetEye()[2],
-	    player->GetLookAt()[0], player->GetLookAt()[1], player->GetLookAt()[2],
-	    (int)player->GetPower(), player->GetSpin()[0], player->GetSpin()[1],
-	    player->GetStamina(), player->GetStatusMax(),
-	    (int)player->GetDragX(), (int)player->GetDragY() );
-  Logging::GetLogging()->Log( LOG_ACTCOMPLAYER, buf );
+  Logging::GetLogging()->LogTime(LOG_ACTCOMPLAYER, &tb);
+  Logging::GetLogging()->LogPlayer(LOG_ACTCOMPLAYER, player);
 }
 #endif
 

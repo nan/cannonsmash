@@ -34,6 +34,10 @@ extern SDL_mutex *loadMutex;
 
 Sound* Sound::m_theSound = NULL;
 
+#ifdef LOGGING
+#include "Logging.h"
+#endif
+
 /**
  * Default constructor. 
  */
@@ -129,6 +133,10 @@ Sound::Init( long sndMode ) {
   }
 
   Mix_ChannelFinished( Sound::PlayFinishHandler );
+
+#ifdef LOGGING
+  Mix_RegisterEffect(MIX_CHANNEL_POST, Logging::LogSound, NULL, NULL);
+#endif
 #endif
 
   return true;

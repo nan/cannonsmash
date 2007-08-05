@@ -48,6 +48,7 @@ protected:
   FILE *fpComPlayer;
 
   void ScreenShot();
+  void Soundlog2wav();
 };
 
 #endif	// _LogPlay_

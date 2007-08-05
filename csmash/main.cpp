@@ -36,6 +36,7 @@
 #include "RCFile.h"
 #ifdef LOGGING
 #include "Logging.h"
+#include "NoLogging.h"
 #endif
 
 #include <gtk/gtk.h>
@@ -289,7 +290,11 @@ InitGame() {
   }
 
 #ifdef LOGGING
-  Logging::GetLogging()->Init();
+  if (mode == MODE_LOGPLAY) {
+    NoLogging::GetLogging()->Init();
+  } else {
+    Logging::GetLogging()->Init();
+  }
 #endif
 
   Sound::TheSound()->Init( theRC->sndMode );

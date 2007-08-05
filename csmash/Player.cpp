@@ -321,7 +321,7 @@ Player::Reset( Player *p ) {
 bool
 Player::LoadPlayerLog( FILE *fp, long &sec, long &cnt ) {
   fscanf( fp, 
-	  "%ld.%2ld: "
+	  "%ld.%ld: "
 	  "playerType=%1ld side=%2ld x=%lf y=%lf z=%lf "
 	  "vx=%lf vy=%lf vz=%lf status=%3ld "
 	  "swing=%2ld swingType=%ld swingSide=%d afterSwing=%2ld "

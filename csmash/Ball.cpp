@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -303,7 +303,7 @@ Ball::Warp( char *buf ) {
 
 bool
 Ball::LoadBallLog(FILE *fpBall, long &sec, long &cnt, long &score1, long &score2) {
-  if (fscanf( fpBall, "%ld.%2ld %ld - %ld  x=%lf y=%lf z=%lf "
+  if (fscanf( fpBall, "%ld.%ld: %ld - %ld  x=%lf y=%lf z=%lf "
 	      "vx=%lf vy=%lf vz=%lf "
 	      "spinX=%lf spinY=%lf st=%ld\n", 
 	      &sec, &cnt,

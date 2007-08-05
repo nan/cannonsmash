@@ -22,7 +22,7 @@ csmash_SOURCES = main.cpp Launcher.cpp LobbyClient.cpp Ball.cpp Event.cpp \
 		PlayerSelectView2D.cpp TitleView2D.cpp MenuItemView2D.cpp \
 		RCFile.cpp loadparts.cpp LobbyClientView.cpp LauncherView.cpp \
 		MultiPlayerSelect.cpp glARB.cpp ttinc.cpp \
-		LogPlay.cpp
+		LogPlay.cpp NoLogging.cpp
 
 noinst_HEADERS = ttinc.h Launcher.h LobbyClient.h Ball.h Event.h Control.h \
 		View.h BaseView.h FieldView.h BallView.h Player.h comPlayer.h \
@@ -40,7 +40,7 @@ noinst_HEADERS = ttinc.h Launcher.h LobbyClient.h Ball.h Event.h Control.h \
 		PlayerView2D.h BallView2D.h PlayerSelectView2D.h \
 		TitleView2D.h MenuItemView2D.h RCFile.h loadparts.h \
 		LobbyClientView.h LauncherView.h MultiPlayerSelect.h glARB.h \
-		LogPlay.h
+		LogPlay.h NoLogging.h
 
 
 DEFS = -DLOCALEDIR=\"$(localedir)\" -DCANNONSMASH_DATADIR=\"$(pkgdatadir)\" @DEFS@

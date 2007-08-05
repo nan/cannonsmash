@@ -85,6 +85,8 @@ LogPlay::Init() {
   delete p1;
   delete p2;
 
+  Soundlog2wav();
+
   return true;
 }
 
@@ -197,4 +199,64 @@ LogPlay::ScreenShot() {
   SDL_SaveBMP(temp, fname);
 
   count++;
+}
+
+void
+LogPlay::Soundlog2wav() {
+  FILE *fp = fopen("log/sound.log", "r");
+  FILE *gp = fopen("log/sound.wav", "w");
+  int c;
+  unsigned char sndData[256];
+  long len=0;
+  long longtmp;
+  short shorttmp;
+  char chartmp;
+
+  while ((c = fgetc(fp))!=EOF) {
+    if (c == 0) {
+      len += 256;
+    } else {
+      fread(sndData, 256, 1, fp);
+      len += 256;
+    }
+  }
+
+  fprintf(gp, "RIFF");
+  longtmp = len+36;
+  fwrite(&longtmp, 4, 1, gp);
+  fprintf(gp, "WAVEfmt ");
+  longtmp = 16;
+  fwrite(&longtmp, 4, 1, gp);
+  shorttmp = 1;
+  fwrite(&shorttmp, 2, 1, gp);
+  shorttmp = 2;
+  fwrite(&shorttmp, 2, 1, gp);
+  longtmp = 44100;
+  fwrite(&longtmp, 4, 1, gp);
+  longtmp = 176400;
+  fwrite(&longtmp, 4, 1, gp);
+  shorttmp = 4;
+  fwrite(&shorttmp, 2, 1, gp);
+  shorttmp = 16;
+  fwrite(&shorttmp, 2, 1, gp);
+  fprintf(gp, "data");
+  fwrite(&len, 4, 1, gp);
+
+  rewind(fp);
+
+  while ((c = fgetc(fp))!=EOF) {
+    if (c == 0) {
+      for (int i=0; i<256;i++) {
+	fputc(0, gp);
+      }
+    } else {
+      fread(sndData, 256, 1, fp);
+      fwrite(sndData, 256, 1, gp);
+    }
+  }
+
+  fflush(gp);
+
+  fclose(fp);
+  fclose(gp);
 }
