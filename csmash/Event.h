@@ -89,6 +89,8 @@ public:
 
   bool GetExternalData( ExternalData *&ext, long side );
   bool GetExternalData( long side );
+
+  struct Backtrack *GetBackTrack(long histPtr);
 protected:
   bool Move();
   bool IsModeChanged( long preMode );

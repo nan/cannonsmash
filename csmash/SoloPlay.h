@@ -41,17 +41,17 @@ public:
 		     long *MouseYHistory, unsigned long *MouseBHistory,
 		     int Histptr );
 
-  long GetSmashPtr() { return m_smashPtr; }	///< Getter method of m_smashPtr
-
   virtual bool LookAt( vector3d &srcX, vector3d &destX );
-  long SmashEffect( bool start, long histPtr );
-
 protected:
   bool m_smash;		///< Whether smash is done or not. 
   long m_smashCount;	///< counter of smash replay
-  long m_smashPtr;	///< HistPtr of smash replay
+  int  m_replayPtr;	///< HistPtr of replay
+
+  int  m_replayStartPtr;///< HistPtr of replay start
+  int  m_replayEndPtr;	///< HistPtr of replay end
 
   void ReplayAction( int &Histptr );
+  long GetReplayStartPtr(int histPtr);
 };
 
 #endif	// _SoloPlay_

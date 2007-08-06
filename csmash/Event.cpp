@@ -679,6 +679,11 @@ Event::BackTrack( long Histptr ) {
   return true;
 }
 
+struct Backtrack *
+Event::GetBackTrack(long histPtr) {
+  return &(m_BacktrackBuffer[histPtr]);
+}
+
 /**
  * Apply ExternalData to this machine. 
  * First, search for the oldest ExternalData. If its timestamp is older than

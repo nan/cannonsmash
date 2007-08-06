@@ -44,7 +44,7 @@ extern void CopyPlayerData( Player& dest, Player* src );
 SoloPlay::SoloPlay() {
   m_smash = false;
   m_smashCount = 0;
-  m_smashPtr = -1;
+  m_replayPtr = -1;
 }
 
 /**
@@ -115,26 +115,18 @@ SoloPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     return true;
   }
 
-  if ( m_smashPtr >= 0 ) {	// Smash replay
-    ReplayAction( Histptr );
+  if ( m_replayPtr >= 0 ) {	// Smash replay
+    ReplayAction( m_replayPtr );
 
-    if ( Histptr == m_smashPtr ) {
-      SmashEffect(false, Histptr);
+    if ( m_replayPtr == m_replayEndPtr ) {
       m_smashCount++;
       if ( m_smashCount > 1 ) {
 	m_smashCount = 0;
-	m_smashPtr = -1;
+	m_replayPtr = -1;
 	m_smash = false;
       } else {
-	m_smashPtr = SmashEffect(true, Histptr);
+	m_replayPtr = m_replayStartPtr;
       }
-    } else {
-      theBall.Move();
-      reDraw |= m_thePlayer->Move( KeyHistory, MouseXHistory,
-				 MouseYHistory, MouseBHistory, Histptr );
-      reDraw |= m_comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
-
-      Event::TheEvent()->BackTrack(Histptr);
     }
 
     return true;
@@ -155,8 +147,11 @@ SoloPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     m_smash = false;
   }
 
-  if ( m_smash && theBall.GetStatus() < 0 )
-    m_smashPtr = SmashEffect(true, Histptr);
+  if ( m_smash && theBall.GetStatus() < 0 ) {
+    m_replayStartPtr = GetReplayStartPtr(Histptr);
+    m_replayEndPtr = Histptr;
+    m_replayPtr = m_replayStartPtr;
+  }
 
   return true;
 }
@@ -171,7 +166,7 @@ SoloPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 bool
 SoloPlay::LookAt( vector3d &srcX, vector3d &destX ) {
   if (m_thePlayer) {
-    if ( m_smashPtr >= 0 ) {	// Smash replay
+    if ( m_replayPtr >= 0 ) {	// Smash replay
       switch (m_smashCount) {
       case 0:
 	srcX[0] = 0.0;
@@ -202,54 +197,6 @@ SoloPlay::LookAt( vector3d &srcX, vector3d &destX ) {
 }
 
 /**
- * To show smash replay, rollback the status of players and ball. 
- * 
- * @param start if smash replay is just started, it is true. 
- * @param histPtr history pointer of which players and ball should be rollbacked. 
- * @return history pointer of smash replay. 
- */
-long
-SoloPlay::SmashEffect( bool start, long histPtr ) {
-  static Player p1, p2;
-  static Ball b;
-  static long score1, score2;
-
-  long smashPtr;
-
-  smashPtr = histPtr-1;
-  if ( smashPtr < 0 )
-    smashPtr = MAX_HISTORY-1;
-
-  if (start) {
-    CopyPlayerData( p1, m_thePlayer );
-    CopyPlayerData( p2, m_comPlayer );
-    b = theBall;
-    score1 = m_Score1;
-    score2 = m_Score2;
-
-    for ( int i = 0 ; i < MAX_HISTORY ; i++ ) {
-      Event::TheEvent()->BackTrack( histPtr );
-      if ( theBall.GetStatus() == 2 )
-	break;
-
-      histPtr--;
-      if ( histPtr < 0 )
-	histPtr = MAX_HISTORY-1;
-    }
-
-    Event::TheEvent()->BackTrack( histPtr );
-  } else {
-    m_thePlayer->Reset( &p1 );
-    m_comPlayer->Reset( &p2 );
-    theBall = b;
-    m_Score1 = score1;
-    m_Score2 = score2;
-  }
-
-  return smashPtr;
-}
-
-/**
  * Do smash replay action. 
  * 
  * @param Histptr history pointer of rollbacked smash action. 
@@ -261,22 +208,53 @@ SoloPlay::ReplayAction( int &Histptr ) {
   // If mouse button is pressed, stop replay
   // (Unless it is the last 1 second). 
   if ( Event::TheEvent()->m_mouseButton && m_smashCount < 1 ) {
-    Histptr = m_smashPtr;
-    SmashEffect( false, Histptr );
+    struct Backtrack *backtrack = Event::TheEvent()->GetBackTrack(m_replayPtr);
+    theBall = backtrack->theBall;
+    m_thePlayer->Reset( &backtrack->thePlayer );
+    m_comPlayer->Reset( &backtrack->comPlayer );
+
+    ChangeScore( backtrack->score1, backtrack->score2);
+
     m_smashCount = 0;
-    m_smashPtr = -1;
+    m_replayPtr = -1;
     m_smash = false;
 
     return;
   }
 
   delayCounter++;
+
   if ( theBall.GetStatus() == 3 &&
        (delayCounter%5) != 0 ) {
-    Histptr--;
-    if ( Histptr < 0 )
-      Histptr = MAX_HISTORY-1;
-    Event::TheEvent()->BackTrack(Histptr);
     return;
+  } else {
+    m_replayPtr++;
+    if ( m_replayPtr > MAX_HISTORY-1 )
+      m_replayPtr = 0;
+
+    struct Backtrack *backtrack = Event::TheEvent()->GetBackTrack(m_replayPtr);
+    theBall = backtrack->theBall;
+    m_thePlayer->Reset( &backtrack->thePlayer );
+    m_comPlayer->Reset( &backtrack->comPlayer );
+
+    ChangeScore( backtrack->score1, backtrack->score2);
+
+    theBall.Move();
+    m_thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
+    m_comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
   }
+}
+
+long
+SoloPlay::GetReplayStartPtr(int histPtr) {
+  for ( int i = 0 ; i < MAX_HISTORY ; i++ ) {
+    if (Event::TheEvent()->GetBackTrack(histPtr)->theBall.GetStatus() == 2)
+      break;
+
+    histPtr--;
+    if ( histPtr < 0 )
+      histPtr = MAX_HISTORY-1;
+  }
+
+  return histPtr;
 }
