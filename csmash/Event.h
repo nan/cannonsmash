@@ -41,6 +41,8 @@ struct Backtrack {
   Player comPlayer;	///< Copy of comPlayer object of the TICK. 
   long score1;		///< Score of thePlayer side of the TICK. 
   long score2;		///< Score of comPlayer side of the TICK. 
+  vector3d camera;	///< Camera position of the TICK. 
+  vector3d target;	///< Camera view target of the TICK. 
 };
 
 class ExternalData;

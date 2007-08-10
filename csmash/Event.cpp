@@ -394,6 +394,11 @@ Event::Record() {
       ((PlayGame *)Control::TheControl())->GetScore(-1);
   }
 
+  vector3d src, dest;
+  Control::TheControl()->LookAt(src, dest);
+  m_BacktrackBuffer[m_Histptr].camera = src;
+  m_BacktrackBuffer[m_Histptr].target = dest;
+
   return;
 }
 
@@ -998,6 +1003,10 @@ Event::logRecord() {
 
   Logging::GetLogging()->LogTime(LOG_ACTCOMPLAYER, &tb);
   Logging::GetLogging()->LogPlayer(LOG_ACTCOMPLAYER, player);
+
+  Logging::GetLogging()->LogTime(LOG_CAMERA, &tb);
+  Logging::GetLogging()->LogCamera(m_BacktrackBuffer[m_Histptr].camera, 
+				   m_BacktrackBuffer[m_Histptr].target);
 }
 #endif
 

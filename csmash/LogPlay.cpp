@@ -70,6 +70,7 @@ LogPlay::Init() {
   fpBall = fopen("log/act_ball.log", "r");
   fpThePlayer = fopen("log/act_thePlayer.log", "r");
   fpComPlayer = fopen("log/act_comPlayer.log", "r");
+  fpCamera = fopen("log/camera.log", "r");
 
   theBall.LoadBallLog(fpBall, sec, cnt, score1, score2);
   ((LogPlay *)m_theControl)->ChangeScore(score1, score2);
@@ -84,6 +85,8 @@ LogPlay::Init() {
   m_comPlayer = Player::Create( p2->GetPlayerType()-1, -1, 0 );
   delete p1;
   delete p2;
+
+  LoadCameraLog();
 
   Soundlog2wav();
 
@@ -136,6 +139,8 @@ LogPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   m_thePlayer->LoadPlayerLog(fpThePlayer, sec, cnt);
   m_comPlayer->LoadPlayerLog(fpComPlayer, sec, cnt);
 
+  LoadCameraLog();
+
   count++;
   if (redrawCount*100/30 < count) {
     ScreenShot();
@@ -157,10 +162,15 @@ LogPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
  */
 bool
 LogPlay::LookAt( vector3d &srcX, vector3d &destX ) {
+  srcX = m_camera;
+  destX = m_target;
+
+  /*
   if (m_thePlayer) {
     srcX = m_thePlayer->GetX() + m_thePlayer->GetEye();
     destX = m_thePlayer->GetLookAt();
   }
+  */
 
   return true;
 }
@@ -259,4 +269,20 @@ LogPlay::Soundlog2wav() {
 
   fclose(fp);
   fclose(gp);
+}
+
+bool
+LogPlay::LoadCameraLog() {
+  long sec, cnt;
+
+  if (fscanf( fpCamera, 
+	      "%ld.%ld: "
+	      "srcX=%lf srcY=%lf srcZ=%lf "
+	      "destX=%lf destY=%lf destZ=%lf\n", 
+	      &sec, &cnt,
+	      &(m_camera[0]), &(m_camera[1]), &(m_camera[2]), 
+	      &(m_target[0]), &(m_target[1]), &(m_target[2])) == 8) {
+    return true;
+  } else
+    return false;
 }

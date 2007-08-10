@@ -33,8 +33,14 @@
 #define LOG_ACTCOMPLAYER	6
 #define LOG_ACTMISC		7
 #define LOG_SOUND		8
+#define LOG_CAMERA		9
 
-#define LOG_FPSIZE		9
+#define LOG_FPSIZE		10
+
+#include <vector>
+#include "matrix"
+typedef Vector<3, double> vector3d;
+typedef Vector<2, double> vector2d;
 
 class Player;
 class Ball;
@@ -69,6 +75,7 @@ public:
   virtual bool LogRecvPTMessage( ExternalPTData *pt );
   virtual bool LogNullSound();
   virtual bool LogSound(unsigned char *sndData);
+  virtual bool LogCamera(vector3d srcX, vector3d destX);
 
   static void LogSound(int channel, void *stream, int len, void *udata);
 protected:

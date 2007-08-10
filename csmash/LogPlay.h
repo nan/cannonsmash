@@ -46,9 +46,15 @@ protected:
   FILE *fpBall;
   FILE *fpThePlayer;
   FILE *fpComPlayer;
+  FILE *fpCamera;
+
+  vector3d m_camera;
+  vector3d m_target;
 
   void ScreenShot();
   void Soundlog2wav();
+
+  bool LoadCameraLog();
 };
 
 #endif	// _LogPlay_

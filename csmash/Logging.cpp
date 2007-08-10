@@ -82,6 +82,7 @@ Logging::Init() {
       "log/act_comPlayer.log",
       "log/act_misc.log",
       "log/sound.log",
+      "log/camera.log",
   };
 
   for ( int i = 0 ; i < LOG_FPSIZE; i++ ) {
@@ -485,5 +486,19 @@ Logging::LogSound(int channel, void *stream, int len, void *udata) {
 
   memcpy(&(soundData[length]), stream, len);
   length += len;
+}
+
+bool
+Logging::LogCamera(vector3d srcX, vector3d destX) {
+  char buf[1024];
+
+  snprintf( buf, sizeof(buf),
+	    "srcX=%4.6f srcY=%4.6f srcZ=%4.6f "
+	    "destX=%4.6f destY=%4.6f destZ=%4.6f\n", 
+	    srcX[0], srcX[1], srcX[2], 
+	    destX[0], destX[1], destX[2]);
+  Log( LOG_CAMERA, buf );
+
+  return true;
 }
 #endif
