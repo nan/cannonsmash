@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -121,7 +121,7 @@ BallView::Redraw() {
 bool
 BallView::RedrawAlpha() {
   Ball* tmpBall;
-  static vector3d tx = vector3d((const double[]){0.0, 0.0, TABLEHEIGHT+NETHEIGHT});
+  static vector3d tx = vector3d(0.0, 0.0, TABLEHEIGHT+NETHEIGHT);
 
   Player *thePlayer = Control::TheControl()->GetThePlayer();
 

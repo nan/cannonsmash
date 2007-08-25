@@ -237,17 +237,11 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 
     if ( phrase == 73 && mod == 0 ) {
       vector3d v;
-      theBall.Warp( vector3d((const double[]){TABLEWIDTH/4,
-						-TABLELENGTH/4,
-						TABLEHEIGHT+0.01}), 
+      theBall.Warp( vector3d(TABLEWIDTH/4, -TABLELENGTH/4, TABLEHEIGHT+0.01), 
 		    vector3d(0.0), vector2d(0.0), 0 );
-      theBall.TargetToV( vector2d((const double[]){-TABLEWIDTH/2+0.1,
-						     TABLELENGTH/2-0.1}),
-			 0.7, vector2d((const double[]){0.0, 0.0}),
-			 v, 0.1, 20.0 );
-      theBall.Warp( vector3d((const double[]){TABLEWIDTH/4,
-						-TABLELENGTH/4,
-						TABLEHEIGHT+0.01}),
+      theBall.TargetToV( vector2d(-TABLEWIDTH/2+0.1, TABLELENGTH/2-0.1),
+			 0.7, vector2d(0.0), v, 0.1, 20.0 );
+      theBall.Warp( vector3d(TABLEWIDTH/4, -TABLELENGTH/4, TABLEHEIGHT+0.01),
 		    v, vector2d(0.0), 0 );
     }
     if ( phrase >= 73 ) {
@@ -279,18 +273,12 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     }
     if ( phrase == 77 && mod == 20 ) {
       vector3d v;
-      theBall.Warp( vector3d((const double[]){-TABLEWIDTH/2,
-						TABLELENGTH/2,
-						TABLEHEIGHT+NETHEIGHT}),
+      theBall.Warp( vector3d(-TABLEWIDTH/2, TABLELENGTH/2, TABLEHEIGHT+NETHEIGHT),
 		    vector3d(0.0), vector2d(0.0), 1 );
-      theBall.TargetToV( vector2d((const double[]){TABLEWIDTH/2-0.1,
-						     -TABLELENGTH/2+0.3}),
-			 0.8, vector2d((const double[]){0.0, 1.0}),
-			 v, 0.1, 20.0 );
-      theBall.Warp( vector3d((const double[]){-TABLEWIDTH/2,
-						TABLELENGTH/2,
-						TABLEHEIGHT+NETHEIGHT}),
-		    v, vector2d((const double[]){0.0,1.0}), 2 );
+      theBall.TargetToV( vector2d(TABLEWIDTH/2-0.1, -TABLELENGTH/2+0.3),
+			 0.8, vector2d(0.0, 1.0), v, 0.1, 20.0 );
+      theBall.Warp( vector3d(-TABLEWIDTH/2, TABLELENGTH/2, TABLEHEIGHT+NETHEIGHT),
+		    v, vector2d(0.0,1.0), 2 );
     }
     if ( phrase >= 77 && phrase <= 78 ) {
       m_thePlayer->m_v[0] = (TABLEWIDTH-0.1)/0.7;
@@ -320,18 +308,12 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_v[1] = 0.0;
 
       vector3d v;
-      theBall.Warp( vector3d((const double[]){TABLEWIDTH/2+0.5,
-						-TABLELENGTH,
-						TABLEHEIGHT+NETHEIGHT}),
+      theBall.Warp( vector3d(TABLEWIDTH/2+0.5, -TABLELENGTH, TABLEHEIGHT+NETHEIGHT),
 		    vector3d(0.0), vector2d(0.0), 0 );
-      theBall.TargetToV( vector2d((const double[]){TABLEWIDTH/2-0.1,
-						     TABLELENGTH/2-0.1}),
-			 0.53, vector2d((const double[]){0.0, -1.0}),
-			 v, 0.1, 20.0 );
-      theBall.Warp( vector3d((const double[]){TABLEWIDTH/2+0.5,
-						-TABLELENGTH,
-						TABLEHEIGHT+NETHEIGHT}),
-		    v, vector2d((const double[]){0.0, -1.0}), 0 );
+      theBall.TargetToV( vector2d(TABLEWIDTH/2-0.1, TABLELENGTH/2-0.1),
+			 0.53, vector2d(0.0, -1.0), v, 0.1, 20.0 );
+      theBall.Warp( vector3d(TABLEWIDTH/2+0.5, -TABLELENGTH, TABLEHEIGHT+NETHEIGHT),
+		    v, vector2d(0.0, -1.0), 0 );
     }
     if ( phrase >= 81 ) {
       m_comPlayer->m_v[0] = (TABLEWIDTH+0.1)/0.7;
@@ -366,18 +348,12 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     }
     if ( phrase == 85 && mod == 20 ) {
       vector3d v;
-      theBall.Warp( vector3d((const double[]){TABLEWIDTH/2-0.2,
-						TABLELENGTH/2,
-						TABLEHEIGHT+NETHEIGHT}),
+      theBall.Warp( vector3d(TABLEWIDTH/2-0.2, TABLELENGTH/2, TABLEHEIGHT+NETHEIGHT),
 		    vector3d(0.0), vector2d(0.0), 1 );
-      theBall.TargetToV( vector2d((const double[]){-TABLEWIDTH/2+0.2,
-						     -TABLELENGTH/2+0.3}),
-			 0.8, vector2d((const double[]){0.0, 1.0}),
-			 v, 0.1, 20.0 );
-      theBall.Warp( vector3d((const double[]){TABLEWIDTH/2-0.2,
-						TABLELENGTH/2,
-						TABLEHEIGHT+NETHEIGHT}),
-		    v, vector2d((const double[]){0.0, 1.0}), 2 );
+      theBall.TargetToV( vector2d(-TABLEWIDTH/2+0.2, -TABLELENGTH/2+0.3),
+			 0.8, vector2d(0.0, 1.0), v, 0.1, 20.0 );
+      theBall.Warp( vector3d(TABLEWIDTH/2-0.2, TABLELENGTH/2, TABLEHEIGHT+NETHEIGHT),
+		    v, vector2d(0.0, 1.0), 2 );
     }
     if ( phrase >= 85 ) {
       theBall.Move();
@@ -409,18 +385,13 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_target[1] = -TABLELENGTH/2+1.0;
 
       vector3d v;
-      theBall.Warp( vector3d((const double[]){-TABLEWIDTH/2-0.4,
-						-TABLELENGTH-0.5,
-						TABLEHEIGHT+NETHEIGHT}),
+      theBall.Warp( vector3d(-TABLEWIDTH/2-0.4, -TABLELENGTH-0.5, TABLEHEIGHT+NETHEIGHT),
 		    vector3d(0.0), vector2d(0.0), 0 );
-      theBall.TargetToV( vector2d((const double[]){-TABLEWIDTH/2+0.2,
-						     TABLELENGTH/2-0.85}),
-			 0.7, vector2d((const double[]){0.0, -1.0}),
+      theBall.TargetToV( vector2d(-TABLEWIDTH/2+0.2, TABLELENGTH/2-0.85),
+			 0.7, vector2d(0.0, -1.0),
 			 v, 0.1, 20.0 );
-      theBall.Warp( vector3d((const double[]){-TABLEWIDTH/2-0.4,
-						-TABLELENGTH-0.5,
-						TABLEHEIGHT+NETHEIGHT}),
-		    v, vector2d((const double[]){0.0, -1.0}), 0 );
+      theBall.Warp( vector3d(-TABLEWIDTH/2-0.4, -TABLELENGTH-0.5, TABLEHEIGHT+NETHEIGHT),
+		    v, vector2d(0.0, -1.0), 0 );
     }
 
     theBall.Move();
@@ -451,18 +422,12 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_thePlayer->m_target[1] = TABLELENGTH/2-0.8;
 
       vector3d v;
-      theBall.Warp( vector3d((const double[]){-0.5,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.05}),
+      theBall.Warp( vector3d(-0.5, TABLELENGTH/2-0.5, TABLEHEIGHT+0.05),
 		    vector3d(0.0), vector2d(0.0), 1 );
-      theBall.TargetToV( vector2d((const double[]){-TABLEWIDTH/2+0.3,
-						     -TABLELENGTH/2+0.8}),
-			 0.5, vector2d((const double[]){0.0, -0.5}),
-			 v, 0.1, 20.0 );
-      theBall.Warp( vector3d((const double[]){-0.5,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.05}),
-		    v, vector2d((const double[]){0.0, -0.5}), 2 );
+      theBall.TargetToV( vector2d(-TABLEWIDTH/2+0.3, -TABLELENGTH/2+0.8),
+			 0.5, vector2d(0.0, -0.5), v, 0.1, 20.0 );
+      theBall.Warp( vector3d(-0.5, TABLELENGTH/2-0.5, TABLEHEIGHT+0.05),
+		    v, vector2d(0.0, -0.5), 2 );
     }
 
     theBall.Move();
@@ -496,18 +461,12 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_thePlayer->m_target[1] = TABLELENGTH/2-0.8;
 
       vector3d v;
-      theBall.Warp( vector3d((const double[]){-0.5,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.05}),
+      theBall.Warp( vector3d(-0.5, TABLELENGTH/2-0.5, TABLEHEIGHT+0.05),
 		    vector3d(0.0), vector2d(0.0), 1 );
-      theBall.TargetToV( vector2d((const double[]){-TABLEWIDTH/2+0.3,
-						     -TABLELENGTH/2+0.8}),
-			 0.5, vector2d((const double[]){0.0, -0.5}),
-			 v, 0.1, 20.0 );
-      theBall.Warp( vector3d((const double[]){-0.5,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.05}),
-		    v, vector2d((const double[]){0.0, -0.5}), 2 );
+      theBall.TargetToV( vector2d(-TABLEWIDTH/2+0.3, -TABLELENGTH/2+0.8),
+			 0.5, vector2d(0.0, -0.5), v, 0.1, 20.0 );
+      theBall.Warp( vector3d(-0.5, TABLELENGTH/2-0.5, TABLEHEIGHT+0.05),
+		    v, vector2d(0.0, -0.5), 2 );
     }
 
     theBall.Move();
@@ -550,11 +509,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_target[0] = -TABLEWIDTH/2+0.1;
       m_comPlayer->m_target[1] = -TABLELENGTH/2+0.1;
 
-      theBall.Warp( vector3d((const double[]){0.0,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.01}),
-		    vector3d((const double[]){-1.6, 2.2, -5.0}),
-		    vector2d((const double[]){0.0, 0.0}), 0 );
+      theBall.Warp( vector3d(0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01),
+		    vector3d(-1.6, 2.2, -5.0),
+		    vector2d(0.0, 0.0), 0 );
     }
 
     theBall.Move();
@@ -580,11 +537,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_target[0] = -TABLEWIDTH/2+0.1;
       m_comPlayer->m_target[1] = -TABLELENGTH/2+0.1;
 
-      theBall.Warp( vector3d((const double[]){0.0,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.01}),
-		    vector3d((const double[]){1.6, 2.2, -5.0}),
-		    vector2d((const double[]){0.0, 0.0}), 0 );
+      theBall.Warp( vector3d(0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01),
+		    vector3d(1.6, 2.2, -5.0),
+		    vector2d(0.0, 0.0), 0 );
     }
 
     theBall.Move();
@@ -615,11 +570,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_target[0] = TABLEWIDTH/2-0.1;
       m_comPlayer->m_target[1] = -TABLELENGTH/2+0.1;
 
-      theBall.Warp( vector3d((const double[]){0.0,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.01}),
-		    vector3d((const double[]){-1.6, 2.2, -5.0}),
-		    vector2d((const double[]){0.0, 0.0}), 0 );
+      theBall.Warp( vector3d(0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01),
+		    vector3d(-1.6, 2.2, -5.0),
+		    vector2d(0.0, 0.0), 0 );
     }
 
     theBall.Move();
@@ -645,11 +598,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_target[0] = TABLEWIDTH/2-0.1;
       m_comPlayer->m_target[1] = -TABLELENGTH/2+0.1;
 
-      theBall.Warp( vector3d((const double[]){0.0,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.01}),
-		    vector3d((const double[]){1.6, 2.2, -5.0}),
-		    vector2d((const double[]){0.0, 0.0}), 0 );
+      theBall.Warp( vector3d(0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01),
+		    vector3d(1.6, 2.2, -5.0),
+		    vector2d(0.0, 0.0), 0 );
     }
 
     theBall.Move();
@@ -680,11 +631,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_target[0] = -TABLEWIDTH/2+0.1;
       m_comPlayer->m_target[1] = -TABLELENGTH/2+0.1;
 
-      theBall.Warp( vector3d((const double[]){0.0,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.01}),
-		    vector3d((const double[]){-1.6, 2.2, -5.0}),
-		    vector2d((const double[]){0.0, 0.0}), 0 );
+      theBall.Warp( vector3d(0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01),
+		    vector3d(-1.6, 2.2, -5.0),
+		    vector2d(0.0, 0.0), 0 );
     }
 
     theBall.Move();
@@ -710,11 +659,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_target[0] = -TABLEWIDTH/2+0.1;
       m_comPlayer->m_target[1] = -TABLELENGTH/2+0.1;
 
-      theBall.Warp( vector3d((const double[]){0.0,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.01}),
-		    vector3d((const double[]){1.6, 2.2, -5.0}),
-		    vector2d((const double[]){0.0, 0.0}), 0 );
+      theBall.Warp( vector3d(0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01),
+		    vector3d(1.6, 2.2, -5.0),
+		    vector2d(0.0, 0.0), 0 );
     }
 
     theBall.Move();
@@ -745,11 +692,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_target[0] = TABLEWIDTH/2-0.1;
       m_comPlayer->m_target[1] = -TABLELENGTH/2+0.1;
 
-      theBall.Warp( vector3d((const double[]){0.0,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.01}),
-		    vector3d((const double[]){1.6, 2.2, -5.0}),
-		    vector2d((const double[]){0.0, 0.0}), 0 );
+      theBall.Warp( vector3d(0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01),
+		    vector3d(1.6, 2.2, -5.0),
+		    vector2d(0.0, 0.0), 0 );
     }
 
     theBall.Move();
@@ -775,11 +720,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_target[0] = TABLEWIDTH/2-0.1;
       m_comPlayer->m_target[1] = -TABLELENGTH/2+0.1;
 
-      theBall.Warp( vector3d((const double[]){0.0,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.01}),
-		    vector3d((const double[]){1.6, 2.2, -5.0}),
-		    vector2d((const double[]){0.0, 0.0}), 0 );
+      theBall.Warp( vector3d(0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01),
+		    vector3d(1.6, 2.2, -5.0),
+		    vector2d(0.0, 0.0), 0 );
     }
 
     theBall.Move();
@@ -810,11 +753,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_target[0] = -TABLEWIDTH/2+0.1;
       m_comPlayer->m_target[1] = -TABLELENGTH/2+0.1;
 
-      theBall.Warp( vector3d((const double[]){0.0,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.01}),
-		    vector3d((const double[]){-1.6, 2.2, -5.0}),
-		    vector2d((const double[]){0.0, 0.0}), 0 );
+      theBall.Warp( vector3d(0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01),
+		    vector3d(-1.6, 2.2, -5.0),
+		    vector2d(0.0, 0.0), 0 );
     }
 
     theBall.Move();
@@ -840,11 +781,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_target[0] = -TABLEWIDTH/2+0.1;
       m_comPlayer->m_target[1] = -TABLELENGTH/2+0.1;
 
-      theBall.Warp( vector3d((const double[]){0.0,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.01}),
-		    vector3d((const double[]){1.6, 2.2, -5.0}),
-		    vector2d((const double[]){0.0, 0.0}), 0 );
+      theBall.Warp( vector3d(0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01),
+		    vector3d(1.6, 2.2, -5.0),
+		    vector2d(0.0, 0.0), 0 );
     }
 
     theBall.Move();
@@ -875,11 +814,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_target[0] = TABLEWIDTH/2-0.1;
       m_comPlayer->m_target[1] = -TABLELENGTH/2+0.1;
 
-      theBall.Warp( vector3d((const double[]){0.0,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.01}),
-		    vector3d((const double[]){-1.6, 2.2, -5.0}),
-		    vector2d((const double[]){0.0, 0.0}), 0 );
+      theBall.Warp( vector3d(0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01),
+		    vector3d(-1.6, 2.2, -5.0),
+		    vector2d(0.0, 0.0), 0 );
     }
 
     theBall.Move();
@@ -905,11 +842,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_target[0] = TABLEWIDTH/2-0.1;
       m_comPlayer->m_target[1] = -TABLELENGTH/2+0.1;
 
-      theBall.Warp( vector3d((const double[]){0.0,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.01}),
-		    vector3d((const double[]){1.6, 2.2, -5.0}),
-		    vector2d((const double[]){0.0, 0.0}), 0 );
+      theBall.Warp( vector3d(0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01),
+		    vector3d(1.6, 2.2, -5.0),
+		    vector2d(0.0, 0.0), 0 );
     }
 
     theBall.Move();
@@ -940,11 +875,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_target[0] = -TABLEWIDTH/2+0.1;
       m_comPlayer->m_target[1] = -TABLELENGTH/2+0.1;
 
-      theBall.Warp( vector3d((const double[]){0.0,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.01}),
-		    vector3d((const double[]){-1.6, 2.2, -5.0}),
-		    vector2d((const double[]){0.0, 0.0}), 0 );
+      theBall.Warp( vector3d(0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01),
+		    vector3d(-1.6, 2.2, -5.0),
+		    vector2d(0.0, 0.0), 0 );
     }
 
     theBall.Move();
@@ -970,11 +903,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_target[0] = -TABLEWIDTH/2+0.1;
       m_comPlayer->m_target[1] = -TABLELENGTH/2+0.1;
 
-      theBall.Warp( vector3d((const double[]){0.0,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.01}),
-		    vector3d((const double[]){1.6, 2.2, -5.0}),
-		    vector2d((const double[]){0.0, 0.0}), 0 );
+      theBall.Warp( vector3d(0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01),
+		    vector3d(1.6, 2.2, -5.0),
+		    vector2d(0.0, 0.0), 0 );
     }
 
     theBall.Move();
@@ -1005,11 +936,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_target[0] = TABLEWIDTH/2-0.1;
       m_comPlayer->m_target[1] = -TABLELENGTH/2+0.1;
 
-      theBall.Warp( vector3d((const double[]){0.0,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.01}),
-		    vector3d((const double[]){-1.6, 2.2, -5.0}),
-		    vector2d((const double[]){0.0, 0.0}), 0 );
+      theBall.Warp( vector3d(0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01),
+		    vector3d(-1.6, 2.2, -5.0),
+		    vector2d(0.0, 0.0), 0 );
     }
 
     theBall.Move();
@@ -1035,11 +964,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_target[0] = TABLEWIDTH/2-0.1;
       m_comPlayer->m_target[1] = -TABLELENGTH/2+0.1;
 
-      theBall.Warp( vector3d((const double[]){0.0,
-						TABLELENGTH/2-0.5,
-						TABLEHEIGHT+0.01}),
-		    vector3d((const double[]){1.6, 2.2, -5.0}),
-		    vector2d((const double[]){0.0, 0.0}), 0 );
+      theBall.Warp( vector3d(0.0, TABLELENGTH/2-0.5, TABLEHEIGHT+0.01),
+		    vector3d(1.6, 2.2, -5.0),
+		    vector2d(0.0, 0.0), 0 );
     }
 
     theBall.Move();
@@ -1074,16 +1001,12 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_swing = 1;
       m_comPlayer->m_swingSide = true;
 
-      ball1.Warp( vector3d((const double[]){-0.3,
-					      -TABLELENGTH/2-1.2,
-					      TABLEHEIGHT+NETHEIGHT}),
-		  vector3d((const double[]){0.0, -8.2, -1.0}),
-		  vector2d((const double[]){0.0, 0.0}), 3 );
-      ball2.Warp( vector3d((const double[]){0.0,
-					      TABLELENGTH/4,
-					      TABLEHEIGHT+0.01}),
-		  vector3d((const double[]){-1.6, 3.5, -5.0}),
-		  vector2d((const double[]){0.0, 0.0}), 0 );
+      ball1.Warp( vector3d(-0.3, -TABLELENGTH/2-1.2, TABLEHEIGHT+NETHEIGHT),
+		  vector3d(0.0, -8.2, -1.0),
+		  vector2d(0.0, 0.0), 3 );
+      ball2.Warp( vector3d(0.0, TABLELENGTH/4, TABLEHEIGHT+0.01),
+		  vector3d(-1.6, 3.5, -5.0),
+		  vector2d(0.0, 0.0), 0 );
     }
 
     if ( phrase%2 ) {
@@ -1124,16 +1047,12 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_swing = 1;
       m_comPlayer->m_swingSide = false;
 
-      ball1.Warp( vector3d((const double[]){0.3,
-					      -TABLELENGTH/2-1.2,
-					      TABLEHEIGHT+NETHEIGHT}),
-		  vector3d((const double[]){0.0, -8.2, -1.0}),
-		  vector2d((const double[]){0.0, 0.0}), 3 );
-      ball2.Warp( vector3d((const double[]){0.0,
-					      TABLELENGTH/4,
-					      TABLEHEIGHT+0.01}),
-		  vector3d((const double[]){1.6, 3.5, -5.0}),
-		  vector2d((const double[]){0.0, 0.0}), 0 );
+      ball1.Warp( vector3d(0.3, -TABLELENGTH/2-1.2, TABLEHEIGHT+NETHEIGHT),
+		  vector3d(0.0, -8.2, -1.0),
+		  vector2d(0.0, 0.0), 3 );
+      ball2.Warp( vector3d(0.0, TABLELENGTH/4, TABLEHEIGHT+0.01),
+		  vector3d(1.6, 3.5, -5.0),
+		  vector2d(0.0, 0.0), 0 );
     }
 
     if ( phrase%2 ) {
@@ -1171,11 +1090,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_swingType = SWING_DRIVE;
       m_comPlayer->m_swingSide = false;
 
-      theBall.Warp( vector3d((const double[]){0.2,
-						0.1,
-						TABLEHEIGHT+NETHEIGHT*2}),
-		    vector3d((const double[]){-0.1, -3.0, 1.0}),
-		    vector2d((const double[]){0.0, 0.6}), 0 );
+      theBall.Warp( vector3d(0.2, 0.1, TABLEHEIGHT+NETHEIGHT*2),
+		    vector3d(-0.1, -3.0, 1.0),
+		    vector2d(0.0, 0.6), 0 );
     }
 
     if ( (m_count%10) == 0 ) {
@@ -1197,11 +1114,9 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_comPlayer->m_swingType = SWING_DRIVE;
       m_comPlayer->m_swingSide = true;
 
-      theBall.Warp( vector3d((const double[]){0.6,
-						-TABLELENGTH/2,
-						TABLEHEIGHT+NETHEIGHT}),
-		    vector3d((const double[]){-1.0, 2.0, 3.0}),
-		    vector2d((const double[]){0.0, -0.8}), 0 );
+      theBall.Warp( vector3d(0.6, -TABLELENGTH/2, TABLEHEIGHT+NETHEIGHT),
+		    vector3d(-1.0, 2.0, 3.0),
+		    vector2d(0.0, -0.8), 0 );
     }
 
     if ( (m_count%10) == 0 ) {

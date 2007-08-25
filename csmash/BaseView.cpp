@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -72,7 +72,7 @@ BaseView::TheView() {
  */
 BaseView::BaseView() {
   m_View = (View*)0;
-  m_centerX = vector3d((const double[]){0.0, TABLELENGTH/2, TABLEHEIGHT});
+  m_centerX = vector3d(0.0, TABLELENGTH/2, TABLEHEIGHT);
 }
 
 /**

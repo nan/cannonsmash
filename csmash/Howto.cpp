@@ -268,9 +268,9 @@ Howto::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_mouseB = 1;
     } else if ( m_count == 1000 ) {
       m_thePlayer->m_x[0] = 0.2;
-      theBall.Warp( vector3d((const double[]){0.243705, 0.673854, 1.017764}), 
-		    vector3d((const double[]){-1.042663, -4.457266, 0.108404}),
-		    vector2d((const double[]){0.0, -1.0}), 2 );
+      theBall.Warp( vector3d(0.243705, 0.673854, 1.017764), 
+		    vector3d(-1.042663, -4.457266, 0.108404),
+		    vector2d(0.0, -1.0), 2 );
       m_thePlayer->m_x[0] = -0.1;
       m_mouseB = 0;
     } else if ( m_count > 1000 && m_count < 1500 ) {
