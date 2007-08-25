@@ -396,6 +396,17 @@ public:
     inline explicit Vector(const float_t a[vector_size]) {
 	for (int i = 0; vector_size > i; ++i) v[i] = a[i];
     }
+    inline explicit Vector(float_t e0, float_t e1, ...) {
+        va_list va;
+        va_start(va, e1);
+        v[0] = e0;
+        v[1] = e1;
+        for (int i = 2; vector_size > i; i++) {
+            e1 = va_arg(va, float_t);
+            v[i] = e1;
+        }
+        va_end(va);
+    }
 
     inline float_t& operator [](int i) { return v[i]; }
     inline float_t operator [](int i) const { return v[i];}
@@ -456,7 +467,7 @@ public:
 
     Vector & normalize() {
 	float_t d = 1/len();
-	if (0 == d) bzero(v, sizeof(v));
+	if (0 == d) memset(v, 0, sizeof(v));
 	else {
 	    for (int i = 0; vector_size > i; i++) {
 		v[i] *= d;
