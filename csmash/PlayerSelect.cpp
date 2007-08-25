@@ -135,7 +135,7 @@ PlayerSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     if ( m_selected == 0 ) {
       m_selected = 1;
       Sound::TheSound()->Play( SOUND_CLICK,
-			       vector3d((const double[]){0.0, 0.0, 0.0}) );
+			       vector3d(0.0, 0.0, 0.0) );
     } else if ( m_selected > 100 ) {
       if (isComm)
 	mode = MODE_MULTIPLAY;
@@ -179,7 +179,7 @@ PlayerSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_rotate = (nextRotate+360/PLAYERS/2)/(360/PLAYERS)*(360/PLAYERS);
       lastRotate = 0;
       Sound::TheSound()->Play( SOUND_CLICK, 
-			       vector3d((const double[]){0.0, 0.0, 0.0}) );
+			       vector3d(0.0, 0.0, 0.0) );
     } else
       m_rotate = nextRotate;
   }
@@ -228,7 +228,7 @@ PlayerSelect::GetOpponentNum() {
  */
 bool
 PlayerSelect::LookAt( vector3d &srcX, vector3d &destX ) {
-  srcX = vector3d((const double[]){0.0, -TABLELENGTH-1.2, 1.4});
+  srcX = vector3d(0.0, -TABLELENGTH-1.2, 1.4);
 
   return true;
 }

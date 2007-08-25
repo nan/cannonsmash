@@ -112,7 +112,7 @@ TrainingSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     if ( m_selected == 0 ) {
       m_selected = 1;
       Sound::TheSound()->Play( SOUND_CLICK,
-			       vector3d((const double[]){0.0, 0.0, 0.0}) );
+			       vector3d(0.0) );
     } else if ( m_selected > 100 ) {
       mode = MODE_TRAINING;
       return true;
@@ -152,7 +152,7 @@ TrainingSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 	(360/TRAININGPLAYERS);
       lastRotate = 0;
       Sound::TheSound()->Play( SOUND_CLICK,
-			       vector3d((const double[]){0.0, 0.0, 0.0}) );
+			       vector3d(0.0) );
     } else
       m_rotate = nextRotate;
   }

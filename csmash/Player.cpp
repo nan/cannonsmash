@@ -59,14 +59,14 @@ extern long mode;
  * Default constructor. 
  */
 Player::Player() : 
-  m_x((const double[]){0.0, -TABLELENGTH/2-0.2, 1.4}), 
-  m_v((const double[]){0.0, 0.0, 0.0}),
-  m_target((const double[]){0.0, TABLELENGTH/16*5}),
-  m_eye((const double[]){0.0, -1.0, 0.2}),
-  m_lookAt((const double[]){0.0, TABLELENGTH/2, TABLEHEIGHT}), 
-  m_spin((const double[]){0.0, 0.0}),
-  m_lastSendX((const double[]){0.0, 0.0, 0.0}), 
-  m_lastSendV((const double[]){0.0, 0.0, 0.0}) {
+  m_x(0.0, -TABLELENGTH/2-0.2, 1.4), 
+  m_v(0.0, 0.0, 0.0),
+  m_target(0.0, TABLELENGTH/16*5),
+  m_eye(0.0, -1.0, 0.2),
+  m_lookAt(0.0, TABLELENGTH/2, TABLEHEIGHT), 
+  m_spin(0.0, 0.0),
+  m_lastSendX(0.0, 0.0, 0.0), 
+  m_lastSendV(0.0, 0.0, 0.0) {
 
   m_side = 1;
   m_playerType = PLAYER_PROTO;
@@ -94,14 +94,14 @@ Player::Player() :
  * @param side side of the player. 
  */
 Player::Player( long side ) :
-  m_x((const double[]){0.0, -TABLELENGTH/2-0.2, 1.4}), 
-  m_v((const double[]){0.0, 0.0, 0.0}),
-  m_target((const double[]){0.0, TABLELENGTH/16*5}),
-  m_eye((const double[]){0.0, -1.0, 0.2}),
-  m_lookAt((const double[]){0.0, TABLELENGTH/2, TABLEHEIGHT}), 
-  m_spin((const double[]){0.0, 0.0}),
-  m_lastSendX((const double[]){0.0, 0.0, 0.0}), 
-  m_lastSendV((const double[]){0.0, 0.0, 0.0}) {
+  m_x(0.0, -TABLELENGTH/2-0.2, 1.4), 
+  m_v(0.0, 0.0, 0.0),
+  m_target(0.0, TABLELENGTH/16*5),
+  m_eye(0.0, -1.0, 0.2),
+  m_lookAt(0.0, TABLELENGTH/2, TABLEHEIGHT), 
+  m_spin(0.0, 0.0),
+  m_lastSendX(0.0, 0.0, 0.0), 
+  m_lastSendV(0.0, 0.0, 0.0) {
 
   m_side = side;
   if ( side < 0 ) {
@@ -153,8 +153,8 @@ Player::Player( long playerType, long side, vector3d x, const vector3d v,
 		const vector3d lookAt, 
 		long pow, const vector2d spin, double stamina,long statusMax,
 		long dragX, long dragY ) :
-  m_lastSendX((const double[]){0.0, 0.0, 0.0}), 
-  m_lastSendV((const double[]){0.0, 0.0, 0.0}) {
+  m_lastSendX(0.0, 0.0, 0.0), 
+  m_lastSendV(0.0, 0.0, 0.0) {
   m_side = side;
   m_playerType = playerType;
 

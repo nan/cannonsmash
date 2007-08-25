@@ -215,7 +215,7 @@ Sound::PlayScore( long score1, long score2 ) {
     return true;
 
 #ifdef HAVE_LIBSDL_MIXER
-  vector3d x = vector3d((const double[]){-TABLEWIDTH/2-0.5, 0, 0});
+  vector3d x = vector3d(-TABLEWIDTH/2-0.5, 0, 0);
   vector3d srcX, destX;
   double angle, destAngle;
 
