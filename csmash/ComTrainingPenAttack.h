@@ -23,13 +23,13 @@
 
 #ifndef _ComTrainingPenAttack_
 #define _ComTrainingPenAttack_
-#include "comPenAttack.h"
+#include "PenAttack.h"
 
 /**
  * ComTrainingPenAttack class is a Player class of pen attack type player. 
  * This player is the opponent player in training mode. 
  */
-class ComTrainingPenAttack : public ComPenAttack {
+class ComTrainingPenAttack : public PenAttack {
 public:
   ComTrainingPenAttack();
   ComTrainingPenAttack(long side);
@@ -45,10 +45,6 @@ public:
   virtual ~ComTrainingPenAttack();
 
 protected:
-  virtual bool Think();
-
-  virtual bool Hitarea( vector2d &hitX );
-
   virtual bool HitBall();
 };
 

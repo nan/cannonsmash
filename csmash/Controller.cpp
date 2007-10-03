@@ -1,11 +1,11 @@
 /**
  * @file
- * @brief Definition of PenDrive class. 
+ * @brief Implementation of Controller class. 
  * @author KANNA Yoshihiro
  * @version $Id$
  */
 
-// Copyright (C) 2000, 2004, 2007  $B?@Fn(B $B5H9((B(Kanna Yoshihiro)
+// Copyright (C) 2007  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,28 +21,33 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#ifndef _PenDrive_
-#define _PenDrive_
+#include "ttinc.h"
+#include "Controller.h"
 #include "Player.h"
 
+/***********************************************************************
+ *	Class  Controller
+ ***********************************************************************/
+
 /**
- * PenDrive class is a Player class of pen drive type player. 
+ * Default constructor. 
  */
-class PenDrive : public Player {
-public:
-  PenDrive();
-  PenDrive(long side);
-  PenDrive( long playerType, long side, const vector3d x, const vector3d v,
-	  long status, long swing, long swingType, bool swingSide, long afterSwing,
-	  long swingError, const vector2d target, const vector3d eye,
-	  const vector3d lookAt, 
-	  long pow, const vector2d spin, double stamina, long statusMax,
-	  long dragX, long dragY );
+Controller::Controller() {
+}
 
-  virtual ~PenDrive();
+/**
+ * Constructor. 
+ * Set parent. 
+ * 
+ * @param parent parent Player object. 
+ */
+Controller::Controller( Player *parent ) {
+  m_parent = parent;
+}
 
-private:
-  bool SwingType( Ball *ball, long spin );
-};
-
-#endif // _PenDrive__
+/**
+ * Destructor. 
+ * Detach view class. 
+ */
+Controller::~Controller() {
+}

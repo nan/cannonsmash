@@ -88,8 +88,8 @@ Opening::Init() {
 
   BaseView::TheView()->AddView( m_View );
 
-  m_thePlayer = Player::Create( 1, 1, 0 );
-  m_comPlayer = Player::Create( 2, -1, 0 );
+  m_thePlayer = Player::Create( PLAYER_SHAKECUT, 1, 0 );
+  m_comPlayer = Player::Create( PLAYER_PENDRIVE, -1, 0 );
 
   m_thePlayer->m_View = (PlayerView *)View::CreateView( VIEW_PLAYER );
   m_thePlayer->m_View->Init( m_thePlayer );
@@ -1129,8 +1129,8 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       delete m_thePlayer;
       delete m_comPlayer;
 
-      m_thePlayer = Player::Create( 1, 1, 1 );
-      m_comPlayer = Player::Create( 2, -1, 1 );
+      m_thePlayer = Player::Create( PLAYER_SHAKECUT, 1, 1 );
+      m_comPlayer = Player::Create( PLAYER_PENDRIVE, -1, 1 );
 
       m_thePlayer->m_View = (PlayerView *)View::CreateView( VIEW_PLAYER );
       m_thePlayer->m_View->Init( m_thePlayer );
@@ -1154,8 +1154,8 @@ Opening::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       delete m_thePlayer;
       delete m_comPlayer;
 
-      m_thePlayer = Player::Create( 0, 1, 0 );
-      m_comPlayer = Player::Create( 0, -1, 0 );
+      m_thePlayer = Player::Create( PLAYER_PENATTACK, 1, 0 );
+      m_comPlayer = Player::Create( PLAYER_PENATTACK, -1, 0 );
 
       m_thePlayer->m_View = (PlayerView *)View::CreateView( VIEW_PLAYER );
       m_thePlayer->m_View->Init( m_thePlayer );

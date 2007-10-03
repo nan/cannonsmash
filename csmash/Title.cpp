@@ -85,8 +85,8 @@ Title::Init() {
 
   BaseView::TheView()->AddView( m_View );
 
-  m_thePlayer = Player::Create( RAND(3), 1, 1 );
-  m_comPlayer = Player::Create( RAND(3), -1, 1 );
+  m_thePlayer = Player::Create( RAND(3)+1, 1, 1 );
+  m_comPlayer = Player::Create( RAND(3)+1, -1, 1 );
 
   m_thePlayer->Init();
   m_comPlayer->Init();

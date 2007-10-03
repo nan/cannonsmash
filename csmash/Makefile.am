@@ -5,11 +5,10 @@ bin_PROGRAMS = csmash
 
 csmash_SOURCES = main.cpp Launcher.cpp LobbyClient.cpp Ball.cpp Event.cpp \
 		Control.cpp View.cpp BaseView.cpp FieldView.cpp BallView.cpp \
-		Player.cpp comPlayer.cpp parts.cpp PlayerView.cpp HitMark.cpp \
-		PenAttack.cpp ShakeCut.cpp PenDrive.cpp comPenAttack.cpp \
-		comShakeCut.cpp comPenDrive.cpp ComTrainingPenAttack.cpp \
-		TrainingPenAttack.cpp ComTrainingPenDrive.cpp \
-		TrainingPenDrive.cpp NetPenAttack.cpp NetPenDrive.cpp \
+		Player.cpp parts.cpp PlayerView.cpp HitMark.cpp \
+		PenAttack.cpp ShakeCut.cpp PenDrive.cpp \
+		ComTrainingPenAttack.cpp ComTrainingPenDrive.cpp \
+		NetPenAttack.cpp NetPenDrive.cpp \
 		NetShakeCut.cpp PlayerSelect.cpp PlayerSelectView.cpp \
 		TrainingSelect.cpp TrainingSelectView.cpp PlayGame.cpp \
 		SoloPlay.cpp PracticePlay.cpp PlayGameView.cpp Title.cpp \
@@ -22,25 +21,30 @@ csmash_SOURCES = main.cpp Launcher.cpp LobbyClient.cpp Ball.cpp Event.cpp \
 		PlayerSelectView2D.cpp TitleView2D.cpp MenuItemView2D.cpp \
 		RCFile.cpp loadparts.cpp LobbyClientView.cpp LauncherView.cpp \
 		MultiPlayerSelect.cpp glARB.cpp ttinc.cpp \
-		LogPlay.cpp NoLogging.cpp
+		LogPlay.cpp NoLogging.cpp Controller.cpp HumanController.cpp \
+		ComController.cpp ComPenAttackController.cpp ComPenDriveController.cpp \
+		ComShakeCutController.cpp ComTrainingPenAttackController.cpp \
+		ComTrainingPenDriveController.cpp TrainingHumanController.cpp
 
 noinst_HEADERS = ttinc.h Launcher.h LobbyClient.h Ball.h Event.h Control.h \
-		View.h BaseView.h FieldView.h BallView.h Player.h comPlayer.h \
+		View.h BaseView.h FieldView.h BallView.h Player.h \
 		parts.h PlayerView.h HitMark.h PenAttack.h ShakeCut.h \
-		PenDrive.h comPenAttack.h comShakeCut.h comPenDrive.h \
-		ComTrainingPenAttack.h TrainingPenAttack.h \
-		ComTrainingPenDrive.h TrainingPenDrive.h NetPenAttack.h \
-		NetPenDrive.h NetShakeCut.h PlayerSelect.h PlayerSelectView.h \
-		TrainingSelect.h TrainingSelectView.h PlayGame.h SoloPlay.h \
-		PracticePlay.h PlayGameView.h Title.h TitleView.h Howto.h \
-		HowtoView.h Training.h TrainingView.h Opening.h OpeningView.h \
-		Sound.h LoadImage.h z.h MultiPlay.h Network.h MenuItem.h \
+		PenDrive.h ComTrainingPenAttack.h ComTrainingPenDrive.h \
+		NetPenAttack.h NetPenDrive.h NetShakeCut.h \
+		PlayerSelect.h PlayerSelectView.h TrainingSelect.h \
+		TrainingSelectView.h PlayGame.h SoloPlay.h PracticePlay.h \
+		PlayGameView.h Title.h TitleView.h Howto.h HowtoView.h \
+		Training.h TrainingView.h Opening.h OpeningView.h Sound.h \
+		LoadImage.h z.h MultiPlay.h Network.h MenuItem.h \
 		MenuItemView.h Logging.h PracticeSelect.h \
 		PracticeSelectView.h BaseView2D.h FieldView2D.h \
 		PlayerView2D.h BallView2D.h PlayerSelectView2D.h \
 		TitleView2D.h MenuItemView2D.h RCFile.h loadparts.h \
 		LobbyClientView.h LauncherView.h MultiPlayerSelect.h glARB.h \
-		LogPlay.h NoLogging.h
+		LogPlay.h NoLogging.h Controller.h HumanController.h \
+		ComController.h ComPenAttackController.h ComPenDriveController.h \
+		ComShakeCutController.h ComTrainingPenAttackController.h \
+		ComTrainingPenDriveController.h TrainingHumanController.cpp
 
 
 DEFS = -DLOCALEDIR=\"$(localedir)\" -DCANNONSMASH_DATADIR=\"$(pkgdatadir)\" @DEFS@

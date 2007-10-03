@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -83,8 +83,23 @@ Training::Create( long player, long com ) {
   m_theControl = new Training();
   m_theControl->Init();
 
-  m_thePlayer = Player::Create( player, 1, 2 );
-  m_comPlayer = Player::Create( com, -1, 3 );
+  switch(player) {
+  case 0:
+    m_thePlayer = Player::Create( PLAYER_PENATTACK, 1, 2 );
+    break;
+  case 1:
+    m_thePlayer = Player::Create( PLAYER_PENDRIVE, 1, 2 );
+    break;
+  }
+
+  switch(com) {
+  case 0:
+    m_thePlayer = Player::Create( PLAYER_PENATTACKTRAINER, -1, 3 );
+    break;
+  case 1:
+    m_thePlayer = Player::Create( PLAYER_PENDRIVETRAINER, -1, 3 );
+    break;
+  }
 
   m_thePlayer->Init();
   m_comPlayer->Init();
@@ -121,6 +136,9 @@ Training::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   reDraw |= m_comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
 
   if ( ballStatus != theBall.GetStatus() ) {
+    if (ballStatus == 3 && theBall.GetStatus() == 0)
+      m_trainingCount++;
+
     if ( theBall.GetStatus() == 8 ) {
       if ( m_trainingCount > m_trainingMax )
 	m_trainingMax = m_trainingCount;
@@ -146,12 +164,4 @@ Training::LookAt( vector3d &srcX, vector3d &destX ) {
   }
 
   return true;
-}
-
-/**
- * For each rally, training count is incremented. 
- */
-void
-Training::AddTrainingCount() {
-  m_trainingCount++;
 }

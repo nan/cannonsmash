@@ -33,27 +33,13 @@ public:
   PenAttack();
   PenAttack(long side);
   PenAttack( long playerType, long side, const vector3d x, const vector3d v,
-	     long status, long swing, long swingType, bool swingSide, long afterSwing,
-	     long swingError, const vector2d target, const vector3d eye,
-	     const vector3d lookAt, 
-	     long pow, const vector2d spin, double stamina, long statusMax,
-	     long dragX, long dragY );
+	  long status, long swing, long swingType, bool swingSide, long afterSwing,
+	  long swingError, const vector2d target, const vector3d eye,
+	  const vector3d lookAt, 
+	  long pow, const vector2d spin, double stamina, long statusMax,
+	  long dragX, long dragY );
 
   virtual ~PenAttack();
-
-  virtual bool AddStatus( long diff );
-
-  virtual bool Move( SDL_keysym *KeyHistory, long *MouseXHistory,
-		     long *MouseYHistory, unsigned long *MouseBHistory,
-		     int Histptr );
-
-  virtual bool GetModifiedTarget( vector2d &target );
-
-  virtual void CalcLevel( Ball *ball, double &diff, double &level, double &maxVy );
-protected:
-  virtual bool Swing( long spin );
-
-  virtual bool HitBall();
 
 private:
   virtual bool SwingType( Ball *ball, long spin );

@@ -122,10 +122,10 @@ Event::Init() {
 
   switch ( mode ){
   case MODE_SOLOPLAY:
-    SoloPlay::Create( 0, RAND(2) );
+    SoloPlay::Create( 1, RAND(3)+1 );
     break;
   case MODE_MULTIPLAY:
-    MultiPlay::Create( 0, RAND(2) );
+    MultiPlay::Create( 1, RAND(3)+1 );
     break;
   case MODE_HOWTO:
     Howto::Create();
@@ -286,14 +286,14 @@ Event::IsModeChanged( long preMode ) {
 
     switch ( mode ) {
     case MODE_SOLOPLAY:
-      p = ((PlayerSelect *)Control::TheControl())->GetPlayerNum();
-      q = ((PlayerSelect *)Control::TheControl())->GetOpponentNum();
+      p = ((PlayerSelect *)Control::TheControl())->GetPlayerNum()+1;
+      q = ((PlayerSelect *)Control::TheControl())->GetOpponentNum()+1;
 
       SoloPlay::Create( p, q );
       break;
     case MODE_MULTIPLAY:
-      p = ((PlayerSelect *)Control::TheControl())->GetPlayerNum();
-      q = ((PlayerSelect *)Control::TheControl())->GetOpponentNum();
+      p = ((PlayerSelect *)Control::TheControl())->GetPlayerNum()+1;
+      q = ((PlayerSelect *)Control::TheControl())->GetOpponentNum()+1;
       MultiPlay::Create( p, q );
       break;
     case MODE_SELECT:
@@ -322,8 +322,8 @@ Event::IsModeChanged( long preMode ) {
       PracticeSelect::Create();
       break;
     case MODE_PRACTICE:
-      p = ((PlayerSelect *)Control::TheControl())->GetPlayerNum();
-      q = ((PlayerSelect *)Control::TheControl())->GetOpponentNum();
+      p = ((PlayerSelect *)Control::TheControl())->GetPlayerNum()+1;
+      q = ((PlayerSelect *)Control::TheControl())->GetOpponentNum()+1;
       PracticePlay::Create( p, q );
       break;
     }
@@ -581,80 +581,6 @@ Event::GetExternalData( ExternalData *&ext, long side ) {
     extNow->next = extTmp->next;
     extTmp->next = extNow;
   }
-
-  return true;
-}
-
-/**
- * Send player location and velocity data to the opponent machine. 
- * 
- * @param player Player object of which data should be sent to the opponent. 
- * @return returns true if succeeds. 
- */
-bool
-Event::SendPlayer( Player *player ) {
-  char buf[256];
-
-  if ( m_backtrack || mode != MODE_MULTIPLAY )
-    return false;
-
-  strncpy( buf, "PV", 2 );
-  ((MultiPlay *)Control::TheControl())->SendTime( &(buf[2]) );
-
-  player->SendLocation( &(buf[7]) );
-
-  send( theSocket, buf, 55, 0 );
-
-  return true;
-}
-
-/**
- * Send ball location, velocity and spin to the opponent machine. 
- * 
- * @return returns true if succeeds. 
- */
-bool
-Event::SendBall() {
-  char buf[256];
-
-  if ( m_backtrack || mode != MODE_MULTIPLAY )
-    return false;
-
-  strncpy( buf, "BV", 2 );
-  ((MultiPlay *)Control::TheControl())->SendTime( &(buf[2]) );
-
-  theBall.Send( &(buf[7]) );
-
-  send( theSocket, buf, 75, 0 );
-
-  return true;
-}
-
-/**
- * Send player and ball information to the opponent machine. 
- * Calling this method is equivalent with calling SendPlayer() and SendBall(). 
- * 
- * @param player Player object of which data should be sent to the opponent. 
- * @return returns true if succeeds. 
- */
-bool
-Event::SendPlayerAndBall( Player *player ) {
-  char buf[256];
-
-  if ( m_backtrack || mode != MODE_MULTIPLAY )
-    return false;
-
-  strncpy( buf, "PV", 2 );
-  ((MultiPlay *)Control::TheControl())->SendTime( &(buf[2]) );
-
-  player->SendLocation( &(buf[7]) );
-
-  strncpy( &(buf[55]), "BV", 2 );
-  ((MultiPlay *)Control::TheControl())->SendTime( &(buf[57]) );
-
-  theBall.Send( &(buf[62]) );
-
-  send( theSocket, buf, 129, 0 );
 
   return true;
 }

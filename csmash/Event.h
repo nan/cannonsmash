@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2003  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2003, 2007  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -66,10 +66,6 @@ public:
   static void KeyUpFunc( SDL_Event key, int x, int y );
   static void MotionFunc( int x, int y );
   static void ButtonFunc( int button, int state, int x, int y );
-
-  bool SendPlayer( Player *player );
-  bool SendBall();
-  bool SendPlayerAndBall( Player *player );
 
   bool BackTrack( long Histptr );
 

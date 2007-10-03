@@ -28,7 +28,6 @@
 #include "PlayGame.h"
 #include "Sound.h"
 #include "Event.h"
-#include "Network.h"
 #include "RCFile.h"
 #include "LobbyClient.h"
 
@@ -65,8 +64,6 @@ Ball::Ball() : m_x(0.0), m_v(0.0), m_spin(0.0) {
   m_status = -1000;
 
   m_View = NULL;
-
-  m_lastSendCount = 0;
 }
 
 /**
@@ -84,8 +81,6 @@ Ball::Ball( const vector3d _x, const vector3d _v, const vector2d _spin, long _st
   m_status = _status;
 
   m_View = NULL;
-
-  m_lastSendCount = 0;
 }
 
 /**
@@ -100,8 +95,6 @@ Ball::Ball( Ball *ball ) {
   m_status = ball->m_status;
 
   m_View = NULL;
-
-  m_lastSendCount = 0;
 }
 
 
@@ -221,11 +214,6 @@ Ball::Hit( const vector3d v, const vector2d spin, Player *player ) {
     m_status = 2;
   }
 
-  if ( player == Control::TheControl()->GetThePlayer() &&
-       mode == MODE_MULTIPLAY && &theBall == this ) {
-    Event::TheEvent()->SendBall();
-  }
-
   return true;
 }
 
@@ -247,11 +235,6 @@ Ball::Toss( Player *player , long power ) {
   else
     m_status = 7;
 
-  if ( player == Control::TheControl()->GetThePlayer() &&
-       mode == MODE_MULTIPLAY && &theBall == this ) {
-    Event::TheEvent()->SendBall();
-  }
-
   return true;
 }
 
@@ -271,34 +254,6 @@ Ball::Warp( const vector3d x, const vector3d v, const vector2d spin, long status
   m_spin = spin;
 
   m_status = status;
-}
-
-/**
- * Ignoring physics, move the ball. 
- * The ball location/velocity/spin/status is changed to specified value. 
- * 
- * @param buf stream of location/velocity/spin/status data. 
- */
-void
-Ball::Warp( char *buf ) {
-  char *b = buf;
-  long nextStatus;
-
-  for ( int i = 0 ; i < 3 ; i++ )
-    b = ReadDouble( b, m_x[i] );
-
-  for ( int i = 0 ; i < 3 ; i++ )
-    b = ReadDouble( b, m_v[i] );
-
-  for ( int i = 0 ; i < 2 ; i++ )
-    b = ReadDouble( b, m_spin[i] );
-
-  b = ReadLong( b, nextStatus );
-
-  if ( m_status >= 0 && nextStatus < 0 )
-    BallDead();
-  else
-    m_status = nextStatus;
 }
 
 bool
@@ -497,78 +452,10 @@ Ball::BallDead() {
   if ( m_status >= 0 ) {
     if ( Control::TheControl()->IsPlaying() && &theBall == this ) {
       ((PlayGame *)Control::TheControl())->ChangeScore();
-
-      if ( mode == MODE_MULTIPLAY ) {
-	if ( Control::TheControl()->GetThePlayer()->GetSide() > 0 ) {
-	  if ( theBall.GetStatus() == 2 || theBall.GetStatus() == 3 ||
-	       theBall.GetStatus() == 5 || theBall.GetStatus() == 6 ) {
-	    m_status = -1;
-	    Event::TheEvent()->SendBall();
-	  }
-	} else {
-	  if ( theBall.GetStatus() == 0 || theBall.GetStatus() == 1 ||
-	       theBall.GetStatus() == 4 || theBall.GetStatus() == 7 ) {
-	    m_status = -1;
-	    Event::TheEvent()->SendBall();
-	  }
-	}
-
-	if ( theBall.GetStatus() == 8 ) {
-	  m_status = -1;
-	  Event::TheEvent()->SendBall();
-	}
-
-	if ( LobbyClient::TheLobbyClient() )
-	  LobbyClient::TheLobbyClient()->
-	    SendSC( ((PlayGame *)Control::TheControl())->GetScore(1), 
-		    ((PlayGame *)Control::TheControl())->GetScore(-1) );
-      }
     }
 
     m_status = -1;
   }
-}
-
-
-/**
- * Send the ball location/velocity/spin/status to the opponent. 
- * 
- * @param buf ball location/velocity/spin/status are set to this buffer. 
- * @return returns pointer to buf. 
- */
-char *
-Ball::Send( char *buf ) {
-  long l;
-  double d;
-  int c = 0;
-
-  for ( int i = 0 ; i < 3 ; i++ ) {
-    d = SwapDbl(m_x[i]);
-    memcpy( &(buf[c]), (char *)&d, 8 );
-    c += 8;
-  }
-
-  for ( int i = 0 ; i < 3 ; i++ ) {
-    d = SwapDbl(m_v[i]);
-    memcpy( &(buf[c]), (char *)&d, 8 );
-    c += 8;
-  }
-
-  for ( int i = 0 ; i < 2 ; i++ ) {
-    d = SwapDbl(m_spin[i]);
-    memcpy( &(buf[c]), (char *)&d, 8 );
-    c += 8;
-  }
-
-  l = SwapLong(m_status);
-  memcpy( &(buf[c]), (char *)&l, 4 );
-  c += 4;
-
-#ifdef LOGGING
-  Logging::GetLogging()->LogBall( LOG_COMBALL, this );
-#endif
-
-  return buf;
 }
 
 /**
@@ -607,16 +494,6 @@ Ball::Reset() {
     }
 
     // To Fix the possibility of score mismatch
-    /*
-    if ( mode == MODE_MULTIPLAY && &theBall == this &&
-	 Control::TheControl()->GetThePlayer()->GetSide() > 0 ) {
-      m_lastSendCount++;
-      if ( m_lastSendCount >= 100 ) {
-	Event::TheEvent()->SendBall();
-	m_lastSendCount = 0;
-      }
-    }
-    */
   } else {
     m_x[0] = control->GetThePlayer()->GetX()[0]+0.3;
     m_x[1] = control->GetThePlayer()->GetX()[1];

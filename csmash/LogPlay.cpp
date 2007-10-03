@@ -81,8 +81,8 @@ LogPlay::Init() {
 
   p1->LoadPlayerLog(fpThePlayer, sec, cnt);
   p2->LoadPlayerLog(fpComPlayer, sec, cnt);
-  m_thePlayer = Player::Create( p1->GetPlayerType()-1, 1, 0 );
-  m_comPlayer = Player::Create( p2->GetPlayerType()-1, -1, 0 );
+  m_thePlayer = Player::Create( p1->GetPlayerType(), 1, 0 );
+  m_comPlayer = Player::Create( p2->GetPlayerType(), -1, 0 );
   delete p1;
   delete p2;
 

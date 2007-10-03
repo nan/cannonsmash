@@ -30,11 +30,6 @@
 #include "PenAttack.h"
 #include "PenDrive.h"
 #include "ShakeCut.h"
-#include "comPenAttack.h"
-#include "comPenDrive.h"
-#include "comShakeCut.h"
-#include "TrainingPenAttack.h"
-#include "TrainingPenDrive.h"
 #include "ComTrainingPenAttack.h"
 #include "ComTrainingPenDrive.h"
 #include "HitMark.h"
@@ -45,11 +40,32 @@
 #include "Logging.h"
 #endif
 
+#include "HumanController.h"
+#include "TrainingHumanController.h"
+#include "ComController.h"
+#include "ComPenAttackController.h"
+#include "ComPenDriveController.h"
+#include "ComShakeCutController.h"
+#include "ComTrainingPenAttackController.h"
+#include "ComTrainingPenDriveController.h"
+
 extern RCFile *theRC;
 
 extern Ball   theBall;
 
 extern long mode;
+
+const double playerAccelLimit[4] = {0.8, 0.7, 0.6, 0.5};
+const double playerMaxForehandSpeed[6] = {15.0, 15.0, 25.0, 15.0, 15.0, 15.0};
+const double playerMaxBackhandSpeed[6] = {12.0, 12.0, 18.0, 12.0, 12.0, 12.0};
+const double playerDiffCoeff[6] = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+
+const double playerServeParam[5][7] =
+  {{SERVE_NORMAL,     0.0, 0.0,  0.0,  0.1,  0.0,  0.2}, 
+   {SERVE_POKE,       0.0, 0.0,  0.0, -0.3,  0.0, -0.6}, 
+   {SERVE_SIDESPIN1, -0.6, 0.2, -0.8,  0.0, -0.6, -0.2}, 
+   {SERVE_SIDESPIN2,  0.6, 0.2,  0.8,  0.0,  0.6, -0.2},
+   {-1,               0.0, 0.0,  0.0,  0.0,  0.0,  0.0}};
 
 /***********************************************************************
  *	Class  Player
@@ -64,9 +80,7 @@ Player::Player() :
   m_target(0.0, TABLELENGTH/16*5),
   m_eye(0.0, -1.0, 0.2),
   m_lookAt(0.0, TABLELENGTH/2, TABLEHEIGHT), 
-  m_spin(0.0, 0.0),
-  m_lastSendX(0.0, 0.0, 0.0), 
-  m_lastSendV(0.0, 0.0, 0.0) {
+  m_spin(0.0, 0.0) {
 
   m_side = 1;
   m_playerType = PLAYER_PROTO;
@@ -81,10 +95,33 @@ Player::Player() :
   m_lookAt[1] *= m_side;
   m_stamina = 80.0;
   m_statusMax = 200;
-  m_lastSendCount = 0;
+
+  RUNSPEED = 2.0;
+  RUNPENALTY = -1;
+  SWINGPENALTY = -1;
+  WALKSPEED = 1.0;
+  WALKBONUS = 1;
+  ACCELLIMIT = (double *)playerAccelLimit;
+  ACCELPENALTY = -1;
+
+  XDIFFPENALTY_FOREHAND = 0.15;
+  XDIFFPENALTY_BACKHAND = 0.1;
+
+  MAX_FOREHAND_SPEED = (double *)playerMaxForehandSpeed;
+  MAX_BACKHAND_SPEED = (double *)playerMaxBackhandSpeed;
+  FOREHAND_BOUNCE_RATE = 0.6;
+  BACKHAND_BOUNCE_RATE = 0.6;
+  FOREHAND_SPINEFFECT_RATE = 3.0;
+  BACKHAND_SPINEFFECT_RATE = 4.0;
+
+  DIFF_COEFF = (double *)playerDiffCoeff;
+
+  AFTERSWING_PENALTY = 1.0;
+
+  memcpy(SERVEPARAM, playerServeParam, sizeof(playerServeParam));
 
   m_View = NULL;
-
+  m_controller = NULL;
 }
 
 /**
@@ -99,9 +136,7 @@ Player::Player( long side ) :
   m_target(0.0, TABLELENGTH/16*5),
   m_eye(0.0, -1.0, 0.2),
   m_lookAt(0.0, TABLELENGTH/2, TABLEHEIGHT), 
-  m_spin(0.0, 0.0),
-  m_lastSendX(0.0, 0.0, 0.0), 
-  m_lastSendV(0.0, 0.0, 0.0) {
+  m_spin(0.0, 0.0) {
 
   m_side = side;
   if ( side < 0 ) {
@@ -121,10 +156,33 @@ Player::Player( long side ) :
   m_pow = 0;
   m_lookAt[1] *= m_side;
   m_stamina = 80.0;
-  m_lastSendCount = 0;
+
+  RUNSPEED = 2.0;
+  RUNPENALTY = -1;
+  SWINGPENALTY = -1;
+  WALKSPEED = 1.0;
+  WALKBONUS = 1;
+  ACCELLIMIT = (double *)playerAccelLimit;
+  ACCELPENALTY = -1;
+
+  XDIFFPENALTY_FOREHAND = 0.15;
+  XDIFFPENALTY_BACKHAND = 0.1;
+
+  MAX_FOREHAND_SPEED = (double *)playerMaxForehandSpeed;
+  MAX_BACKHAND_SPEED = (double *)playerMaxBackhandSpeed;
+  FOREHAND_BOUNCE_RATE = 0.6;
+  BACKHAND_BOUNCE_RATE = 0.6;
+  FOREHAND_SPINEFFECT_RATE = 3.0;
+  BACKHAND_SPINEFFECT_RATE = 4.0;
+
+  DIFF_COEFF = (double *)playerDiffCoeff;
+
+  AFTERSWING_PENALTY = 1.0;
+
+  memcpy(SERVEPARAM, playerServeParam, sizeof(playerServeParam));
 
   m_View = NULL;
-
+  m_controller = NULL;
 }
 
 /**
@@ -152,9 +210,7 @@ Player::Player( long playerType, long side, vector3d x, const vector3d v,
 		long swingError, const vector2d target, const vector3d eye,
 		const vector3d lookAt, 
 		long pow, const vector2d spin, double stamina,long statusMax,
-		long dragX, long dragY ) :
-  m_lastSendX(0.0, 0.0, 0.0), 
-  m_lastSendV(0.0, 0.0, 0.0) {
+		long dragX, long dragY ) {
   m_side = side;
   m_playerType = playerType;
 
@@ -178,13 +234,33 @@ Player::Player( long playerType, long side, vector3d x, const vector3d v,
   m_spin = spin;
   m_stamina = stamina;
   m_statusMax = statusMax;
-  m_lastSendCount = 0;
 
-  m_dragX = dragX;
-  m_dragY = dragY;
+  RUNSPEED = 2.0;
+  RUNPENALTY = -1;
+  SWINGPENALTY = -1;
+  WALKSPEED = 1.0;
+  WALKBONUS = 1;
+  ACCELLIMIT = (double *)playerAccelLimit;
+  ACCELPENALTY = -1;
+
+  XDIFFPENALTY_FOREHAND = 0.15;
+  XDIFFPENALTY_BACKHAND = 0.1;
+
+  MAX_FOREHAND_SPEED = (double *)playerMaxForehandSpeed;
+  MAX_BACKHAND_SPEED = (double *)playerMaxBackhandSpeed;
+  FOREHAND_BOUNCE_RATE = 0.6;
+  BACKHAND_BOUNCE_RATE = 0.6;
+  FOREHAND_SPINEFFECT_RATE = 3.0;
+  BACKHAND_SPINEFFECT_RATE = 4.0;
+
+  DIFF_COEFF = (double *)playerDiffCoeff;
+
+  AFTERSWING_PENALTY = 1.0;
+
+  memcpy(SERVEPARAM, playerServeParam, sizeof(playerServeParam));
 
   m_View = NULL;
-
+  m_controller = NULL;
 }
 
 /**
@@ -196,6 +272,8 @@ Player::~Player() {
     BaseView::TheView()->RemoveView( m_View );
     delete m_View;
   }
+
+  delete m_controller;
 }
 
 /**
@@ -226,9 +304,6 @@ Player::operator=(Player& p) {
 
   m_stamina = p.m_stamina;
 
-  m_dragX = p.m_dragX;
-  m_dragY = p.m_dragY;
-
   m_View = NULL;
 }
 
@@ -242,45 +317,59 @@ Player::operator=(Player& p) {
  */
 Player*
 Player::Create( long player, long side, long type ) {
+  Player *newPlayer = NULL;
+  Controller *newController = NULL;
+  switch (player) {
+  case PLAYER_PENATTACK:
+    newPlayer = new PenAttack(side);
+    break;
+  case PLAYER_SHAKECUT:
+    newPlayer = new ShakeCut(side);
+    break;
+  case PLAYER_PENDRIVE:
+    newPlayer = new PenDrive(side);
+    break;
+  case PLAYER_PENATTACKTRAINER:
+    newPlayer = new ComTrainingPenAttack(side);
+    break;
+  case PLAYER_PENDRIVETRAINER:
+    newPlayer = new ComTrainingPenDrive(side);
+    break;
+  }
+
   switch (type) {
   case 0:	// normal
-    switch (player) {
-    case 0:
-      return new PenAttack(side);
-    case 1:
-      return new ShakeCut(side);
-    case 2:
-      return new PenDrive(side);
-    }
-    break;
-  case 1:	// Com
-    switch (player) {
-    case 0:
-      return new ComPenAttack(side);
-    case 1:
-      return new ComShakeCut(side);
-    case 2:
-      return new ComPenDrive(side);
-    }
+    newController = new HumanController(newPlayer);
     break;
   case 2:	// Training
-    switch (player) {
-    case 0:
-      return new TrainingPenAttack(side);
-    case 1:
-      return new TrainingPenDrive(side);
-    }
+    newController = new TrainingHumanController(newPlayer);
     break;
+  case 1:	// Com
   case 3:	// ComTraining
     switch (player) {
-    case 0:
-      return new ComTrainingPenAttack(side);
-    case 1:
-      return new ComTrainingPenDrive(side);
+    case PLAYER_PENATTACK:
+      newController = new ComPenAttackController(newPlayer);
+      break;
+    case PLAYER_SHAKECUT:
+      newController = new ComShakeCutController(newPlayer);
+      break;
+    case PLAYER_PENDRIVE:
+      newController = new ComPenDriveController(newPlayer);
+      break;
+    case PLAYER_PENATTACKTRAINER:
+      newController = new ComTrainingPenAttackController(newPlayer);
+      break;
+    case PLAYER_PENDRIVETRAINER:
+      newController = new ComTrainingPenDriveController(newPlayer);
+      break;
     }
     break;
   }
 
+  if (newPlayer)
+    newPlayer->setController(newController);
+
+  return newPlayer;
   printf( _("no player %ld\n"), player );
   exit(1);
 }
@@ -303,6 +392,13 @@ Player::Init() {
     HitMark::Init();
 
   return true;
+}
+
+void
+Player::setController(Controller *controller) {
+  if (m_controller)
+    delete m_controller;
+  m_controller = controller;
 }
 
 /**
@@ -328,8 +424,7 @@ Player::LoadPlayerLog( FILE *fp, long &sec, long &cnt ) {
 	  "swingError=%1ld targetX=%lf targetY=%lf "
 	  "eyeX=%lf eyeY=%lf eyeZ=%lf "
 	  "lookAtX=%lf lookAtY=%lf lookAtZ=%lf "
-	  "pow=%1ld spinX=%lf spinY=%lf stamina=%lf statusMax=%ld "
-	  "dragX=%ld dragY=%ld\n",
+	  "pow=%1ld spinX=%lf spinY=%lf stamina=%lf statusMax=%ld ", 
 	  &sec, &cnt, 
 	  &m_playerType, &m_side, 
 	  &(m_x[0]), &(m_x[1]), &(m_x[2]), 
@@ -341,8 +436,7 @@ Player::LoadPlayerLog( FILE *fp, long &sec, long &cnt ) {
 	  &(m_eye[0]), &(m_eye[1]), &(m_eye[2]), 
 	  &(m_lookAt[0]), &(m_lookAt[1]), &(m_lookAt[2]), 
 	  &m_pow, &(m_spin[0]), &(m_spin[1]),
-	  &m_stamina, &m_statusMax, 
-	  &m_dragX, &m_dragY );
+	  &m_stamina, &m_statusMax );
 
   return true;
 }
@@ -363,20 +457,19 @@ bool
 Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 	      long *MouseYHistory, unsigned long *MouseBHistory,
 	      int Histptr ) {
-  //static double  lastSendX = 0,  lastSendY = 0,  lastSendZ = 0;
-  //static double lastSendVX = 0, lastSendVY = 0, lastSendVZ = 0;
-  //static long lastSendCount = 0;
+  vector3d prevV;
+  prevV = m_v;
 
 // swing
   if ( m_swing > 0 ){
-    if ( m_swing > 30 && m_afterSwing > 0 ) {
+    if ( m_swing > START_FOLLOWTHROUGH && m_afterSwing > 0 ) {
       m_afterSwing--;
     } else {
-      if ( theBall.GetStatus() == 6 || theBall.GetStatus() == 7 ) {
+      if (canServe(&theBall)) {
 	if ( theBall.GetV()[2] < 0 )
 	  m_swing++;
       } else {
-	if ( m_swing == 10 ) {
+	if ( m_swing == END_BACKSWING ) {
 	  if ( theBall.GetStatus() == -1 )
 	    m_swing = 0;
 	  else if ( ( m_side > 0 && theBall.GetStatus() == 0) ||
@@ -390,119 +483,28 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   }
 
   // If the ball goes out of sight, look at the ball direction
-  vector3d x = m_x + m_eye;
-  vector3d tx; tx[0] = 0.0; tx[1] = TABLELENGTH/2*m_side; tx[2] = TABLEHEIGHT;
-  vector3d vx1 = tx-x;
-  vector3d vxt;
-  vector3d vx2;
-  double p, q;
-  double sinP, cosP;
+  MoveLookAt();
 
-  vx1.normalize();
-
-  vxt = theBall.GetX()-x;
-  if ( theBall.GetStatus() == 6 || theBall.GetStatus() == 7 )
-    vxt[2] = TABLEHEIGHT+0.15-x[2];
-
-  vxt.normalize();
-
-  if ( (cosP = vx1*vxt) < cos(3.141592/180.0*15) &&
-       fabs(theBall.GetX()[1]) > fabs(x[1]) ) {
-    sinP = sqrt(1-cosP*cosP);
-    p = cos(3.141592/180.0*15) - sin(3.141592/180.0*15)*cosP/sinP;
-    q = sin(3.141592/180.0*15)/sinP;
-
-    vx2 = p*vxt+q*vx1;
-
-    m_lookAt = x+vx2;
-  } else {
-    vector2d vx12; vx12[0] = vx1[1]; vx12[1] = vx1[2];
-    vector2d vxt2; vxt2[0] = vxt[1]; vxt2[1] = vxt[2];
-    if ( (cosP = (vx12*vxt2)/(vx12.len()*vxt2.len())) < cos(3.141592/180.0*15) &&
-	 theBall.GetX()[2] > x[2] &&
-	 (theBall.GetStatus() == 0 || theBall.GetStatus() == 2) ) {
-      sinP = sqrt(1-cosP*cosP);
-      p = cos(3.141592/180.0*15) - sin(3.141592/180.0*15)*cosP/sinP;
-      q = sin(3.141592/180.0*15)/sinP;
-
-      vx2 = p*vxt+q*vx1;
-
-      m_lookAt = x+vx2;
-    } else {
-      m_lookAt = tx;
-    }
+  // inpact
+  if ( m_swing == START_HITBALL ) {
+    HitBall();
+    drawHitMark();
   }
 
-// backswing and inpact
-  if ( m_swing == 20 ) {
-    HitBall();
-
-    if ( Control::TheControl()->GetThePlayer() == this &&
-	 theRC->gmode != GMODE_2D ) {
-      HitMark *hit;
-
-      vector3d hitX = theBall.GetX();
-      hitX[1] = m_x[1];
-
-      hit = new HitMark();
-      hit->Hit( hitX, theBall.GetV(), GetSwingError() );
-
-      BaseView::TheView()->AddView( hit );
-    }
-    m_spin[0] = m_spin[1] = 0.0;
-  } else if ( m_swing == 50 ) {
+  // end swing
+  if ( m_swing == END_FOLLOWTHROUGH ) {
     m_swing = 0;
     m_swingType = SWING_NORMAL;
   }
 
   // Automatically move towards the ball
-  // Only for human. 
   if ( (mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
 	mode == MODE_PRACTICE) && KeyHistory &&
-       theRC->gameLevel != LEVEL_TSUBORISH ) {
-    if ( m_swing > 10 && m_swing < 20 ) {
-      Ball *tmpBall;
-
-      tmpBall = new Ball(&theBall);
-
-      for ( int i = 0 ; i < 20-m_swing ; i++ )
-	tmpBall->Move();
-
-      if ( ((tmpBall->GetStatus() == 3 && m_side == 1) ||
-	    (tmpBall->GetStatus() == 1 && m_side == -1)) ) {
-	double hitpointX = m_swingSide ? m_x[0]+0.3*m_side : m_x[0]-0.3*m_side;
-	double xdiff = tmpBall->GetX()[0] - (hitpointX+m_v[0]*(20-m_swing)*TICK);
-	double ydiff = tmpBall->GetX()[1] - (   m_x[1]+m_v[1]*(20-m_swing)*TICK);
-
-	double vxdiff, vydiff;
-	vxdiff = xdiff/TICK/(20-m_swing);
-
-	if ( vxdiff > 2.0 )
-	  vxdiff = 2.0;
-	else if ( vxdiff < -2.0 )
-	  vxdiff = -2.0;
-
-	vxdiff /= theRC->gameLevel+1;
-
-	m_v[0] += vxdiff;
-
-	if ( fabs(ydiff) > 0.3 ) {
-	  vydiff = ydiff/TICK/(20-m_swing);
-	  if ( vydiff > 2.0 )
-	    vydiff = 2.0;
-	  else if ( vydiff < -2.0 )
-	    vydiff = -2.0;
-
-	  vydiff /= theRC->gameLevel+1;
-
-	  m_v[1] += vydiff;
-	}
-      }
-      delete tmpBall;
-    }
+       theRC->gameLevel != LEVEL_TSUBORISH ) {	  // Only for human. 
+    AutoMove();
   }
 
-// move player
+  // move player
   vector3d xNext = m_x + m_v*TICK;
 
   if ( xNext[0] < -AREAXSIZE/2 ){
@@ -549,7 +551,7 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   else
     m_x[1] = xNext[1];
 
-// Go back to the endline before serve
+  // Go back to the endline before serve
   if ( Control::TheControl()->IsPlaying() && theBall.GetStatus() == 8 &&
        ((PlayGame *)Control::TheControl())->GetService() == GetSide() ) {
 #ifndef DEBUG_NOLIMITMOVE
@@ -582,139 +584,25 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     delete tmpBall;
   }
 
-// calc status
-  if ( m_v.len() > 2.0 )
-    AddStatus( -1 );
+  m_controller->Move( KeyHistory, MouseXHistory, MouseYHistory, MouseBHistory,Histptr );
 
-  if ( m_swing > 10 )
-    AddStatus( -1 );
+  // Calc status
+  if ( m_v.len() > RUNSPEED)
+    AddStatus(RUNPENALTY);
+
+  if ( m_swing > END_BACKSWING )
+    AddStatus(SWINGPENALTY);
+
+  if ( m_v.len() < WALKSPEED ) {
+    AddStatus(WALKBONUS);
+  }
+
+  if ( (m_v-prevV).len() > ACCELLIMIT[theRC->gameLevel] ) {
+    AddStatus(ACCELPENALTY);
+  }
 
   if ( theBall.GetStatus() == 8 || theBall.GetStatus() == -1 )
-    AddStatus( 200 );
-
-  if ( Control::TheControl()->IsPlaying() &&
-	 !((PlayGame *)Control::TheControl())->IsPause() )
-    KeyCheck( KeyHistory, MouseXHistory, MouseYHistory, MouseBHistory,Histptr );
-
-  if ( Control::TheControl()->GetThePlayer() == this &&
-       mode == MODE_MULTIPLAY ) {
-    m_lastSendCount++;
-
-    m_lastSendX += m_lastSendV*TICK;
-
-    if ( m_lastSendCount >= 100 ||
-	 (m_lastSendV-m_v).len() >= 0.25 ) {
-      Event::TheEvent()->SendPlayer( this );
-    }
-
-    // theBall goes out of hitting area. 
-    if ( ((theBall.GetStatus() == 1 && m_side == -1) ||
-	  (theBall.GetStatus() == 3 && m_side == 1 ) ) &&
-	 m_swing <= 10 &&
-	 (m_x[1]-theBall.GetX()[1])*m_side > 0.3 &&
-	 (m_x[1]+m_v[1]*TICK-(theBall.GetX()[1]+theBall.GetV()[1]*TICK))*m_side > 0.3 )
-      Event::TheEvent()->SendBall();
-  }
-
-  return true;
-}
-
-/**
- * Check keyboard input, mouse move and click to move player. 
- * 
- * @param KeyHistory history of keyboard input
- * @param MouseXHistory history of mouse cursor move
- * @param MouseYHistory history of mouse cursor move
- * @param MouseBHistory history of mouse button push/release
- * @param Histptr current position of histories described above. 
- * @return returns true if succeeds. 
- */
-bool
-Player::KeyCheck( SDL_keysym *KeyHistory, long *MouseXHistory,
-		  long *MouseYHistory, unsigned long *MouseBHistory,
-		  int Histptr ) {
-  long mouse, lastmouse;
-
-// COM
-  if ( !KeyHistory || !MouseXHistory || !MouseYHistory || !MouseBHistory )
-    return true;
-
-  long code = GetKeyCode(KeyHistory[Histptr]);
-  MoveTarget(code);
-  MoveCamera(code);
-
-  if (code == ' ') {
-    long prev = GetKeyCode(Histptr==0 ? KeyHistory[MAX_HISTORY-1] : KeyHistory[Histptr-1]);
-    if ( prev != ' ' )
-      ChangeServeType();
-  }
-
-  // Sorry in Japanese...
-  // スイング中は速度が変わらないようにする. こうすることで
-  // MultiPlay 時により同期をとりやすくなる. 
-  // その理由は, スイングを開始した時点で Player のインパクト
-  // までの行動が決定されるため, スイング開始時に情報交換すれば
-  // 同期がとれるようになるためである. これまでは, インパクト時に
-  // 情報を交換していたので, 0.1秒早く同期がとれることになる. 
-
-  // ちなみに, スイング後のマウスのドラッグによってボールの回転を
-  // 制御する場合, この方法は使えないかも知れない. 
-
-  if ( !Control::TheControl()->IsPlaying() ||
-       ((PlayGame *)Control::TheControl())->IsPause() )
-    return true;
-
-  if ( m_swing > 10 && m_swing <= 20 ) {
-    long hptr = Histptr-(m_swing-11);
-    if ( hptr < 0 )
-      hptr += MAX_HISTORY;
-
-    m_dragX = MouseXHistory[Histptr]-MouseXHistory[hptr];
-    m_dragY = MouseYHistory[Histptr]-MouseYHistory[hptr];
-  } else {
-    m_v[0] = (MouseXHistory[Histptr] - BaseView::GetWinWidth()/2) /
-      (BaseView::GetWinWidth()/40)*GetSide();
-    m_v[1] = -(MouseYHistory[Histptr] - BaseView::GetWinHeight()/2) /
-      (BaseView::GetWinHeight()/40)*GetSide();
-    m_v /= 4;
-  }
-
-  mouse = MouseBHistory[Histptr];
-  if ( Histptr-1 < 0 )
-    lastmouse = MouseBHistory[MAX_HISTORY-1];
-  else
-    lastmouse = MouseBHistory[Histptr-1];
-
-  if ( (mouse & BUTTON_RIGHT) && !(lastmouse & BUTTON_RIGHT) ){
-    if ( theBall.GetStatus() == 8 &&
-	 ((PlayGame *)Control::TheControl())->GetService() == GetSide() ) {
-      theBall.Toss( this, 3 );
-      StartServe(3);
-    } else {
-      AddStatus( (m_swing-10)*10 );
-      Swing(3);
-    }
-  }
-  else if ( (mouse & BUTTON_MIDDLE) && !(lastmouse & BUTTON_MIDDLE) ){
-    if ( theBall.GetStatus() == 8 &&
-	 ((PlayGame *)Control::TheControl())->GetService() == GetSide() ) {
-      theBall.Toss( this, 2 );
-      StartServe(2);
-    } else {
-      AddStatus( (m_swing-10)*10 );
-      Swing(2);
-    }
-  }
-  else if ( (mouse & BUTTON_LEFT) && !(lastmouse & BUTTON_LEFT) ){
-    if ( theBall.GetStatus() == 8 &&
-	 ((PlayGame *)Control::TheControl())->GetService() == GetSide() ) {
-      theBall.Toss( this, 1 );
-      StartServe(1);
-    } else {
-      AddStatus( (m_swing-10)*10 );
-      Swing(1);
-    }
-  }
+    ResetStatus();
 
   return true;
 }
@@ -728,43 +616,59 @@ Player::KeyCheck( SDL_keysym *KeyHistory, long *MouseXHistory,
  */
 bool
 Player::AddStatus( long diff ) {
-  if ( diff == 200 ) {	// Not good...
-    m_statusMax = 200;
-    m_status = 200;
-  } else {
-    m_status += diff;
+  m_status += diff;
 
-    if ( m_status > m_statusMax )
-      m_status = m_statusMax;
+  if ( m_status > m_statusMax )
+    m_status = m_statusMax;
 
-    if ( m_status < 1 ) {
-      m_stamina += (m_status-1) / 10.0;
-      m_status = 1;
+  if ( m_status < 1 ) {
+    m_stamina += (m_status-1) / 10.0;
+    m_status = 1;
+  }
+
+  // set status max
+  if ( Control::TheControl()->GetThePlayer() == this ) {
+    switch (theRC->gameLevel) {
+    case LEVEL_EASY:
+      m_statusMax += diff/5;
+      break;
+    case LEVEL_NORMAL:
+      m_statusMax += diff/4;
+      break;
+    case LEVEL_HARD:
+      m_statusMax += diff/3;
+      break;
+    case LEVEL_TSUBORISH:
+      m_statusMax += diff/3;
+      break;
     }
-
-    if ( diff < -3 ) {	// Not good... When status decreased without moving...
-      if ( Control::TheControl()->GetThePlayer() == this ) {
-	switch (theRC->gameLevel) {
-	case LEVEL_EASY:
-	  m_statusMax += diff/4;
-	  break;
-	case LEVEL_NORMAL:
-	  m_statusMax += diff/3;
-	  break;
-	case LEVEL_HARD:
-	  m_statusMax += diff/2;
-	  break;
-	case LEVEL_TSUBORISH:
-	  m_statusMax += diff/2;
-	  break;
-	}
-      } else {
-	m_statusMax += diff/4;	/* 打球位置でのペナルティを相殺 */
-      }
+  } else {
+    switch (theRC->gameLevel) {
+    case LEVEL_EASY:
+      m_statusMax += diff/3;
+      break;
+    case LEVEL_NORMAL:
+      m_statusMax += diff/4;
+      break;
+    case LEVEL_HARD:
+      m_statusMax += diff/5;
+      break;
+    case LEVEL_TSUBORISH:
+      m_statusMax += diff/5;
+      break;
     }
   }
 
   return true;
+}
+
+/**
+ * Reset status value. 
+ */
+void
+Player::ResetStatus() {
+  m_statusMax = STATUS_MAX;
+  m_status = STATUS_MAX;
 }
 
 /**
@@ -819,186 +723,51 @@ Player::Warp( const vector3d &x, const vector3d &v ) {
 }
 
 /**
- * Set location and velocity of the player. 
- * 
- * @param buf stream of location/velocity data. 
- * @return returns true if succeeds. 
- */
-bool
-Player::Warp( char *buf ) {
-  char *b = buf;
-  for ( int i = 0 ; i < 3 ; i++ )
-    b = ReadDouble( b, m_x[i] );
-
-  for ( int i = 0 ; i < 3 ; i++ )
-    b = ReadDouble( b, m_v[i] );
-
-  return true;
-}
-
-/**
  * Set spin and swing of the player. 
  * 
  * @param pow power
  * @param spin spin
  * @param swingType swing type
+ * @param swingSide forehand or backhand
  * @param swing swing status
  * @return returns true if succeeds. 
  */
 bool
-Player::ExternalSwing( long pow, const vector2d &spin,
-		       long swingType, long swing ) {
-  m_swing = swing;
+Player::SetSwing(long pow, const vector2d &spin, long swingType,
+		 bool swingSide, long swing) {
   m_pow = pow;
   m_spin = spin;
   m_swingType =swingType;
+  m_swingSide =swingSide;
+  m_swing = swing;
 
   return true;
 }
 
-/**
- * Set spin and swing of the player. 
- * 
- * @param buf stream of power/spin/swingType/swingSide/swing data. 
- * @return returns true if succeeds. 
- */
+// Target will be modified by the spin
+// (now invalid)
+#if 0
 bool
-Player::ExternalSwing( char *buf ) {
-  char *b = buf;
-  long swingSide;
-  b = ReadLong( b, m_pow );
-  b = ReadDouble( b, m_spin[0] );
-  b = ReadDouble( b, m_spin[1] );
-  b = ReadLong( b, m_swingType );
-  b = ReadLong( b, swingSide );
-  b = ReadLong( b, m_swing );
-
-  m_swingSide = (bool)(swingSide != 0);
+Player::GetModifiedTarget( double &targetX, double &targetY ) {
+  targetX = m_targetX;
+  targetY = m_targetY + theBall.GetSpinY()*m_side*0.2;
 
   return true;
 }
-
-/**
- * Send swing information to the opponent. 
- * 
- * @param buf swing power/spin/type/side/status are set to this buffer. 
- * @return returns pointer to buf. 
- */
-char *
-Player::SendSwing( char *buf ) {
-  long l;
-  double d;
-
-  l = SwapLong(m_pow);
-  memcpy( buf, (char *)&l, 4 );
-  d = SwapDbl(m_spin[0]);
-  memcpy( &(buf[4]), (char *)&d, 8 );
-  d = SwapDbl(m_spin[1]);
-  memcpy( &(buf[12]), (char *)&d, 8 );
-  l = SwapLong(m_swingType);
-  memcpy( &(buf[20]), (char *)&l, 4 );
-  l = SwapLong((long)m_swingSide);
-  memcpy( &(buf[24]), (char *)&l, 4 );
-  l = SwapLong(m_swing);
-  memcpy( &(buf[28]), (char *)&l, 4 );
-
-#ifdef LOGGING
-  Logging::GetLogging()->LogSendPSMessage( this );
-#endif
-
-  return buf;
-}
-
-/**
- * Send location/velocity of the player to the opponent. 
- * 
- * @param buf location/velocity are set to this buffer. 
- * @return returns pointer to buf. 
- */
-char *
-Player::SendLocation( char *buf ) {
-  double d;
-  int c = 0;
-
-  for ( int i = 0 ; i < 3 ; i++ ) {
-    d = SwapDbl(m_x[i]);
-    memcpy( &(buf[c]), (char *)&d, 8 );
-    c += 8;
-  }
-
-  for ( int i = 0 ; i < 3 ; i++ ) {
-    d = SwapDbl(m_v[i]);
-    memcpy( &(buf[c]), (char *)&d, 8 );
-    c += 8;
-  }
-
-  UpdateLastSend();
-
-#ifdef LOGGING
-  Logging::GetLogging()->LogSendPVMessage( this );
-#endif
-
-  return buf;
-}
-
-/**
- * Send all player information to the opponent. 
- * 
- * @param sd socket descriptor. 
- * @return returns true if succeeds. 
- */
-bool
-Player::SendAll( int sd ) {
-  SendLong( sd, m_playerType );
-  SendLong( sd, m_side );
-
-  for ( int i = 0 ; i < 3 ; i++ ) {
-    SendDouble( sd, m_x[i] );
-  }
-
-  for ( int i = 0 ; i < 3 ; i++ ) {
-    SendDouble( sd, m_v[i] );
-  }
-
-  SendLong( sd, m_status );
-  SendLong( sd, m_swing );
-  SendLong( sd, m_swingType );
-  SendLong( sd, (long)m_swingSide );
-  SendLong( sd, m_afterSwing );
-  SendLong( sd, m_swingError );
-
-  for ( int i = 0 ; i < 2 ; i++ ) {
-    SendDouble( sd, m_target[i] );
-  }
-
-  for ( int i = 0 ; i < 3 ; i++ ) {
-    SendDouble( sd, m_eye[i] );
-  }
-
-  SendLong( sd, m_pow );
-
-  for ( int i = 0 ; i < 2 ; i++ ) {
-    SendDouble( sd, m_spin[i] );
-  }
-
-  SendDouble( sd, m_stamina );
-
-  SendLong( sd, m_statusMax );
-
-  return true;
-}
-
 /**
  * Modify location of the target. 
- * This method must be overridden. 
  * 
  * @param target original target and modified target. [in, out]
  * @return returns true if succeeds. 
  */
+#else
 bool
 Player::GetModifiedTarget( vector2d &target ) {
-  return false;
+  target = m_target;
+
+  return true;
 }
+#endif
 
 /**
  * Calculate the level of ball to be hit. 
@@ -1011,6 +780,40 @@ Player::GetModifiedTarget( vector2d &target ) {
  */
 void
 Player::CalcLevel( Ball *ball, double &diff, double &level, double &maxVy ) {
+  vector2d target;
+
+  GetModifiedTarget( target );
+
+  if ( ForeOrBack() )
+    diff = fabs(m_x[1]-ball->GetX()[1])*XDIFFPENALTY_FOREHAND;
+  else
+    diff = fabs(m_x[1]-ball->GetX()[1])*XDIFFPENALTY_BACKHAND;
+
+  diff *= fabs(ball->GetSpin()[1])+1;
+
+  SwingError();
+
+  /*
+  level = 1 - fabs(target[1])/(TABLELENGTH/16)/40 -
+    diff*DIFF_COEFF[m_swingType]*fabs(target[1])/(TABLELENGTH/16);
+  */
+
+  level = 1 - fabs(target[1])/(TABLELENGTH/16)*diff*DIFF_COEFF[m_swingType];
+
+  level *= (double)m_pow/20.0 + 0.5;
+
+  if ( ForeOrBack() ) {
+    maxVy = hypot(ball->GetV()[0], ball->GetV()[1])*FOREHAND_BOUNCE_RATE + 
+      MAX_FOREHAND_SPEED[m_swingType] -
+	(fabs(m_spin[1])+fabs(ball->GetSpin()[1]))*FOREHAND_SPINEFFECT_RATE;
+  } else {
+    maxVy = hypot(ball->GetV()[0], ball->GetV()[1])*BACKHAND_BOUNCE_RATE + 
+      MAX_BACKHAND_SPEED[m_swingType] -
+	(fabs(m_spin[1])+fabs(ball->GetSpin()[1]))*BACKHAND_SPINEFFECT_RATE;
+  }
+
+  if ( level > 1.0 )
+    level = 1.0;
 }
 
 /**
@@ -1022,7 +825,40 @@ Player::CalcLevel( Ball *ball, double &diff, double &level, double &maxVy ) {
  */
 bool
 Player::Swing( long spin ) {
-  return false;
+  Ball *tmpBall;
+
+  if ( theBall.GetStatus() == 6 || theBall.GetStatus() == 7 )
+    return false;
+
+  if ( m_swing > END_BACKSWING && m_swing < START_FOLLOWTHROUGH )
+    return false;
+
+  if ( m_swing >= START_FOLLOWTHROUGH )
+    AddStatus( -(50-m_swing)*2 );
+
+  m_swing = START_SWING;
+  m_pow = 8;
+
+  // Decide SwingType by the hit point and spin, etc. 
+  // Calc the ball location of 0.1 second later
+  tmpBall = new Ball(&theBall);
+
+  for ( int i = 0 ; i < 10 ; i++ )
+    tmpBall->Move();
+
+  if ( spin < 3 )
+    m_swingSide = false;
+  else
+    m_swingSide = true;
+
+  SwingType( tmpBall, spin );
+
+  delete tmpBall;
+
+  if (Control::TheControl()->GetThePlayer() == this && mode == MODE_MULTIPLAY)
+    ::SendSwingAndLocation(this);
+
+  return true;
 }
 
 /**
@@ -1089,8 +925,8 @@ Player::StartServe( long spin ) {
     int i = 0;
     while ( stype[i][0] > 0 ) {
       if ( (long)stype[i][0] == m_swingType ) {
-	m_spin[0] = stype[i][(spin-1)*2];
-	m_spin[1] = stype[i][(spin-1)*2+1];
+	m_spin[0] = stype[i][(spin-1)*2+1];
+	m_spin[1] = stype[i][(spin-1)*2+2];
 	break;
       }
       i++;
@@ -1100,7 +936,7 @@ Player::StartServe( long spin ) {
 
     if ( Control::TheControl()->GetThePlayer() == this &&
 	 mode == MODE_MULTIPLAY )
-      ::SendSwing( this );
+      ::SendSwingAndLocation( this );
   }
 
   return true;
@@ -1114,21 +950,71 @@ Player::StartServe( long spin ) {
  */
 bool
 Player::HitBall() {
-  return false;
-}
+  vector3d v;
+  double diff;
+  double level;
 
-/**
- * Update last send information. 
- * This method is called when some player information is sent to the 
- * opponent machine. This method reset m_lastSendCount and update
- * m_lastSendX and m_lastSendV. 
- */
-void
-Player::UpdateLastSend() {
-  m_lastSendCount = 0;
+  // Serve
+  if (canServe(&theBall) &&
+      fabs(m_x[0]-theBall.GetX()[0]) < 0.6 &&
+      fabs(m_x[1]-theBall.GetX()[1]) < 0.3 ) {
+    AddStatus( (long)-fabs(fabs(m_x[0]-theBall.GetX()[0])-0.3F)*100 );
+    diff = fabs(m_x[1]-theBall.GetX()[1])*0.3;
 
-  m_lastSendX = m_x;
-  m_lastSendV = m_v;
+    SwingError();
+
+    if ( fabs(m_target[1]) < TABLELENGTH/16*2 )
+      level = 0.95-diff*1.0;
+    else if ( fabs(m_target[1]) < TABLELENGTH/16*4 )
+      level = 0.93-diff*1.5;
+    else if ( fabs(m_target[1]) < TABLELENGTH/16*6 )
+      level = 0.90-diff*2.0;
+    else
+      level = 0.90-diff*2.0;
+
+    theBall.TargetToVS( m_target, level, m_spin, v );
+
+    theBall.Hit( v, m_spin, this );
+  } else if (canHitBall(&theBall) &&
+	     fabs(m_x[0]-theBall.GetX()[0]) < 0.6 && 
+	     ((GetSwingSide() && (m_x[0]-theBall.GetX()[0])*m_side < 0 ) ||
+	      (!GetSwingSide() && (m_x[0]-theBall.GetX()[0])*m_side > 0 )) &&
+	     (m_x[1]-theBall.GetX()[1])*m_side < 0.3 &&
+	     (m_x[1]-theBall.GetX()[1])*m_side > -0.6 ) {
+    vector2d target;
+
+    GetModifiedTarget( target );
+
+    double maxVy;
+    CalcLevel( &theBall, diff, level, maxVy );
+
+    theBall.TargetToV( target, level, m_spin, v, 0.1, maxVy );
+
+    AddError(v);
+
+    // Reduce status
+    m_afterSwing = (long)
+      (hypot( theBall.GetV()[0]*0.8-v[0], theBall.GetV()[1]*0.8+v[1] )
+       * (1.0+diff*10.0) + m_spin.len()*5.0 + fabs(theBall.GetSpin()[1])*4.0);
+
+    m_afterSwing *= AFTERSWING_PENALTY;
+
+    if ( ForeOrBack() || m_swingType == SWING_POKE )
+      AddStatus( -m_afterSwing*2 );
+    else
+      AddStatus( -m_afterSwing*3 );
+
+    if ( m_status == 1 )
+      m_afterSwing *= 3;
+
+    theBall.Hit( v, m_spin, this );
+  } else {
+    m_swingError = SWING_MISS;
+  }
+
+  m_spin[0] = m_spin[1] = 0.0;
+
+  return true;
 }
 
 /**
@@ -1220,225 +1106,6 @@ Player::SwingType( Ball *ball, long spin ) {
 }
 
 /**
- * Convert SDL_keysym into key code in unicode. 
- * This method supports qwerty, qwertz, azerty and dvorak keyboard. 
- * 
- * @param key SDL_keysym value converted to unicode. 
- * @return returns unicode. 
- */
-long
-Player::GetKeyCode( SDL_keysym &key ) {
-  const char keytable[][5] = {
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'1', '1', '1', '[', '\0'},
-  {'2', '2', '2', '7', '\0'},
-  {'3', '3', '3', '5', '\0'},
-  {'4', '4', '4', '3', '\0'},
-  {'5', '5', '5', '1', '\0'},
-  {'6', '6', '6', '9', '\0'},
-  {'7', '7', '7', '0', '\0'},
-  {'8', '8', '8', '2', '\0'},
-  {'9', '9', '9', '6', '\0'},
-  {'0', '0', '0', '8', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'q', 'q', 'a', '/', '\0'},
-  {'w', 'w', 'z', ',', '\0'},
-  {'e', 'e', 'e', '.', '\0'},
-  {'r', 'r', 'r', 'p', '\0'},
-  {'t', 't', 't', 'y', '\0'},
-  {'y', 'z', 'y', 'f', '\0'},
-  {'u', 'u', 'u', 'g', '\0'},
-  {'i', 'i', 'i', 'c', '\0'},
-  {'o', 'o', 'o', 'r', '\0'},
-  {'p', 'p', 'p', 'l', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'a', 'a', 'q', 'a', '\0'},
-  {'s', 's', 's', 'o', '\0'},
-  {'d', 'd', 'd', 'e', '\0'},
-  {'f', 'f', 'f', 'u', '\0'},
-  {'g', 'g', 'g', 'i', '\0'},
-  {'h', 'h', 'h', 'd', '\0'},
-  {'j', 'j', 'j', 'h', '\0'},
-  {'k', 'k', 'k', 't', '\0'},
-  {'l', 'l', 'l', 'n', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},	// {          'm', 's', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},
-  {'z', 'y', 'w', ';', '\0'},
-  {'x', 'x', 'x', 'q', '\0'},
-  {'c', 'c', 'c', 'j', '\0'},
-  {'v', 'v', 'v', 'k', '\0'},
-  {'b', 'b', 'b', 'x', '\0'},
-  {'n', 'n', 'n', 'b', '\0'},
-  {'m', 'm'     , 'm', '\0', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},	// {               'w', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'},	// {               'v', '\0'},
-  {'\0', '\0', '\0', '\0', '\0'}	// {               'z', '\0'}
-  };
-
-  // Check keyboard type and modify keycode. 
-  long code = -1;
-
-  if ( key.scancode < 54 ) {
-    int i = 0;
-    while (keytable[key.scancode][i]) {
-      if ( keytable[key.scancode][i] == key.unicode ) {
-	code = keytable[key.scancode][0];
-	break;
-      }
-      i++;
-    }
-  }
-
-  if ( key.scancode >= 8 && key.scancode < 62 && code < 0 ) {	// for X11
-    int i = 0;
-    while (keytable[key.scancode-8][i]) {
-      if ( keytable[key.scancode-8][i] == key.unicode ) {
-	code = keytable[key.scancode-8][0];
-	break;
-      }
-      i++;
-    }
-  }
-
-  if ( code < 0 )
-    code = key.unicode;
-
-  return code;
-}
-
-/**
- * Move the target. 
- * 
- * @param code keycode. 
- */
-void
-Player::MoveTarget( long code ) {
-  switch ( code ) {
-  case '1':  case 'q':  case 'a':  case 'z':
-  case '2':  case 'w':  case 's':  case 'x':
-  case '3':
-    m_target[0] = -TABLEWIDTH/2*0.9*GetSide();
-    break;
-  case 'e':
-    m_target[0] = -TABLEWIDTH/2*0.75*GetSide();
-    break;
-  case 'd':
-    m_target[0] = -TABLEWIDTH/2*0.6*GetSide();
-    break;
-  case '4':  case 'c':
-    m_target[0] = -TABLEWIDTH/2*0.45*GetSide();
-    break;
-  case 'r':
-    m_target[0] = -TABLEWIDTH/2*0.3*GetSide();
-    break;
-  case 'f':
-    m_target[0] = -TABLEWIDTH/2*0.15*GetSide();
-    break;
-  case '5':  case 'v':
-    m_target[0] = 0;
-    break;
-  case 't':
-    m_target[0] = TABLEWIDTH/2*0.15*GetSide();
-    break;
-  case 'g':
-    m_target[0] = TABLEWIDTH/2*0.3*GetSide();
-    break;
-  case '6':  case 'b':
-    m_target[0] = TABLEWIDTH/2*0.45*GetSide();
-    break;
-  case 'y':
-    m_target[0] = TABLEWIDTH/2*0.6*GetSide();
-    break;
-  case 'h':
-    m_target[0] = TABLEWIDTH/2*0.75*GetSide();
-    break;
-  case '7':  case 'n':  case 'u':  case 'j':
-  case '8':  case 'm':  case 'i':  case 'k':
-  case '9':  case ',':  case 'o':  case 'l':
-  case '0':  case '.':  case 'p':  case ';':
-    m_target[0] = TABLEWIDTH/2*0.9*GetSide();
-    break;
-  }
-
-  switch ( code ){
-  case '1':  case '2':  case '3':  case '4':  case '5':  case '6':
-  case '7':  case '8':  case '9':  case '0':  case '-':  case '^':
-    m_target[1] = TABLELENGTH/12*5*GetSide();
-    break;
-  case 'q':  case 'w':  case 'e':  case 'r':  case 't':  case 'y':
-  case 'u':  case 'i':  case 'o':  case 'p':  case '@':  case '[':
-    m_target[1] = TABLELENGTH/12*4*GetSide();
-    break;
-  case 'a':  case 's':  case 'd':  case 'f':  case 'g':  case 'h':
-  case 'j':  case 'k':  case 'l':  case ';':  case ':':  case ']':
-    m_target[1] = TABLELENGTH/12*3*GetSide();
-    break;
-  case 'z':  case 'x': case 'c':  case 'v':  case 'b':  case 'n':
-  case 'm':  case ',':  case '.':  case '/':  case '\\':
-    m_target[1] = TABLELENGTH/12*2*GetSide();
-    break;
-  }
-}
-
-/**
- * Move camera location. 
- * 
- * @param code keycode. 
- */
-void
-Player::MoveCamera( long code ) {
-  switch ( code ) {
-  case 'H':
-    m_eye[0] -= 0.05;
-    break;
-  case 'J':
-    m_eye[2] -= 0.05;
-    break;
-  case 'K':
-    m_eye[2] += 0.05;
-    break;
-  case 'L':
-    m_eye[0] += 0.05;
-    break;
-  case '<':
-    m_eye[1] -= 0.05;
-    break;
-  case '>':
-    m_eye[1] += 0.05;
-    break;
-
-  case 'A':
-    m_lookAt[0] -= 0.05;
-    break;
-  case 'S':
-    m_lookAt[2] -= 0.05;
-    break;
-  case 'D':
-    m_lookAt[2] += 0.05;
-    break;
-  case 'F':
-    m_lookAt[0] += 0.05;
-    break;
-  case 'C':
-    m_lookAt[1] -= 0.05;
-    break;
-  case 'V':
-    m_lookAt[1] += 0.05;
-    break;
-  }
-}
-
-/**
  * Toggle Serve type. 
  * As the game player push space bar, serve type is changed into the next one. 
  */
@@ -1455,3 +1122,134 @@ Player::ChangeServeType() {
       m_swingType = SERVE_MIN;
   }
 }
+
+/**
+ * If the ball goes out of sight, look at the ball direction
+ */
+void
+Player::MoveLookAt() {
+  vector3d x = m_x + m_eye;
+  vector3d tx; tx[0] = 0.0; tx[1] = TABLELENGTH/2*m_side; tx[2] = TABLEHEIGHT;
+  vector3d vx1 = tx-x;
+  vector3d vxt;
+  vector3d vx2;
+  double p, q;
+  double sinP, cosP;
+
+  vx1.normalize();
+
+  vxt = theBall.GetX()-x;
+  if ( theBall.GetStatus() == 6 || theBall.GetStatus() == 7 )
+    vxt[2] = TABLEHEIGHT+0.15-x[2];
+
+  vxt.normalize();
+
+  if ( (cosP = vx1*vxt) < cos(3.141592/180.0*15) &&
+       fabs(theBall.GetX()[1]) > fabs(x[1]) ) {
+    sinP = sqrt(1-cosP*cosP);
+    p = cos(3.141592/180.0*15) - sin(3.141592/180.0*15)*cosP/sinP;
+    q = sin(3.141592/180.0*15)/sinP;
+
+    vx2 = p*vxt+q*vx1;
+
+    m_lookAt = x+vx2;
+  } else {
+    vector2d vx12; vx12[0] = vx1[1]; vx12[1] = vx1[2];
+    vector2d vxt2; vxt2[0] = vxt[1]; vxt2[1] = vxt[2];
+    if ( (cosP = (vx12*vxt2)/(vx12.len()*vxt2.len())) < cos(3.141592/180.0*15) &&
+	 theBall.GetX()[2] > x[2] &&
+	 (theBall.GetStatus() == 0 || theBall.GetStatus() == 2) ) {
+      sinP = sqrt(1-cosP*cosP);
+      p = cos(3.141592/180.0*15) - sin(3.141592/180.0*15)*cosP/sinP;
+      q = sin(3.141592/180.0*15)/sinP;
+
+      vx2 = p*vxt+q*vx1;
+
+      m_lookAt = x+vx2;
+    } else {
+      m_lookAt = tx;
+    }
+  }
+}
+
+/**
+ * Automatically move towards the ball. 
+ */
+void
+Player::AutoMove() {
+  if ( m_swing > END_BACKSWING && m_swing < START_HITBALL ) {
+    Ball *tmpBall;
+
+    tmpBall = new Ball(&theBall);
+
+    for ( int i = 0 ; i < 20-m_swing ; i++ )
+      tmpBall->Move();
+
+    if ( ((tmpBall->GetStatus() == 3 && m_side == 1) ||
+	  (tmpBall->GetStatus() == 1 && m_side == -1)) ) {
+      double hitpointX = m_swingSide ? m_x[0]+0.3*m_side : m_x[0]-0.3*m_side;
+      double xdiff = tmpBall->GetX()[0] - (hitpointX+m_v[0]*(20-m_swing)*TICK);
+      double ydiff = tmpBall->GetX()[1] - (   m_x[1]+m_v[1]*(20-m_swing)*TICK);
+
+      double vxdiff, vydiff;
+      vxdiff = xdiff/TICK/(20-m_swing);
+
+      if ( vxdiff > 2.0 )
+	vxdiff = 2.0;
+      else if ( vxdiff < -2.0 )
+	vxdiff = -2.0;
+
+      vxdiff /= theRC->gameLevel+1;
+
+      m_v[0] += vxdiff;
+
+      if ( fabs(ydiff) > 0.3 ) {
+	vydiff = ydiff/TICK/(20-m_swing);
+	if ( vydiff > 2.0 )
+	  vydiff = 2.0;
+	else if ( vydiff < -2.0 )
+	  vydiff = -2.0;
+
+	vydiff /= theRC->gameLevel+1;
+
+	m_v[1] += vydiff;
+      }
+    }
+    delete tmpBall;
+  }
+}
+
+bool
+Player::canHitBall(Ball *ball) {
+  if ( (ball->GetStatus() == 3 && m_side == 1) ||
+       (ball->GetStatus() == 1 && m_side == -1) )
+    return true;
+  else
+    return false;
+}
+
+bool
+Player::canServe(Ball *ball) {
+  if ( (ball->GetStatus() == 6 && m_side == 1) ||
+       (ball->GetStatus() == 7 && m_side == -1) )
+    return true;
+  else
+    return false;
+}
+
+void
+Player::drawHitMark() {
+  if ( Control::TheControl()->GetThePlayer() == this &&
+       theRC->gmode != GMODE_2D ) {
+    HitMark *hit;
+
+    vector3d hitX = theBall.GetX();
+    hitX[1] = m_x[1];
+
+    hit = new HitMark();
+    hit->Hit( hitX, theBall.GetV(), GetSwingError() );
+
+    BaseView::TheView()->AddView( hit );
+  }
+}
+

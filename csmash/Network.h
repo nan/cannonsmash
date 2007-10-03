@@ -24,13 +24,18 @@
 #ifndef _Network_
 #define _Network_
 
+class Ball;
 class Player;
+
+#ifdef WIN32
+typedef __int32	int32_t;
+#endif
 
 // Endian
 void EndianCheck();
 
 double SwapDbl( double d );
-long SwapLong( long l );
+int32_t SwapLong( int32_t l );
 
 bool SendDouble( int sd, double d );
 bool SendLong( int sd, long l );
@@ -43,7 +48,15 @@ long ReadEntireMessage( int socket, char **buf );
 
 void WritePlayerData();
 
-void SendSwing( Player *player );
+bool SendBVMessage(Ball *ball);
+char *MakePSMessage(char *buf, Player *player );
+char *MakePVMessage(char *buf, Player *player);
+bool SendPVMessage(Player *player);
+void SendSwingAndLocation(Player *player);
+
+bool ReadBall(char *buf, Ball *ball);
+bool ReadSwing(char *buf, Player *player);
+bool ReadPlayerLocation(char *buf, Player *player);
 
 void SendTime( int sd, struct timeb* tb );
 void ReadTime( int sd, struct timeb* tb );

@@ -1,11 +1,11 @@
 /**
  * @file
- * @brief Definition of PenDrive class. 
+ * @brief Definition of ComShakeCutController class. 
  * @author KANNA Yoshihiro
  * @version $Id$
  */
 
-// Copyright (C) 2000, 2004, 2007  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2007  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,28 +21,25 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#ifndef _PenDrive_
-#define _PenDrive_
-#include "Player.h"
+#ifndef _ComShakeCutController_
+#define _ComShekeCutController_
+
+#include "ComController.h"
 
 /**
- * PenDrive class is a Player class of pen drive type player. 
+ * ComShakeCutController class is a Controller class of shake cut
+ *  type player who is controlled by Com. 
  */
-class PenDrive : public Player {
+class ComShakeCutController : public ComController {
 public:
-  PenDrive();
-  PenDrive(long side);
-  PenDrive( long playerType, long side, const vector3d x, const vector3d v,
-	  long status, long swing, long swingType, bool swingSide, long afterSwing,
-	  long swingError, const vector2d target, const vector3d eye,
-	  const vector3d lookAt, 
-	  long pow, const vector2d spin, double stamina, long statusMax,
-	  long dragX, long dragY );
+  ComShakeCutController();
+  ComShakeCutController(Player *parent);
 
-  virtual ~PenDrive();
+protected:
+  virtual bool Think();
 
-private:
-  bool SwingType( Ball *ball, long spin );
+  virtual bool Hitarea( vector2d &hitX );
+  virtual bool SetTargetX( Player* opponent );
 };
 
-#endif // _PenDrive__
+#endif // _ComShakeCutController_

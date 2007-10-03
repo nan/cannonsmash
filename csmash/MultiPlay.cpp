@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@
 #include "NetPenAttack.h"
 #include "NetPenDrive.h"
 #include "NetShakeCut.h"
+#include "LobbyClient.h"
 
 #ifdef LOGGING
 #include "Logging.h"
@@ -132,12 +133,7 @@ MultiPlay::Create( long player, long com ) {
 
   Control::ClearControl();
 
-  if (robot) {
-    m_theControl = new RobotMultiPlay();
-  } else {
-    m_theControl = new MultiPlay();
-  }
-
+  m_theControl = new MultiPlay();
   m_theControl->Init();
 
   theBall.Warp( vector3d(0.0), vector3d(0.0), vector2d(0.0), -1000 );
@@ -178,11 +174,69 @@ MultiPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		 long *MouseYHistory, unsigned long *MouseBHistory,
 		 int Histptr ) {
   bool reDraw = false;
+  bool ballSend = false;
+
+  long theBallStatus = theBall.GetStatus();
 
   theBall.Move();
+
+  if (theBall.GetStatus() == -1) {
+    switch (theBallStatus) {
+    case 0:
+    case 1:
+    case 4:
+    case 7:
+      if (m_thePlayer->GetSide() < 0)
+	ballSend = true;
+      break;
+    case 2:
+    case 3:
+    case 5:
+    case 6:
+      if (m_thePlayer->GetSide() > 0)
+	ballSend = true;
+      break;
+    case 8:
+      ballSend = true;
+    }
+
+    if ( LobbyClient::TheLobbyClient() )
+      LobbyClient::TheLobbyClient()->SendSC( GetScore(1), GetScore(-1) );
+  }
+
   reDraw |= m_thePlayer->Move( KeyHistory, MouseXHistory,
 			       MouseYHistory, MouseBHistory, Histptr );
+
+  if ((theBallStatus == 6 && theBall.GetStatus() == 4) ||
+      (theBallStatus == 7 && theBall.GetStatus() == 5) ||
+      (theBallStatus == 3 && theBall.GetStatus() == 0) ||
+      (theBallStatus == 1 && theBall.GetStatus() == 2) ||
+      (theBallStatus == 8 && theBall.GetStatus() == 6) ||
+      (theBallStatus == 8 && theBall.GetStatus() == 7) ) {
+    ballSend = true;
+  }
+
   reDraw |= m_comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
+
+  m_lastSendCount++;
+  m_lastSendX += m_lastSendV*TICK;
+
+  if ( m_lastSendCount >= 100 ||
+       (m_lastSendV-m_thePlayer->GetV()).len() >= 0.25 ) {
+    SendPVMessage(m_thePlayer);
+  }
+
+  // theBall goes out of hitting area. 
+  if ( ((theBall.GetStatus() == 1 && m_thePlayer->GetSide() == -1) ||
+	(theBall.GetStatus() == 3 && m_thePlayer->GetSide() == 1) ) &&
+       m_thePlayer->GetSwing() <= 10 &&
+       (m_thePlayer->GetX()[1]-theBall.GetX()[1])*m_thePlayer->GetSide() > 0.3 &&
+       (m_thePlayer->GetX()[1]+m_thePlayer->GetV()[1]*TICK-(theBall.GetX()[1]+theBall.GetV()[1]*TICK))*m_thePlayer->GetSide() > 0.3 ) {
+    ballSend = true;
+  }
+
+  if (ballSend)
+    SendBVMessage(&theBall);
 
   return reDraw;
 }
@@ -202,36 +256,6 @@ MultiPlay::LookAt( vector3d &srcX, vector3d &destX ) {
   }
 
   return true;
-}
-
-/**
- * Send adjusted time information to the opponent machine. 
- * Calculate adjusted current time and set it to buf. 
- * 
- * @param buf buffer of which current time is set. Buf must be the pointer to allocated memory of more than 5 bytes long. 
- */
-void
-MultiPlay::SendTime( char *buf ) {
-  char v;
-  long sec, count;
-
-  sec = Event::m_lastTime.time;
-  count = Event::m_lastTime.millitm/10;
-
-  count += timeAdj;
-
-  while ( count >= 100 ) {
-    count -= 100;
-    sec++;
-  }
-  while ( count < 0 ) {
-    count += 100;
-    sec--;
-  }
-
-  memcpy( buf, (char *)&sec, 4 );
-  v = (char)(count);
-  memcpy( &(buf[4]), (char *)&v, 1 );
 }
 
 /**
@@ -286,22 +310,6 @@ MultiPlay::WaitForData( void *dum ) {
 
   return 0;
 }
-
-
-bool
-RobotMultiPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
-		      long *MouseYHistory, unsigned long *MouseBHistory,
-		      int Histptr ) {
-  bool reDraw = false;
-
-  theBall.Move();
-  reDraw |= m_thePlayer->Move( NULL, NULL, NULL, NULL, 0 );
-  reDraw |= m_comPlayer->Move( NULL, NULL, NULL, NULL, 0 );
-
-  return reDraw;
-}
-
-
 
 /**
  * Default constructor. 
@@ -441,7 +449,7 @@ ExternalPVData::ExternalPVData( long s ) : ExternalData(s) {
 bool
 ExternalPVData::Apply( Player *targetPlayer, bool &fThePlayer,
 		       bool &fComPlayer, bool &fTheBall ) {
-  targetPlayer->Warp( data );
+  ReadPlayerLocation(data, targetPlayer);
   if ( targetPlayer == Control::GetThePlayer() )
     fThePlayer = true;
   else if ( targetPlayer == Control::GetComPlayer() )
@@ -510,7 +518,7 @@ ExternalPSData::ExternalPSData( long s ) : ExternalData(s) {
 bool
 ExternalPSData::Apply( Player *targetPlayer, bool &fThePlayer,
 		       bool &fComPlayer, bool &fTheBall ) {
-  targetPlayer->ExternalSwing( data );
+  ReadSwing(data, targetPlayer);
   if ( targetPlayer == Control::GetThePlayer() )
     fThePlayer = true;
   else if ( targetPlayer == Control::GetComPlayer() )
@@ -579,7 +587,7 @@ ExternalBVData::ExternalBVData( long s ) : ExternalData(s) {
 bool
 ExternalBVData::Apply( Player *targetPlayer, bool &fThePlayer,
 		       bool &fComPlayer, bool &fTheBall ) {
-  theBall.Warp( data );
+  ReadBall(data, &theBall);
   fTheBall = true;
 
 #ifdef LOGGING

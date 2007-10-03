@@ -23,13 +23,13 @@
 
 #ifndef _ComTrainingPenDrive_
 #define _ComTrainingPenDrive_
-#include "comPenDrive.h"
+#include "PenDrive.h"
 
 /**
  * ComTrainingPenDrive class is a Player class of pen drive type player. 
  * This player is the opponent player in training mode. 
  */
-class ComTrainingPenDrive : public ComPenDrive {
+class ComTrainingPenDrive : public PenDrive {
 public:
   ComTrainingPenDrive();
   ComTrainingPenDrive(long side);
@@ -45,8 +45,6 @@ public:
   virtual ~ComTrainingPenDrive();
 
 protected:
-  virtual bool Think();
-
   virtual bool HitBall();
 };
 

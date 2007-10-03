@@ -87,16 +87,16 @@ SwapDbl( double d ) {
  * @param l long variable to be converted. 
  * @return returns converted long variable. 
  */
-long
-SwapLong( long l ) {
+int32_t
+SwapLong( int32_t l ) {
   if ( endian ) {
     return l;
   } else {
-    long swp;
+    int32_t swp;
     char *c1 = (char *)&l, *c2 = (char *)&swp;
 
-    for ( int i = 0 ; i < 4 ; i++ )
-      *(c2+3-i) = *(c1+i);
+    for ( int i = 0 ; i < sizeof(int32_t) ; i++ )
+      *(c2+sizeof(int32_t)-1-i) = *(c1+i);
 
     return swp;
   }
@@ -142,9 +142,10 @@ SendDouble( int sd, double d ) {
  */
 bool
 SendLong( int sd, long l ) {
-  l = SwapLong(l);
+  int32_t val = (int32_t)l;
+  val = SwapLong(val);
 
-  if ( send( sd, (char *)&l, 4, 0 ) == 4 )
+  if ( send( sd, (char *)&val, 4, 0 ) == 4 )
     return true;
   else
     return false;
@@ -174,8 +175,12 @@ ReadDouble( char *buf, double& d ) {
  */
 char *
 ReadLong( char *buf, long& l ) {
-  memcpy( &l, buf, 4 );
-  l = SwapLong(l);
+  int32_t val;
+  memcpy( &val, buf, sizeof(int32_t) );
+  
+  val = SwapLong(val);
+
+  l = (long)val;
 
   return buf+4;
 }
@@ -287,6 +292,186 @@ ReadEntireMessage( int socket, char **buf ) {
 }
 
 /**
+ * Send adjusted time information to the opponent machine. 
+ * Calculate adjusted current time and set it to buf. 
+ * 
+ * @param buf buffer of which current time is set. Buf must be the pointer to allocated memory of more than 5 bytes long. 
+ */
+void
+AddTimeString(char *buf) {
+  char v;
+  long sec, count;
+
+  sec = Event::m_lastTime.time;
+  count = Event::m_lastTime.millitm/10;
+
+  count += timeAdj;
+
+  while ( count >= 100 ) {
+    count -= 100;
+    sec++;
+  }
+  while ( count < 0 ) {
+    count += 100;
+    sec--;
+  }
+
+  memcpy( buf, (char *)&sec, 4 );
+  v = (char)(count);
+  memcpy( &(buf[4]), (char *)&v, 1 );
+}
+
+/**
+ * Send the ball location/velocity/spin/status to the opponent. 
+ * 
+ * @param buf ball location/velocity/spin/status are set to this buffer. 
+ * @return returns pointer to buf. 
+ */
+char *
+MakeBVMessage(char *buf, Ball *ball) {
+  double d;
+  int c = 0;
+
+  strncpy( buf, "BV", 2 );
+  AddTimeString( &(buf[2]) );
+
+  c = 7;
+
+  for ( int i = 0 ; i < 3 ; i++ ) {
+    d = SwapDbl(ball->GetX()[i]);
+    memcpy( &(buf[c]), (char *)&d, 8 );
+    c += 8;
+  }
+
+  for ( int i = 0 ; i < 3 ; i++ ) {
+    d = SwapDbl(ball->GetV()[i]);
+    memcpy( &(buf[c]), (char *)&d, 8 );
+    c += 8;
+  }
+
+  for ( int i = 0 ; i < 2 ; i++ ) {
+    d = SwapDbl(ball->GetSpin()[i]);
+    memcpy( &(buf[c]), (char *)&d, 8 );
+    c += 8;
+  }
+
+  int32_t val = (int32_t)ball->GetStatus();
+  val = SwapLong(val);
+  memcpy( &(buf[c]), (char *)&val, 4 );
+  c += 4;
+
+#ifdef LOGGING
+  Logging::GetLogging()->LogBall( LOG_COMBALL, ball );
+#endif
+
+  return buf;
+}
+
+/**
+ * Send ball location, velocity and spin to the opponent machine. 
+ * 
+ * @return returns true if succeeds. 
+ */
+bool
+SendBVMessage(Ball *ball) {
+  char buf[256];
+
+  MakeBVMessage(buf, ball);
+  send( theSocket, buf, 75, 0 );
+
+  return true;
+}
+
+/**
+ * Send swing information to the opponent. 
+ * 
+ * @param buf swing power/spin/type/side/status are set to this buffer. 
+ * @return returns pointer to buf. 
+ */
+char *
+MakePSMessage(char *buf, Player *player) {
+  int32_t l, val;
+  double d;
+
+  strncpy( buf, "PS", 2 );
+  AddTimeString( &(buf[2]) );
+
+  val = (int32_t)player->GetPower();
+  l = SwapLong(val);
+  memcpy( &(buf[7]), (char *)&l, 4 );
+  d = SwapDbl(player->GetSpin()[0]);
+  memcpy( &(buf[11]), (char *)&d, 8 );
+  d = SwapDbl(player->GetSpin()[1]);
+  memcpy( &(buf[19]), (char *)&d, 8 );
+  val = (int32_t)player->GetSwingType();
+  l = SwapLong(val);
+  memcpy( &(buf[27]), (char *)&l, 4 );
+  val = (int32_t)player->GetSwingSide();
+  l = SwapLong(val);
+  memcpy( &(buf[31]), (char *)&l, 4 );
+  val = (int32_t)player->GetSwing();
+  l = SwapLong(val);
+  memcpy( &(buf[35]), (char *)&l, 4 );
+
+#ifdef LOGGING
+  Logging::GetLogging()->LogSendPSMessage(player);
+#endif
+
+  return buf;
+}
+
+
+/**
+ * Send location information to the opponent. 
+ * 
+ * @param buf swing power/spin/type/side/status are set to this buffer. 
+ * @return returns pointer to buf. 
+ */
+char *
+MakePVMessage(char *buf, Player *player) {
+  double d;
+  int c = 0;
+
+  strncpy( buf, "PV", 2 );
+  AddTimeString( &(buf[2]) );
+
+  c = 7;
+  for ( int i = 0 ; i < 3 ; i++ ) {
+    d = SwapDbl(player->GetX()[i]);
+    memcpy( &(buf[c]), (char *)&d, 8 );
+    c += 8;
+  }
+
+  for ( int i = 0 ; i < 3 ; i++ ) {
+    d = SwapDbl(player->GetV()[i]);
+    memcpy( &(buf[c]), (char *)&d, 8 );
+    c += 8;
+  }
+
+#ifdef LOGGING
+  Logging::GetLogging()->LogSendPVMessage(player);
+#endif
+
+  return buf;
+}
+
+/**
+ * Send player location and velocity data to the opponent machine. 
+ * 
+ * @param player Player object of which data should be sent to the opponent. 
+ * @return returns true if succeeds. 
+ */
+bool
+SendPVMessage(Player *player) {
+  char buf[256];
+
+  MakePVMessage(buf, player);
+  send( theSocket, buf, 55, 0 );
+
+  return true;
+}
+
+/**
  * Send PlayerSwing to the opponent machine using "PS" and "PV" protocol. 
  * This method send "PS" (player swing) message, then "PV" message to send
  * player location also. 
@@ -294,24 +479,105 @@ ReadEntireMessage( int socket, char **buf ) {
  * @param player Player object to be sent. 
  */
 void
-SendSwing( Player *player ) {
+SendSwingAndLocation(Player *player) {
   char buf[256];
 
   if ( Event::TheEvent()->IsBackTracking() || mode != MODE_MULTIPLAY )
     return;
 
-  strncpy( buf, "PS", 2 );
-  ((MultiPlay *)Control::TheControl())->SendTime( &(buf[2]) );
-
-  player->SendSwing( &(buf[7]) );
-
-  // Player 位置情報も送信する
-  strncpy( &(buf[39]), "PV", 2 );
-  ((MultiPlay *)Control::TheControl())->SendTime( &(buf[41]) );
-
-  player->SendLocation( &(buf[46]) );
+  MakePSMessage(buf, player);
+  MakePVMessage(&(buf[39]), player);
 
   send( theSocket, buf, 39+55, 0 );
+}
+
+/**
+ * Read ball location/velocity/spin/status. 
+ * 
+ * @param buf stream of location/velocity/spin/status data. 
+ */
+bool
+ReadBall(char *buf, Ball *ball) {
+  char *b = buf;
+  long nextStatus;
+
+  vector3d x, v;
+  vector2d spin;
+  long status = ball->GetStatus();
+
+  for ( int i = 0 ; i < 3 ; i++ )
+    b = ReadDouble( b, x[i] );
+
+  for ( int i = 0 ; i < 3 ; i++ )
+    b = ReadDouble( b, v[i] );
+
+  for ( int i = 0 ; i < 2 ; i++ )
+    b = ReadDouble( b, spin[i] );
+
+  b = ReadLong( b, nextStatus );
+
+  if ( status >= 0 && nextStatus < 0 )
+    ball->BallDead();
+
+  status = nextStatus;
+
+  ball->Warp(x, v, spin, status);
+
+  return true;
+}
+
+/**
+ * Read Swing and set it into the specified player. 
+ * 
+ * @param buf a fragment of incoming message which represents swing. 
+ * @param player player object. 
+ * @return returns pointer to the next message fragment. 
+ */
+bool
+ReadSwing(char *buf, Player *player) {
+  char *b = buf;
+
+  long pow;
+  vector2d spin;
+  long swingType;
+  bool swingSide;
+  long swingSideLong;
+  long swing;
+
+  b = ReadLong( b, pow );
+  b = ReadDouble( b, spin[0] );
+  b = ReadDouble( b, spin[1] );
+  b = ReadLong( b, swingType );
+  b = ReadLong( b, swingSideLong );
+  b = ReadLong( b, swing );
+
+  swingSide = (bool)(swingSideLong != 0);
+
+  player->SetSwing(pow, spin, swingType, swingSide, swing);
+
+  return true;
+}
+
+/**
+ * Set location and velocity of the player. 
+ * 
+ * @param buf stream of location/velocity data. 
+ * @return returns true if succeeds. 
+ */
+bool
+ReadPlayerLocation(char *buf, Player *player) {
+  char *b = buf;
+  vector3d x, v;
+
+  for ( int i = 0 ; i < 3 ; i++ )
+    b = ReadDouble( b, x[i] );
+
+  for ( int i = 0 ; i < 3 ; i++ )
+    b = ReadDouble( b, v[i] );
+
+  player->Warp(x, v);
+
+  return true;
 }
 
 /**
@@ -365,7 +631,7 @@ ReadBI() {
   Logging::GetLogging()->Log( LOG_COMBALL, "recv BI: " );
 #endif
 
-  theBall.Warp( buf );
+  ReadBall(buf, &theBall);
 
 #ifdef LOGGING
   Logging::GetLogging()->LogBall( LOG_COMBALL, &theBall );

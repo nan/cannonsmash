@@ -25,6 +25,7 @@
 #define _Player_
 #include "PlayerView.h"
 #include "PlayerView2D.h"
+#include "Controller.h"
 
 #include <vector>
 #include "matrix"
@@ -37,6 +38,8 @@ typedef Vector<2, double> vector2d;
 #define PLAYER_SHAKECUT		2	// Cut
 #define PLAYER_PENDRIVE		3	// Pen Drive
 
+#define PLAYER_PENATTACKTRAINER	1024
+#define PLAYER_PENDRIVETRAINER	1025
 
 // m_swingType
 #define SWING_NORMAL	0	// 
@@ -58,6 +61,7 @@ typedef Vector<2, double> vector2d;
 class PlayerView;
 class HitMark;
 class Ball;
+class Controller;
 
 /**
  * Player class is a base class of player classes (PenAttack, PenDrive, etc.). 
@@ -93,6 +97,7 @@ public:
 		     int Histptr );
 
   virtual bool AddStatus( long diff );
+  virtual void ResetStatus();
 
   virtual View *GetView() { return m_View; }		///< Getter method of m_View
 
@@ -115,8 +120,10 @@ public:
   virtual long   GetSwingError() { return m_swingError; }///< Getter method of m_swingError
   virtual long   GetAfterSwing() { return m_afterSwing; }///< Getter method of m_afterSwing
 
-  virtual long   GetDragX() { return m_dragX; }		///< Getter method of m_dragX
-  virtual long   GetDragY() { return m_dragY; }		///< Getter method of m_dragY
+  virtual void   SetV(vector3d v) { m_v = v; }		///< Setter method of m_v
+  virtual void   SetTarget(vector2d target) { m_target = target; }	///< Setter method of m_target
+
+  virtual Controller *GetController() { return m_controller; }	///< Getter method of m_controller
 
   virtual bool   GetDominantHand();
 
@@ -125,23 +132,35 @@ public:
   virtual bool ForeOrBack();
 
   virtual bool Warp( const vector3d &x, const vector3d &v );
-  virtual bool ExternalSwing( long pow, const vector2d &spin,
-			      long swingType, long swing );
-
-  virtual bool Warp( char *buf );
-  virtual bool ExternalSwing( char *buf );
-
-  virtual char * SendSwing( char *buf );
-  virtual char * SendLocation( char *buf );
-  virtual bool SendAll( int sd );
+  virtual bool SetSwing(long pow, const vector2d &spin, long swingType,
+			bool swingSide, long swing);
 
   virtual bool GetModifiedTarget( vector2d &target );
 
   virtual void CalcLevel( Ball *ball, double &diff, double &level, double &maxVy );
 
   long StatusBorder();
+
+  virtual void ChangeServeType();
+  virtual bool Swing( long power );
+  virtual bool StartSwing( long power );
+  virtual bool StartServe( long spin );
+
+  bool canHitBall(Ball *ball);
+  bool canServe(Ball *ball);
+
+  const static long END_BACKSWING = 10;
+  const static long START_SWING = 11;
+  const static long START_HITBALL = 20;
+  const static long START_FOLLOWTHROUGH = 30;
+  const static long END_FOLLOWTHROUGH = 50;
+
 protected:
-  long m_playerType;	///< Player type
+  Controller *m_controller;	/**< An entity of which controls the player
+				     (Human, com, network, etc.)
+				*/
+
+  long m_playerType;    ///< Player type
   long m_side;		/**< Player side
 			 * <ul>
 			 *  <li> 1  --- ( y < 0 )
@@ -179,23 +198,12 @@ protected:
 
   long m_statusMax;	///< Max status value
 
-  long m_dragX;		///< Mouse drag
-  long m_dragY;		///< Mouse drag
-
   PlayerView* m_View;	///< Reference to view class
 
-  vector3d m_lastSendX;	///< m_x which is sent to the opponent recently. 
-  vector3d m_lastSendV;	///< m_v which is sent to the opponent recently. 
-  long m_lastSendCount;	///< TICKs from when something is sent to the opponent recently. 
-
-  virtual bool KeyCheck( SDL_keysym *KeyHistory, long *MouseXHistory,
-			 long *MouseYHistory, unsigned long *MouseBHistory,
-			 int Histptr );
-  virtual bool Swing( long power );
-  virtual bool StartSwing( long power );
-  virtual bool StartServe( long spin );
+  virtual void setController(Controller *controller);
 
   virtual bool HitBall();
+  virtual void drawHitMark();
 
   virtual bool SwingError();
 
@@ -203,13 +211,43 @@ protected:
 
   void AddError( vector3d &v );
 
+  void MoveLookAt();
+  void AutoMove();
+
+  long RUNSPEED;	// Default: 2.0
+  long RUNPENALTY;	// Default: -1
+  long SWINGPENALTY;	// Default: -1
+  long WALKSPEED;	// Default: 1.0
+  long WALKBONUS;	// Default: 1
+  double* ACCELLIMIT;	// Default: {0.8, 0.7, 0.6, 0.5}
+  long ACCELPENALTY;	// Default: -1
+
+  const static long STATUS_MAX = 200;
+
+  double XDIFFPENALTY_FOREHAND;	//Default: 0.15
+  double XDIFFPENALTY_BACKHAND;	//Default: 0.1
+
+  double* MAX_FOREHAND_SPEED;	//Default: {15.0, 15.0, 25.0, 15.0, 15.0, 15.0}
+  double* MAX_BACKHAND_SPEED;	//Default: {12.0, 12.0, 18.0, 12.0, 12.0, 12.0}
+  double FOREHAND_BOUNCE_RATE;	//Default: 0.6
+  double BACKHAND_BOUNCE_RATE;	//Default: 0.6
+  double FOREHAND_SPINEFFECT_RATE;	//Default: 3.0
+  double BACKHAND_SPINEFFECT_RATE;	//Default: 4.0
+
+  double* DIFF_COEFF;		//Default: {1.0, 1.0, 1.0, 1.0, 1.0, 1.0}
+
+  double AFTERSWING_PENALTY;	//Default: 1.0
+
+  double SERVEPARAM[5][7];
+    /*Default: { {SERVE_NORMAL,     0.0, 0.0,  0.0,  0.1,  0.0,  0.2}, 
+		{SERVE_POKE,       0.0, 0.0,  0.0, -0.3,  0.0, -0.6}, 
+		{SERVE_SIDESPIN1, -0.6, 0.2, -0.8,  0.0, -0.6, -0.2}, 
+		{SERVE_SIDESPIN2,  0.6, 0.2,  0.8,  0.0,  0.6, -0.2},
+		{-1,               0.0, 0.0,  0.0,  0.0,  0.0,  0.0}};
+    */
+
 private:
   virtual bool SwingType( Ball *ball, long spin );
-
-  long GetKeyCode( SDL_keysym &key );
-  void MoveTarget( long code );
-  void MoveCamera( long code );
-  void ChangeServeType();
 };
 
 #endif // _Player_

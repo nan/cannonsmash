@@ -238,8 +238,7 @@ Logging::LogPlayer( long logType, Player *player ) {
 	    "swingError=%1d targetX=%4.6f targetY=%4.6f "
 	    "eyeX=%4.6f eyeY=%4.6f eyeZ=%4.6f "
 	    "lookAtX=%4.6f lookAtY=%4.6f lookAtZ=%4.6f "
-	    "pow=%1d spinX=%3.6f spinY=%3.6f stamina=%2.0f statusMax=%3d "
-	    "dragX=%2d dragY=%2d\n",
+	    "pow=%1d spinX=%3.6f spinY=%3.6f stamina=%2.0f statusMax=%3d\n", 
 	    (int)player->GetPlayerType(), (int)player->GetSide(), 
 	    player->GetX()[0], player->GetX()[1], player->GetX()[2], 
 	    player->GetV()[0], player->GetV()[1], player->GetV()[2], 
@@ -250,8 +249,7 @@ Logging::LogPlayer( long logType, Player *player ) {
 	    player->GetEye()[0], player->GetEye()[1], player->GetEye()[2],
 	    player->GetLookAt()[0], player->GetLookAt()[1], player->GetLookAt()[2],
 	    (int)player->GetPower(), player->GetSpin()[0], player->GetSpin()[1],
-	    player->GetStamina(), player->GetStatusMax(), 
-	    (int)player->GetDragX(), (int)player->GetDragY() );
+	    player->GetStamina(), player->GetStatusMax());
   Log( logType, buf );
 
   return true;
@@ -296,7 +294,8 @@ Logging::LogRecvBVMessage( ExternalBVData *bv ) {
   snprintf( buf, sizeof(buf), "recv: %d.%3d ", (int)bv->sec, (int)bv->count );
   Log( LOG_COMBALL, buf );
   Ball *tmpBall = new Ball();
-  tmpBall->Warp(bv->data);
+
+  ReadBall(bv->data, tmpBall);
 
   snprintf( buf, sizeof(buf),
             "x=%4.2f y=%4.2f z=%4.2f "
@@ -346,7 +345,7 @@ Logging::LogRecvPVMessage( ExternalPVData *pv ) {
             "recv PV: %d.%3d ", (int)pv->sec, (int)pv->count );
   Log( LOG_COMCOMPLAYER, buf );
   Player *tmpPlayer = new Player();
-  tmpPlayer->Warp(pv->data);
+  ReadPlayerLocation(pv->data, tmpPlayer);
 
   snprintf( buf, sizeof(buf),
             "x=%4.2f y=%4.2f z=%4.2f vx=%4.2f vy=%4.2f vz=%4.2f\n",
@@ -396,7 +395,7 @@ Logging::LogRecvPSMessage( ExternalPSData *ps ) {
             "recv PS: %d.%3d ", (int)ps->sec, (int)ps->count );
   Log( LOG_COMCOMPLAYER, buf );
   Player *tmpPlayer = new Player();
-  tmpPlayer->ExternalSwing(ps->data);
+  ReadSwing(ps->data, tmpPlayer);
 
   snprintf( buf, sizeof(buf),
            "pow=%2d spinY=%3.2f swingType=%1d swingSide=%2d swing=%2d\n",

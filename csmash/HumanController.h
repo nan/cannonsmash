@@ -1,11 +1,11 @@
 /**
  * @file
- * @brief Definition of Training class. 
+ * @brief Definition of HumanController class. 
  * @author KANNA Yoshihiro
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2007  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,37 +21,40 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#ifndef _Training_
-#define _Training_
-#include "PlayGame.h"
-#include "TrainingView.h"
+#ifndef _HumanController_
+#define _HumanController_
+
+#include "Controller.h"
 
 /**
- * Training class is the controller class for training play mode. 
+ * Human controller class. 
+ * This class translates the input (Mouse, keyboard)
+ * into the behavior of the player. 
  */
-class Training : public PlayGame {
+class HumanController : public Controller {
 public:
-  Training();
-  virtual ~Training();
-
-  virtual bool Init();
-
-  static void Create( long player, long com );
+  HumanController();
+  HumanController(Player *parent);
+  virtual ~HumanController();
 
   virtual bool Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 		     long *MouseYHistory, unsigned long *MouseBHistory,
 		     int Histptr );
 
-  long GetTrainingCount() { return m_trainingCount; }	///< Getter method of m_trainingCount. 
-  long GetTrainingMax() { return m_trainingMax; }	///< Getter method of m_trainingMax. 
+  virtual long   GetDragX() { return m_dragX; }		///< Getter method of m_dragX
+  virtual long   GetDragY() { return m_dragY; }		///< Getter method of m_dragY
 
-  virtual bool LookAt( vector3d &srcX, vector3d &destX );
-
-  virtual View *GetView() { return m_View; }		///< Getter method of m_View. 
 protected:
-  TrainingView *m_View;			///< Attached view class. 
-  long          m_trainingCount;	///< Number of rally count
-  long          m_trainingMax;		///< Max number of rally count
+  bool KeyCheck( SDL_keysym *KeyHistory, long *MouseXHistory,
+		 long *MouseYHistory, unsigned long *MouseBHistory,
+		 int Histptr );
+  long GetKeyCode( SDL_keysym &key );
+  void MoveTarget( long code );
+  void MoveCamera( long code );
+
+private:
+  long m_dragX;		///< Mouse drag
+  long m_dragY;		///< Mouse drag
 };
 
-#endif	// _Training_
+#endif	// _HumanController_

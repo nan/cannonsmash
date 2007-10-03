@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -150,20 +150,17 @@ public:
 
   virtual bool LookAt( vector3d &srcX, vector3d &destX );
 
-  void SendTime( char *buf );
-
   virtual void EndGame();
 
   void StartServer();
   void StartClient();
 
   static int WaitForData( void * );
-};
 
-class RobotMultiPlay : public MultiPlay {
-  virtual bool Move( SDL_keysym *KeyHistory, long *MouseXHistory,
-		     long *MouseYHistory, unsigned long *MouseBHistory,
-		     int Histptr );
+protected:
+  vector3d m_lastSendX;	///< m_x which is sent to the opponent recently. 
+  vector3d m_lastSendV;	///< m_v which is sent to the opponent recently. 
+  long m_lastSendCount;	///< TICKs from when something is sent to the opponent recently. 
 };
 
 #endif	// _MultiPlay_

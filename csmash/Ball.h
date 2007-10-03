@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000, 2003, 2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -73,7 +73,6 @@ public:
   bool Toss( Player *player, long power );
 
   void Warp( const vector3d x, const vector3d v, const vector2d spin, long status );
-  void Warp( char *buf );
 
   bool LoadBallLog(FILE *fpBall, long &sec, long &cnt, long &score1, long &score2);
 
@@ -83,8 +82,7 @@ public:
   bool TargetToVS( vector2d target, double level, 
 		   const vector2d spin, vector3d &v );
 
-  char * Send( char *buf );
-
+  void BallDead();
   /**
    * Returns the BallView object attached to this object. 
    */
@@ -123,11 +121,7 @@ protected:
 
   BallView* m_View;	///< BallView object attached to this object
 
-  long m_lastSendCount;	/**< Counts how many TICKs are passed from the time
-			 *   when ball information is send to the opponent.
-			 */
 private:
-  void BallDead();
   bool Reset();
   bool CollisionCheck(vector3d &x, vector3d &v, vector2d &spin);
   double getTimeToReachTarget( vector2d target, double velocity, vector2d spin, vector3d &v );

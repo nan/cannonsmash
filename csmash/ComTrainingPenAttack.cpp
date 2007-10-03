@@ -34,7 +34,8 @@ extern Ball   theBall;
 /**
  * Default constructor. 
  */
-ComTrainingPenAttack::ComTrainingPenAttack() : ComPenAttack() {
+ComTrainingPenAttack::ComTrainingPenAttack() : PenAttack() {
+  m_playerType = PLAYER_PENATTACKTRAINER;
 }
 
 /**
@@ -44,7 +45,7 @@ ComTrainingPenAttack::ComTrainingPenAttack() : ComPenAttack() {
  * @param side side of the player. 
  */
 ComTrainingPenAttack::ComTrainingPenAttack(long side) :
-  ComPenAttack(side) {
+  PenAttack(side) {
 }
 
 /**
@@ -78,7 +79,7 @@ ComTrainingPenAttack::ComTrainingPenAttack( long playerType, long side,
 					    long pow, const vector2d spin,
 					    double stamina, long statusMax,
 					    long dragX, long dragY ) :
-  ComPenAttack( playerType, side, x, v, status, swing, swingType, swingSide, 
+  PenAttack( playerType, side, x, v, status, swing, swingType, swingSide, 
 		afterSwing, swingError, target, eye, lookAt, pow, spin, 
 		stamina, statusMax, dragX, dragY ) {
 }
@@ -88,117 +89,6 @@ ComTrainingPenAttack::ComTrainingPenAttack( long playerType, long side,
  * Do nothing. 
  */
 ComTrainingPenAttack::~ComTrainingPenAttack() {
-}
-
-/**
- * Decide the movement of this player object. 
- * 
- * @return returns true if succeeds. 
- */
-bool
-ComTrainingPenAttack::Think() {
-  double hitTX, hitTY;	// estimation time until ball reaches _hitX, _hitY
-  double mx;
-
-  // If the ball status changes, change _hitX, _hitY
-  if ( _prevBallstatus != theBall.GetStatus() && m_swing == 0 ){
-    Hitarea( _hitX );
-
-    _prevBallstatus = theBall.GetStatus();
-  }
-
-  if ( theBall.GetV()[0] != 0.0 )
-    hitTX = (_hitX[0] - theBall.GetX()[0])/theBall.GetV()[0];
-  else
-    hitTX = -1.0;
-
-  if ( theBall.GetV()[1] != 0.0 )
-    hitTY = (_hitX[1] - theBall.GetX()[1])/theBall.GetV()[1];
-  else
-    hitTY = -1.0;
-
-  if ( fabs( _hitX[0]-(m_x[0]+m_side*0.3) ) <
-       fabs( _hitX[0]-(m_x[0]-m_side*0.3) ) ||
-       theBall.GetStatus() == 8 || _hitX[0]*m_side > 0 )
-    mx = m_x[0]+m_side*0.3;
-  else
-    mx = m_x[0]-m_side*0.3;
-
-  if ( hitTX > 0.0 ) {
-    if ( m_v[0] > 0 && mx + m_v[0]*hitTX < _hitX[0] )
-      m_v[0] += 0.1;
-    else if ( m_v[0] < 0 && mx + m_v[0]*hitTX > _hitX[0] )
-      m_v[0] -= 0.1;
-    else if ( m_v[0]*fabs(m_v[0]*0.1)/2 < _hitX[0] - mx )
-      m_v[0] += 0.1;
-    else
-      m_v[0] -= 0.1;
-  } else {
-    if ( m_v[0]*fabs(m_v[0]*0.1)/2 < _hitX[0] - mx )
-      m_v[0] += 0.1;
-    else
-      m_v[0] -= 0.1;
-  }
-
-  if ( hitTY > 0.0 ) {
-    if ( m_v[1] > 0 && m_x[1] + m_v[1]*hitTY < _hitX[1] )
-      m_v[1] += 0.1;
-    else if ( m_v[1] < 0 && m_x[1] + m_v[1]*hitTY > _hitX[1] )
-      m_v[1] -= 0.1;
-    else if ( m_v[1]*fabs(m_v[1]*0.1)/2 < _hitX[1] - m_x[1] )
-      m_v[1] += 0.1;
-    else
-      m_v[1] -= 0.1;
-  } else {
-    if ( m_v[1]*fabs(m_v[1]*0.1)/2 < _hitX[1] - m_x[1] )
-      m_v[1] += 0.1;
-    else
-      m_v[1] -= 0.1;
-  }
-
-  if ( m_v[0] > 5.0 )
-    m_v[0] = 5.0;
-  else if ( m_v[0] < -5.0 )
-    m_v[0] = -5.0;
-  if ( m_v[1] > 5.0 )
-    m_v[1] = 5.0;
-  else if ( m_v[1] < -5.0 )
-    m_v[1] = -5.0;
-
-  // Toss
-  if ( theBall.GetStatus() == 8 &&
-       ((PlayGame *)Control::TheControl())->GetService() == GetSide() &&
-       fabs(m_v[0]) < 0.1 && fabs(m_v[1]) < 0.1 &&
-       fabs(m_x[0]+m_side*0.3-_hitX[0]) < 0.1 && fabs(m_x[1]-_hitX[1]) < 0.1 &&
-       m_swing == 0 ) {
-    theBall.Toss( this, 2 );
-    StartServe(3);
-    m_target[1] = TABLELENGTH/8*m_side;
-
-    return true;
-  }
-
-  // Calc the ball location of 0.1 second later. 
-  // This part seems to be the same as Swing(). Consider again. 
-  Ball *tmpBall;
-
-  tmpBall = new Ball( &theBall );
-
-  for ( int i = 0 ; i < 10 ; i++ )
-    tmpBall->Move();
-
-  if ( ((tmpBall->GetStatus() == 3 && m_side == 1) ||
-	(tmpBall->GetStatus() == 1 && m_side == -1)) &&
-       fabs(m_x[1]-tmpBall->GetX()[1]) < 0.1 ){
-    _hitX[0] = tmpBall->GetX()[0];
-    _hitX[1] = tmpBall->GetX()[1];
-
-    m_target[0] = -TABLEWIDTH/5*2*m_side;
-    Swing( 3 );
-  }
-  delete tmpBall;
-
-  return true;
 }
 
 /**
@@ -214,16 +104,12 @@ ComTrainingPenAttack::HitBall() {
   double level;
 
   // Serve
-  if ( ( (m_side == 1 && theBall.GetStatus() == 6) ||
-         (m_side ==-1 && theBall.GetStatus() == 7) ) &&
-       fabs( m_x[0]-theBall.GetX()[0] ) < 0.6 &&
-       fabs( m_x[1]-theBall.GetX()[1] ) < 0.3 ){
+  if (canServe(&theBall) &&
+      fabs( m_x[0]-theBall.GetX()[0] ) < 0.6 &&
+      fabs( m_x[1]-theBall.GetX()[1] ) < 0.3 ){
     PenAttack::HitBall();
   } else {
-    if ( ((m_side == 1 && theBall.GetStatus() == 3) ||
-	  (m_side ==-1 && theBall.GetStatus() == 1)) ) {
-      ((Training *)Control::TheControl())->AddTrainingCount();
-
+    if (canHitBall(&theBall)) {
       level = 1.0 -
 	1.0/((double)((Training *)Control::TheControl())->GetTrainingCount()/10.0+1.5);
 
@@ -235,54 +121,6 @@ ComTrainingPenAttack::HitBall() {
       theBall.Hit( v, m_spin, this );
     } else
       m_swingError = SWING_MISS;
-  }
-
-  return true;
-}
-
-/**
- * Calc the point of hitting ball. 
- * If the ball haven't bound, calc bound point. 
- * Then, calc hit point from current ball location or bound location. 
- * 
- * @param hitX point of hitting [out]. 
- * @return returns true if succeeds. 
- */
-bool
-ComTrainingPenAttack::Hitarea( vector2d &hitX ) {
-  Ball *tmpBall;
-
-  if ( (theBall.GetStatus() == 3 && m_side == 1) ||
-       (theBall.GetStatus() == 2 && m_side == 1) ||
-       (theBall.GetStatus() == 0 && m_side == -1) ||
-       (theBall.GetStatus() == 1 && m_side == -1) ||
-       (theBall.GetStatus() == 4 && m_side == -1) ||
-       (theBall.GetStatus() == 5 && m_side == 1) ) {
-    tmpBall = new Ball( &theBall );
-
-    while ( tmpBall->GetStatus() != -1 ) {
-      if ( (tmpBall->GetStatus() == 3 && m_side == 1) ||
-	   (tmpBall->GetStatus() == 1 && m_side == -1) ) {
-	if ( fabs(tmpBall->GetX()[1]) > TABLELENGTH/2 ) {
-	  hitX[0] = tmpBall->GetX()[0];
-	  hitX[1] = tmpBall->GetX()[1];
-	  break;
-	}
-      }
-      tmpBall->Move();
-    }
-
-    delete tmpBall;
-
-  } else if ( theBall.GetStatus() == 8 ) {
-    if ( ((PlayGame *)Control::TheControl())->GetService() == GetSide() ) {
-    if ( RAND(2) )
-      hitX[0] = m_target[0];
-    else
-      hitX[0] = -m_target[0];
-    } else
-      hitX[0] = 0.0;
-    hitX[1] = -(TABLELENGTH/2+0.2)*m_side;
   }
 
   return true;
