@@ -94,10 +94,10 @@ Training::Create( long player, long com ) {
 
   switch(com) {
   case 0:
-    m_thePlayer = Player::Create( PLAYER_PENATTACKTRAINER, -1, 3 );
+    m_comPlayer = Player::Create( PLAYER_PENATTACKTRAINER, -1, 3 );
     break;
   case 1:
-    m_thePlayer = Player::Create( PLAYER_PENDRIVETRAINER, -1, 3 );
+    m_comPlayer = Player::Create( PLAYER_PENDRIVETRAINER, -1, 3 );
     break;
   }
 
