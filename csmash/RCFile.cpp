@@ -5,7 +5,7 @@
  * $Id$
  */
 
-// Copyright (C) 2001, 2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2001, 2003, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -37,7 +37,9 @@ RCFile::RCFile() {
   myModel = MODEL_TRANSPARENT;
   gameLevel = LEVEL_EASY;
   gameMode = GAME_21PTS;
+  switchButtons = false;
   sndMode = SOUND_SDL;
+  sndVolume = 100.0;
 
   protocol = IPv4;
 
@@ -114,6 +116,11 @@ RCFile::ReadRCFile() {
       gameLevel = buf[10]-'0';
       if ( gameLevel > LEVEL_TSUBORISH || gameLevel < LEVEL_EASY )
 	gameLevel = LEVEL_EASY;
+    } else if ( strncmp( buf, "switchbuttons=", 14 ) == 0 ) {
+      if ( buf[14] == '1' )
+        switchButtons = true;
+      else
+        switchButtons = false;
     } else if ( strncmp( buf, "gamemode=", 9 ) == 0 ) {
       gameMode = buf[9]-'0';
       if ( gameMode > GAME_21PTS || gameMode < GAME_5PTS )
@@ -122,6 +129,14 @@ RCFile::ReadRCFile() {
       sndMode = buf[10]-'0';
       if ( sndMode > SOUND_SDL || sndMode < SOUND_NONE )
 	sndMode = SOUND_NONE;
+    } else if ( strncmp( buf, "volume=", 7 ) == 0 ) {
+      char volumeStr[64];
+      strncpy( volumeStr, &buf[7], 64 );
+      if ( (p = strchr( volumeStr, '\r' )) )
+	*p = '\0';
+      else if ( (p = strchr( volumeStr, '\n' )) )
+	*p = '\0';
+      sndVolume = strtof(volumeStr, NULL);
     } else if ( strncmp( buf, "protocol=", 9 ) == 0 ) {
       protocol = buf[9]-'0';
       if ( protocol > IPv6 || protocol < IPv4 )
@@ -161,8 +176,10 @@ RCFile::WriteRCFile() {
 
   fprintf( fp, "mymodel=%d\n", myModel );
   fprintf( fp, "gamelevel=%d\n", gameLevel );
+  fprintf( fp, "switchbuttons=%d\n", switchButtons ? 1 : 0 );
   fprintf( fp, "gamemode=%d\n", gameMode );
   fprintf( fp, "soundmode=%d\n", sndMode );
+  fprintf( fp, "volume=%f\n", sndVolume );
   fprintf( fp, "protocol=%d\n", protocol );
 
   fclose( fp );

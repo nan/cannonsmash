@@ -5,7 +5,7 @@
  * $Id$
  */
 
-// Copyright (C) 2001, 2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2001, 2003, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -39,7 +39,9 @@ public:
   long gmode;		///< Graphic mode is simple/normal
   long gameLevel;	///< Game level is easy/normal/hard/tsuborish
   long gameMode;	///< Game mode is 5pts/11pts/21pts
+  bool switchButtons;	///< Whether mouse buttons are switched or not
   long sndMode;		///< Sound mode is none/SDL
+  float sndVolume;	///< Sound volume(0..100)
   long protocol;	///< Network protocol is IPV4/IPV6
 
   char serverName[256];	///< Default server name
