@@ -5,7 +5,7 @@
  * $Id$
  */
 
-// Copyright (C) 2000-2004, 2007  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -90,7 +90,7 @@ Sound::TheSound() {
  * @return returns true if succeeds. 
  */
 bool
-Sound::Init( long sndMode ) {
+Sound::Init( long sndMode, float volume ) {
   static char number[][10] = {"zero", "one", "two", "three", "four", "five", 
 			      "six", "seven", "eight", "nine", "ten", "eleven",
 			      "twelve", "thirteen", "fourteen", "fifteen", 
@@ -98,6 +98,7 @@ Sound::Init( long sndMode ) {
 			      "twenty", "", "", "", "", "", "", "", "", "",
 			      "thirty"};
   m_soundMode = sndMode;
+  m_volume = volume;
 
 #ifdef HAVE_LIBSDL_MIXER
   for ( int i = 0 ; i < 16 ; i++ ) {
@@ -137,6 +138,8 @@ Sound::Init( long sndMode ) {
 #ifdef LOGGING
   Mix_RegisterEffect(MIX_CHANNEL_POST, Logging::LogSound, NULL, NULL);
 #endif
+
+  Mix_Volume(-1, (int)(m_volume*MIX_MAX_VOLUME/100.0));
 #endif
 
   return true;
@@ -321,6 +324,25 @@ long
 Sound::GetSoundMode() {
   return m_soundMode;
 }
+
+/**
+ * Getter method of m_volume
+ */
+float
+Sound::GetVolume() {
+  return m_volume;
+}
+
+/**
+ * Setter method of m_volume
+ */
+void
+Sound::SetVolume(float volume) {
+  m_volume = volume;
+  int vol = (int)(volume*MIX_MAX_VOLUME/100.0);
+  Mix_Volume(-1, vol);
+}
+
 
 /**
  * Load BGM file. 

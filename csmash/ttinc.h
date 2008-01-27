@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -213,6 +213,10 @@ typedef int socklen_t;		/* mimic Penguin's socklen type */
 #ifdef HAVE_LIBSDL_MIXER
 #include <SDL/SDL_mixer.h>
 #endif
+
+#include <CEGUI/CEGUI.h>
+#include <CEGUI/RendererModules/OpenGLGUIRenderer/openglrenderer.h>
+#include <CEGUI/CEGUIXMLAttributes.h>
 
 #include <libintl.h>
 #define  gettext_noop(String)  (String)

@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2002, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -32,8 +32,6 @@
 #include "FieldView2D.h"
 #include "HowtoView.h"
 //#include "HowtoView2D.h"
-#include "MenuItemView.h"
-#include "MenuItemView2D.h"
 #include "OpeningView.h"
 //#include "OpeningView2D.h"
 #include "PlayGameView.h"
@@ -101,8 +99,6 @@ View::CreateView2D( int viewType ) {
   case VIEW_HOWTO:
     //return new HowtoView2D();
     return NULL;
-  case VIEW_MENUITEM:
-    return new MenuItemView2D();
   case VIEW_OPENING:
     //return new OpeningView2D();
     return NULL;
@@ -145,8 +141,6 @@ View::CreateView3D( int viewType ) {
     return new FieldView();
   case VIEW_HOWTO:
     return new HowtoView();
-  case VIEW_MENUITEM:
-    return new MenuItemView();
   case VIEW_OPENING:
     return new OpeningView();
   case VIEW_PLAYGAME:

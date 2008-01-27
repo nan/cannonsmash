@@ -5,7 +5,7 @@
  * $Id$
  */
 
-// Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ public:
 
   static Sound* TheSound();
 
-  virtual bool Init( long sndMode );
+  virtual bool Init( long sndMode, float volume );
   virtual void Clear();
 
   //bool Play( char *sndData, long count );
@@ -53,6 +53,8 @@ public:
   bool PlayNumber( long number );
 
   long GetSoundMode();
+  float GetVolume();
+  void SetVolume(float volume);
 
   long InitBGM( char *filename );
   long PlayBGM();
@@ -67,6 +69,7 @@ public:
 #endif
 
   long m_soundMode;		///< Sound mode (SDL or none)
+  float m_volume;		///< volume
 private:
   Sound();
   static Sound *m_theSound;	///< Singleton Sound object

@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000, 2001, 2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -29,14 +29,14 @@
 // major menu
 #define MENU_MAIN	0
 #define MENU_CONFIG	1
+#define MENU_LOGIN	2
+#define MENU_LOBBY	3
 
 // minor menu
 #define MENU_ALL		0	// number of all menus
 #define MENU_CONFIG_LEVEL	1	// level menu(in config menu)
 #define MENU_CONFIG_MODE	2	// mode(in config menu)
 #define MENU_CONFIG_PLAYER	3	// player(in config menu)
-
-class MenuItem;
 
 /**
  * Title class is a controller class for showing title menu. 
@@ -54,10 +54,9 @@ public:
 		     long *MouseYHistory, unsigned long *MouseBHistory,
 		     int Histptr );
 
-  MenuItem *GetSelected();
   long GetSelectMode();
+  void SetSelectMode(long selectMode);
   long GetCount();
-  long GetMenuNum( long major, long minor=0 );
 
   virtual bool LookAt( vector3d &srcX, vector3d &destX );
 
@@ -66,17 +65,10 @@ public:
   virtual View *GetView() { return m_View; }	///< Getter method fo m_View
 protected:
   TitleView *m_View;	///< Reference to attached TitleView object
-  long m_selected;	///< If something is selected, m_selected > 0
   long m_selectMode;	/**< If it is normal, m_selectMode == 0
 			 *   If it is config, m_selectMode == 1
 			 */
   long m_count;		///< TICKs from this title menu is started
-
-  MenuItem *m_menuItem[16];	///< List of menu items
-
-  void CreateMenu( long menuMajorNum );
-  long SetSelected( long selected );
-  long HitTest( long x, long y );
 };
 
 #endif	// _Title_

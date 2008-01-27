@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2002, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include "LoadImage.h"
 
 class Title;
+class LobbyClient;
 
 /**
  * TitleView class is a view class which corresponds to Title object. 
@@ -41,13 +42,52 @@ public:
   virtual bool Redraw();
   virtual bool RedrawAlpha();
 
-  virtual bool AddView( View *view );
-  virtual bool RemoveView( View *view );
+  virtual long GetNextMode() { return m_nextMode; }		///< Getter method of m_nextMode
+
+  virtual void popupPIDialog( long uniqID );
+
+  virtual void CreateMenu( long menuMajorNum );
 protected:
   Title       *m_title;		///< Attached Title object. 
-  View        *m_View;		///< List of MenuItemView objects attached to this view. 
+  long         m_nextMode;
 
-  ImageData    m_configTitle[4];///< Handler for config title images
+  long m_popupUniqID;		///< player ID of the player who wants to play with this player
+
+  virtual void CreateMainMenu();
+  bool handleMainStartGame(const CEGUI::EventArgs& e);
+  bool handleMainLoginLobby(const CEGUI::EventArgs& e);
+  bool handleMainPractice(const CEGUI::EventArgs& e);
+  bool handleMainTraining(const CEGUI::EventArgs& e);
+  bool handleMainHowtoPlay(const CEGUI::EventArgs& e);
+  bool handleMainConfig(const CEGUI::EventArgs& e);
+  bool handleMainQuit(const CEGUI::EventArgs& e);
+
+  virtual void CreateConfigMenu();
+  bool handleConfigScreenMenuSelected(const CEGUI::EventArgs& e);
+  bool handleConfigGraphicsMenuSelected(const CEGUI::EventArgs& e);
+  bool handleConfigGraphicsTypeMenuSelected(const CEGUI::EventArgs& e);
+
+  bool handleConfigSoundSliderChanged(const CEGUI::EventArgs& e);
+
+  bool handleConfigInvertMouseChanged(const CEGUI::EventArgs& e);
+
+  bool handleConfigGameModeLevelMenuSelected(const CEGUI::EventArgs& e);
+  bool handleConfigGameModeModeMenuSelected(const CEGUI::EventArgs& e);
+
+  bool handleConfigBack(const CEGUI::EventArgs& e);
+
+  virtual void CreateLoginMenu();
+  bool handleLoginLogin(const CEGUI::EventArgs& e);
+  bool handleLoginCancel(const CEGUI::EventArgs& e);
+
+  virtual void CreateLobbyMenu();
+  bool handleLobbyCheckSelection(const CEGUI::EventArgs& e);
+  bool handleLobbyChatInput(const CEGUI::EventArgs& e);
+  bool handleLobbyConnect(const CEGUI::EventArgs& e);
+  bool handleLobbyLogout(const CEGUI::EventArgs& e);
+
+  bool handlePIDialogOK(const CEGUI::EventArgs& e);
+  bool handlePIDialogNo(const CEGUI::EventArgs& e);
 };
 
 #endif	// _TitleView_

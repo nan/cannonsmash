@@ -1,6 +1,6 @@
 /* $Id$ */
 
-// Copyright (C) 2000-2004, 2007  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -39,15 +39,14 @@
 #include "NoLogging.h"
 #endif
 
-#include <gtk/gtk.h>
 #include <locale.h>
+#include "CEGUIKey.h"
 
 int LoadData( void *dum );
 
 Ball theBall;
 
 int theSocket = -1;
-bool isComm = false;		// Network Play?
 
 long wins	= 0;
 
@@ -149,7 +148,6 @@ int main(int argc, char** argv) {
     }
 #endif
 
-    gtk_set_locale();
     setlocale(LC_ALL, "");
     setlocale(LC_NUMERIC, "C");
 
@@ -170,8 +168,6 @@ int main(int argc, char** argv) {
     *localedir = '\0';
 //    GetCurrentDirectory(MAX_PATH, localedir);
     strncpy(localedir, dataDir, MAX_PATH-1);
-    strcat( localedir, "\\gtk\\gtkrc" );
-    gtk_rc_add_default_file( localedir );
 #else
     bindtextdomain(PACKAGE, LOCALEDIR);
     textdomain(PACKAGE);
@@ -189,13 +185,11 @@ int main(int argc, char** argv) {
 	    return 0;
 	case 's':
 	    // Server mode
-	    isComm = true;
 	    mode = MODE_MULTIPLAYSELECT;
 	    theRC->serverName[0] = '\0';
 	    break;
 	case 'c':
 	    // Client mode
-	    isComm = true;
 	    mode = MODE_MULTIPLAYSELECT;
 	    theRC->serverName[0] = 1;	// :-p
 	    break;
@@ -229,9 +223,8 @@ int main(int argc, char** argv) {
 	}
     }
 
-    if (!isComm && argc > optind) {
+    if (mode != MODE_MULTIPLAYSELECT && argc > optind) {
       // Client mode
-      isComm = true;
       mode = MODE_MULTIPLAYSELECT;
       strncpy(theRC->serverName, argv[optind], sizeof(theRC->serverName));
     }
@@ -256,15 +249,10 @@ int main(int argc, char** argv) {
   //SDL_CreateThread( LoadData, NULL );
   LoadData(NULL);
 
-  if ( mode == MODE_OPENING ) {
-    theRC->ReadRCFile();
+  theRC->ReadRCFile();
 
-    Launcher *launcher = new Launcher();
-    launcher->Init();
-  } else {
-    ::StartGame();
-    ::EndGame();
-  }
+  ::StartGame();
+  ::EndGame();
 
   return 0;
 }
@@ -297,7 +285,7 @@ InitGame() {
   }
 #endif
 
-  Sound::TheSound()->Init( theRC->sndMode );
+  Sound::TheSound()->Init( theRC->sndMode, theRC->sndVolume );
 
   SDL_EnableUNICODE(1);
 
@@ -318,7 +306,6 @@ void EndGame()
   HowtoView::m_textures[0] = 0;
 
   theSocket = -1;
-  isComm = false;
 
   wins = 0;
   mode = MODE_TITLE;
@@ -335,21 +322,61 @@ bool PollEvent() {
 
   while ( SDL_PollEvent(&event) ) {
     // Later, change GLUT-like function to SDL
+    CEGUI::uint kc;
     switch ( event.type ) {
     case SDL_KEYDOWN:
+      kc = SDLKeyToCEGUIKey(event.key.keysym.sym);
+      CEGUI::System::getSingleton().injectKeyDown(kc);
+      CEGUI::System::getSingleton().injectChar(event.key.keysym.unicode);
       Event::KeyboardFunc( event, 0, 0 );
       break;
 
     case SDL_KEYUP:
+      kc = SDLKeyToCEGUIKey(event.key.keysym.sym);
+      CEGUI::System::getSingleton().injectKeyUp(kc);
       Event::KeyUpFunc( event, 0, 0 );
       break;
 
     case SDL_MOUSEMOTION:
+      CEGUI::System::getSingleton().
+	injectMousePosition(static_cast<float>(event.motion.x),
+			    static_cast<float>(event.motion.y));
       Event::MotionFunc( event.motion.x, event.motion.y );
       break;
 
     case SDL_MOUSEBUTTONDOWN:
+      switch (event.button.button) {
+      case SDL_BUTTON_LEFT:
+	CEGUI::System::getSingleton().injectMouseButtonDown(CEGUI::LeftButton);
+	break;
+      case SDL_BUTTON_MIDDLE:
+	CEGUI::System::getSingleton().injectMouseButtonDown(CEGUI::MiddleButton);
+	break;
+      case SDL_BUTTON_RIGHT:
+	CEGUI::System::getSingleton().injectMouseButtonDown(CEGUI::RightButton);
+	break;
+      case SDL_BUTTON_WHEELDOWN:
+	CEGUI::System::getSingleton().injectMouseWheelChange( -1 );
+	break;
+      case SDL_BUTTON_WHEELUP:
+	CEGUI::System::getSingleton().injectMouseWheelChange( +1 );
+	break;
+      }
+      Event::ButtonFunc( event.button.button, event.button.type, 
+			 event.motion.x, event.motion.y );
+      break;
     case SDL_MOUSEBUTTONUP:
+      switch (event.button.button) {
+      case SDL_BUTTON_LEFT:
+	CEGUI::System::getSingleton().injectMouseButtonUp(CEGUI::LeftButton);
+	break;
+      case SDL_BUTTON_MIDDLE:
+	CEGUI::System::getSingleton().injectMouseButtonUp(CEGUI::MiddleButton);
+	break;
+      case SDL_BUTTON_RIGHT:
+	CEGUI::System::getSingleton().injectMouseButtonUp(CEGUI::RightButton);
+	break;
+      }
       Event::ButtonFunc( event.button.button, event.button.type, 
 			 event.motion.x, event.motion.y );
       break;
