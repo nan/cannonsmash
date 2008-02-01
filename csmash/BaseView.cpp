@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include "PlayGame.h"
 #include "RCFile.h"
 #include "glARB.h"
+#include "LobbyClient.h"
 
 extern RCFile *theRC;
 
@@ -42,6 +43,242 @@ long BaseView::m_winWidth = WINXSIZE;
 long BaseView::m_winHeight = WINYSIZE;
 
 BaseView* BaseView::m_theView = NULL;
+
+// Copyed from http://morihyphen.hp.infoseek.co.jp/files/fontlist.tar.gz
+// by wo_atmark@s9.dion.ne.jp
+#include <ft2build.h>
+#include <freetype/freetype.h>
+#include <freetype/ftsnames.h>
+#include <freetype/ttnameid.h>
+
+#ifdef WIN32
+struct FontList {
+	HANDLE hFind;
+	BOOL first;
+	char path[MAX_PATH];
+};
+
+BOOL
+get_fontpath( char *path )
+{
+  BOOL res = GetWindowsDirectoryA( path, MAX_PATH ); /* strlen("\\fonts") = 6 */
+
+  if ( res == FALSE )
+    return FALSE;
+
+  strcat( path, "\\fonts\\" );
+  return TRUE;
+}
+
+FontList *
+fontlist_open(void)
+{
+  FontList *fl = (FontList *)malloc( sizeof(*fl) );
+  fl->first = TRUE;
+  fl->hFind = INVALID_HANDLE_VALUE;
+
+  return fl;
+}
+
+void
+fontlist_close( FontList *fl )
+{
+  if ( fl->hFind != INVALID_HANDLE_VALUE )
+    FindClose(fl->hFind);
+  free( fl );
+}
+
+char *
+fontlist_next_file( FontList *fl )
+{
+  WIN32_FIND_DATA fd;
+
+  get_fontpath( fl->path );
+
+  if ( fl->first ) {
+
+    int len = strlen( fl->path );
+
+    strcat( fl->path, "*.tt*" );
+    fl->hFind = FindFirstFile( fl->path, &fd );
+    if ( fl->hFind == INVALID_HANDLE_VALUE )
+      return NULL;
+
+    fl->path[len] = '\0';
+
+    fl->first = FALSE;
+  } else {
+    if ( FindNextFile( fl->hFind, &fd )==0 )
+      return NULL;
+  }
+
+  strcat( fl->path, fd.cFileName );
+
+  return fl->path;
+}
+#else
+#include <fontconfig/fontconfig.h>
+
+struct FontList {
+	FcFontSet *fs;
+	int index;
+};
+
+FontList *
+fontlist_open(void)
+{
+  FontList *fl = (FontList *)malloc( sizeof(*fl) );
+  FcPattern *pat = FcPatternCreate();
+  FcResult res;
+
+  FcDefaultSubstitute( pat );
+
+  fl->fs = FcFontSort( NULL, pat, FcTrue, NULL, &res );
+
+  FcPatternDestroy( pat );
+
+  fl->index = 0;
+  return fl;
+}
+
+char *
+fontlist_next_file( FontList *fl )
+{
+  FcChar8 *fname;
+  FcResult res;
+
+  if ( fl->index >= fl->fs->nfont ) 
+    return NULL;
+
+  res = FcPatternGetString( fl->fs->fonts[fl->index], FC_FILE, 0, &fname );
+  fl->index++;
+  return (char*)fname;
+}
+
+void
+fontlist_close( FontList *fl )
+{
+	FcFontSetDestroy( fl->fs );
+	free( fl );
+}
+#endif
+
+int 
+check_font( FT_Face face )
+{
+#ifdef WIN32
+  HFONT hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+  LOGFONT logFont;
+  GetObject(hFont, sizeof(LOGFONT), &logFont);
+#endif
+  unsigned int i, charmap_num, langID;
+  FT_UInt snamec;
+
+  if ( FT_IS_SFNT(face) == 0 )
+    return -1;
+
+  snamec = FT_Get_Sfnt_Name_Count(face);
+
+  i=0;
+  while ( table[i].langID != -1 ) {
+#ifdef WIN32
+    if ( PRIMARYLANGID(GetUserDefaultLangID()) == table[i].langID )
+#else
+    if ( strncmp( setlocale(LC_MESSAGES, NULL), table[i].code, 2 ) == 0 )
+#endif
+      break;
+    i++;
+  }
+  langID = table[i].langID;
+
+#ifdef WIN32
+  for ( i=0; i<snamec; i++ ) {
+    FT_SfntName name;
+    FT_Get_Sfnt_Name( face, i, &name );
+
+    if ( strlen(logFont.lfFaceName) == name.string_len &&
+	 strncmp(logFont.lfFaceName, (char *)name.string, name.string_len) == 0 ) {
+      break;
+    }
+  }
+#else
+  for ( i=0; i<snamec; i++ ) {
+    FT_SfntName name;
+    FT_Get_Sfnt_Name( face, i, &name );
+
+    if ( (name.language_id&0xFF) == langID ) {
+      break;
+    }
+  }
+#endif
+
+  if ( i == snamec )
+    return -1;
+
+  charmap_num = face->num_charmaps;
+
+  for ( int j=0; j<charmap_num; j++ ) {
+    FT_CharMap map = face->charmaps[j];
+
+    if ( (map->encoding==FT_ENCODING_UNICODE) )
+      return i;
+  }
+
+  return -1;
+}
+
+int
+getDefaultFreetypeFont(char * &fontPath, char * &faceName) {
+  FontList *fl = fontlist_open();
+  FT_Library ftlib;
+  int i, j;
+
+  char *firstFontPath = NULL;
+
+  if ( FT_Init_FreeType(&ftlib) != FT_Err_Ok )
+    return NULL;
+
+  while (fontPath == NULL) {
+    FT_Face face;
+    char *path = fontlist_next_file( fl );
+
+    if ( path == NULL )
+      break;
+    if (firstFontPath == NULL)
+      firstFontPath = strdup(path);
+
+    i = 0;
+    while (1) {
+      if ( FT_New_Face(ftlib, path, i, &face) != FT_Err_Ok )
+	break;
+
+      if ((j = check_font(face)) >= 0) {
+	FT_SfntName name;
+	FT_Get_Sfnt_Name( face, j, &name );
+	faceName = (char *)malloc(name.string_len+1);
+	memcpy(faceName, name.string, name.string_len);
+	faceName[name.string_len]=0;
+	fontPath = strdup(path);
+	FT_Done_Face(face);
+	goto end;
+      }
+
+      FT_Done_Face(face);
+      i++;
+    }
+  }
+
+ end:
+  FT_Done_FreeType( ftlib );
+  fontlist_close( fl );
+
+  if (fontPath == NULL) {
+    fontPath = firstFontPath;
+  }
+
+  return 0;
+}
+
 
 // x --- x axis is the bottom line of the net. The plane x=0 represents
 //       the vertical plain which includes center line. 
@@ -209,6 +446,51 @@ BaseView::Init() {
   m_fieldView = (FieldView *)View::CreateView( VIEW_FIELD );
   m_fieldView->Init();
 
+  CEGUI::OpenGLRenderer* renderer = new CEGUI::OpenGLRenderer(0,800,600);
+  new CEGUI::System(renderer);
+
+  CEGUI::WindowManager& wmgr = CEGUI::WindowManager::getSingleton();
+  try {
+    CEGUI::SchemeManager::getSingleton().loadScheme("TaharezLook.scheme");
+
+    char *fontName = NULL;
+    char *faceName = NULL;
+    getDefaultFreetypeFont(fontName, faceName);
+    if (fontName == NULL) {
+      fprintf( stderr, _("No font.\n") );
+      exit(1);
+    }
+
+    CEGUI::XMLAttributes attr;
+    attr.add("Name", "default-24");
+    attr.add("Filename", fontName);
+    attr.add("Type", "FreeType");
+    attr.add("Size", "24");
+    attr.add("AutoScaled", "true");
+    if (faceName != NULL)
+      attr.add("FaceName", faceName);
+    else
+      attr.add("FaceName", "");
+    attr.add("NativeHorzRes", "800");
+    attr.add("NativeVertRes", "600");
+
+    CEGUI::Font *f;
+    f = CEGUI::FontManager::getSingleton().createFont("FreeType", attr);
+    f->load();
+    CEGUI::System::getSingleton().setDefaultFont (f);
+    attr.add("Name", "default-48");
+    attr.add("Size", "48");
+    f = CEGUI::FontManager::getSingleton().createFont("FreeType", attr);
+    f->load();
+
+  } catch (CEGUI::InvalidRequestException e) {
+    printf("%s\n", e.getMessage().c_str());
+  } catch (CEGUI::FileIOException e) {
+    printf("%s\n", e.getMessage().c_str());
+  } catch (CEGUI::RendererException e) {
+    printf("%s\n", e.getMessage().c_str());
+  }
+
   return true;
 }
 
@@ -232,6 +514,7 @@ BaseView::DisplayFunc() {
  */
 bool
 BaseView::RedrawAll() {
+
   View *view;
   GLfloat light_position[] = { 1.0F, -1.0F, 1.0F, 0.0F };
 
@@ -329,6 +612,7 @@ BaseView::RedrawAll() {
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
 
+  CEGUI::System::getSingleton().renderGUI();
   SDL_GL_SwapBuffers();
 
 //  if ( glGetError() != GL_NO_ERROR )
@@ -480,4 +764,19 @@ BaseView::QuitGame() {
     delete m_fieldView;
     m_fieldView = NULL;
   }
+}
+
+void
+BaseView::SetWindowMode(bool fullscreen) {
+  if (m_baseSurface) {
+    SDL_FreeSurface( m_baseSurface );
+    m_baseSurface = NULL;
+  }
+
+  if (fullscreen)
+    m_baseSurface = SDL_SetVideoMode( m_winWidth, m_winHeight, 0,
+				      SDL_OPENGL|SDL_FULLSCREEN );
+  else
+    m_baseSurface = SDL_SetVideoMode( m_winWidth, m_winHeight, 0,
+				      SDL_OPENGL );
 }
