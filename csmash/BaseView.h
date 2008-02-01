@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000, 2001  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2001, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -59,6 +59,8 @@ public:
 
   virtual void EndGame();
   virtual void QuitGame();
+
+  virtual void SetWindowMode(bool fullscreen);
 
   /**
    * Returns the width of the screen. 
