@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2007  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,8 +26,10 @@
 #include "Control.h"
 #include "PlayGame.h"
 #include "BaseView.h"
+#include "RCFile.h"
 #include "Ball.h"
 
+extern RCFile *theRC;
 extern Ball theBall;
 
 /***********************************************************************
@@ -95,6 +97,7 @@ HumanController::KeyCheck( SDL_keysym *KeyHistory, long *MouseXHistory,
 			   long *MouseYHistory, unsigned long *MouseBHistory,
 			   int Histptr ) {
   long mouse, lastmouse;
+  long leftButton, rightButton;
 
 // COM
   if ( !KeyHistory || !MouseXHistory || !MouseYHistory || !MouseBHistory )
@@ -139,13 +142,21 @@ HumanController::KeyCheck( SDL_keysym *KeyHistory, long *MouseXHistory,
     m_parent->SetV(v);
   }
 
+  if (theRC->switchButtons) {
+    leftButton  = BUTTON_RIGHT;
+    rightButton = BUTTON_LEFT;
+  } else {
+    leftButton  = BUTTON_LEFT;
+    rightButton = BUTTON_RIGHT;
+  }
+
   mouse = MouseBHistory[Histptr];
   if ( Histptr-1 < 0 )
     lastmouse = MouseBHistory[MAX_HISTORY-1];
   else
     lastmouse = MouseBHistory[Histptr-1];
 
-  if ( (mouse & BUTTON_RIGHT) && !(lastmouse & BUTTON_RIGHT) ){
+  if ( (mouse & rightButton) && !(lastmouse & rightButton) ){
     if ( theBall.GetStatus() == 8 &&
 	 ((PlayGame *)Control::TheControl())->GetService() == m_parent->GetSide() ) {
       theBall.Toss( m_parent, 3 );
@@ -163,7 +174,7 @@ HumanController::KeyCheck( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_parent->AddStatus( (m_parent->GetSwing()-10)*10 );
       m_parent->Swing(2);
     }
-  } else if ( (mouse & BUTTON_LEFT) && !(lastmouse & BUTTON_LEFT) ){
+  } else if ( (mouse & leftButton) && !(lastmouse & leftButton) ){
     if ( theBall.GetStatus() == 8 &&
 	 ((PlayGame *)Control::TheControl())->GetService() == m_parent->GetSide() ) {
       theBall.Toss( m_parent, 1 );
