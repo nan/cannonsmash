@@ -5,7 +5,7 @@
  * $Id$
  */
 
-// Copyright (C) 2001-2003  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001-2003, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -23,10 +23,9 @@
 
 #include "ttinc.h"
 #include "LobbyClient.h"
-#include "LobbyClientView.h"
-#include "MultiPlay.h"
 #include "Network.h"
 #include "RCFile.h"
+#include "Title.h"
 
 #if !defined(WIN32)
 #include <netinet/tcp.h>
@@ -37,7 +36,6 @@
 
 extern RCFile *theRC;
 
-extern bool isComm;
 extern long mode;
 
 extern void StartGame();
@@ -103,8 +101,6 @@ LobbyClient::~LobbyClient() {
   if (m_pingThread)
     SDL_KillThread(m_pingThread);
 
-  if ( m_view )
-    delete m_view;
   m_lobbyClient = NULL;
 }
 
@@ -228,6 +224,7 @@ LobbyClient::Init( char *nick, char *message, bool ping ) {
     xerror("%s(%d) connect", __FILE__, __LINE__);
     return false;
   }
+
 #endif
 
   // Connect to Lobby Server
@@ -255,7 +252,12 @@ LobbyClient::Init( char *nick, char *message, bool ping ) {
 
   unsigned char password[4096];
   if ( strlen(message) > 0 ) {
+#ifdef WIN32
+  //TODO
+  strncpy((char *)password, message, 4096);
+#else
     encryptPasswordWithPKey( message, 64, password, 4096 );
+#endif
   } else {
     memset(password, 0, 128);
   }
@@ -266,9 +268,6 @@ LobbyClient::Init( char *nick, char *message, bool ping ) {
 
   // send ping acceptance
   SendLong( m_socket, ping ? 1 : 0 );
-
-  m_view = new LobbyClientView();
-  m_view->Init( this );
 
   strncpy( m_nickname, nick, 32 );
   m_ping = ping;
@@ -287,16 +286,35 @@ LobbyClient::Init( char *nick, char *message, bool ping ) {
  * @param source source socket of the event which calls this function. 
  * @param condition the triggering condition. 
  */
-void
-LobbyClient::PollServerMessage( gpointer data,
-				gint source,
-				GdkInputCondition condition ) {
-  LobbyClient *lobby = (LobbyClient *)data;
-
+bool
+LobbyClient::PollServerMessage() {
   int i = 0;
   bool listenIsSet = false;
+  fd_set fd;
+  int max = 0;
+  LobbyClient *lobby = LobbyClient::TheLobbyClient();
+
+  FD_ZERO(&fd);
   while ( listenSocket[i] >= 0 ) {
-    if ( listenSocket[i] == source ) {
+    FD_SET(listenSocket[i], &fd);
+    if ( listenSocket[i] > max )
+      max = listenSocket[i];
+    i++;
+  }
+  FD_SET(lobby->m_socket, &fd);
+  if ( lobby->m_socket > max )
+    max = lobby->m_socket;
+
+  timeval tv;
+  memset(&tv, 0, sizeof(tv));
+
+  if (0 > select(max+1, &fd, NULL, NULL, &tv)) {
+    return false;
+  }
+
+  i = 0;
+  while ( listenSocket[i] >= 0 ) {
+    if (FD_ISSET(listenSocket[i], &fd)) {
       char buf[256];
       int acSocket;
       acSocket = accept( listenSocket[i], NULL, NULL );
@@ -317,45 +335,47 @@ LobbyClient::PollServerMessage( gpointer data,
     i++;
   }
 
-  if ( !listenIsSet && source == lobby->m_socket ) {
+  if (!listenIsSet && FD_ISSET(lobby->m_socket, &fd)) {
     char buf[1024];
 
     ReadHeader( lobby->m_socket, buf );
 
     if ( !strncmp( buf, "UI", 2 ) ) {
       lobby->ReadUI();
-      lobby->m_view->UpdateTable();
+      lobby->UpdateTable();
     } else if ( !strncmp( buf, "PI", 2 ) ) {
       lobby->ReadPI();
     } else if ( !strncmp( buf, "OI", 2 ) ) {
       lobby->ReadOI();
     } else if ( !strncmp( buf, "AP", 2 ) ) {
       char *buffer;
+      printf("AP\n");
       ReadEntireMessage( lobby->m_socket, &buffer );
 
       delete buffer;
 
-      isComm = true;
       mode = MODE_MULTIPLAYSELECT;
 
       if ( lobby->m_canBeServer == true ) {	// I can be server
 	theRC->serverName[0] = '\0';
       }
 
-      lobby->m_view->SetSensitive( true );
+      lobby->SetSensitive( true );
 
       lobby->SendSP();
 
-      ::StartGame();
+      //::StartGame();
 
-      lobby->SendQP();
+      //TODO:
+      // After playing, QP message should be sent. 
+      //lobby->SendQP();
     } else if ( !strncmp( buf, "DP", 2 ) ) {
       char *buffer;
       ReadEntireMessage( lobby->m_socket, &buffer );
 
       delete buffer;
 
-      lobby->m_view->SetSensitive( true );
+      lobby->SetSensitive( true );
     } else if ( !strncmp( buf, "OV", 2 ) ) {
       lobby->ReadOV();
     } else if ( !strncmp( buf, "MS", 2 ) ) {
@@ -365,6 +385,7 @@ LobbyClient::PollServerMessage( gpointer data,
       exit(1);
     }
   }
+  return true;
 }
 
 /**
@@ -375,23 +396,21 @@ LobbyClient::PollServerMessage( gpointer data,
  * @param data pointer to LobbyClient object. 
  */
 void
-LobbyClient::Connect( GtkWidget *widget, gpointer data ) {
-  LobbyClient *lobby = (LobbyClient *)data;
-
+LobbyClient::Connect() {
   // Get selected player information
-  send( lobby->m_socket, "OR", 2, 0 );
+  send( m_socket, "OR", 2, 0 );
   long len = 4;
-  SendLong( lobby->m_socket, len );
-  SendLong( lobby->m_socket, lobby->m_selected );
+  SendLong( m_socket, len );
+  SendLong( m_socket, m_selected );
 
   // Send Private IRC Message(Although it is not IRC at now)
-  send( lobby->m_socket, "PI", 2, 0 );
+  send( m_socket, "PI", 2, 0 );
   len = 4;
-  SendLong( lobby->m_socket, len );
-  SendLong( lobby->m_socket, lobby->m_selected );
+  SendLong( m_socket, len );
+  SendLong( m_socket, m_selected );
 
-  lobby->m_view->SetSensitive( false );
-  //printf( "%d\n", lobby->m_selected );
+  SetSensitive( false );
+  printf( "%d\n", m_selected );
 }
 
 /**
@@ -486,9 +505,11 @@ LobbyClient::ReadPI() {
   SendLong( m_socket, len );
   SendLong( m_socket, uniqID );
 
-  // Is it OK to do this here? 
+  /*
   PIDialog *piDialog = new PIDialog( this );
   piDialog->PopupDialog( uniqID );
+  */
+  ((TitleView *)Control::TheControl()->GetView())->popupPIDialog(uniqID);
 
   delete buffer;
 }
@@ -535,7 +556,8 @@ LobbyClient::ReadOV() {
   sprintf( version, "%d.%d.%d",
 	   (unsigned char)buffer[0], (unsigned char)buffer[1],
 	   (unsigned char)buffer[2] );
-  m_view->ShowUpdateDialog(version, &(buffer[3])); // second argument is URL. 
+  //TODO:
+  //m_view->ShowUpdateDialog(version, &(buffer[3])); // second argument is URL. 
 
   delete buffer;
 }
@@ -554,7 +576,28 @@ LobbyClient::ReadMS() {
   long channelID;
   ReadLong( buffer, channelID );
   buffer[len] = 0;
-  m_view->AddChatMessage( channelID, &(buffer[4]) );
+
+  //TODO: 適当なViewクラスに追い出す
+  // From here
+  CEGUI::MultiLineEditbox *chatWindow;
+
+  CEGUI::WindowManager& winMgr = CEGUI::WindowManager::getSingleton();
+
+  if (winMgr.getWindow("NativeChatLog") &&
+      winMgr.getWindow("NativeChatLog")->getID() == channelID) {
+    chatWindow = (CEGUI::MultiLineEditbox *)winMgr.getWindow("NativeChatLog");
+  } else if (winMgr.getWindow("EnglishChatLog") &&
+	     winMgr.getWindow("EnglishChatLog")->getID() == channelID) {
+    chatWindow = (CEGUI::MultiLineEditbox *)winMgr.getWindow("EnglishChatLog");
+  } else {
+    return;
+  }
+
+  chatWindow->setText(chatWindow->getText() + (const CEGUI::utf8 *)(&(buffer[4])));
+
+  CEGUI::Scrollbar* vert = chatWindow->getVertScrollbar();
+  vert->setScrollPosition(vert->getDocumentSize()-vert->getPageSize());
+  // To here
 
   delete buffer;
 }
@@ -680,7 +723,8 @@ LobbyClient::checkPingValue( void *arg ) {
 
     if ( p == NULL ) {
       p = &(TheLobbyClient()->GetPlayerInfo()[RAND(TheLobbyClient()->GetPlayerNum())]);
-      if ( p->m_IP == 0 )
+      printf("%d\n", TheLobbyClient()->GetPlayerNum());
+      if ( p == NULL || p->m_IP == 0 )
 	continue;
     }
 
@@ -712,7 +756,7 @@ LobbyClient::checkPingValue( void *arg ) {
 
     SDL_mutexP(pInfoMutex);
     p->m_ping = (diff1+diff2)/2;
-    TheLobbyClient()->m_view->UpdateTable();
+    TheLobbyClient()->UpdateTable();
     SDL_mutexV(pInfoMutex);
 
     closesocket( theSocket );
@@ -721,6 +765,103 @@ LobbyClient::checkPingValue( void *arg ) {
 
   return 0;
 }
+
+/**
+ * Update the list of connected members. 
+ * This method is called when a player enters or leaves lobby server. 
+ * This method updates the list of members in lobby server. 
+ */
+void
+LobbyClient::UpdateTable() {
+  CEGUI::WindowManager& winMgr = CEGUI::WindowManager::getSingleton();
+  LobbyClient *lb = LobbyClient::TheLobbyClient();
+  CEGUI::MultiColumnList *mcl = (CEGUI::MultiColumnList *)winMgr.getWindow("PlayerInfoList");
+
+  mcl->resetList();
+
+  CEGUI::PushButton *connect = (CEGUI::PushButton *)winMgr.getWindow("Connect");
+  connect->deactivate();
+
+  std::string nickname, message, ping;
+  char buf[128];
+  bool selected = false;
+
+  for ( int i = 0 ; i < lb->m_playerNum ; i++ ) {
+    unsigned int rowIdx;
+
+    CEGUI::ListboxTextItem *lbi[3];
+    lbi[0] = new CEGUI::ListboxTextItem(lb->m_player[i].m_nickname);
+    lbi[1] = new CEGUI::ListboxTextItem(lb->m_player[i].m_message);
+    lbi[2] = new CEGUI::ListboxTextItem("");
+    if (lb->m_player[i].m_ping >= 0) {
+      sprintf( buf, "%ld", lb->m_player[i].m_ping );
+      lbi[2]->setText(buf);
+    }
+
+    rowIdx = mcl->addRow(lb->m_player[i].m_ID);
+    mcl->setItem(lbi[0], mcl->getColumnID(0), rowIdx);
+    mcl->setItem(lbi[1], mcl->getColumnID(1), rowIdx);
+    mcl->setItem(lbi[2], mcl->getColumnID(2), rowIdx);
+
+    if ( lb->m_player[i].m_playing ||
+	 (lb->GetCanBeServer() == false &&
+	  lb->m_player[i].m_canBeServer == false) ) {
+      lbi[0]->setDisabled(true);
+      lbi[1]->setDisabled(true);
+      lbi[2]->setDisabled(true);
+      lbi[0]->setTextColours(0xFF7F7F7F);
+      lbi[1]->setTextColours(0xFF7F7F7F);
+      lbi[2]->setTextColours(0xFF7F7F7F);
+    } else {
+      lbi[0]->setDisabled(false);
+      lbi[1]->setDisabled(false);
+      lbi[2]->setDisabled(false);
+      lbi[0]->setTextColours(0xFFFFFFFF);
+      lbi[1]->setTextColours(0xFFFFFFFF);
+      lbi[2]->setTextColours(0xFFFFFFFF);
+    }
+
+    lbi[0]->setSelectionBrushImage("TaharezLook", "TextSelectionBrush");
+    lbi[1]->setSelectionBrushImage("TaharezLook", "TextSelectionBrush");
+    lbi[2]->setSelectionBrushImage("TaharezLook", "TextSelectionBrush");
+    lbi[0]->setSelectionColours(0xFFFFFFFF);
+    lbi[1]->setSelectionColours(0xFFFFFFFF);
+    lbi[2]->setSelectionColours(0xFFFFFFFF);
+
+    if ( lb->m_player[i].m_ID == lb->m_selected ) {
+      lbi[0]->setSelected(true);
+      lbi[1]->setSelected(true);
+      lbi[2]->setSelected(true);
+      selected = true;
+    }
+  }
+
+  if ( selected == false )
+    lb->m_selected = -1;    
+
+  mcl->handleUpdatedItemData();
+}
+
+/**
+ * Make buttons enable or disable. 
+ * 
+ * @param sensitive if this parameter is true, buttons are enabled. Otherwide they are disabled. 
+ */
+void
+LobbyClient::SetSensitive( bool sensitive ) {
+  CEGUI::WindowManager& winMgr = CEGUI::WindowManager::getSingleton();
+  CEGUI::PushButton *connect = (CEGUI::PushButton *)winMgr.getWindow("Connect");
+  CEGUI::MultiColumnList *table = (CEGUI::MultiColumnList *)winMgr.getWindow("PlayerInfoList");
+
+  if (sensitive) {
+    connect->activate();
+    table->activate();
+  } else {
+    connect->deactivate();
+    table->deactivate();
+  }
+}
+
 
 /**
  * Default constructor. 
