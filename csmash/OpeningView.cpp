@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2002, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -104,8 +104,9 @@ OpeningView::Redraw() {
   m_opening->GetThePlayer()->m_View->Redraw();
   m_opening->GetComPlayer()->m_View->Redraw();
 
-  if ( phrase >= 200 && phrase < 232 )
-    m_opening->m_telop[0]->GetView()->Redraw();
+  //TODO
+  //if ( phrase >= 200 && phrase < 232 )
+  //m_opening->m_telop[0]->GetView()->Redraw();
 
   return true;
 }
@@ -124,8 +125,9 @@ OpeningView::RedrawAlpha() {
 
   m_opening->GetPhrase( phrase, mod );
 
-  if ( phrase >= 200 && phrase < 232 )
-    m_opening->m_telop[0]->GetView()->RedrawAlpha();
+  //TODO
+  //if ( phrase >= 200 && phrase < 232 )
+  //m_opening->m_telop[0]->GetView()->RedrawAlpha();
 
   return true;
 }

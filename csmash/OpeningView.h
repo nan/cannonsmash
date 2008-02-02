@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@
 #ifndef _OpeningView_
 #define _OpeningView_
 #include "View.h"
-#include "MenuItemView.h"
 
 class Opening;
 

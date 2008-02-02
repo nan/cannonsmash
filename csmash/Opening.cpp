@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -101,8 +101,9 @@ Opening::Init() {
 
   static char *telop[] = {"images/ArctanX" };
 
-  m_telop[0] = new MenuItem();
-  m_telop[0]->Init( 0, 0, 800, 600, telop[0], NULL );
+  //TODO:
+  //m_telop[0] = new MenuItem();
+  //m_telop[0]->Init( 0, 0, 800, 600, telop[0], NULL );
 
   Sound::TheSound()->InitBGM( OPENINGFILENAME );
 

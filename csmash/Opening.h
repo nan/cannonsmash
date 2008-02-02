@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000, 2001, 2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@
 #define _Opening_
 #include "Control.h"
 #include "OpeningView.h"
-#include "MenuItem.h"
 
 /**
  * Opening controller class. 
@@ -52,7 +51,6 @@ public:
 
   virtual View *GetView() { return m_View; }	///< Getter method for m_View
 
-  MenuItem *m_telop[10];	///< Telop for the music composer
 protected:
   OpeningView *m_View;		///< Reference to attached m_View
   long m_count;			///< Count from the beggining of the opening (in 1/100 sec)
