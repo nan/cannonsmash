@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2001-2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -228,7 +228,7 @@ ReadTime( int sd, struct timeb* tb ) {
 
   char *b = buf;
   long millitm;
-  b = ReadLong( b, tb->time );
+  b = ReadLong( b, (long &)(tb->time) );
   b = ReadLong( b, millitm );
   tb->millitm = (unsigned short)millitm;
 
@@ -270,7 +270,7 @@ ReadHeader( int socket, char *buf ) {
  */
 long
 ReadEntireMessage( int socket, char **buf ) {
-  long msgLength;
+  long msgLength = 0;
   long len = 0;
   char lengthBuf[16];
 
@@ -278,7 +278,7 @@ ReadEntireMessage( int socket, char **buf ) {
     if ( (len+=recv( socket, lengthBuf+len, 4-len, 0 )) == 4 )
       break;
   }
-  ReadLong( lengthBuf, msgLength );
+  ReadLong( (char *)lengthBuf, msgLength );
 
   // Read all
   (*buf) = new char[msgLength+1];
