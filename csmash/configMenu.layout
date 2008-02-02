@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GUILayout>
+  <Window Type="DefaultWindow" Name="root">
+        <Window Type="TaharezLook/TabControl" Name="TabControl">
+            <Property Name="TabPanePosition" Value="Top" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+	    <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.02,0},{0.98,0},{0.88,0}}" />
+	    <Property Name="Font" Value="default-24" />
+            <Property Name="BackgroundEnabled" Value="False" />
+            <Window Type="DefaultGUISheet" Name="Config/System">
+                <Property Name="Text" Value="System" />
+
+                <Window Type="TaharezLook/StaticText" Name="Config/System/Screen">
+		    <Property Name="Text" Value="Screen :" />
+		    <Property Name="FrameEnabled" Value="False" />
+		    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+		    <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.0,0},{0.22,0},{0.2,0}}" />
+		    <Property Name="BackgroundEnabled" Value="False" />
+		    <Property Name="Font" Value="default-24" />
+                </Window>
+		<Window Type="TaharezLook/Combobox" Name="Config/System/ScreenMenu">
+		    <Property Name="UnifiedAreaRect" Value="{{0.22,0},{0.05,0},{0.45,0},{0.37,0}}" />
+			<Property Name="ClippedByParent" Value="false" />
+			<Property Name="ReadOnly" Value="true" />
+		</Window>
+
+                <Window Type="TaharezLook/StaticText" Name="Config/System/Graphics">
+		    <Property Name="Text" Value="Model :" />
+		    <Property Name="FrameEnabled" Value="False" />
+		    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+		    <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.2,0},{0.22,0},{0.4,0}}" />
+		    <Property Name="BackgroundEnabled" Value="True" />
+		    <Property Name="Font" Value="default-24" />
+                </Window>
+		<Window Type="TaharezLook/Combobox" Name="Config/System/GraphicsMenu">
+		    <Property Name="UnifiedAreaRect" Value="{{0.22,0},{0.25,0},{0.45,0},{0.65,0}}" />
+			<Property Name="ClippedByParent" Value="false" />
+			<Property Name="ReadOnly" Value="true" />
+		</Window>
+		<Window Type="TaharezLook/Combobox" Name="Config/System/GraphicsTypeMenu">
+		    <Property Name="UnifiedAreaRect" Value="{{0.52,0},{0.25,0},{0.85,0},{0.65,0}}" />
+			<Property Name="ClippedByParent" Value="false" />
+			<Property Name="ReadOnly" Value="true" />
+		</Window>
+
+                <Window Type="TaharezLook/StaticText" Name="Config/System/Sound">
+		    <Property Name="Text" Value="Sound :" />
+		    <Property Name="FrameEnabled" Value="False" />
+		    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+		    <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.4,0},{0.22,0},{0.6,0}}" />
+		    <Property Name="BackgroundEnabled" Value="True" />
+		    <Property Name="Font" Value="default-24" />
+                </Window>
+                <Window Type="TaharezLook/StaticText" Name="Config/System/Volume">
+		    <Property Name="Text" Value="0%" />
+		    <Property Name="FrameEnabled" Value="False" />
+		    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+		    <Property Name="UnifiedAreaRect" Value="{{0.22,0},{0.4,0},{0.35,0},{0.6,0}}" />
+		    <Property Name="BackgroundEnabled" Value="True" />
+		    <Property Name="Font" Value="default-24" />
+                </Window>
+                <Window Type="TaharezLook/HorizontalScrollbar" Name="Config/System/SoundSlider">
+		    <Property Name="DocumentSize" Value="110" />
+		    <Property Name="PageSize" Value="10" />
+		    <Property Name="StepSize" Value="1" />
+		    <Property Name="OverlapSize" Value="0" />
+		    <Property Name="UnifiedAreaRect" Value="{{0.35,0},{0.45,0},{0.95,0},{0.55,0}}" />
+                </Window>
+
+            </Window>
+            <Window Type="DefaultGUISheet" Name="Config/GameMode">
+                <Property Name="Text" Value="Game Mode" />
+
+                <Window Type="TaharezLook/StaticText" Name="Config/GameMode/Level">
+		    <Property Name="Text" Value="Level :" />
+		    <Property Name="FrameEnabled" Value="False" />
+		    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+		    <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.0,0},{0.22,0},{0.2,0}}" />
+		    <Property Name="BackgroundEnabled" Value="True" />
+		    <Property Name="Font" Value="default-24" />
+                </Window>
+		<Window Type="TaharezLook/Combobox" Name="Config/GameMode/LevelMenu">
+		    <Property Name="UnifiedAreaRect" Value="{{0.22,0},{0.05,0},{0.45,0},{0.53,0}}" />
+			<Property Name="ClippedByParent" Value="false" />
+			<Property Name="ReadOnly" Value="true" />
+		</Window>
+
+                <Window Type="TaharezLook/StaticText" Name="Config/GameMode/Mode">
+		    <Property Name="Text" Value="Mode :" />
+		    <Property Name="FrameEnabled" Value="False" />
+		    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+		    <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.2,0},{0.22,0},{0.4,0}}" />
+		    <Property Name="BackgroundEnabled" Value="True" />
+		    <Property Name="Font" Value="default-24" />
+                </Window>
+		<Window Type="TaharezLook/Combobox" Name="Config/GameMode/ModeMenu">
+		    <Property Name="UnifiedAreaRect" Value="{{0.22,0},{0.25,0},{0.45,0},{0.65,0}}" />
+			<Property Name="ClippedByParent" Value="false" />
+			<Property Name="ReadOnly" Value="true" />
+		</Window>
+
+		<Window Type="TaharezLook/Checkbox" Name="Config/GameMode/InvertMouse" >
+		    <Property Name="Text" Value="Invert Mouse Button" />
+		    <Property Name="Selected" Value="False" />
+		    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+		    <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.7,0},{0.9,0},{0.8,0}}" />
+		</Window>
+
+            </Window>
+        </Window>
+	<Window Type="TaharezLook/Button" Name="Back" >
+                <Property Name="Font" Value="default-48" />
+                <Property Name="Text" Value="Back" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.4,0},{0.88,0},{0.6,0},{0.98,0}}" />
+        </Window>
+    </Window>
+</GUILayout>

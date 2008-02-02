@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GUILayout>
+  <Window Type="DefaultWindow" Name="root">
+        <Window Type="TaharezLook/MultiColumnList" Name="PlayerInfoList" >
+                <Property Name="Font" Value="default-24" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.02,0},{0.98,0},{0.30,0}}" />
+                <Property Name="SelectionMode" Value="RowSingle" />
+                <Property Name="ColumnHeader" Value="text:Nickname width:{0.35,0} id:0" />
+                <Property Name="ColumnHeader" Value="text:ID width:{0.35,0} id:1" />
+                <Property Name="ColumnHeader" Value="text:ping[msec] width:{0.29,0} id:2" />
+        </Window>
+
+        <Window Type="TaharezLook/TabControl" Name="TabControl">
+            <Property Name="TabPanePosition" Value="Top" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+	    <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.32,0},{0.98,0},{0.75,0}}" />
+            <Property Name="Font" Value="default-24" />
+            <Window Type="DefaultGUISheet" Name="NativeLanguage">
+                <Property Name="Text" Value="Native" />
+                <Window Type="TaharezLook/MultiLineEditbox" Name="NativeChatLog" >
+                    <Property Name="Font" Value="default-24" />
+                    <Property Name="ReadOnly" Value="true" />
+                    <Property Name="MaxTextLength" Value="1073741823" />
+                    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.0,0},{0.0,0},{1.0,0},{1.0,0}}" />
+                </Window>
+            </Window>
+            <Window Type="DefaultGUISheet" Name="English">
+                <Property Name="Text" Value="English" />
+                <Window Type="TaharezLook/MultiLineEditbox" Name="EnglishChatLog" >
+                    <Property Name="Font" Value="default-24" />
+                    <Property Name="ReadOnly" Value="true" />
+                    <Property Name="MaxTextLength" Value="1073741823" />
+                    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.0,0},{0.0,0},{1.0,0},{1.0,0}}" />
+                </Window>
+            </Window>
+        </Window>
+
+        <Window Type="TaharezLook/Editbox" Name="ChatEdit" >
+                <Property Name="Font" Value="default-24" />
+                <Property Name="MaxTextLength" Value="1073741823" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.02,0},{0.77,0},{0.98,0},{0.85,0}}" />
+        </Window>
+
+	<Window Type="TaharezLook/Button" Name="Connect" >
+                <Property Name="Font" Value="default-48" />
+                <Property Name="Text" Value="Connect" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.1,0},{0.87,0},{0.4,0},{0.98,0}}" />
+        </Window>
+	<Window Type="TaharezLook/Button" Name="Logout" >
+                <Property Name="Font" Value="default-48" />
+                <Property Name="Text" Value="Logout" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.6,0},{0.87,0},{0.9,0},{0.98,0}}" />
+        </Window>
+    </Window>
+</GUILayout>

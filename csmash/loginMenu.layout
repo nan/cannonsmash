@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GUILayout>
+  <Window Type="DefaultWindow" Name="root">
+        <Window Type="TaharezLook/StaticText" Name="Nickname" >
+                <Property Name="Text" Value="Nickname:" />
+                <Property Name="FrameEnabled" Value="False" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.1,0},{0.1,0},{0.4,0},{0.3,0}}" />
+                <Property Name="BackgroundEnabled" Value="False" />
+        </Window>
+        <Window Type="TaharezLook/Editbox" Name="NicknameEdit" >
+                <Property Name="Font" Value="default-24" />
+                <Property Name="MaxTextLength" Value="1073741823" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.4,0},{0.1,0},{0.9,0},{0.3,0}}" />
+        </Window>
+        <Window Type="TaharezLook/StaticText" Name="Password" >
+                <Property Name="Text" Value="Password:" />
+                <Property Name="FrameEnabled" Value="False" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.1,0},{0.3,0},{0.4,0},{0.5,0}}" />
+                <Property Name="BackgroundEnabled" Value="False" />
+        </Window>
+        <Window Type="TaharezLook/Editbox" Name="PasswordEdit" >
+                <Property Name="Font" Value="default-24" />
+                <Property Name="MaxTextLength" Value="1073741823" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.4,0},{0.3,0},{0.9,0},{0.5,0}}" />
+                <Property Name="MaskText" Value="True" />
+        </Window>
+        <Window Type="TaharezLook/Checkbox" Name="AcceptPing" >
+                <Property Name="Text" Value="Accept ping from others" />
+                <Property Name="Selected" Value="False" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.1,0},{0.5,0},{0.9,0},{0.7,0}}" />
+        </Window>
+	<Window Type="TaharezLook/Button" Name="Login" >
+                <Property Name="Font" Value="default-48" />
+                <Property Name="Text" Value="Login" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.1,0},{0.7,0},{0.4,0},{0.9,0}}" />
+        </Window>
+	<Window Type="TaharezLook/Button" Name="Cancel" >
+                <Property Name="Font" Value="default-48" />
+                <Property Name="Text" Value="Cancel" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.6,0},{0.7,0},{0.9,0},{0.9,0}}" />
+        </Window>
+
+    </Window>
+</GUILayout>

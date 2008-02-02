@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GUILayout>
+    <Window Type="DefaultWindow" Name="root">
+	<Window Type="TaharezLook/Button" Name="Start Game" >
+                <Property Name="Font" Value="default-48" />
+                <Property Name="Text" Value="Start Game" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.25,0},{0.02,0},{0.75,0},{0.14,0}}" />
+        </Window>
+	<Window Type="TaharezLook/Button" Name="Login Lobby Server" >
+                <Property Name="Font" Value="default-48" />
+                <Property Name="Text" Value="Connect Lobby" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.25,0},{0.16,0},{0.85,0},{0.28,0}}" />
+        </Window>
+	<Window Type="TaharezLook/Button" Name="Practice" >
+                <Property Name="Font" Value="default-48" />
+                <Property Name="Text" Value="Practice" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.25,0},{0.30,0},{0.75,0},{0.42,0}}" />
+        </Window>
+	<Window Type="TaharezLook/Button" Name="Training" >
+                <Property Name="Font" Value="default-48" />
+                <Property Name="Text" Value="Training" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.25,0},{0.44,0},{0.75,0},{0.56,0}}" />
+        </Window>
+	<Window Type="TaharezLook/Button" Name="How to Play" >
+                <Property Name="Font" Value="default-48" />
+                <Property Name="Text" Value="How to Play" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.25,0},{0.58,0},{0.75,0},{0.70,0}}" />
+        </Window>
+	<Window Type="TaharezLook/Button" Name="Config" >
+                <Property Name="Font" Value="default-48" />
+                <Property Name="Text" Value="Config" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.25,0},{0.72,0},{0.75,0},{0.84,0}}" />
+        </Window>
+	<Window Type="TaharezLook/Button" Name="Quit" >
+                <Property Name="Font" Value="default-48" />
+                <Property Name="Text" Value="Quit" />
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.25,0},{0.86,0},{0.75,0},{0.98,0}}" />
+        </Window>
+    </Window>
+</GUILayout>
