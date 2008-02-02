@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -34,8 +34,6 @@
 extern RCFile *theRC;
 
 extern long mode;
-
-extern bool isComm;
 
 extern long wins;
 
@@ -114,33 +112,27 @@ PlayerSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   }
 
   if ( (KeyHistory[Histptr].unicode == SDLK_ESCAPE ||
-	KeyHistory[Histptr].unicode == 'Q') && !isComm ) {
+	KeyHistory[Histptr].unicode == 'Q')) {
     mode = MODE_TITLE;
     wins = 0;
     return true;
   }
 
   if ( m_selected > 500 ) {
-    if (isComm)
-      mode = MODE_MULTIPLAY;
-    else
-      mode = MODE_SOLOPLAY;
+    mode = MODE_SOLOPLAY;
     return true;
   }
 
   if ( MouseBHistory[Histptr]&BUTTON_LEFT && 
        ( (Histptr > 0 && !(MouseBHistory[Histptr-1]&BUTTON_LEFT)) ||
-	 (Histptr == 0 && !(MouseBHistory[MAX_HISTORY]&BUTTON_LEFT)) ) ){
+	 (Histptr == 0 && !(MouseBHistory[MAX_HISTORY]&BUTTON_LEFT)) ) ) {
     nothing = 0;
     if ( m_selected == 0 ) {
       m_selected = 1;
       Sound::TheSound()->Play( SOUND_CLICK,
 			       vector3d(0.0, 0.0, 0.0) );
     } else if ( m_selected > 100 ) {
-      if (isComm)
-	mode = MODE_MULTIPLAY;
-      else
-	mode = MODE_SOLOPLAY;
+      mode = MODE_SOLOPLAY;
       return true;
     }
   }
@@ -184,7 +176,7 @@ PlayerSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_rotate = nextRotate;
   }
 
-  if ( nothing > 1000 && !isComm ) {
+  if ( nothing > 1000 ) {
     nothing = 0;
     //mode = MODE_DEMO;
     mode = MODE_TITLE;
