@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -58,8 +58,6 @@ Event* Event::m_theEvent = NULL;
 extern int theSocket;
 
 extern long wins;
-
-extern bool isComm;
 
 extern SDL_mutex *networkMutex;
 extern long timeAdj;
@@ -117,8 +115,7 @@ Event::TheEvent() {
  */
 bool
 Event::Init() {
-  if (isComm)
-    m_External = new ExternalNullData();
+  m_External = new ExternalNullData();
 
   switch ( mode ){
   case MODE_SOLOPLAY:
@@ -208,7 +205,7 @@ Event::IdleFunc() {
     // While pause, never move objects. (Solo Play)
     if ( Control::TheControl()->IsPlaying() &&
 	 ((PlayGame *)Control::TheControl())->IsPause() &&
-	 isComm == false ) {
+	 mode != MODE_MULTIPLAY && mode != MODE_MULTIPLAYSELECT) {
       reDraw = true;
     } else {
       reDraw |= Event::TheEvent()->Move();
@@ -260,8 +257,7 @@ Event::Move() {
 
   reDraw |= IsModeChanged( preMode );
 
-  if (Control::TheControl()->IsPlaying())
-    Record();
+  Record();
 
   return reDraw;
 }
@@ -359,7 +355,8 @@ Event::Record() {
     m_Histptr = 0;
 
 #ifdef LOGGING
-  logRecord();
+  if (Control::TheControl()->IsPlaying())
+    logRecord();
 #endif
 
   /*
@@ -859,9 +856,9 @@ Event::SetNextMousePointer( long &x, long &y ) {
  */
 void
 Event::GetAdjustedTime( long &sec, long &cnt ) {
-  if ( isComm )
-    //cnt += ((MultiPlay *)Control::TheControl())->GetTimeAdj();
+  if ( mode == MODE_MULTIPLAY )
     cnt += timeAdj;
+
   while ( cnt < 0 ) {
     sec--;
     cnt += 100;
