@@ -5,7 +5,7 @@
  * $Id$
  */
 
-// Copyright (C) 2001-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2001-2003, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@
 
 extern RCFile *theRC;
 
-extern bool isComm;
 extern long mode;
 
 extern void InitGame();
@@ -239,6 +238,7 @@ LobbyClientView::Init( LobbyClient *lobby ) {
 
   m_parent = lobby;
 
+  /*
   m_input[0] = gtk_input_add_full( lobby->GetSocket(), GDK_INPUT_READ, 
 				  LobbyClient::PollServerMessage, NULL, 
 				  m_parent, NULL );
@@ -248,6 +248,7 @@ LobbyClientView::Init( LobbyClient *lobby ) {
 				       m_parent, NULL );
     i++;
   }
+  */
 
   // display
   m_window = gtk_dialog_new();
@@ -410,7 +411,7 @@ LobbyClientView::Init( LobbyClient *lobby ) {
 		      button, TRUE, TRUE, 0);
 
   gtk_widget_grab_default (button);
-  
+
   gtk_widget_show_all(m_window);                     
 }
 
@@ -821,7 +822,6 @@ PIDialog::PIOK( GtkWidget *widget, gpointer data ) {
   PIDialog *piDialog = (PIDialog *)data;
   gtk_widget_destroy( GTK_WIDGET(piDialog->m_window) );
 
-  isComm = true;
   mode = MODE_MULTIPLAYSELECT;
 
   piDialog->m_parent->SendAP( piDialog->m_uniqID );
