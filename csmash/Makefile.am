@@ -3,7 +3,7 @@ localedir = $(prefix)/share/locale
 
 bin_PROGRAMS = csmash
 
-csmash_SOURCES = main.cpp Launcher.cpp LobbyClient.cpp Ball.cpp Event.cpp \
+csmash_SOURCES = main.cpp LobbyClient.cpp Ball.cpp Event.cpp \
 		Control.cpp View.cpp BaseView.cpp FieldView.cpp BallView.cpp \
 		Player.cpp parts.cpp PlayerView.cpp HitMark.cpp \
 		PenAttack.cpp ShakeCut.cpp PenDrive.cpp \
@@ -14,19 +14,19 @@ csmash_SOURCES = main.cpp Launcher.cpp LobbyClient.cpp Ball.cpp Event.cpp \
 		SoloPlay.cpp PracticePlay.cpp PlayGameView.cpp Title.cpp \
 		TitleView.cpp Howto.cpp HowtoView.cpp Training.cpp \
 		TrainingView.cpp Opening.cpp OpeningView.cpp Sound.cpp \
-		LoadImage.cpp z.cpp MultiPlay.cpp Network.cpp MenuItem.cpp \
-		MenuItemView.cpp Logging.cpp affine float matrix xerror.cpp \
+		LoadImage.cpp z.cpp MultiPlay.cpp Network.cpp \
+		Logging.cpp affine float matrix xerror.cpp \
 		PracticeSelect.cpp PracticeSelectView.cpp BaseView2D.cpp \
 		FieldView2D.cpp PlayerView2D.cpp BallView2D.cpp \
-		PlayerSelectView2D.cpp TitleView2D.cpp MenuItemView2D.cpp \
-		RCFile.cpp loadparts.cpp LobbyClientView.cpp LauncherView.cpp \
+		PlayerSelectView2D.cpp TitleView2D.cpp \
+		RCFile.cpp loadparts.cpp \
 		MultiPlayerSelect.cpp glARB.cpp ttinc.cpp \
 		LogPlay.cpp NoLogging.cpp Controller.cpp HumanController.cpp \
 		ComController.cpp ComPenAttackController.cpp ComPenDriveController.cpp \
 		ComShakeCutController.cpp ComTrainingPenAttackController.cpp \
 		ComTrainingPenDriveController.cpp TrainingHumanController.cpp
 
-noinst_HEADERS = ttinc.h Launcher.h LobbyClient.h Ball.h Event.h Control.h \
+noinst_HEADERS = ttinc.h LobbyClient.h Ball.h Event.h Control.h \
 		View.h BaseView.h FieldView.h BallView.h Player.h \
 		parts.h PlayerView.h HitMark.h PenAttack.h ShakeCut.h \
 		PenDrive.h ComTrainingPenAttack.h ComTrainingPenDrive.h \
@@ -39,8 +39,8 @@ noinst_HEADERS = ttinc.h Launcher.h LobbyClient.h Ball.h Event.h Control.h \
 		MenuItemView.h Logging.h PracticeSelect.h \
 		PracticeSelectView.h BaseView2D.h FieldView2D.h \
 		PlayerView2D.h BallView2D.h PlayerSelectView2D.h \
-		TitleView2D.h MenuItemView2D.h RCFile.h loadparts.h \
-		LobbyClientView.h LauncherView.h MultiPlayerSelect.h glARB.h \
+		TitleView2D.h RCFile.h loadparts.h \
+		MultiPlayerSelect.h glARB.h CEGUIKey.h \
 		LogPlay.h NoLogging.h Controller.h HumanController.h \
 		ComController.h ComPenAttackController.h ComPenDriveController.h \
 		ComShakeCutController.h ComTrainingPenAttackController.h \

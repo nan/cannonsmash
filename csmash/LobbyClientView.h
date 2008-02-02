@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2001-2003  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001-2003, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -84,6 +84,7 @@ protected:
 /**
  * PIDialog is opened when a opponent wants to play with this player. 
  */
+/*
 class PIDialog {
 public:
   PIDialog();
@@ -100,5 +101,6 @@ public:
   static void PIOK( GtkWidget *widget, gpointer data );
   static void PINo( GtkWidget *widget, gpointer data );
 };
+*/
 
 #endif // _LobbyClientView_
