@@ -5,7 +5,7 @@
  * $Id$
  */
 
-// Copyright (C) 2001-2003  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2001-2003, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,13 +24,10 @@
 #ifndef _LobbyClient_
 #define _LobbyClient_
 
-#include <gtk/gtk.h>
-
 #define LOBBYSERVER_NAME	"nan.p.utmc.or.jp"
 #define LOBBYSERVER_PORT	(5736)
 
 class PlayerInfo;
-class LobbyClientView;
 
 static const char public_key[] =
 "(public-key \n"
@@ -41,8 +38,8 @@ static const char public_key[] =
 " )\n";
 
 static struct {
-  char *code;
-  char *langname;
+  const char *code;
+  const char *langname;
   int langID;
 } table[] = {
   { "aa", _("Afar"), 0x00 },
@@ -234,10 +231,8 @@ public:
   PlayerInfo *GetPlayerInfo() { return m_player; }	///< Getter method of PlayerInfo object. 
   long GetPlayerNum() { return m_playerNum; }		///< Getter method of the number of players
 
-  static void PollServerMessage( gpointer data,
-				 gint source,
-				 GdkInputCondition condition );
-  static void Connect( GtkWidget *widget, gpointer data );
+  static bool PollServerMessage();
+  void Connect();
 
   static int checkPingValue( void *arg );
 
@@ -274,7 +269,8 @@ protected:
   void ReadOV();
   void ReadMS();
 
-  LobbyClientView *m_view;	///< Reference to LobbyClientView object
+  void UpdateTable();
+  void SetSensitive( bool sensitive );
 
   int m_socket;			///< Socket for connecting to the lobby server
   bool m_canBeServer;		///< Whether this client can be server or not

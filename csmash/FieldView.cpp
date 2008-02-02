@@ -444,7 +444,8 @@ FieldView::Redraw() {
 bool
 FieldView::RedrawAlpha() {
   glColor4f(0.0F, 0.0F, 0.3F, 0.7F);
-  static GLfloat mat_table[] = { 0.0F, 0.0F, 0.3F, 1.0F };
+  //static GLfloat mat_table[] = { 0.0F, 0.0F, 0.3F, 1.0F };
+  static GLfloat mat_table[] = { 0.0F, 0.0F, 1.0F, 1.0F };
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_table);
 
   glBlendFunc(GL_ONE, GL_SRC_ALPHA);
