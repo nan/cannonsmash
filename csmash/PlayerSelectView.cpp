@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ extern RCFile *theRC;
 
 extern long wins;
 
-extern bool isComm;
+extern long mode;
 
 /**
  * Default constructor. 
@@ -138,7 +138,7 @@ PlayerSelectView::Redraw() {
     glEnd();
     glPopMatrix();
 
-    if ( !isComm ) {
+    if ( mode != MODE_MULTIPLAYSELECT ) {
       if ( m_playerSelect->GetSelected() > 100 ) {
 	glPushMatrix();
 	if ( m_playerSelect->GetSelected() < 150 )

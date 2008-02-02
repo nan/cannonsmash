@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2001, 2002, 2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,8 +31,6 @@
 #include "Event.h"
 
 extern long mode;
-
-extern bool isComm;
 
 extern long wins;
 
@@ -101,8 +99,8 @@ PracticeSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   long *rotate;
   long *selected;
 
-  if ( (KeyHistory[Histptr].unicode == SDLK_ESCAPE ||
-	KeyHistory[Histptr].unicode == 'Q') && !isComm ) {
+  if ( KeyHistory[Histptr].unicode == SDLK_ESCAPE ||
+       KeyHistory[Histptr].unicode == 'Q' ) {
     mode = MODE_TITLE;
     return true;
   }
