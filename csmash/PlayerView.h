@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -71,6 +71,10 @@ private:
   partsmotion_t *m_Fsmash;		///< Motion handler of Fsmash motion. 
   partsmotion_t *m_Bsmash;		///< Motion handler of Bsmash motion. 
 
+  partsmotion_t *m_FSpeck;		///< Motion handler of FSpeck motion. 
+  partsmotion_t *m_FSside1;		///< Motion handler of FSside1 motion. 
+  partsmotion_t *m_FSside2;		///< Motion handler of FSside2 motion. 
+
   static partsmotion_t *motion_Fnormal;	///< Motion handler of Fnormal motion. 
   static partsmotion_t *motion_Bnormal;	///< Motion handler of Bnormal motion. 
   static partsmotion_t *motion_Fdrive;	///< Motion handler of Fdrive motion. 
@@ -80,12 +84,15 @@ private:
   static partsmotion_t *motion_Bpeck;	///< Motion handler of Bpeck motion. 
   static partsmotion_t *motion_Fsmash;	///< Motion handler of Fsmash motion. 
 
+  static partsmotion_t *motion_FSpeck;	///< Motion handler of FSpeck motion. 
+  static partsmotion_t *motion_FSside1;	///< Motion handler of FSside1 motion. 
+  static partsmotion_t *motion_FSside2;	///< Motion handler of FSside2 motion. 
+
   virtual bool SubRedraw();
   double GetHitpointY();
 
   void DrawPlayer();
   void DrawTarget();
-  void DrawMeter();
 
   vector3F m_diff;			///< diff of upper body
 };

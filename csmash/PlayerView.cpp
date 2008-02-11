@@ -5,7 +5,7 @@
  * $Id$
  */
 
-// Copyright (C) 2000-2004  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -53,6 +53,10 @@ partsmotion_t *PlayerView::motion_Bcut = NULL;
 partsmotion_t *PlayerView::motion_Fpeck = NULL;
 partsmotion_t *PlayerView::motion_Bpeck = NULL;
 partsmotion_t *PlayerView::motion_Fsmash = NULL;
+
+partsmotion_t *PlayerView::motion_FSpeck = NULL;
+partsmotion_t *PlayerView::motion_FSside1 = NULL;
+partsmotion_t *PlayerView::motion_FSside2 = NULL;
 #endif
 
 /***********************************************************************
@@ -71,6 +75,9 @@ PlayerView::PlayerView() {
   m_Fcut    = m_Bcut    = NULL;
   m_Fpeck   = m_Bpeck   = NULL;
   m_Fsmash  = m_Bsmash  = NULL;
+
+  m_FSpeck  = NULL;
+  m_FSside1 = m_FSside2 = NULL;
 
   m_diff[0] = m_diff[1] = m_diff[2] = 0.0;
 }
@@ -99,6 +106,10 @@ PlayerView::LoadData(void *dum) {
   motion_Fpeck = new partsmotion("Parts/Fpeck/Fpeck");
   motion_Bpeck = new partsmotion("Parts/Bpeck/Bpeck");
   motion_Fsmash = new partsmotion("Parts/Fsmash/Fsmash");
+
+  motion_FSpeck = new partsmotion("Parts/FSpeck/Fnormal");	// Caution!! Fnormal!
+  motion_FSside1 = new partsmotion("Parts/FSside1/Fnormal");	// Caution!! Fnormal!
+  motion_FSside2 = new partsmotion("Parts/FSside2/Fnormal");	// Caution!! Fnormal!
 #else /* CHIYO */
   chdir("Parts");
   parts::loadobjects("body.txt");
@@ -130,6 +141,10 @@ PlayerView::Init( Player *player ) {
   m_Fpeck = motion_Fpeck;
   m_Bpeck = motion_Bpeck;
   m_Fsmash = motion_Fsmash;
+
+  m_FSpeck = motion_FSpeck;
+  m_FSside1 = motion_FSside1;
+  m_FSside2 = motion_FSside2;
 #else /* CHIYO */
 # define GETBODY(name, ptype) \
     m_##name = reinterpret_cast<body_parts*>(parts::getobject(#name#ptype)); \
@@ -185,12 +200,9 @@ PlayerView::Init( Player *player ) {
  */
 bool
 PlayerView::Redraw() {
-  static GLfloat mat_green[] = { 0.1F, 0.1F, 0.1F, 1.0F };
+  //static GLfloat mat_green[] = { 0.1F, 0.1F, 0.1F, 1.0F };
 
   if ( Control::TheControl()->GetComPlayer() == m_player ) {
-    glColor4f( 0.4F, 0.4F, 0.4F, 0.0F );
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_green);
-
     return SubRedraw();
   }
 
@@ -204,17 +216,18 @@ PlayerView::Redraw() {
  */
 bool
 PlayerView::RedrawAlpha() {
-  static GLfloat mat_black[] = { 0.0F, 0.0F, 0.0F, 1.0F };
-
   if ( Control::TheControl()->GetThePlayer() == m_player ) {
     if ( theRC->myModel == MODEL_WIREFRAME ||
 	 theRC->myModel == MODEL_ARMONLY ) {
-      glColor4f( 1.0F, 1.0F, 1.0F, 1.0F );
-    } else {
-      glColor4f( 0.05F, 0.05F, 0.05F, 1.0F );
-      glMaterialfv(GL_FRONT, GL_SPECULAR, mat_black);
+      static GLfloat spc[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+      static GLfloat dif[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+      static GLfloat amb[] = { 5.0F, 5.0F, 5.0F, 1.0F };
+      static GLfloat shininess[] = { 5.0 };
+      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spc);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, dif);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, amb);
+      glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
     }
-
     return SubRedraw();
   }
 
@@ -234,11 +247,6 @@ PlayerView::SubRedraw() {
   // Target
   if ( Control::TheControl()->GetThePlayer() == m_player ) {
     DrawTarget();
-#if 0
-    if ( mode == MODE_SOLOPLAY || mode == MODE_MULTIPLAY ||
-	 mode == MODE_PRACTICE )
-      DrawMeter();
-#endif
   }
 
   return true;
@@ -443,16 +451,16 @@ PlayerView::DrawPlayer() {
       motion = m_Bcut ? m_Bcut : m_Bnormal;
     break;
   case SERVE_NORMAL:
-    if ( m_player->ForeOrBack() )
-      motion = m_Fnormal;
-    else
-      motion = m_Bnormal;
+    motion = m_Fnormal;
     break;
   case SERVE_POKE:
-    if ( m_player->ForeOrBack() )
-      motion = m_Fpeck ? m_Fpeck : m_Fnormal;
-    else
-      motion = m_Bpeck ? m_Bpeck : m_Bnormal;
+    motion = m_FSpeck ? m_FSpeck : m_Fnormal;
+    break;
+  case SERVE_SIDESPIN1:
+    motion = m_FSside1 ? m_FSside1 : m_Fnormal;
+    break;
+  case SERVE_SIDESPIN2:
+    motion = m_FSside2 ? m_FSside2 : m_Fnormal;
     break;
   default:
     return;
@@ -461,26 +469,27 @@ PlayerView::DrawPlayer() {
   vector3F diff;
   diff[0] = diff[1] = diff[2] = 0.0;
 
-  if ( m_player->GetSwing() > 10 && m_player->GetSwing() < 20 ) {
+  if ( m_player->GetSwing() > m_player->stype[m_player->GetSwingType()]->backswing &&
+       m_player->GetSwing() < m_player->stype[m_player->GetSwingType()]->hitStart ) {
     Ball *tmpBall;
 
     tmpBall = new Ball(&theBall);
 
-    for ( int i = m_player->GetSwing() ; i < 20 ; i++ )
+    for ( int i = m_player->GetSwing() ; i < m_player->stype[m_player->GetSwingType()]->hitStart ; i++ )
       tmpBall->Move();
 
     if ( ((tmpBall->GetStatus() == 3 && m_player->GetSide() == 1) ||
 	  (tmpBall->GetStatus() == 1 && m_player->GetSide() == -1)) ) {
       double hitpointX = m_player->GetSwingSide() ?
-	m_player->GetX()[0]+0.3*m_player->GetSide() :
-	m_player->GetX()[0]-0.3*m_player->GetSide();
+	m_player->GetX()[0]+m_player->stype[m_player->GetSwingType()]->hitX*m_player->GetSide() :
+	m_player->GetX()[0]-m_player->stype[m_player->GetSwingType()]->hitX*m_player->GetSide();
 
       diff[0] = tmpBall->GetX()[0] -
-	(hitpointX+m_player->GetV()[0]*(20-m_player->GetSwing())*TICK);
+	(hitpointX+m_player->GetV()[0]*(m_player->stype[m_player->GetSwingType()]->hitStart-m_player->GetSwing())*TICK);
 
       diff[1] =
         (tmpBall->GetX()[1] -
-         (m_player->GetX()[1]+m_player->GetV()[1]*(20-m_player->GetSwing())*TICK))*
+         (m_player->GetX()[1]+m_player->GetV()[1]*(m_player->stype[m_player->GetSwingType()]->hitStart-m_player->GetSwing())*TICK))*
         m_player->GetSide();
 
       diff[2] = tmpBall->GetX()[2] - 0.85;	/* temporary */
@@ -496,7 +505,19 @@ PlayerView::DrawPlayer() {
       diff[1] = -0.3;
   }
 
-  if ( m_player->GetSwing() >= 30 ) {
+  if ( m_player->GetSwingType() == SERVE_SIDESPIN1 ) {
+    diff[2] = 0.15;
+  } else if ( m_player->GetSwingType() == SERVE_SIDESPIN2 ) {
+    if ( m_player->GetSwing() > 60 && m_player->GetSwing() <= 100 ) {
+      diff[2] = -(double)(m_player->GetSwing()-60)*0.01;
+    } else if ( m_player->GetSwing() > 100 && m_player->GetSwing() <= 120 ) {
+      diff[2] = -0.4;
+    } else if ( m_player->GetSwing() > 120 && m_player->GetSwing() <= 160 ) {
+      diff[2] = -0.4+(double)(m_player->GetSwing()-120)*0.01;
+    }
+  }
+
+  if ( m_player->GetSwing() >= m_player->stype[m_player->GetSwingType()]->swingEnd ) {
     m_diff *= 0.95;
   } else {
     m_diff = diff;
@@ -584,10 +605,14 @@ PlayerView::DrawPlayer() {
  */
 void
 PlayerView::DrawTarget() {
-  glColor4f( 1.0F, 0.0F, 0.0F, 0.5F );
-
-  static GLfloat mat_default[] = { 0.0F, 0.0F, 0.0F, 1.0F };
-  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_default);
+  static GLfloat spc[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+  static GLfloat dif[] = { 0.0F, 0.0F, 0.0F, 0.5F };
+  static GLfloat amb[] = { 5.0F, 0.0F, 0.0F, 0.5F };
+  static GLfloat shininess[] = { 5.0 };
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spc);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, dif);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, amb);
+  glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
 
   vector2d target;
   if ( theBall.GetStatus() == 2 || theBall.GetStatus() == 3 )
@@ -603,87 +628,10 @@ PlayerView::DrawTarget() {
 
   target = Control::TheControl()->GetThePlayer()->GetTarget();
 
-  glColor4f( 1.0F, 0.0F, 0.0F, 1.0F );
   glBegin(GL_POLYGON);
     glNormal3f( 0.0F, 1.0F, 0.0F );
     glVertex3f( target[0]-0.08F, target[1], TABLEHEIGHT+1.7320508F*0.08F );
     glVertex3f( target[0]+0.08F, target[1], TABLEHEIGHT+1.7320508F*0.08F );
     glVertex3f( target[0], target[1], TABLEHEIGHT );
   glEnd();
-}
-
-void
-PlayerView::DrawMeter() {
-  static long count = 0;
-
-  count++;
-
-  long status = m_player->GetStatus();
-
-  if ( status < m_player->StatusBorder() && count%10 < 5 )
-    return;
-
-  glDisable(GL_DEPTH_TEST);
-  glDepthMask(0);
-
-  glPushMatrix();
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  gluOrtho2D( 0.0, (GLfloat)BaseView::GetWinWidth(),
-	      (GLfloat)BaseView::GetWinHeight(), 0.0 );
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
-  long statusBarX, statusBarY, statusBarWidth, statusBarHeight;
-  statusBarX = 0;
-  statusBarY = 1;
-
-  statusBarWidth = BaseView::GetWinWidth()-2;
-  statusBarHeight = BaseView::GetWinHeight()/20;
-
-  glColor4f( 0.8F, 0.8F, 0.4F, 1.0F );
-  glBegin(GL_QUADS);
-    glVertex2i( statusBarX, statusBarY );
-    glVertex2i( statusBarX+statusBarWidth*status/200,
-		statusBarY );
-    glVertex2i( statusBarX+statusBarWidth*status/200,
-		statusBarY+statusBarHeight );
-    glVertex2i( statusBarX, statusBarY+statusBarHeight );
-  glEnd();
-
-  glColor4f( 1.0F, 0.0F, 0.0F, 1.0F );
-  glBegin(GL_QUADS);
-    glVertex2i( statusBarX+statusBarWidth*status/200,
-		statusBarY );
-    glVertex2i( statusBarX+statusBarWidth*status/200,
-		statusBarY+statusBarHeight );
-    glVertex2i( statusBarX+statusBarWidth, statusBarY+statusBarHeight );
-    glVertex2i( statusBarX+statusBarWidth, statusBarY );
-  glEnd();
-
-  glColor4f( 1.0F, 1.0F, 1.0F, 1.0F );
-  glBegin(GL_LINE_LOOP);
-    glVertex2i( statusBarX, statusBarY );
-    glVertex2i( statusBarX+statusBarWidth, statusBarY );
-    glVertex2i( statusBarX+statusBarWidth, statusBarY+statusBarHeight );
-    glVertex2i( statusBarX, statusBarY+statusBarHeight );
-  glEnd();
-
-  glColor4f( 1.0F, 0.0F, 0.0F, 1.0F );
-  glBegin(GL_LINES);
-    glVertex2i( statusBarX+statusBarWidth*m_player->StatusBorder()/200,
-		statusBarY );
-    glVertex2i( statusBarX+statusBarWidth*m_player->StatusBorder()/200,
-		statusBarY+statusBarHeight );
-  glEnd();
-
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
-
-  glDepthMask(1);
-  if ( theRC->gmode != GMODE_SIMPLE )
-    glEnable(GL_DEPTH_TEST);
 }
