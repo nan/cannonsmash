@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004, 2007  ¿ÀÆî µÈ¹¨(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -54,6 +54,8 @@ extern RCFile *theRC;
 extern Ball   theBall;
 
 extern long mode;
+
+stype_t Player::stype;
 
 const double playerAccelLimit[4] = {0.8, 0.7, 0.6, 0.5};
 const double playerMaxForehandSpeed[6] = {15.0, 15.0, 25.0, 15.0, 15.0, 15.0};
@@ -391,6 +393,32 @@ Player::Init() {
   if ( theRC->gmode != GMODE_2D )
     HitMark::Init();
 
+  //TODO merge to playerServeParam, etc. 
+  if ( stype.find(SWING_NORMAL) == stype.end() ) {
+    stype[SWING_NORMAL]    = (struct swingType *)malloc(sizeof(struct swingType));
+    stype[SWING_POKE]      = (struct swingType *)malloc(sizeof(struct swingType));
+    stype[SWING_SMASH]     = (struct swingType *)malloc(sizeof(struct swingType));
+    stype[SWING_DRIVE]     = (struct swingType *)malloc(sizeof(struct swingType));
+    stype[SWING_CUT]       = (struct swingType *)malloc(sizeof(struct swingType));
+    stype[SWING_BLOCK]     = (struct swingType *)malloc(sizeof(struct swingType));
+    stype[SERVE_NORMAL]    = (struct swingType *)malloc(sizeof(struct swingType));
+    stype[SERVE_POKE]      = (struct swingType *)malloc(sizeof(struct swingType));
+    stype[SERVE_SIDESPIN1] = (struct swingType *)malloc(sizeof(struct swingType));
+    stype[SERVE_SIDESPIN2] = (struct swingType *)malloc(sizeof(struct swingType));
+
+
+    *stype[SWING_NORMAL]   = (struct swingType){SWING_NORMAL,    -1, 10, 20, 20, 30, 50, 0.3, 0.0, 0.0};
+    *stype[SWING_POKE]     = (struct swingType){SWING_POKE,      -1, 10, 20, 20, 30, 50, 0.3, 0.0, 0.0};
+    *stype[SWING_SMASH]    = (struct swingType){SWING_SMASH,     -1, 10, 20, 20, 30, 50, 0.3, 0.0, 0.0};	// Should be 10, 20, 70
+    *stype[SWING_DRIVE]    = (struct swingType){SWING_DRIVE,     -1, 10, 20, 20, 30, 50, 0.3, 0.0, 0.0};	// Should be 10, 30, 80
+    *stype[SWING_CUT]      = (struct swingType){SWING_CUT,       -1, 10, 20, 20, 30, 50, 0.3, 0.0, 0.0};
+    *stype[SWING_BLOCK]    = (struct swingType){SWING_BLOCK,     -1, 10, 20, 20, 30, 50, 0.3, 0.0, 0.0};	// Should be 5, 10, 30, 40
+    *stype[SERVE_NORMAL]   = (struct swingType){SERVE_NORMAL,    1, 10, 20, 20, 30, 50, 0.3, 0.0, 2.5};	// Should be ?, 10, 30, 30, 40, 60
+    *stype[SERVE_POKE]     = (struct swingType){SERVE_POKE,      20, 85, 100, 100, 115, 200, 0.0, 0.0, 4.0};
+    *stype[SERVE_SIDESPIN1]= (struct swingType){SERVE_SIDESPIN1, 20, 60, 80, 80, 95, 150, 0.0, 0.0, 3.2};
+    *stype[SERVE_SIDESPIN2]= (struct swingType){SERVE_SIDESPIN2, 20, 80, 100, 100, 120, 200, 0.0, 0.0, 4.0};
+  }
+
   return true;
 }
 
@@ -460,16 +488,21 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   vector3d prevV;
   prevV = m_v;
 
-// swing
+  // swing
   if ( m_swing > 0 ){
-    if ( m_swing > START_FOLLOWTHROUGH && m_afterSwing > 0 ) {
+    if ( m_swing > stype[m_swingType]->swingEnd && m_afterSwing > 0 ) {
+    //TODO:
+    //if ( m_swing > START_FOLLOWTHROUGH && m_afterSwing > 0 ) {
       m_afterSwing--;
     } else {
+#if 1
       if (canServe(&theBall)) {
 	if ( theBall.GetV()[2] < 0 )
 	  m_swing++;
       } else {
-	if ( m_swing == END_BACKSWING ) {
+	if ( m_swing == stype[m_swingType]->backswing ) {
+	//TODO:
+	//if ( m_swing == END_BACKSWING ) {
 	  if ( theBall.GetStatus() == -1 )
 	    m_swing = 0;
 	  else if ( ( m_side > 0 && theBall.GetStatus() == 0) ||
@@ -479,6 +512,28 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 	} else
 	  m_swing++;
       }
+#else
+      //TODO apply delayed toss functionality. 
+      if (canServe(&theBall)) {
+	m_swing++;
+      } else {
+	if ( m_swing == stype[m_swingType]->toss ) {
+	  theBall.Toss(this, stype[m_swingType]->tossV);
+	}
+
+	if ( m_swing == stype[m_swingType]->backswing ) {
+	//TODO:
+	//if ( m_swing == END_BACKSWING ) {
+	  if ( theBall.GetStatus() == -1 )
+	    m_swing = 0;
+	  else if ( ( m_side > 0 && theBall.GetStatus() == 0) ||
+		    ( m_side < 0 && theBall.GetStatus() == 2) ) {
+	    m_swing++;
+	  }
+	} else
+	  m_swing++;
+      }
+#endif
     }
   }
 
@@ -486,13 +541,20 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   MoveLookAt();
 
   // inpact
-  if ( m_swing == START_HITBALL ) {
+  if ( m_swing >= stype[m_swingType]->hitStart && m_swing <= stype[m_swingType]->hitEnd ) {
+  //TODO:
+  //if ( m_swing == START_HITBALL ) {
     HitBall();
     drawHitMark();
+
+    //TODO: check whether this is necessary or not. 
+    //m_spin[0] = m_spin[1] = 0.0;
   }
 
   // end swing
-  if ( m_swing == END_FOLLOWTHROUGH ) {
+  if ( m_swing == stype[m_swingType]->swingLength ) {
+  //TODO:
+  //if ( m_swing == END_FOLLOWTHROUGH ) {
     m_swing = 0;
     m_swingType = SWING_NORMAL;
   }
@@ -590,7 +652,9 @@ Player::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   if ( m_v.len() > RUNSPEED)
     AddStatus(RUNPENALTY);
 
-  if ( m_swing > END_BACKSWING )
+  if ( m_swing > stype[m_swingType]->backswing )
+  //TODO:
+  //if ( m_swing > END_BACKSWING )
     AddStatus(SWINGPENALTY);
 
   if ( m_v.len() < WALKSPEED ) {
@@ -830,13 +894,20 @@ Player::Swing( long spin ) {
   if ( theBall.GetStatus() == 6 || theBall.GetStatus() == 7 )
     return false;
 
-  if ( m_swing > END_BACKSWING && m_swing < START_FOLLOWTHROUGH )
+  if ( m_swing > stype[m_swingType]->backswing && m_swing < stype[m_swingType]->swingEnd )
+  //TODO:
+  //if ( m_swing > END_BACKSWING && m_swing < START_FOLLOWTHROUGH )
     return false;
 
-  if ( m_swing >= START_FOLLOWTHROUGH )
-    AddStatus( -(50-m_swing)*2 );
+  if ( m_swing >= stype[m_swingType]->swingEnd )
+    AddStatus( -(stype[m_swingType]->swingLength-m_swing)*2 );
+  //TODO:
+  //if ( m_swing >= START_FOLLOWTHROUGH )
+    //AddStatus( -(50-m_swing)*2 );
 
-  m_swing = START_SWING;
+  m_swing = stype[m_swingType]->backswing+1;
+  //TODO: maybe should use stype
+  //m_swing = START_SWING;
   m_pow = 8;
 
   // Decide SwingType by the hit point and spin, etc. 
@@ -874,7 +945,7 @@ bool
 Player::StartSwing( long spin ) {
   Ball *tmpBall;
 
-  if ( m_swing > 10 )
+  if ( m_swing > stype[m_swingType]->backswing )
     return false;
 
   if ( m_swing == 0 ) {
@@ -909,13 +980,13 @@ Player::StartSwing( long spin ) {
  */
 bool
 Player::StartServe( long spin ) {
-  double stype[][7] = { {SERVE_NORMAL,     0.0, 0.0,  0.0,  0.1,  0.0,  0.2}, 
-			{SERVE_POKE,       0.0, 0.0,  0.0, -0.3,  0.0, -0.6}, 
-			{SERVE_SIDESPIN1, -0.6, 0.2, -0.8,  0.0, -0.6, -0.2}, 
-			{SERVE_SIDESPIN2,  0.6, 0.2,  0.8,  0.0,  0.6, -0.2},
-			{-1,               0.0, 0.0,  0.0,  0.0,  0.0,  0.0}};
+  double sparam[][7] = { {SERVE_NORMAL,     0.0, 0.0,  0.0,  0.1,  0.0,  0.2}, 
+			 {SERVE_POKE,       0.0, 0.0,  0.0, -0.3,  0.0, -0.6}, 
+			 {SERVE_SIDESPIN1, -0.6, 0.2, -0.8,  0.0, -0.6, -0.2}, 
+			 {SERVE_SIDESPIN2,  0.6, 0.2,  0.8,  0.0,  0.6, -0.2},
+			 {-1,               0.0, 0.0,  0.0,  0.0,  0.0,  0.0}};
 
-  if ( m_swing > 10 )
+  if ( m_swing > stype[m_swingType]->backswing )
     return false;
 
   if ( m_swing == 0 ){
@@ -923,10 +994,10 @@ Player::StartServe( long spin ) {
     m_pow = 0;
 
     int i = 0;
-    while ( stype[i][0] > 0 ) {
-      if ( (long)stype[i][0] == m_swingType ) {
-	m_spin[0] = stype[i][(spin-1)*2+1];
-	m_spin[1] = stype[i][(spin-1)*2+2];
+    while ( sparam[i][0] > 0 ) {
+      if ( (long)sparam[i][0] == m_swingType ) {
+	m_spin[0] = sparam[i][(spin-1)*2+1];
+	m_spin[1] = sparam[i][(spin-1)*2+2];
 	break;
       }
       i++;
@@ -1177,22 +1248,31 @@ Player::MoveLookAt() {
  */
 void
 Player::AutoMove() {
-  if ( m_swing > END_BACKSWING && m_swing < START_HITBALL ) {
+  if ( m_swing > stype[m_swingType]->backswing && m_swing < stype[m_swingType]->hitStart ) {
+  //TODO:
+  //if ( m_swing > END_BACKSWING && m_swing < START_HITBALL ) {
     Ball *tmpBall;
 
     tmpBall = new Ball(&theBall);
 
-    for ( int i = 0 ; i < 20-m_swing ; i++ )
+    for ( int i = 0 ; i < stype[m_swingType]->hitStart-m_swing ; i++ )
+    //TODO:
+    //for ( int i = 0 ; i < 20-m_swing ; i++ )
       tmpBall->Move();
 
     if ( ((tmpBall->GetStatus() == 3 && m_side == 1) ||
 	  (tmpBall->GetStatus() == 1 && m_side == -1)) ) {
       double hitpointX = m_swingSide ? m_x[0]+0.3*m_side : m_x[0]-0.3*m_side;
-      double xdiff = tmpBall->GetX()[0] - (hitpointX+m_v[0]*(20-m_swing)*TICK);
-      double ydiff = tmpBall->GetX()[1] - (   m_x[1]+m_v[1]*(20-m_swing)*TICK);
+      double xdiff = tmpBall->GetX()[0] - (hitpointX+m_v[0]*(stype[m_swingType]->hitStart-m_swing)*TICK);
+      double ydiff = tmpBall->GetX()[1] - (   m_x[1]+m_v[1]*(stype[m_swingType]->hitStart-m_swing)*TICK);
+      //TODO:
+      //double xdiff = tmpBall->GetX()[0] - (hitpointX+m_v[0]*(20-m_swing)*TICK);
+      //double ydiff = tmpBall->GetX()[1] - (   m_x[1]+m_v[1]*(20-m_swing)*TICK);
 
       double vxdiff, vydiff;
-      vxdiff = xdiff/TICK/(20-m_swing);
+      vxdiff = xdiff/TICK/(stype[m_swingType]->hitStart-m_swing);
+      //TODO:
+      //vxdiff = xdiff/TICK/(20-m_swing);
 
       if ( vxdiff > 2.0 )
 	vxdiff = 2.0;
@@ -1204,7 +1284,9 @@ Player::AutoMove() {
       m_v[0] += vxdiff;
 
       if ( fabs(ydiff) > 0.3 ) {
-	vydiff = ydiff/TICK/(20-m_swing);
+	vydiff = ydiff/TICK/(stype[m_swingType]->hitStart-m_swing);
+	//TODO:
+	//vydiff = ydiff/TICK/(20-m_swing);
 	if ( vydiff > 2.0 )
 	  vydiff = 2.0;
 	else if ( vydiff < -2.0 )
@@ -1252,4 +1334,3 @@ Player::drawHitMark() {
     BaseView::TheView()->AddView( hit );
   }
 }
-
