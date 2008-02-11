@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ public:
   bool Move();
 
   bool Hit( const vector3d v, const vector2d spin, Player *player );
-  bool Toss( Player *player, long power );
+  bool Toss( Player *player, double power );
 
   void Warp( const vector3d x, const vector3d v, const vector2d spin, long status );
 

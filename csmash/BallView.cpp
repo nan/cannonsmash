@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -84,7 +84,6 @@ BallView::Init() {
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
 		 Image.GetWidth(), Image.GetHeight(), 
@@ -155,9 +154,14 @@ BallView::RedrawAlpha() {
 
     tmpBall = new Ball( &theBall );
 
-    glColor4f(0.8F, 0.8F, 0.8F, 1.0F);
-    const static GLfloat mat_white[] = { 0.8F, 0.8F, 0.8F, 0.0F };
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_white);
+    static GLfloat line_spc[] = { 1.0F, 1.0F, 1.0F, 1.0F };
+    static GLfloat line_dif[] = { 1.0F, 1.0F, 1.0F, 1.0F };
+    static GLfloat line_amb[] = { 1.0F, 1.0F, 1.0F, 1.0F };
+    static GLfloat line_shininess[] = { 5.0 };
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, line_spc);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, line_dif);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, line_amb);
+    glMaterialfv(GL_FRONT, GL_SHININESS, line_shininess);
 
     vector3d prev, diff;
 
@@ -189,9 +193,15 @@ BallView::RedrawAlpha() {
     }
 
     if ( t1-10 == t2 ) {
-      glColor4f(1.0F, 0.0F, 0.0F, 1.0F);
-      const static GLfloat mat_red[] = { 1.0F, 0.0F, 0.0F, 1.0F };
-      glMaterialfv(GL_FRONT, GL_SPECULAR, mat_red);
+      static GLfloat red_spc[] = { 1.0F, 0.0F, 0.0F, 1.0F };
+      static GLfloat red_dif[] = { 1.0F, 0.0F, 0.0F, 1.0F };
+      static GLfloat red_amb[] = { 1.0F, 0.0F, 0.0F, 1.0F };
+      static GLfloat red_shininess[] = { 5.0 };
+      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, red_spc);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, red_dif);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, red_amb);
+      glMaterialfv(GL_FRONT, GL_SHININESS, red_shininess);
+
       glPushMatrix();
         glTranslatef( (float)tmpBall->GetX()[0],
 		      (float)tmpBall->GetX()[1],
@@ -220,9 +230,14 @@ BallView::RedrawAlpha() {
 	DrawTargetCircle();
       glPopMatrix();
     } else {
-      glColor4f(1.0F, 0.0F, 0.0F, 0.5F);
-      const static GLfloat mat_red[] = { 1.0F, 0.0F, 0.0F, 0.5F };
-      glMaterialfv(GL_FRONT, GL_SPECULAR, mat_red);
+      static GLfloat red_spc[] = { 1.0F, 0.0F, 0.0F, 0.5F };
+      static GLfloat red_dif[] = { 1.0F, 0.0F, 0.0F, 0.5F };
+      static GLfloat red_amb[] = { 1.0F, 0.0F, 0.0F, 0.5F };
+      static GLfloat red_shininess[] = { 5.0 };
+      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, red_spc);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, red_dif);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, red_amb);
+      glMaterialfv(GL_FRONT, GL_SHININESS, red_shininess);
 
       glPushMatrix();
         glTranslatef( tx[0]+thePlayer->GetX()[0]+0.3,
@@ -239,7 +254,11 @@ BallView::RedrawAlpha() {
       glPopMatrix();
     }
 
-    glColor4f(0.8F, 0.8F, 0.8F, 1.0F);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, line_spc);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, line_dif);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, line_amb);
+    glMaterialfv(GL_FRONT, GL_SHININESS, line_shininess);
+
     glBegin(GL_LINE_STRIP);
     while ( tmpBall->GetStatus() >= 0 ) {
       tmpBall->Move();
@@ -251,9 +270,14 @@ BallView::RedrawAlpha() {
       
     delete tmpBall;
   } else if ( Control::TheControl()->IsPlaying() ) {
-    glColor4f(1.0F, 0.0F, 0.0F, 0.2F);
-    const static GLfloat mat_red[] = { 1.0F, 0.0F, 0.0F, 0.5F };
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_red);
+    static GLfloat red_spc[] = { 1.0F, 0.0F, 0.0F, 0.2F };
+    static GLfloat red_dif[] = { 1.0F, 0.0F, 0.0F, 0.2F };
+    static GLfloat red_amb[] = { 1.0F, 0.0F, 0.0F, 0.2F };
+    static GLfloat red_shininess[] = { 5.0 };
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, red_spc);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, red_dif);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, red_amb);
+    glMaterialfv(GL_FRONT, GL_SHININESS, red_shininess);
 
     glPushMatrix();
       glTranslatef( tx[0]+thePlayer->GetX()[0]+0.3,
@@ -280,7 +304,7 @@ BallView::RedrawAlpha() {
       long score1, score2;
 
       glEnable(GL_TEXTURE_2D);
-      glColor3f( 0.0F, 0.0F, 0.0F );
+      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
       score1 = ((PlayGame *)Control::TheControl())->GetScore(1);
       score2 = ((PlayGame *)Control::TheControl())->GetScore(-1);
@@ -335,6 +359,7 @@ BallView::RedrawAlpha() {
 	glEnd();
       }
 
+      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
       glDisable(GL_TEXTURE_2D);
     }
 
@@ -349,10 +374,14 @@ BallView::RedrawAlpha() {
  */
 void
 BallView::DrawBall() {
-  const static GLfloat mat_yel[] = { 1.0F, 0.8F, 0.0F, 0.0F };
-
-  glColor4f(1.0F, 0.8F, 0.0F, 0.0F);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_yel);
+  static GLfloat ball_spc[] = { 1.0F, 0.8F, 0.0F, 0.0F };
+  static GLfloat ball_dif[] = { 1.0F, 0.8F, 0.0F, 0.0F };
+  static GLfloat ball_amb[] = { 1.0F, 0.8F, 0.0F, 0.0F };
+  static GLfloat ball_shininess[] = { 5.0 };
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ball_spc);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, ball_dif);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ball_amb);
+  glMaterialfv(GL_FRONT, GL_SHININESS, ball_shininess);
 
   glPushMatrix();
     glTranslatef( (float)theBall.GetX()[0],
@@ -376,7 +405,14 @@ BallView::DrawShadow() {
   else
     height = 0.01F;
 
-  glColor4f(0.0, 0.0, 0.0, 0.0);
+  static GLfloat sdw_spc[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+  static GLfloat sdw_dif[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+  static GLfloat sdw_amb[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+  static GLfloat sdw_shininess[] = { 5.0 };
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, sdw_spc);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, sdw_dif);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, sdw_amb);
+  glMaterialfv(GL_FRONT, GL_SHININESS, sdw_shininess);
 
   glBegin(GL_POLYGON);
     for ( rad = 0.0F ; rad < 3.141592F*2 ; rad += 3.141592F/4 )

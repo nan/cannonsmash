@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -222,12 +222,13 @@ Ball::Hit( const vector3d v, const vector2d spin, Player *player ) {
  * The ball is tossed up vertically, and the ball status is changed. 
  * 
  * @param player player who toss the ball. 
- * @param power not used. 
+ * @param power initial toss speed. 
  * @return returns true if succeeds. 
  */
 bool
-Ball::Toss( Player *player , long power ) {
-  m_v[2] = 2.5;
+Ball::Toss( Player *player , double power ) {
+//  m_v[2] = 2.5;
+  m_v[2] = power;
   m_spin[0] = m_spin[1] = 0.0;
 
   if ( player->GetSide() > 0 )
@@ -476,11 +477,11 @@ Ball::Reset() {
       player = control->GetComPlayer();
 
     if ( control->GetService() > 0 ) {
-      m_x[0] = player->GetX()[0]+0.3;
-      m_x[1] = player->GetX()[1];
+      m_x[0] = player->GetX()[0]+player->stype[player->GetSwingType()]->hitX;
+      m_x[1] = player->GetX()[1]+player->stype[player->GetSwingType()]->hitY;
     } else {
-      m_x[0] = player->GetX()[0]-0.3;
-      m_x[1] = player->GetX()[1];
+      m_x[0] = player->GetX()[0]-player->stype[player->GetSwingType()]->hitX;
+      m_x[1] = player->GetX()[1]+player->stype[player->GetSwingType()]->hitY;
     }
 
     m_x[2] = TABLEHEIGHT + 0.15;
