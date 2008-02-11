@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2002, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -73,7 +73,6 @@ TrainingView::Init( PlayGame *training ) {
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
 	       Image.GetWidth(), Image.GetHeight(), 
@@ -95,7 +94,7 @@ TrainingView::RedrawAlpha() {
   glTranslatef( TABLEWIDTH/2-0.3F, 0, TABLEHEIGHT+NETHEIGHT );
 
   glEnable(GL_TEXTURE_2D);
-  glColor3f( 0.0F, 0.0F, 0.0F );
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
   glBindTexture(GL_TEXTURE_2D, m_max );
   glBegin(GL_QUADS);
@@ -157,6 +156,7 @@ TrainingView::RedrawAlpha() {
     glEnd();
   }
 
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glDisable(GL_TEXTURE_2D);
   glPopMatrix();
 

@@ -38,6 +38,9 @@
 #include "LoadImage.h"
 #include "glARB.h"
 
+//extern PFNGLACTIVETEXTUREARBPROC glActiveTextureARB;
+//extern PFNGLMULTITEXCOORD1FARBPROC glMultiTexCoord1fARB;
+
 #include <iostream>
 #include <vector>
 #include <map>
@@ -85,6 +88,7 @@ extern GLuint tex_animelight;
 #define LFOOTORIGINX	-0.25
 #define LFOOTORIGINY	0
 #define LFOOTORIGINZ	0
+
 
 const float thighLength = 0.396;
 const float shinLength = 0.430;
@@ -476,7 +480,7 @@ affineanim::affineanim(const char *filename)
     FILE *in = fopen(filename, "r");
     if (NULL == in) return;
 
-    std::vector<affine4F> mat(100);
+    std::vector<affine4F> mat(400);
 
     char line[512];
     const char *delim = " \t(,);\r\n";
@@ -805,36 +809,15 @@ partsmotion::drawleg( float xdiff, float ydiff, float zdiff,
 }
 
 
-float bodyIK( vector3F &diff, vector3F &neck, vector3F &waist ) {
-
+float bodyIK( vector3F &diff ) {
   float legLength = thighLength+shinLength+footSize;
 
-  neck[0]  = NECKORIGINX+diff[0];
-  neck[1]  = NECKORIGINY+diff[1];
-  neck[2]  = NECKORIGINZ+diff[2];
-  waist[0] = WAISTORIGINX+diff[0];
-  waist[1] = WAISTORIGINY;
-  waist[2] = WAISTORIGINZ;
-
-  if ( neck[1]-waist[1] > bodylength*0.8 )
-    neck[1] = waist[1]+bodylength*0.8;
-
-  diff[1] = NECKORIGINY+diff[1] - neck[1];
-
-  if ( hypot( neck[1]-waist[1], neck[2]-legLength ) > bodylength ) {
+  if ( NECKORIGINZ+diff[2] > bodylength+legLength ) {
     /* 肩の位置を下げる */
-    neck[2] = legLength +
-      sqrt( bodylength*bodylength - (neck[1]-waist[1])*(neck[1]-waist[1]) );
-    waist[2] = legLength;
-  } else {
-    waist[2] = neck[2] - sqrt( bodylength*bodylength -
-			       (waist[0]-neck[0])*(waist[0]-neck[0]) -
-			       (waist[1]-neck[1])*(waist[1]-neck[1]) );
+    diff[2] = bodylength+legLength-NECKORIGINZ;
   }
 
-  diff[2] = NECKORIGINZ+diff[2] - neck[2];
-
-  return waist[2]-WAISTORIGINZ;
+  return diff[2];
 }
 
 void
@@ -939,8 +922,6 @@ bool partsmotion::render(double _frame, vector3F diff)
 {
     float frame = _frame;
     float zwaistdiff;
-    vector3F _diff = diff;
-    vector3F neck, waist;
 
     if ( theRC->gmode == GMODE_TOON ) {
 	affine4F t;
@@ -958,9 +939,9 @@ bool partsmotion::render(double _frame, vector3F diff)
 	glDisable(GL_LIGHTING);
     }
 
-    zwaistdiff = bodyIK( _diff, neck, waist );
+    zwaistdiff = bodyIK( diff );
 
-    glTranslatef( diff[0], diff[1]-_diff[1], diff[2]-_diff[2] );
+    glTranslatef( diff[0], diff[1], diff[2] );
 
     vector4F p;
 
@@ -1053,8 +1034,8 @@ bool partsmotion::render(double _frame, vector3F diff)
 	renderparts(2, false);					/* hip */
 
 	/* Here, legs should be drawn */
-	glTranslatef( 0.0, 0.159459, -1.010000 );
-	drawleg( _diff[0], 0.0, zwaistdiff );
+	glTranslatef( 0.0, 0.159459, -1.010000-diff[2] );
+	drawleg( diff[0], 0.0, zwaistdiff );
 
       glPopMatrix();
     glPopMatrix();
@@ -1074,12 +1055,10 @@ bool partsmotion::renderWire(double _frame, vector3F diff)
 {
     float frame = _frame;
     float zwaistdiff;
-    vector3F _diff = diff;
-    vector3F neck, waist;
 
-    zwaistdiff = bodyIK( _diff, neck, waist );
+    zwaistdiff = bodyIK( diff );
 
-    glTranslatef( diff[0], diff[1]-_diff[1], diff[2]-_diff[2] );
+    glTranslatef( diff[0], diff[1], diff[2] );
 
     vector4F p;
 
@@ -1172,8 +1151,8 @@ bool partsmotion::renderWire(double _frame, vector3F diff)
 	renderparts(2, true);					/* hip */
 
 	/* Here, legs should be drawn */
-	glTranslatef( 0.0, 0.159459, -1.010000 );
-	drawleg( _diff[0], 0.0, zwaistdiff, true );
+	glTranslatef( 0.0, 0.159459, -1.010000-diff[2] );
+	drawleg( diff[0], 0.0, zwaistdiff, true );
 
       glPopMatrix();
     glPopMatrix();
@@ -1185,12 +1164,10 @@ bool partsmotion::renderArmOnly(double _frame, vector3F diff)
 {
     float frame = _frame;
     float zwaistdiff;
-    vector3F _diff = diff;
-    vector3F neck, waist;
 
-    zwaistdiff = bodyIK( _diff, neck, waist );
+    zwaistdiff = bodyIK( diff );
 
-    glTranslatef( diff[0], diff[1]-_diff[1], diff[2]-_diff[2] );
+    glTranslatef( diff[0], diff[1], diff[2] );
 
     vector4F p;
 
@@ -1307,8 +1284,17 @@ partsmotion::renderparts( int partsNum, bool isWireFrame ) {
 #if RENDEREDGE
       vector3F center(0);
 #endif
+
+      static GLfloat spc[] = { 0.0F, 0.0F, 0.0F, 0.0F };
+      static GLfloat shininess[] = { 5.0 };
+      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spc);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, colors[poly.c()]);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, colors[poly.c()]);
+      glMaterialfv(GL_FRONT, GL_SHININESS, shininess);      
+
       glBegin(poly.glBeginSize());
       glColor4fv(colors[poly.c()]);
+
       for (int k = 0; poly.size > k; k++) {
 	vector3F n = poly.rn(k);
 	vector3F v = poly.rv(k);
@@ -1318,7 +1304,7 @@ partsmotion::renderparts( int partsNum, bool isWireFrame ) {
 	  glMultiTexCoord1fARB(GL_TEXTURE1_ARB, clamp(0.0f, light*n, 1.0f));
 	}
 #if RENDEREDGE
-	center += v;
+p	center += v;
 #endif
 	glVertex3fv((float*)&v);
       }

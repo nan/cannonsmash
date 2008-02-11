@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000, 2001, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2002, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -72,7 +72,6 @@ TrainingSelectView::Init( PlayerSelect *playerSelect ) {
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
       glTexImage2D(GL_TEXTURE_2D, 0, 3, image.GetWidth(), image.GetHeight(), 
 		   0, GL_RGBA, GL_UNSIGNED_BYTE, image.GetImage() );
@@ -98,10 +97,10 @@ TrainingSelectView::Redraw() {
   int i;
 
   if ( theRC->gmode != GMODE_SIMPLE ||
-       (m_playerSelect->GetRotate()%360)%(360/PLAYERS) == 0 )
+       (m_playerSelect->GetRotate()%360)%(360/PLAYERS) == 0 ) {
     glEnable(GL_TEXTURE_2D);
-
-  glColor4f( 0.0, 0.0, 0.0, 0.0 );
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+  }
 
   if ( m_playerSelect->GetSelected() > 0 ) {
     int player;
@@ -141,8 +140,6 @@ TrainingSelectView::Redraw() {
       glPopMatrix();
     }
 
-    glColor4f( 1.0F, 1.0F, 1.0F, 0.0F );
-
     glPushMatrix();
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
@@ -161,6 +158,7 @@ TrainingSelectView::Redraw() {
     glPopMatrix();
   }
 
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glDisable(GL_TEXTURE_2D);
 
   return true;
