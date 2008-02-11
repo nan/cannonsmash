@@ -281,7 +281,8 @@ ReadEntireMessage( int socket, char **buf ) {
   ReadLong( (char *)lengthBuf, msgLength );
 
   // Read all
-  (*buf) = new char[msgLength+1];
+  //(*buf) = new char[msgLength+1];
+  (*buf) = new char[msgLength*10];
   len = 0;
   while (1) {
     if ( (len+=recv( socket, (*buf)+len, msgLength-len, 0 )) == msgLength )
