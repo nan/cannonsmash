@@ -71,6 +71,8 @@ Title::~Title() {
  */
 bool
 Title::Init() {
+  m_selectMode = MENU_MAIN;
+
   m_View = (TitleView *)View::CreateView( VIEW_TITLE );
   m_View->Init( this );
   SetSelectMode(MENU_MAIN);

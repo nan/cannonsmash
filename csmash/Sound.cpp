@@ -95,7 +95,7 @@ Sound::Init( long sndMode, float volume ) {
 			      "six", "seven", "eight", "nine", "ten", "eleven",
 			      "twelve", "thirteen", "fourteen", "fifteen", 
 			      "sixteen", "seventeen", "eighteen", "nineteen",
-			      "twenty", "", "", "", "", "", "", "", "", "",
+			      "twenty", "twentyone", "", "", "", "", "", "", "", "",
 			      "thirty"};
   m_soundMode = sndMode;
   m_volume = volume;
@@ -117,6 +117,8 @@ Sound::Init( long sndMode, float volume ) {
   if ( Mix_OpenAudio( 44100, AUDIO_S16SYS, 2, 128 ) < 0 ) {
 #endif
     perror( _("SDL Mix_OpenAudio failed\n") );
+    m_soundMode = SOUND_NONE;
+    return true;
   }
 
   m_sound[SOUND_RACKET] = Mix_LoadWAV( "wav/racket.wav" );
@@ -264,7 +266,7 @@ Sound::PlayNumber( long number ) {
   if ( number > 30 ) {
     PlayBlocking( 1, m_score[30] );
     PlayBlocking( 1, m_score[number-30] );
-  } else if ( number > 20 ) {
+  } else if ( number > 21 ) {
     PlayBlocking( 1, m_score[20] );
     PlayBlocking( 1, m_score[number-20] );
   } else

@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -149,6 +149,47 @@ ShakeCut::ShakeCut( long playerType, long side, const vector3d x,
  * Do nothing. 
  */
 ShakeCut::~ShakeCut() {
+}
+
+/**
+ * Start serve (backswing). 
+ * 
+ * @param spin spin level. 
+ * @return returns true if succeeds. 
+ */
+bool
+ShakeCut::StartServe( long spin ) {
+  double sparam[][7] = { {SERVE_NORMAL,     0.0, 0.0,  0.0,  0.1,  0.0,  0.2}, 
+			 {SERVE_POKE,       0.0, 0.0,  0.0, -0.4,  0.0, -1.0}, 
+			 {SERVE_SIDESPIN1, -0.6, 0.2, -0.8,  0.0, -0.6, -0.2}, 
+			 {SERVE_SIDESPIN2,  0.6, 0.2,  0.8,  0.0,  0.6, -0.2},
+			 {-1,               0.0, 0.0,  0.0,  0.0,  0.0,  0.0}};
+
+  if ( m_swing > stype[m_swingType]->backswing )
+    return false;
+
+  if ( m_swing == 0 ){
+    m_swing = 1;
+    m_pow = 0;
+
+    int i = 0;
+    while ( sparam[i][0] > 0 ) {
+      if ( (long)sparam[i][0] == m_swingType ) {
+	m_spin[0] = sparam[i][(spin-1)*2];
+	m_spin[1] = sparam[i][(spin-1)*2+1];
+	break;
+      }
+      i++;
+    }
+
+    m_swingSide = true;
+
+    if ( Control::TheControl()->GetThePlayer() == this &&
+	 mode == MODE_MULTIPLAY )
+      ::SendSwingAndLocation( this );
+  }
+
+  return true;
 }
 
 /**
