@@ -1,0 +1,941 @@
+# Brazilian Portuguese message for Cannon Smash
+# Copyright (C) 2007 Jalmar Bondan Jr. <jalmar.bondan@gmail.com>
+msgid ""
+msgstr ""
+"Project-Id-Version: Cannon Smash 0.6.6\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2007-07-02 15:30+0900\n"
+"PO-Revision-Date: 2007-07-08 17:36+0900\n"
+"Last-Translator: Jalmar Bondan Jr. <jalmar.bondan@gmail.com>\n"
+"Language-Team: <>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-15\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: LobbyClient.h:48
+msgid "Afar"
+msgstr ""
+
+#: LobbyClient.h:49
+msgid "Abkhazian"
+msgstr ""
+
+#: LobbyClient.h:50
+msgid "Avestan"
+msgstr ""
+
+#: LobbyClient.h:51
+msgid "Afrikaans"
+msgstr ""
+
+#: LobbyClient.h:52
+msgid "Amharic"
+msgstr ""
+
+#: LobbyClient.h:53
+msgid "Arabic"
+msgstr ""
+
+#: LobbyClient.h:54
+msgid "Assamese"
+msgstr ""
+
+#: LobbyClient.h:55
+msgid "Aymara"
+msgstr ""
+
+#: LobbyClient.h:56
+msgid "Azerbaijani"
+msgstr ""
+
+#: LobbyClient.h:57
+msgid "Bashkir"
+msgstr ""
+
+#: LobbyClient.h:58
+msgid "Belarusian"
+msgstr ""
+
+#: LobbyClient.h:59
+msgid "Bulgarian"
+msgstr ""
+
+#: LobbyClient.h:60
+msgid "Bihari"
+msgstr ""
+
+#: LobbyClient.h:61
+msgid "Bislama"
+msgstr ""
+
+#: LobbyClient.h:62
+msgid "Bengali"
+msgstr ""
+
+#: LobbyClient.h:63
+msgid "Tibetan"
+msgstr ""
+
+#: LobbyClient.h:64
+msgid "Breton"
+msgstr ""
+
+#: LobbyClient.h:65
+msgid "Bosnian"
+msgstr ""
+
+#: LobbyClient.h:66
+msgid "Catalan"
+msgstr ""
+
+#: LobbyClient.h:67
+msgid "Chechen"
+msgstr ""
+
+#: LobbyClient.h:68
+msgid "Chamorro"
+msgstr ""
+
+#: LobbyClient.h:69
+msgid "Corsican"
+msgstr ""
+
+#: LobbyClient.h:70
+msgid "Czech"
+msgstr ""
+
+#: LobbyClient.h:71
+msgid "Church Slavic"
+msgstr ""
+
+#: LobbyClient.h:72
+msgid "Chuvash"
+msgstr ""
+
+#: LobbyClient.h:73
+msgid "Welsh"
+msgstr ""
+
+#: LobbyClient.h:74
+msgid "Danish"
+msgstr ""
+
+#: LobbyClient.h:75
+msgid "German"
+msgstr ""
+
+#: LobbyClient.h:76
+msgid "Dzongkha"
+msgstr ""
+
+#: LobbyClient.h:77
+msgid "Greek"
+msgstr ""
+
+#: LobbyClient.h:78 LobbyClientView.cpp:351
+msgid "English"
+msgstr ""
+
+#: LobbyClient.h:79
+msgid "Esperanto"
+msgstr ""
+
+#: LobbyClient.h:80
+msgid "Spanish"
+msgstr ""
+
+#: LobbyClient.h:81
+msgid "Estonian"
+msgstr ""
+
+#: LobbyClient.h:82
+msgid "Basque"
+msgstr ""
+
+#: LobbyClient.h:83
+msgid "Persian"
+msgstr ""
+
+#: LobbyClient.h:84
+msgid "Finnish"
+msgstr ""
+
+#: LobbyClient.h:85
+msgid "Fijian"
+msgstr ""
+
+#: LobbyClient.h:86
+msgid "Faroese"
+msgstr ""
+
+#: LobbyClient.h:87
+msgid "French"
+msgstr ""
+
+#: LobbyClient.h:88
+msgid "Frisian"
+msgstr ""
+
+#: LobbyClient.h:89
+msgid "Irish"
+msgstr ""
+
+#: LobbyClient.h:90
+#, fuzzy
+msgid "Scots"
+msgstr "schlie_en"
+
+#: LobbyClient.h:91
+msgid "Galician"
+msgstr ""
+
+#: LobbyClient.h:92
+msgid "Guarani"
+msgstr ""
+
+#: LobbyClient.h:93
+msgid "Gujarati"
+msgstr ""
+
+#: LobbyClient.h:94
+msgid "Manx"
+msgstr ""
+
+#: LobbyClient.h:95
+msgid "Hausa"
+msgstr ""
+
+#: LobbyClient.h:96
+msgid "Hebrew"
+msgstr ""
+
+#: LobbyClient.h:97
+msgid "Hindi"
+msgstr ""
+
+#: LobbyClient.h:98
+msgid "Hiri Motu"
+msgstr ""
+
+#: LobbyClient.h:99
+msgid "Croatian"
+msgstr ""
+
+#: LobbyClient.h:100
+msgid "Hungarian"
+msgstr ""
+
+#: LobbyClient.h:101
+msgid "Armenian"
+msgstr ""
+
+#: LobbyClient.h:102
+#, fuzzy
+msgid "Herero"
+msgstr "Server"
+
+#: LobbyClient.h:103
+msgid "Interlingua"
+msgstr ""
+
+#: LobbyClient.h:104
+msgid "Indonesian"
+msgstr ""
+
+#: LobbyClient.h:105
+msgid "Interlingue"
+msgstr ""
+
+#: LobbyClient.h:106
+msgid "Inupiak"
+msgstr ""
+
+#: LobbyClient.h:107
+msgid "Icelandic"
+msgstr ""
+
+#: LobbyClient.h:108
+msgid "Italian"
+msgstr ""
+
+#: LobbyClient.h:109
+msgid "Inuktitut"
+msgstr ""
+
+#: LobbyClient.h:110
+msgid "Japanese"
+msgstr ""
+
+#: LobbyClient.h:111
+msgid "Javanese"
+msgstr ""
+
+#: LobbyClient.h:112
+msgid "Georgian"
+msgstr ""
+
+#: LobbyClient.h:113
+msgid "Kikuyu"
+msgstr ""
+
+#: LobbyClient.h:114
+msgid "Kuanyama"
+msgstr ""
+
+#: LobbyClient.h:115
+msgid "Kazakh"
+msgstr ""
+
+#: LobbyClient.h:116
+msgid "Kalaallisut"
+msgstr ""
+
+#: LobbyClient.h:117
+msgid "Khmer"
+msgstr ""
+
+#: LobbyClient.h:118
+msgid "Kannada"
+msgstr ""
+
+#: LobbyClient.h:119
+msgid "Korean"
+msgstr ""
+
+#: LobbyClient.h:120
+msgid "Kashmiri"
+msgstr ""
+
+#: LobbyClient.h:121
+msgid "Kurdish"
+msgstr ""
+
+#: LobbyClient.h:122
+msgid "Komi"
+msgstr ""
+
+#: LobbyClient.h:123
+msgid "Cornish"
+msgstr ""
+
+#: LobbyClient.h:124
+msgid "Kirghiz"
+msgstr ""
+
+#: LobbyClient.h:125
+msgid "Konkani"
+msgstr ""
+
+#: LobbyClient.h:126
+msgid "Latin"
+msgstr ""
+
+#: LobbyClient.h:127
+msgid "Letzeburgesch"
+msgstr ""
+
+#: LobbyClient.h:128
+msgid "Lingala"
+msgstr ""
+
+#: LobbyClient.h:129
+msgid "Laotian"
+msgstr ""
+
+#: LobbyClient.h:130
+msgid "Lithuanian"
+msgstr ""
+
+#: LobbyClient.h:131
+msgid "Latvian"
+msgstr ""
+
+#: LobbyClient.h:132
+msgid "Malagasy"
+msgstr ""
+
+#: LobbyClient.h:133
+msgid "Marshall"
+msgstr ""
+
+#: LobbyClient.h:134
+msgid "Maori"
+msgstr ""
+
+#: LobbyClient.h:135
+msgid "Macedonian"
+msgstr ""
+
+#: LobbyClient.h:136
+msgid "Malayalam"
+msgstr ""
+
+#: LobbyClient.h:137
+msgid "Mongolian"
+msgstr ""
+
+#: LobbyClient.h:138
+msgid "Moldavian"
+msgstr ""
+
+#: LobbyClient.h:139
+msgid "Marathi"
+msgstr ""
+
+#: LobbyClient.h:140
+msgid "Malay"
+msgstr ""
+
+#: LobbyClient.h:141
+msgid "Maltese"
+msgstr ""
+
+#: LobbyClient.h:142
+msgid "Burmese"
+msgstr ""
+
+#: LobbyClient.h:143
+msgid "Manipuri"
+msgstr ""
+
+#: LobbyClient.h:144
+msgid "Nauru"
+msgstr ""
+
+#: LobbyClient.h:145
+msgid "Norwegian Bokmal"
+msgstr ""
+
+#: LobbyClient.h:146
+msgid "North Ndebele"
+msgstr ""
+
+#: LobbyClient.h:147
+msgid "Nepali"
+msgstr ""
+
+#: LobbyClient.h:148
+msgid "Ndonga"
+msgstr ""
+
+#: LobbyClient.h:149
+msgid "Dutch"
+msgstr ""
+
+#: LobbyClient.h:150
+msgid "Norwegian Nynorsk"
+msgstr ""
+
+#: LobbyClient.h:151
+msgid "Norwegian"
+msgstr ""
+
+#: LobbyClient.h:152
+msgid "South Ndebele"
+msgstr ""
+
+#: LobbyClient.h:153
+msgid "Navajo"
+msgstr ""
+
+#: LobbyClient.h:154
+msgid "Nyanja"
+msgstr ""
+
+#: LobbyClient.h:155
+msgid "Occitan"
+msgstr ""
+
+#: LobbyClient.h:156
+msgid "(Afan) Oromo"
+msgstr ""
+
+#: LobbyClient.h:157
+msgid "Oriya"
+msgstr ""
+
+#: LobbyClient.h:158
+msgid "Ossetian"
+msgstr ""
+
+#: LobbyClient.h:159
+msgid "Punjabi"
+msgstr ""
+
+#: LobbyClient.h:160
+msgid "Pali"
+msgstr ""
+
+#: LobbyClient.h:161
+msgid "Polish"
+msgstr ""
+
+#: LobbyClient.h:162
+msgid "Pashto"
+msgstr ""
+
+#: LobbyClient.h:163
+msgid "Portuguese"
+msgstr "Português-Brasil"
+
+#: LobbyClient.h:164
+msgid "Quechua"
+msgstr ""
+
+#: LobbyClient.h:165
+msgid "Rhaeto-Roman"
+msgstr ""
+
+#: LobbyClient.h:166
+msgid "Kirundi"
+msgstr ""
+
+#: LobbyClient.h:167
+msgid "Romanian"
+msgstr ""
+
+#: LobbyClient.h:168
+msgid "Russian"
+msgstr ""
+
+#: LobbyClient.h:169
+msgid "Kinyarwanda"
+msgstr ""
+
+#: LobbyClient.h:170
+msgid "Sanskrit"
+msgstr ""
+
+#: LobbyClient.h:171
+msgid "Sardinian"
+msgstr ""
+
+#: LobbyClient.h:172
+msgid "Sindhi"
+msgstr ""
+
+#: LobbyClient.h:173
+msgid "Northern Sami"
+msgstr ""
+
+#: LobbyClient.h:174
+msgid "Sango"
+msgstr ""
+
+#: LobbyClient.h:175
+msgid "Sinhalese"
+msgstr ""
+
+#: LobbyClient.h:176
+#, fuzzy
+msgid "Slovak"
+msgstr "Allein"
+
+#: LobbyClient.h:177
+msgid "Slovenian"
+msgstr ""
+
+#: LobbyClient.h:178
+msgid "Samoan"
+msgstr ""
+
+#: LobbyClient.h:179
+msgid "Shona"
+msgstr ""
+
+#: LobbyClient.h:180
+#, fuzzy
+msgid "Somali"
+msgstr "Normal"
+
+#: LobbyClient.h:181
+msgid "Albanian"
+msgstr ""
+
+#: LobbyClient.h:182
+msgid "Serbian"
+msgstr ""
+
+#: LobbyClient.h:183
+msgid "Siswati"
+msgstr ""
+
+#: LobbyClient.h:184
+msgid "Sesotho"
+msgstr ""
+
+#: LobbyClient.h:185
+msgid "Sundanese"
+msgstr ""
+
+#: LobbyClient.h:186
+msgid "Swedish"
+msgstr ""
+
+#: LobbyClient.h:187
+msgid "Swahili"
+msgstr ""
+
+#: LobbyClient.h:188
+msgid "Tamil"
+msgstr ""
+
+#: LobbyClient.h:189
+msgid "Telugu"
+msgstr ""
+
+#: LobbyClient.h:190
+msgid "Tajik"
+msgstr ""
+
+#: LobbyClient.h:191
+msgid "Thai"
+msgstr ""
+
+#: LobbyClient.h:192
+msgid "Tigrinya"
+msgstr ""
+
+#: LobbyClient.h:193
+msgid "Turkmen"
+msgstr ""
+
+#: LobbyClient.h:194
+msgid "Tagalog"
+msgstr ""
+
+#: LobbyClient.h:195
+msgid "Setswana"
+msgstr ""
+
+#: LobbyClient.h:196
+msgid "Tonga"
+msgstr ""
+
+#: LobbyClient.h:197
+msgid "Turkish"
+msgstr ""
+
+#: LobbyClient.h:198
+msgid "Tsonga"
+msgstr ""
+
+#: LobbyClient.h:199
+msgid "Tatar"
+msgstr ""
+
+#: LobbyClient.h:200
+msgid "Twi"
+msgstr ""
+
+#: LobbyClient.h:201
+msgid "Tahitian"
+msgstr ""
+
+#: LobbyClient.h:202
+msgid "Uighur"
+msgstr ""
+
+#: LobbyClient.h:203
+msgid "Ukrainian"
+msgstr ""
+
+#: LobbyClient.h:204
+msgid "Urdu"
+msgstr ""
+
+#: LobbyClient.h:205
+msgid "Uzbek"
+msgstr ""
+
+#: LobbyClient.h:206
+msgid "Vietnamese"
+msgstr ""
+
+#: LobbyClient.h:207
+msgid "Volapuk"
+msgstr ""
+
+#: LobbyClient.h:208
+#, fuzzy
+msgid "Wolof"
+msgstr "Allein"
+
+#: LobbyClient.h:209
+msgid "Sorbian"
+msgstr ""
+
+#: LobbyClient.h:210
+msgid "Xhosa"
+msgstr ""
+
+#: LobbyClient.h:211
+msgid "Yiddish"
+msgstr ""
+
+#: LobbyClient.h:212
+msgid "Yoruba"
+msgstr ""
+
+#: LobbyClient.h:213
+msgid "Zhuang"
+msgstr ""
+
+#: LobbyClient.h:214
+msgid "Chinese"
+msgstr ""
+
+#: LobbyClient.h:215
+msgid "Zulu"
+msgstr ""
+
+#: BaseView.cpp:98 BaseView.cpp:103 BaseView.cpp:109
+msgid "SDL initialize failed\n"
+msgstr "Falhou ao iniciar SDL.\n"
+
+#: BaseView.cpp:124
+msgid "CannonSmash"
+msgstr "CannonSmash"
+
+#: BaseView.cpp:469
+#, c-format
+msgid "EndGame %d : %d\n"
+msgstr "Fim do Jogo: %d : %d\n"
+
+#: BaseView.cpp:476 BaseView.cpp:478 MenuItemView.cpp:60
+#: PlayerSelectView.cpp:91
+#, c-format
+msgid "%s.pbm"
+msgstr "%s.pt.pbm"
+
+#: Event.cpp:492
+#, c-format
+msgid "Toggled fullscreen mode - now %s\n"
+msgstr "Visualizar modo de Tela Cheia - Agora: %s\n"
+
+#: Event.cpp:493
+msgid "fullscreen"
+msgstr "Tela Cheia"
+
+#: Event.cpp:493
+msgid "windowed"
+msgstr "Em Janela"
+
+#: Event.cpp:495
+#, c-format
+msgid "Unable to toggle fullscreen mode\n" 
+msgstr " Incapaz de visualizar em modo de Tela Cheia \n"
+
+#: Event.cpp:965
+#, c-format
+msgid "Avg = %f\n"
+msgstr "Avg = %f\n"
+
+#: Event.cpp:966
+#, c-format
+msgid "BackTrack = %f\n"
+msgstr "Voltar atrás = %f\n"
+
+#: FieldView.cpp:100
+#, c-format
+msgid "%s.ppm"
+msgstr "%s.pt.ppm"
+
+#: LauncherView.cpp:246
+msgid "FullScreen"
+msgstr "Tela Cheia"
+
+#: LauncherView.cpp:251 LauncherView.cpp:348
+msgid "On"
+msgstr "Ligado"
+
+#: LauncherView.cpp:261 LauncherView.cpp:358
+msgid "Off"
+msgstr "Desligado"
+
+#: LauncherView.cpp:290
+msgid "Graphics"
+msgstr "Gráficos"
+
+#: LauncherView.cpp:295
+msgid" Toon" 
+msgstr ""
+
+#: LauncherView.cpp:303
+msgid "Simple"
+msgstr "Simples"
+
+#: LauncherView.cpp:310
+msgid "Normal"
+msgstr "Normal"
+
+#: LauncherView.cpp:343
+msgid "Sound"
+msgstr "Áudio"
+
+#: LauncherView.cpp:543
+msgid "Solo"
+msgstr "Individual"
+
+#: LauncherView.cpp:548
+msgid "LAN"
+msgstr "Rede"
+
+#: LauncherView.cpp:553
+msgid "Internet(Experimental)"
+msgstr "Internet (Em experiência)"
+
+#: LauncherView.cpp:607 LauncherView.cpp:680
+msgid "Game Start!"
+msgstr "Iniciar Jogo!"
+
+#: LauncherView.cpp:641
+msgid "Server"
+msgstr "Servidor"
+
+#: LauncherView.cpp:645
+msgid "Client"
+msgstr "Cliente"
+
+#: LauncherView.cpp:659
+msgid "Server name:"
+msgstr "Nome do Servidor:"
+
+#: LauncherView.cpp:716
+msgid "Nickname:"
+msgstr "Apelido:"
+
+#: LauncherView.cpp:726
+msgid ""
+"Password:\n"
+"(optional)"
+msgstr ""
+"Senha:\n"
+"(opcional)"
+
+
+#: LauncherView.cpp:737
+msgid "Accept ping from others"
+msgstr "Aceitar conexão de terceiros"
+
+#: LauncherView.cpp:741
+msgid "Connect to Lobby Server"
+msgstr "Conectar com Servidor"
+
+#: LauncherView.cpp:877 LauncherView.cpp:884 LobbyClientView.cpp:264
+#: LobbyClientView.cpp:372 LobbyClientView.cpp:769
+msgid "Cannon Smash"
+msgstr "Cannon Smash"
+
+#: LauncherView.cpp:893
+msgid "Quit"
+msgstr "Sair"
+
+#: LauncherView.cpp:953
+#, fuzzy
+msgid "Connection failed"
+msgstr "Conexão falhou\n"
+
+#: LobbyClientView.cpp:288
+msgid "Nickname"
+msgstr "Apelido"
+
+#: LobbyClientView.cpp:295
+msgid "ID"
+msgstr ""
+
+#: LobbyClientView.cpp:302
+msgid "ping [msec]"
+msgstr "Teste Ping [msec]"
+
+#: LobbyClientView.cpp:391
+msgid "connect"
+msgstr "Conectar"
+
+#: LobbyClientView.cpp:398
+msgid "warm up"
+msgstr"Aguardar" 
+
+#: LobbyClientView.cpp:404
+msgid "close"
+msgstr "Fechar"
+
+#: LobbyClientView.cpp:668
+#, c-format
+msgid ""
+"Latest Version %s is already released. \n"
+"Please download the latest version from \n"
+"%s\n"
+msgstr ""
+"Última versão %s foi lançada. \n"
+"Por favor, baixe a última versão de \n"
+"%s\n"
+
+
+#: LobbyClientView.cpp:778
+#, c-format
+msgid "\"%s\" (message: %s)want to play with you. OK?\n"
+msgstr "\"%s\" (Mensagem: %s) Convidaram você para jogar. Aceita?\n"
+
+#: LobbyClientView.cpp:790
+msgid "OK!"
+msgstr "SIM!"
+
+#: LobbyClientView.cpp:800
+msgid "No!"
+msgstr "Não!"
+
+#: main.cpp:107 main.cpp:122
+#, c-format
+msgid "No datafile directory.\n"
+msgstr "Diretório de arquivos não encontrado.\n"
+
+#: parts.cpp:199
+#, c-format
+msgid "%s:%d vertex buffer overflow\n"
+msgstr "%s:%d vertex buffer overflow\n"
+
+#: parts.cpp:223
+#, c-format
+msgid "%s:%d loop buffer overflow\n"
+msgstr "%s:%d loop buffer overflow\n"
+
+#: parts.cpp:498
+#, c-format
+msgid "%s:%d matrix buffer overflow\n"
+msgstr "%s:%d matrix buffer overflow\n"
+
+#: Player.cpp:278
+#, c-format
+msgid "no player %ld\n"
+msgstr "Sem jogador %ld\n"
+
+#: PlayGame.cpp:199
+#, c-format
+msgid "You : %d -  %d : Opponent\n"
+msgstr "Você : %d -  %d : Adversário\n"
+
+#: RCFile.cpp:192
+#, c-format
+msgid "No home directory.\n"
+msgstr " Diretório principal não encontrado .\n"
+
+#: RCFile.cpp:212
+#, c-format
+msgid "Cannot open rc file %s.\n"
+msgstr "Não pôde abrir arquivo  de configuração %s. \n"
+
+#: Sound.cpp:114
+msgid "SDL Mix_OpenAudio failed\n"
+msgstr "Falha na abertura de áudio SDL \n"
+
+#: Sound.cpp:127
+#, c-format
+msgid "wav/%s.wav"
+msgstr "wav/%s.pt.wav"
+
+#~ msgid "Message:"
+#~ msgstr " Mensagem:"
+
+#~ msgid "Message"
+#~ msgstr " Mensagem "
