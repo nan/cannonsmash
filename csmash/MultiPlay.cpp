@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -229,7 +229,9 @@ MultiPlay::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
   // theBall goes out of hitting area. 
   if ( ((theBall.GetStatus() == 1 && m_thePlayer->GetSide() == -1) ||
 	(theBall.GetStatus() == 3 && m_thePlayer->GetSide() == 1) ) &&
-       m_thePlayer->GetSwing() <= 10 &&
+       m_thePlayer->GetSwing() <= m_thePlayer->stype[m_thePlayer->GetSwingType()]->backswing &&
+       //TODO:
+       //m_thePlayer->GetSwing() <= 10 &&
        (m_thePlayer->GetX()[1]-theBall.GetX()[1])*m_thePlayer->GetSide() > 0.3 &&
        (m_thePlayer->GetX()[1]+m_thePlayer->GetV()[1]*TICK-(theBall.GetX()[1]+theBall.GetV()[1]*TICK))*m_thePlayer->GetSide() > 0.3 ) {
     ballSend = true;
