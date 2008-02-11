@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2001, 2002, 2003  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001-2003, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -87,8 +87,6 @@ PlayGameView::Redraw() {
  */
 bool
 PlayGameView::RedrawAlpha() {
-  glColor4f( 1.0, 1.0, 1.0, 1.0 );
-
   if ( m_playGame->IsPause() ) {
     glPushMatrix();
     glMatrixMode(GL_PROJECTION);
@@ -100,6 +98,15 @@ PlayGameView::RedrawAlpha() {
     glLoadIdentity();
 
     glDepthMask(0);
+
+    static GLfloat white_spc[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+    static GLfloat white_dif[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+    static GLfloat white_amb[] = { 5.0F, 5.0F, 5.0F, 1.0F };
+    static GLfloat white_shininess[] = { 5.0 };
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, white_spc);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, white_dif);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, white_amb);
+    glMaterialfv(GL_FRONT, GL_SHININESS, white_shininess);
 
     glRasterPos2i( BaseView::GetWinWidth()/2-128, BaseView::GetWinHeight()/2 );
     glBitmap( 256, 150, 0.0F, 0.0F, 0.0F, 0, m_image->GetImage() );
