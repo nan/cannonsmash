@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2001, 2002, 2003  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2001-2003, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -52,7 +52,10 @@ bool
 PracticeSelectView::Redraw() {
   int i;
 
-  glColor4f( 0.0, 0.0, 0.0, 0.0 );
+  if ( theRC->gmode != GMODE_SIMPLE ) {
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+  }
 
   if ( m_playerSelect->GetSelected() > 0 ) {
     int player;
@@ -61,12 +64,9 @@ PracticeSelectView::Redraw() {
 
     glPushMatrix();
     if ( m_playerSelect->GetSelected() < 100 ) {
-      if ( theRC->gmode != GMODE_SIMPLE )
-	glEnable(GL_TEXTURE_2D);
       glTranslatef( -1.0, -1.0F+0.01F*m_playerSelect->GetSelected(), 1.0F );
       glRotatef( m_playerSelect->GetSelected()*360.0F/100, 0.0F, 0.0F, 1.0F );
     } else {
-      glEnable(GL_TEXTURE_2D);
       glTranslatef( -0.01F*100, -1.0F+0.01F*100, 1.0F );
     }
 
@@ -79,10 +79,6 @@ PracticeSelectView::Redraw() {
     glEnd();
     glPopMatrix();
   } else {
-    if ( theRC->gmode != GMODE_SIMPLE ||
-	 (m_playerSelect->GetRotate()%360)%(360/PLAYERS) == 0 )
-      glEnable(GL_TEXTURE_2D);
-
     for ( i = 0 ; i < PLAYERS ; i++ ){
       glPushMatrix();
         glTranslatef( -1.0, -0.0, 0.0 );
@@ -99,8 +95,6 @@ PracticeSelectView::Redraw() {
     }
   }
 
-  glDisable(GL_TEXTURE_2D);
-
   long selected = ((PracticeSelect *)m_playerSelect)->GetOpponentSelected();
 
   if ( selected > 0 ) {
@@ -110,12 +104,9 @@ PracticeSelectView::Redraw() {
 
     glPushMatrix();
     if ( selected < 100 ) {
-      if ( theRC->gmode != GMODE_SIMPLE )
-	glEnable(GL_TEXTURE_2D);
       glTranslatef( 1.0F, -1.0F+0.01F*selected, 1.0F );
       glRotatef( selected*360.0F/100, 0.0F, 0.0F, 1.0F );
     } else {
-      glEnable(GL_TEXTURE_2D);
       glTranslatef( 0.01F*100, -1.0F+0.01F*100, 1.0F );
     }
 
@@ -155,8 +146,6 @@ PracticeSelectView::Redraw() {
     }
   }
 
-  glColor4f( 1.0F, 1.0F, 1.0F, 0.0F );
-
   glPushMatrix();
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
@@ -174,6 +163,7 @@ PracticeSelectView::Redraw() {
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
 
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glDisable(GL_TEXTURE_2D);
 
   return true;
