@@ -124,7 +124,11 @@ HumanController::KeyCheck( SDL_keysym *KeyHistory, long *MouseXHistory,
   // ちなみに, スイング後のマウスのドラッグによってボールの回転を
   // 制御する場合, この方法は使えないかも知れない. 
 
-  if ( m_parent->GetSwing() > Player::END_BACKSWING && m_parent->GetSwing() <= Player::START_HITBALL ) {
+
+  if ( m_parent->GetSwing() > m_parent->stype[m_parent->GetSwingType()]->backswing &&
+       m_parent->GetSwing() <= m_parent->stype[m_parent->GetSwingType()]->hitStart ) {
+  //TODO: apply stype
+  //if ( m_parent->GetSwing() > Player::END_BACKSWING && m_parent->GetSwing() <= Player::START_HITBALL ) {
     long hptr = Histptr-(m_parent->GetSwing()-11);
     if ( hptr < 0 )
       hptr += MAX_HISTORY;
@@ -159,6 +163,7 @@ HumanController::KeyCheck( SDL_keysym *KeyHistory, long *MouseXHistory,
   if ( (mouse & rightButton) && !(lastmouse & rightButton) ){
     if ( theBall.GetStatus() == 8 &&
 	 ((PlayGame *)Control::TheControl())->GetService() == m_parent->GetSide() ) {
+      //TODO apply delayed toss
       theBall.Toss( m_parent, 3 );
       m_parent->StartServe(3);
     } else {
@@ -168,6 +173,7 @@ HumanController::KeyCheck( SDL_keysym *KeyHistory, long *MouseXHistory,
   } else if ( (mouse & BUTTON_MIDDLE) && !(lastmouse & BUTTON_MIDDLE) ){
     if ( theBall.GetStatus() == 8 &&
 	 ((PlayGame *)Control::TheControl())->GetService() == m_parent->GetSide() ) {
+      //TODO apply delayed toss
       theBall.Toss( m_parent, 2 );
       m_parent->StartServe(2);
     } else {
@@ -177,6 +183,7 @@ HumanController::KeyCheck( SDL_keysym *KeyHistory, long *MouseXHistory,
   } else if ( (mouse & leftButton) && !(lastmouse & leftButton) ){
     if ( theBall.GetStatus() == 8 &&
 	 ((PlayGame *)Control::TheControl())->GetService() == m_parent->GetSide() ) {
+      //TODO apply delayed toss
       theBall.Toss( m_parent, 1 );
       m_parent->StartServe(1);
     } else {

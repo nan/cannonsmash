@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -73,12 +73,6 @@ Howto::Init() {
 
   BaseView::TheView()->AddView( m_View );
 
-  m_thePlayer = new PenAttack(1);
-  m_comPlayer = new ShakeCut(-1);
-
-  m_thePlayer->Init();
-  m_comPlayer->Init();
-
   return true;
 }
 
@@ -93,6 +87,13 @@ Howto::Create() {
 
   m_theControl = new Howto();
   m_theControl->Init();
+
+  m_thePlayer = Player::Create( PLAYER_PENATTACK, 1, 0 );
+  m_comPlayer = Player::Create( PLAYER_SHAKECUT, -1, 0 );
+
+  m_thePlayer->Init();
+  m_comPlayer->Init();
+
 }
 
 /**
@@ -166,7 +167,7 @@ Howto::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     m_mouseX = 25;
     m_mouseY = 25;
     if ( m_count%350 == 50 ) {
-      theBall.Toss( m_thePlayer, 1 );
+      theBall.Toss( m_thePlayer, 2.5 );
       m_thePlayer->StartServe( m_count/350+1 );
     }
     if ( (m_count%350) >= 50 && (m_count%350) < 100 )
@@ -216,7 +217,7 @@ Howto::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_mouseX = 11;
       m_mouseY = 2;
     } else if ( m_count == 1150 ) {
-      theBall.Toss( m_thePlayer, 1 );
+      theBall.Toss( m_thePlayer, 2.5 );
       m_thePlayer->StartServe(1);
     } else if ( m_count == 1450 ) {
       m_thePlayer->m_target[0] = -TABLEWIDTH/2*0.9;
@@ -224,7 +225,7 @@ Howto::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_mouseX = 0;
       m_mouseY = 0;
     } else if ( m_count == 1550 ) {
-      theBall.Toss( m_thePlayer, 1 );
+      theBall.Toss( m_thePlayer, 2.5 );
       m_thePlayer->StartServe(1);
     }
 
@@ -241,7 +242,7 @@ Howto::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
       m_mouseY = 0;
       m_mouseB = 0;
     } else if ( m_count == 50 ) {
-      theBall.Toss( m_thePlayer, 1 );
+      theBall.Toss( m_thePlayer, 2.5 );
       m_thePlayer->StartServe(3);
       m_mouseB = 1;
     } else if ( m_count > 50 && m_count < 100 ) {

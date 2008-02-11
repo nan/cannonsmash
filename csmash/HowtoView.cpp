@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000, 2002  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2002, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -90,7 +90,6 @@ HowtoView::Init( Howto *howto ) {
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
       glTexImage2D(GL_TEXTURE_2D, 0, 4, image.GetWidth(), image.GetHeight(), 
 		   0, GL_RGBA, GL_UNSIGNED_BYTE, image.GetImage() );
@@ -126,7 +125,6 @@ HowtoView::Init( Howto *howto ) {
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
   glTexImage2D(GL_TEXTURE_2D, 0, 4, image.GetWidth(), image.GetHeight(),
 	       0, GL_RGBA, GL_UNSIGNED_BYTE, image.GetImage() );
@@ -166,7 +164,15 @@ HowtoView::RedrawAlpha() {
   case 1:
   case 3:
   case 4:
-    glColor4f( 0.0F, 0.0F, 0.0F, 0.3F );
+    static GLfloat bg_spc[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+    static GLfloat bg_dif[] = { 0.0F, 0.0F, 0.0F, 0.3F };
+    static GLfloat bg_amb[] = { 0.0F, 0.0F, 0.0F, 0.3F };
+    static GLfloat bg_shininess[] = { 5.0 };
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, bg_spc);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, bg_dif);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, bg_amb);
+    glMaterialfv(GL_FRONT, GL_SHININESS, bg_shininess);
+
     glBegin(GL_QUADS);
     glVertex2i(             0,               0);
     glVertex2i(IMAGE_WIDTH+50,               0);
@@ -175,6 +181,7 @@ HowtoView::RedrawAlpha() {
     glEnd();
 
     glEnable(GL_TEXTURE_2D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glBindTexture(GL_TEXTURE_2D, m_textures[m_howto->GetMouseB()] );
     glBegin(GL_QUADS);
     glTexCoord2f(0.0, 1.0);
@@ -187,14 +194,23 @@ HowtoView::RedrawAlpha() {
     glTexCoord2f(0.0, 0.0);
     glVertex2i( m_howto->GetMouseX(), IMAGE_HEIGHT+m_howto->GetMouseY() );
     glEnd();
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glDisable(GL_TEXTURE_2D);
 
     break;
   case 2:
     if ( m_howto->GetCount() > 100 && m_howto->GetCount() < 1000 ) {
-      glColor4f( 0.0, 0.0, 0.0, 1.0 );
+      static GLfloat key_spc[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+      static GLfloat key_dif[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+      static GLfloat key_amb[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+      static GLfloat key_shininess[] = { 5.0 };
+      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, key_spc);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, key_dif);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, key_amb);
+      glMaterialfv(GL_FRONT, GL_SHININESS, key_shininess);
 
       glEnable(GL_TEXTURE_2D);
+      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
       glBindTexture(GL_TEXTURE_2D, m_keyboard[0] );
       glBegin(GL_QUADS);
       glTexCoord2f(0.0, 1.0); glVertex2i( 120, -180 );
@@ -202,6 +218,7 @@ HowtoView::RedrawAlpha() {
       glTexCoord2f(1.0, 0.0); glVertex2i( 800,  300 );
       glTexCoord2f(0.0, 0.0); glVertex2i( 120,  300 );
       glEnd();
+      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
       glDisable(GL_TEXTURE_2D);
     }
     break;
@@ -209,7 +226,15 @@ HowtoView::RedrawAlpha() {
 
   switch ( m_howto->GetMode() ) {
   case 0:
-    glColor4f( 1.0, 1.0, 1.0, 1.0 );
+    static GLfloat arrow_spc[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+    static GLfloat arrow_dif[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+    static GLfloat arrow_amb[] = { 5.0F, 5.0F, 5.0F, 1.0F };
+    static GLfloat arrow_shininess[] = { 5.0 };
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, arrow_spc);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, arrow_dif);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, arrow_amb);
+    glMaterialfv(GL_FRONT, GL_SHININESS, arrow_shininess);
+
     switch ( (m_howto->GetCount()%400)/100 ) {
     case 0:
       glRasterPos2i( IMAGE_WIDTH, IMAGE_HEIGHT/2 );
@@ -229,7 +254,14 @@ HowtoView::RedrawAlpha() {
 	      m_arrow[(m_howto->GetCount()%400)/100].GetImage() );
     break;
   case 2:
-    glColor4f( 0.0, 0.5, 0.0, 1.0 );
+    static GLfloat push_spc[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+    static GLfloat push_dif[] = { 0.0F, 0.0F, 0.0F, 0.7F };
+    static GLfloat push_amb[] = { 0.0F, 3.0F, 0.0F, 0.7F };
+    static GLfloat push_shininess[] = { 5.0 };
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, push_spc);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, push_dif);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, push_amb);
+    glMaterialfv(GL_FRONT, GL_SHININESS, push_shininess);
     if ( m_howto->GetCount() > 200 && m_howto->GetCount() < 1000 &&
 	 m_howto->GetCount()%100 > 0 && m_howto->GetCount()%100 < 30 ) {
       glBegin(GL_QUADS);
@@ -245,7 +277,10 @@ HowtoView::RedrawAlpha() {
     }
     break;
   case 4:
-    glColor4f( 1.0, 1.0, 1.0, 1.0 );
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, arrow_spc);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, arrow_dif);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, arrow_amb);
+    glMaterialfv(GL_FRONT, GL_SHININESS, arrow_shininess);
     if ( m_howto->GetCount() < 1000 )
       glRasterPos2i( 460, 170 );
     else
@@ -255,7 +290,15 @@ HowtoView::RedrawAlpha() {
     break;
   }
 
-  glColor4f( 1.0, 1.0, 1.0, 1.0 );
+  static GLfloat text_spc[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+  static GLfloat text_dif[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+  static GLfloat text_amb[] = { 5.0F, 5.0F, 5.0F, 1.0F };
+  static GLfloat text_shininess[] = { 5.0 };
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, text_spc);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, text_dif);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, text_amb);
+  glMaterialfv(GL_FRONT, GL_SHININESS, text_shininess);
+
   if ( m_howto->GetCount()%100 < 75 ) {
     glRasterPos2i( 10, 450 );
     glBitmap( 400, 100, 0.0, 0.0, 0.0, 0,
