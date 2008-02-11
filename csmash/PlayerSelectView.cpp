@@ -80,7 +80,6 @@ PlayerSelectView::Init( PlayerSelect *playerSelect ) {
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
       glTexImage2D(GL_TEXTURE_2D, 0, 3, image.GetWidth(), image.GetHeight(), 
 		   0, GL_RGBA, GL_UNSIGNED_BYTE, image.GetImage() );
@@ -107,7 +106,10 @@ bool
 PlayerSelectView::Redraw() {
   int i;
 
-  glColor4f( 0.0, 0.0, 0.0, 0.0 );
+  if ( theRC->gmode != GMODE_SIMPLE ) {
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+  }
 
   if ( m_playerSelect->GetSelected() > 0 ) {
     int player;
@@ -119,22 +121,19 @@ PlayerSelectView::Redraw() {
 
     glPushMatrix();
     if ( m_playerSelect->GetSelected() < 100 ) {
-      if ( theRC->gmode != GMODE_SIMPLE )
-	glEnable(GL_TEXTURE_2D);
       glTranslatef( -0.01F*m_playerSelect->GetSelected(),
 		    -1.5F+0.01F*m_playerSelect->GetSelected(), 1.4F );
       glRotatef( m_playerSelect->GetSelected()*360.0F/100, 0.0F, 0.0F, 1.0F );
     } else {
-      glEnable(GL_TEXTURE_2D);
       glTranslatef( -0.01F*100, -1.5F+0.01F*100, 1.4F );
     }
 
     glBindTexture(GL_TEXTURE_2D, m_textures[player] );
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0F, 1.0F); glVertex3f(-0.60F, 0.0F, -0.84F);
-    glTexCoord2f(0.0F, 0.0F); glVertex3f(-0.60F, 0.0F,  0.84F);
-    glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.60F, 0.0F,  0.84F);
-    glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.60F, 0.0F, -0.84F);
+      glTexCoord2f(0.0F, 1.0F); glVertex3f(-0.60F, 0.0F, -0.84F);
+      glTexCoord2f(0.0F, 0.0F); glVertex3f(-0.60F, 0.0F,  0.84F);
+      glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.60F, 0.0F,  0.84F);
+      glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.60F, 0.0F, -0.84F);
     glEnd();
     glPopMatrix();
 
@@ -149,19 +148,15 @@ PlayerSelectView::Redraw() {
 
 	glBindTexture(GL_TEXTURE_2D, m_textures[(player+wins+1)%PLAYERS] );
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.0F, 1.0F); glVertex3f(-0.60F, 0.0F, -0.84F);
-	glTexCoord2f(0.0F, 0.0F); glVertex3f(-0.60F, 0.0F,  0.84F);
-	glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.60F, 0.0F,  0.84F);
-	glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.60F, 0.0F, -0.84F);
+	  glTexCoord2f(0.0F, 1.0F); glVertex3f(-0.60F, 0.0F, -0.84F);
+	  glTexCoord2f(0.0F, 0.0F); glVertex3f(-0.60F, 0.0F,  0.84F);
+	  glTexCoord2f(1.0F, 0.0F); glVertex3f( 0.60F, 0.0F,  0.84F);
+	  glTexCoord2f(1.0F, 1.0F); glVertex3f( 0.60F, 0.0F, -0.84F);
 	glEnd();
 	glPopMatrix();
       }
     }
   } else {
-    if ( theRC->gmode != GMODE_SIMPLE ||
-	 (m_playerSelect->GetRotate()%360)%(360/PLAYERS) == 0 )
-      glEnable(GL_TEXTURE_2D);
-
     for ( i = 0 ; i < PLAYERS ; i++ ){
       glPushMatrix();
         glRotatef( m_playerSelect->GetRotate()-i*360.0F/PLAYERS, 0.0F, 0.0F, 1.0F );
@@ -174,8 +169,6 @@ PlayerSelectView::Redraw() {
 	glEnd();
       glPopMatrix();
     }
-
-    glColor4f( 1.0F, 1.0F, 1.0F, 0.0F );
 
     glPushMatrix();
     glMatrixMode(GL_PROJECTION);
@@ -195,6 +188,7 @@ PlayerSelectView::Redraw() {
     glPopMatrix();
   }
 
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glDisable(GL_TEXTURE_2D);
 
   return true;

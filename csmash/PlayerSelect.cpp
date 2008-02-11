@@ -111,8 +111,8 @@ PlayerSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
     return true;
   }
 
-  if ( (KeyHistory[Histptr].unicode == SDLK_ESCAPE ||
-	KeyHistory[Histptr].unicode == 'Q')) {
+  if ( KeyHistory[Histptr].unicode == SDLK_ESCAPE ||
+       KeyHistory[Histptr].unicode == 'Q' ) {
     mode = MODE_TITLE;
     wins = 0;
     return true;
@@ -178,7 +178,6 @@ PlayerSelect::Move( SDL_keysym *KeyHistory, long *MouseXHistory,
 
   if ( nothing > 1000 ) {
     nothing = 0;
-    //mode = MODE_DEMO;
     mode = MODE_TITLE;
   }
 

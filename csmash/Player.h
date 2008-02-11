@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include "PlayerView2D.h"
 #include "Controller.h"
 
+#include <map>
 #include <vector>
 #include "matrix"
 typedef Vector<3, double> vector3d;
@@ -62,6 +63,21 @@ class PlayerView;
 class HitMark;
 class Ball;
 class Controller;
+
+struct swingType {
+  long type;
+  long toss;
+  long backswing;
+  long hitStart;
+  long hitEnd;
+  long swingEnd;
+  long swingLength;
+  double hitX;
+  double hitY;
+  double tossV;
+};
+
+typedef std::map<long, struct swingType*> stype_t;
 
 /**
  * Player class is a base class of player classes (PenAttack, PenDrive, etc.). 
@@ -141,6 +157,8 @@ public:
 
   long StatusBorder();
 
+  static stype_t stype;
+
   virtual void ChangeServeType();
   virtual bool Swing( long power );
   virtual bool StartSwing( long power );
@@ -148,12 +166,6 @@ public:
 
   bool canHitBall(Ball *ball);
   bool canServe(Ball *ball);
-
-  const static long END_BACKSWING = 10;
-  const static long START_SWING = 11;
-  const static long START_HITBALL = 20;
-  const static long START_FOLLOWTHROUGH = 30;
-  const static long END_FOLLOWTHROUGH = 50;
 
 protected:
   Controller *m_controller;	/**< An entity of which controls the player
