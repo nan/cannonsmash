@@ -372,42 +372,33 @@ BaseView::Init() {
   gluPerspective(60.0, 1.0, 0.1, 30.0);
   glMatrixMode(GL_MODELVIEW);
 
-  //GLfloat light_position[] = { 1.0F, 1.0F, 1.0F, 0.0F };
-  GLfloat light_intensity_amb[] = { 0.6F, 0.6F, 0.6F, 1.0F };
-  GLfloat light_intensity_dif[] = { 1.0F, 1.0F, 1.0F, 1.0F };
+  //GLfloat light_position[] = { 0.0F, 0.0F, 3.0F, 1.0F };
+  GLfloat light_position[] = { -TABLEWIDTH*2, TABLELENGTH/2, 3.0F, 1.0F };
+  GLfloat light_intensity_non[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+  GLfloat light_intensity_amb[] = { 0.2F, 0.2F, 0.2F, 1.0F };
+  GLfloat light_intensity_dif[] = { 0.7F, 0.7F, 0.7F, 1.0F };
+  GLfloat light_intensity_spc[] = { 1.0F, 1.0F, 1.0F, 1.0F };
 
   if ( theRC->gmode != GMODE_SIMPLE ) {
     glShadeModel (GL_SMOOTH);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
-    //glBlendFunc(GL_ONE, GL_SRC_ALPHA);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   }
 
-  glEnable(GL_COLOR_MATERIAL);
-  glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
-
-
-  //glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+  glLightfv(GL_LIGHT0, GL_POSITION, light_position);
   glLightfv(GL_LIGHT0, GL_AMBIENT, light_intensity_amb);
   glLightfv(GL_LIGHT0, GL_DIFFUSE, light_intensity_dif);
-  glLightfv(GL_LIGHT0, GL_SPECULAR, light_intensity_dif);
+  glLightfv(GL_LIGHT0, GL_SPECULAR, light_intensity_spc);
+
+  glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.5);
+  glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0);
+  glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.005);
+  glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
 
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
 
-  if ( theRC->gmode != GMODE_SIMPLE ) {
-    glEnable(GL_FOG);
-    GLfloat fogcolor[] = {0.2F, 0.2F, 0.2F, 1.0F};
-    glFogi(GL_FOG_MODE, GL_EXP);
-    glFogfv(GL_FOG_COLOR, fogcolor);
-    glFogf(GL_FOG_DENSITY, 0.05F);
-    glHint(GL_FOG_HINT, GL_DONT_CARE);
-    glFogf(GL_FOG_START, 1.0F);
-    glFogf(GL_FOG_END, AREAYSIZE*2);
-  }
-
-  glClearColor(0.2F, 0.2F, 0.2F, 1.0F);
   if ( theRC->gmode == GMODE_SIMPLE ) {
     glClear(GL_COLOR_BUFFER_BIT);
   } else {
@@ -520,8 +511,6 @@ BaseView::RedrawAll() {
 
   SetViewPosition();
 
-  glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-
   if ( theRC->gmode == GMODE_SIMPLE ) {
     glClear(GL_COLOR_BUFFER_BIT);
   } else {
@@ -529,11 +518,7 @@ BaseView::RedrawAll() {
     glClear(GL_DEPTH_BUFFER_BIT);
   }
 
-  if ( mode == MODE_OPENING )	// Must be improved
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-  glColor4f(0.4F, 0.2F, 0.0F, 0.0F);
-//  glEnable(GL_CULL_FACE);
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
   glDisable(GL_BLEND);
   m_fieldView->Redraw();
@@ -585,12 +570,10 @@ BaseView::RedrawAll() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  glColor4f( 1.0F, 1.0F, 1.0F, 0.0F );
-
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
   if ( theRC->isTexture ) {
     glEnable(GL_TEXTURE_2D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
     glBindTexture(GL_TEXTURE_2D, m_title );
     glBegin(GL_QUADS);
@@ -604,6 +587,7 @@ BaseView::RedrawAll() {
     glVertex2i( m_winWidth-256, 256 );
     glEnd();
 
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glDisable(GL_TEXTURE_2D);
   }
 
@@ -707,7 +691,14 @@ BaseView::EndGame() {
   char filename[256];
   ImageData image;
 
-  glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+  static GLfloat end_spc[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+  static GLfloat end_dif[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+  static GLfloat end_amb[] = { 5.0F, 5.0F, 5.0F, 1.0F };
+  static GLfloat end_shininess[] = { 5.0 };
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, end_spc);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, end_dif);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, end_amb);
+  glMaterialfv(GL_FRONT, GL_SHININESS, end_shininess);
 
   glPushMatrix();
   glMatrixMode(GL_PROJECTION);

@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000, 2002, 2004  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  Kanna Yoshihiro
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -84,7 +84,6 @@ HitMark::Init() {
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
 		   errorImage[i].GetWidth(), errorImage[i].GetHeight(),
@@ -185,7 +184,6 @@ HitMark::RedrawAlpha() {
   switch ( m_swingError ) {
   case SWING_PERFECT:
     glEnable(GL_TEXTURE_2D);
-    glColor3f( 0.0F, 0.0F, 0.0F );
     glBindTexture(GL_TEXTURE_2D, m_textures[0] );
     glBegin(GL_QUADS);
     glTexCoord2f(0.0F, 1.0F); glVertex3f( -0.3F*m_time/50, 0.0F, -0.42F*m_time/50);
@@ -197,7 +195,6 @@ HitMark::RedrawAlpha() {
     break;
   case SWING_GREAT:
     glEnable(GL_TEXTURE_2D);
-    glColor3f( 0.0F, 0.0F, 0.0F );
     glBindTexture(GL_TEXTURE_2D, m_textures[0] );
     glBegin(GL_QUADS);
     glTexCoord2f(0.0F, 1.0F); glVertex3f( -0.3F*m_time/50, 0.0F, -0.42F*m_time/50);
@@ -209,7 +206,6 @@ HitMark::RedrawAlpha() {
     break;
   case SWING_GOOD:
     glEnable(GL_TEXTURE_2D);
-    glColor3f( 0.0, 0.0, 0.0 );
     glBindTexture(GL_TEXTURE_2D, m_textures[1] );
     glBegin(GL_QUADS);
     glTexCoord2f(0.0F, 1.0F); glVertex3f( -0.3F*m_time/50, 0.0F, -0.42F*m_time/50);
@@ -221,7 +217,6 @@ HitMark::RedrawAlpha() {
     break;
   case SWING_BOO:
     glEnable(GL_TEXTURE_2D);
-    glColor3f( 0.0F, 0.0F, 0.0F );
     glBindTexture(GL_TEXTURE_2D, m_textures[1] );
     glBegin(GL_QUADS);
     glTexCoord2f(0.0F, 1.0F); glVertex3f( -0.3F*m_time/50, 0.0F, -0.42F*m_time/50);
@@ -234,7 +229,6 @@ HitMark::RedrawAlpha() {
   case SWING_MISS:
 /*
     glEnable(GL_TEXTURE_2D);
-    glColor3f( 0.0F, 0.0F, 0.0F );
     glBindTexture(GL_TEXTURE_2D, m_textures[0] );
     glBegin(GL_QUADS);
     glTexCoord2f(0.0F, 1.0F); glVertex3f( -0.3F*time/50, 0.0F, -0.42F*time/50);
