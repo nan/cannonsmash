@@ -407,16 +407,26 @@ Player::Init() {
     stype[SERVE_SIDESPIN2] = (struct swingType *)malloc(sizeof(struct swingType));
 
 
-    *stype[SWING_NORMAL]   = (struct swingType){SWING_NORMAL,    -1, 10, 20, 20, 30, 50, 0.3, 0.0, 0.0};
-    *stype[SWING_POKE]     = (struct swingType){SWING_POKE,      -1, 10, 20, 20, 30, 50, 0.3, 0.0, 0.0};
-    *stype[SWING_SMASH]    = (struct swingType){SWING_SMASH,     -1, 10, 20, 20, 30, 50, 0.3, 0.0, 0.0};	// Should be 10, 20, 70
-    *stype[SWING_DRIVE]    = (struct swingType){SWING_DRIVE,     -1, 10, 20, 20, 30, 50, 0.3, 0.0, 0.0};	// Should be 10, 30, 80
-    *stype[SWING_CUT]      = (struct swingType){SWING_CUT,       -1, 10, 20, 20, 30, 50, 0.3, 0.0, 0.0};
-    *stype[SWING_BLOCK]    = (struct swingType){SWING_BLOCK,     -1, 10, 20, 20, 30, 50, 0.3, 0.0, 0.0};	// Should be 5, 10, 30, 40
-    *stype[SERVE_NORMAL]   = (struct swingType){SERVE_NORMAL,    1, 10, 20, 20, 30, 50, 0.3, 0.0, 2.5};	// Should be ?, 10, 30, 30, 40, 60
-    *stype[SERVE_POKE]     = (struct swingType){SERVE_POKE,      20, 85, 100, 100, 115, 200, 0.0, 0.0, 4.0};
-    *stype[SERVE_SIDESPIN1]= (struct swingType){SERVE_SIDESPIN1, 20, 60, 80, 80, 95, 150, 0.0, 0.0, 3.2};
-    *stype[SERVE_SIDESPIN2]= (struct swingType){SERVE_SIDESPIN2, 20, 80, 100, 100, 120, 200, 0.0, 0.0, 4.0};
+	struct swingType swtNormal = {SWING_NORMAL,    -1, 10, 20, 20, 30, 50, 0.3, 0.0, 0.0};
+	struct swingType swtPoke   = {SWING_POKE,      -1, 10, 20, 20, 30, 50, 0.3, 0.0, 0.0};
+	struct swingType swtSmash  = {SWING_SMASH,     -1, 10, 20, 20, 30, 50, 0.3, 0.0, 0.0};	// Should be 10, 20, 70
+	struct swingType swtDrive  = {SWING_DRIVE,     -1, 10, 20, 20, 30, 50, 0.3, 0.0, 0.0};	// Should be 10, 30, 80
+	struct swingType swtCut    = {SWING_CUT,       -1, 10, 20, 20, 30, 50, 0.3, 0.0, 0.0};
+	struct swingType swtBlock  = {SWING_BLOCK,     -1, 10, 20, 20, 30, 50, 0.3, 0.0, 0.0};	// Should be 5, 10, 30, 40
+	struct swingType svtNormal = {SERVE_NORMAL,    1, 10, 20, 20, 30, 50, 0.3, 0.0, 2.5};	// Should be ?, 10, 30, 30, 40, 60
+	struct swingType svtPoke   = {SERVE_POKE,      20, 85, 100, 100, 115, 200, 0.0, 0.0, 4.0};
+	struct swingType svtSide1  = {SERVE_SIDESPIN1, 20, 60, 80, 80, 95, 150, 0.0, 0.0, 3.2};
+	struct swingType svtSide2  = {SERVE_SIDESPIN2, 20, 80, 100, 100, 120, 200, 0.0, 0.0, 4.0};
+    *stype[SWING_NORMAL]   = swtNormal;
+    *stype[SWING_POKE]     = swtPoke;
+    *stype[SWING_SMASH]    = swtSmash;
+    *stype[SWING_DRIVE]    = swtDrive;
+    *stype[SWING_CUT]      = swtCut;
+    *stype[SWING_BLOCK]    = swtBlock;
+    *stype[SERVE_NORMAL]   = svtNormal;
+    *stype[SERVE_POKE]     = svtPoke;
+    *stype[SERVE_SIDESPIN1]= svtSide1;
+    *stype[SERVE_SIDESPIN2]= svtSide2;
   }
 
   return true;

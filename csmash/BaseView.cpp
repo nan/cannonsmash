@@ -91,16 +91,16 @@ fontlist_close( FontList *fl )
 char *
 fontlist_next_file( FontList *fl )
 {
-  WIN32_FIND_DATA fd;
+  WIN32_FIND_DATAA fd;
 
   get_fontpath( fl->path );
 
   if ( fl->first ) {
 
-    int len = strlen( fl->path );
+    int len = (int)strlen( fl->path );
 
     strcat( fl->path, "*.tt*" );
-    fl->hFind = FindFirstFile( fl->path, &fd );
+    fl->hFind = FindFirstFileA( fl->path, &fd );
     if ( fl->hFind == INVALID_HANDLE_VALUE )
       return NULL;
 
@@ -108,11 +108,11 @@ fontlist_next_file( FontList *fl )
 
     fl->first = FALSE;
   } else {
-    if ( FindNextFile( fl->hFind, &fd )==0 )
+    if ( FindNextFileA( fl->hFind, &fd )==0 )
       return NULL;
   }
 
-  strcat( fl->path, fd.cFileName );
+  strcat( fl->path, (const char *)fd.cFileName );
 
   return fl->path;
 }
@@ -196,8 +196,8 @@ check_font( FT_Face face )
     FT_SfntName name;
     FT_Get_Sfnt_Name( face, i, &name );
 
-    if ( strlen(logFont.lfFaceName) == name.string_len &&
-	 strncmp(logFont.lfFaceName, (char *)name.string, name.string_len) == 0 ) {
+    if ( strlen((const char *)logFont.lfFaceName) == name.string_len &&
+	 strncmp((const char *)logFont.lfFaceName, (char *)name.string, name.string_len) == 0 ) {
       break;
     }
   }

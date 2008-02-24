@@ -28,6 +28,7 @@
 #include "Sound.h"
 #include "BaseView.h"
 #include "RCFile.h"
+#include <time.h>
 
 extern RCFile *theRC;
 
@@ -310,7 +311,7 @@ TitleView::CreateConfigMenu() {
     break;
   }
 
-  //TODO: Sound on/off µ¡Ç½¤òºï½ü (¥Ü¥ê¥å¡¼¥àup/down ¤ËÊÑ¹¹¤·¤¿)
+  //TODO: Sound on/off µ¡Ç½¤òºEE(¥Ü¥Eå¡¼¥àup/down ¤ËÊÑ¹¹¤·¤¿)
   /*
     if (theRC->sndMode == SOUND_SDL)
     ((CEGUI::RadioButton *)winMgr.getWindow("Config/System/SoundOn"))->setSelected(true);
@@ -511,6 +512,8 @@ TitleView::handleConfigInvertMouseChanged(const CEGUI::EventArgs& e) {
 
   bool invert = ((CEGUI::Checkbox *)winMgr.getWindow("Config/GameMode/InvertMouse"))->isSelected();
   theRC->switchButtons = invert;
+
+  return true;
 }
 
 

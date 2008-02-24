@@ -136,7 +136,7 @@ RCFile::ReadRCFile() {
 	*p = '\0';
       else if ( (p = strchr( volumeStr, '\n' )) )
 	*p = '\0';
-      sndVolume = strtof(volumeStr, NULL);
+      sndVolume = strtod(volumeStr, NULL);
     } else if ( strncmp( buf, "protocol=", 9 ) == 0 ) {
       protocol = buf[9]-'0';
       if ( protocol > IPv6 || protocol < IPv4 )
@@ -203,7 +203,7 @@ RCFile::OpenRCFile( char *mode ) {
     if ( getenv( "HOME" ) == NULL ) {
 #ifdef WIN32
       csmashrc = new char[256+12];
-      GetWindowsDirectory( csmashrc, 256 );
+      GetWindowsDirectoryA( csmashrc, 256 );
       strcat( csmashrc, "\\csmash.ini" );
 #else
       fprintf( stderr, _("No home directory.\n") );
