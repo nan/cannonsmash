@@ -86,7 +86,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR CmdLine, int nShow)
   int argc;
   char **argv;
 
-  GetArgs(&argc, &argv, GetCommandLine());
+  GetArgs(&argc, &argv, GetCommandLineA());
   return theMain(argc, argv);
 }
 #endif /* WIN32CONSOLE */
@@ -110,7 +110,7 @@ int main(int argc, char** argv) {
 #else
     char *path = (char*)alloca(MAX_PATH);
     *path = '\0';
-    GetModuleFileName(GetModuleHandle(NULL), path, MAX_PATH);
+    GetModuleFileNameA(GetModuleHandle(NULL), path, MAX_PATH);
     int l;
     for (l = strlen(path); l > 0 && '\\' != path[l]; --l);
     path[l] = '\0';
@@ -146,6 +146,7 @@ int main(int argc, char** argv) {
     case LANG_PORTUGUESE:	putenv("LANGUAGE=po"); break;
     case LANG_HINDI:	putenv("LANGUAGE=hi"); break;
     }
+	putenv("SDL_VIDEODRIVER=directx");
 #endif
 
     setlocale(LC_ALL, "");
@@ -288,12 +289,20 @@ InitGame() {
   Sound::TheSound()->Init( theRC->sndMode, theRC->sndVolume );
 
   SDL_EnableUNICODE(1);
+#ifdef WIN32
+  SDL_SysIMinfo info;
+
+  SDL_SetIMPosition(0, 0);
+  SDL_VERSION(&info.version);
+  SDL_GetIMInfo(&info);
+#endif
 
 #if defined(CHIYO)
   parts::realizeobjects();
 #endif
 
   Event::TheEvent()->Init();
+
 }
 
 void EndGame()
@@ -323,12 +332,20 @@ bool PollEvent() {
   while ( SDL_PollEvent(&event) ) {
     // Later, change GLUT-like function to SDL
     CEGUI::uint kc;
+	Uint16 buf[65536];
+	int charNum;
     switch ( event.type ) {
     case SDL_KEYDOWN:
-      kc = SDLKeyToCEGUIKey(event.key.keysym.sym);
-      CEGUI::System::getSingleton().injectKeyDown(kc);
-      CEGUI::System::getSingleton().injectChar(event.key.keysym.unicode);
-      Event::KeyboardFunc( event, 0, 0 );
+      if (charNum = SDL_FlushIMString(buf)) {
+		for (int i=0; i < charNum; i++) {
+          CEGUI::System::getSingleton().injectChar(buf[i]);
+		}
+	  } else {
+		kc = SDLKeyToCEGUIKey(event.key.keysym.sym);
+		CEGUI::System::getSingleton().injectKeyDown(kc);
+		CEGUI::System::getSingleton().injectChar(event.key.keysym.unicode);
+		Event::KeyboardFunc( event, 0, 0 );
+	  }
       break;
 
     case SDL_KEYUP:

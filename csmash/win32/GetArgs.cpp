@@ -42,8 +42,8 @@
 static int get_escape_char()
 {
     char s[1];
-    if (GetEnvironmentVariable("SHLVL", s, 1) /* csh */
-	|| GetEnvironmentVariable("_", s, 1)  /* sh  */ ) {
+    if (GetEnvironmentVariableA("SHLVL", s, 1) /* csh */
+	|| GetEnvironmentVariableA("_", s, 1)  /* sh  */ ) {
 	return GETARGS_ESCAPE_UNIX;
     } else {
 	return GETARGS_ESCAPE_CMD;
@@ -60,7 +60,7 @@ static inline int isquote_char(int c)
 
 int GetArgs(int *pargc, char ***pargv, const char *cmdline_, int esc)
 {
-    if (NULL == cmdline_) cmdline_ = GetCommandLine();
+    if (NULL == cmdline_) cmdline_ = GetCommandLineA();
     if (0 == esc) esc = get_escape_char();
 
     char *cmdline = (char *)calloc(strlen(cmdline_) + 2, sizeof(char));

@@ -159,15 +159,15 @@ HowtoView::RedrawAlpha() {
 
   glDisable(GL_DEPTH_TEST);
 
+  static GLfloat bg_spc[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+  static GLfloat bg_dif[] = { 0.0F, 0.0F, 0.0F, 0.3F };
+  static GLfloat bg_amb[] = { 0.0F, 0.0F, 0.0F, 0.3F };
+  static GLfloat bg_shininess[] = { 5.0 };
   switch ( m_howto->GetMode() ) {	// Background
   case 0:
   case 1:
   case 3:
   case 4:
-    static GLfloat bg_spc[] = { 0.0F, 0.0F, 0.0F, 1.0F };
-    static GLfloat bg_dif[] = { 0.0F, 0.0F, 0.0F, 0.3F };
-    static GLfloat bg_amb[] = { 0.0F, 0.0F, 0.0F, 0.3F };
-    static GLfloat bg_shininess[] = { 5.0 };
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, bg_spc);
     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, bg_dif);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, bg_amb);
@@ -224,12 +224,16 @@ HowtoView::RedrawAlpha() {
     break;
   }
 
+  static GLfloat arrow_spc[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+  static GLfloat arrow_dif[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+  static GLfloat arrow_amb[] = { 5.0F, 5.0F, 5.0F, 1.0F };
+  static GLfloat arrow_shininess[] = { 5.0 };
+  static GLfloat push_spc[] = { 0.0F, 0.0F, 0.0F, 1.0F };
+  static GLfloat push_dif[] = { 0.0F, 0.0F, 0.0F, 0.7F };
+  static GLfloat push_amb[] = { 0.0F, 3.0F, 0.0F, 0.7F };
+  static GLfloat push_shininess[] = { 5.0 };
   switch ( m_howto->GetMode() ) {
   case 0:
-    static GLfloat arrow_spc[] = { 0.0F, 0.0F, 0.0F, 1.0F };
-    static GLfloat arrow_dif[] = { 0.0F, 0.0F, 0.0F, 1.0F };
-    static GLfloat arrow_amb[] = { 5.0F, 5.0F, 5.0F, 1.0F };
-    static GLfloat arrow_shininess[] = { 5.0 };
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, arrow_spc);
     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, arrow_dif);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, arrow_amb);
@@ -254,10 +258,6 @@ HowtoView::RedrawAlpha() {
 	      m_arrow[(m_howto->GetCount()%400)/100].GetImage() );
     break;
   case 2:
-    static GLfloat push_spc[] = { 0.0F, 0.0F, 0.0F, 1.0F };
-    static GLfloat push_dif[] = { 0.0F, 0.0F, 0.0F, 0.7F };
-    static GLfloat push_amb[] = { 0.0F, 3.0F, 0.0F, 0.7F };
-    static GLfloat push_shininess[] = { 5.0 };
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, push_spc);
     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, push_dif);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, push_amb);
