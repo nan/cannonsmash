@@ -61,12 +61,21 @@ gzFile gzopenx(const char *filename, const char *mode) {
 
   char buf[512];
   strncpy(buf, filename, 512);
+
+#ifdef WIN32
+  gzFile zfp = gzopen(buf, mode);
+  if (zfp == Z_NULL) {
+    strncat(buf, ".gz", 512);
+    zfp = gzopen(buf, mode);
+  }
+#else
   fd = open(buf, m, S_IREAD|S_IWRITE);
   if (0 > fd) {
     strncat(buf, ".gz", 512);
     fd = open(buf, m, S_IREAD|S_IWRITE);
   }
   gzFile zfp = gzdopen(fd, mode);
+#endif
   return zfp;
 }
 #endif
