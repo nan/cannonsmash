@@ -5,7 +5,7 @@
  * @version $Id$
  */
 
-// Copyright (C) 2000-2004, 2007  神南 吉宏(Kanna Yoshihiro)
+// Copyright (C) 2000-2004, 2007  (Kanna Yoshihiro)
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -189,6 +189,12 @@ SoloPlay::LookAt( vector3d &srcX, vector3d &destX ) {
       }
     } else {
       srcX = m_thePlayer->GetX() + m_thePlayer->GetEye();
+      if (fabs(m_thePlayer->GetX()[1]) < 2.0) {
+        srcX[1] += m_thePlayer->GetX()[1]/2.0;
+      } else {
+        srcX[1] += -m_thePlayer->GetSide()*1.0;
+      }
+
       destX = m_thePlayer->GetLookAt();
     }
   }
