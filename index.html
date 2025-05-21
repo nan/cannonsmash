@@ -16,15 +16,36 @@
             color: white;
             border-radius: 5px;
             font-size: 18px;
+            z-index: 10; /* Ensure scoreboard is above other elements if they overlap */
         }
         #player1Score, #player2Score {
             margin: 0 5px;
+        }
+        #initializationMessage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            color: #333;
+            padding: 20px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+            z-index: 20; /* Ensure this message is above the scoreboard and canvas */
         }
     </style>
 </head>
 <body>
     <div id="scoreBoard">
         Player 1: <span id="player1Score">0</span> | Player 2: <span id="player2Score">0</span>
+    </div>
+
+    <div id="initializationMessage">
+        Loading 3D environment... If you see this message for more than a few seconds,
+        please ensure you are serving the page via a local web server (not opening the file directly)
+        and check your browser's developer console for errors.
     </div>
 
     <script type="importmap">
