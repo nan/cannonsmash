@@ -163,22 +163,39 @@ function onMouseClick(event) {
     if (player1 && currentGameState === GameState.PRE_SERVE && servingPlayer === 1) {
         const racketWorldPos = new THREE.Vector3();
         player1.racket.mesh.getWorldPosition(racketWorldPos); 
-        gameBall.position.copy(racketWorldPos);
-        const forwardOffset = new THREE.Vector3(0, 0, player1.side * -0.12); 
-        gameBall.position.add(forwardOffset);
-        gameBall.position.y += gameBall.radius * 0.5; 
+        
+        // Position ball consistently relative to racket for serve
+        // Player1's racket default relative Z is player1.side * -RACKET_OFFSET_Z from Player.js
+        // RACKET_OFFSET_Z = 0.3. player1.side = 1. So, -0.3.
+        // We want ball slightly in front of this (more negative Z).
+        const ballServeRelativePos = new THREE.Vector3(
+            0, // Centered on racket face X
+            gameBall.radius + 0.02, // Slightly above racket center Y
+            (player1.side * -0.15) // Slightly in front of racket face (player1.side * -RACKET_OFFSET_Z is racket center Z)
+                                   // Racket mesh itself is 0.16 wide (Z for racket), so half is 0.08
+                                   // This places it near front edge.
+        );
+        
+        // Convert relative position to world and set ball position
+        // Clone racket position and add relative offset
+        const ballServePosition = player1.racket.mesh.localToWorld(ballServeRelativePos.clone());
+        gameBall.position.copy(ballServePosition);
+
+        // Consistent serve velocity and spin
         let serveVelocity = new THREE.Vector3(
-            (Math.random() - 0.5) * 1.5,  
-            0.8 + (Math.random() * 0.4),  
-            -3.0 - (Math.random() * 0.8)  
+            (Math.random() - 0.5) * 0.5,  // Reduced X-randomness for more straight serves
+            0.9 + (Math.random() * 0.2),  // Consistent upward component (0.9 to 1.1)
+            -3.0 - (Math.random() * 0.3)  // Consistent forward Z speed (-3.0 to -3.3)
         );
+        // Moderate and predictable topspin
         let serveSpin = new THREE.Vector2(
-            (Math.random() - 0.5) * 3,    
-            1.5 + Math.random() * 3     
-        );
-        gameBall.hit(serveVelocity, serveSpin, 1); 
+            (Math.random() - 0.5) * 1.0, // Minimal sidespin
+            2.5 // Consistent moderate topspin
+        ); 
+        
+        gameBall.hit(serveVelocity, serveSpin, 1); // Player 1 hits the ball
         currentGameState = GameState.SERVE_IN_MOTION; 
-        console.log("Player 1 serves!");
+        console.log("Player 1 serves (adjusted mechanics)!");
     } else if (player1 && currentGameState === GameState.RALLY && gameBall.lastHitBy !== 1) {
         if (gameBall.status === 0 || (gameBall.status === 3 && gameBall.position.z > NET_POS_Z - 0.5) ) {
              player1.swing(); 

@@ -1,57 +1,40 @@
 // Player.js
 import * as THREE from 'three';
 
-// --- Constants for Player positioning and behavior ---
-const TABLE_LENGTH = 2.74;      // Length of the table (along Z-axis), used for positioning player relative to table.
-const TABLE_WIDTH = 1.525;      // Width of the table (along X-axis), used for player's lateral movement range.
-const PLAYER_Z_OFFSET = 0.2;    // Default distance the player stands behind their respective table edge.
-const RACKET_OFFSET_Z = 0.3;    // How far in front of the player's body center the racket is typically held (depth).
-const RACKET_DEFAULT_Y = 0.2;   // Default height of the racket relative to the player's base/origin (center of the capsule mesh).
-
-// **** ADD THESE MISSING CONSTANTS ****
-const TABLE_HEIGHT = 0.76;      // Height of the table surface from the floor (meters) - Used in AI logic
-const NET_POS_Z = 0;            // Z-coordinate of the net's center line, used by AI to determine ball's side.
-const BALL_RADIUS = 0.02;       // Radius of the ball - Used in AI logic for height calculation.
+// (Keep existing constants: TABLE_LENGTH, TABLE_WIDTH, PLAYER_Z_OFFSET, RACKET_OFFSET_Z, RACKET_DEFAULT_Y, TABLE_HEIGHT, NET_POS_Z, BALL_RADIUS)
+const TABLE_LENGTH = 2.74;      
+const TABLE_WIDTH = 1.525;      
+const PLAYER_Z_OFFSET = 0.2;    
+const RACKET_OFFSET_Z = 0.3;    
+const RACKET_DEFAULT_Y = 0.2;   
+const TABLE_HEIGHT = 0.76;      
+const NET_POS_Z = 0;            
+const BALL_RADIUS = 0.02;       
 
 export class Player {
-    /**
-     * Constructor for a Player object.
-     * @param {number} side - Which side of the table: 1 for positive Z (human default), -1 for negative Z (AI default).
-     * @param {THREE.Scene} scene - The Three.js scene object (currently unused within Player class but passed).
-     * @param {string} controlType - 'human' for mouse-controlled player, 'ai' for AI-controlled.
-     */
+    // ... (constructor and other methods like createRacketMesh, handleMouseMove, swing remain the same as in Turn 37) ...
     constructor(side = 1, scene, controlType = 'human') {
-        this.side = side;       // Player's assigned side of the table (1 or -1).
-        this.scene = scene;     // Reference to the Three.js scene (can be used for context or future extensions).
-        this.controlType = controlType; // Determines if player is controlled by 'human' input or 'ai' logic.
-
-        // Logical base position of the player (center of their capsule mesh).
+        this.side = side;       
+        this.scene = scene;     
+        this.controlType = controlType; 
         this.position = new THREE.Vector3(
             0,                                              
-            // Player's base is on the floor, visual mesh origin might be center.
-            // If capsule origin is at its center, its Y position should be capsuleHeight/2.
-            // Let's assume player mesh (CapsuleGeometry 0.8 high) origin is at its center.
-            // So, player base Y position should be 0.4 for it to sit on floor.
-            0.4, // Half of capsule height to sit on floor. Original: 0.76
+            0.4, 
             (TABLE_LENGTH / 2 + PLAYER_Z_OFFSET) * this.side 
         );
         this.mesh = null; 
-
         this.racket = {
             mesh: null,         
             targetPosition: new THREE.Vector3(0, RACKET_DEFAULT_Y, this.side * -RACKET_OFFSET_Z), 
             currentPosition: new THREE.Vector3(0, RACKET_DEFAULT_Y, this.side * -RACKET_OFFSET_Z),
-            lerpFactor: this.controlType === 'human' ? 0.2 : 0.15 
+            lerpFactor: this.controlType === 'human' ? 0.2 : 0.15 // AI racket can be slightly more responsive
         };
         this.createRacketMesh(); 
-
         this.mouseScreenX = 0;  
         this.mouseScreenY = 0;  
-
         const xRangeMultiplier = this.controlType === 'human' ? 0.9 : 0.8;
         this.minX = -TABLE_WIDTH / 2 * xRangeMultiplier; 
         this.maxX =  TABLE_WIDTH / 2 * xRangeMultiplier; 
-        
         this.aiHitting = false; 
     }
 
@@ -68,19 +51,17 @@ export class Player {
 
     handleMouseMove(screenX, screenY) {
         if (this.controlType !== 'human' || !this.mesh) return; 
-
         this.mouseScreenX = screenX;
         this.mouseScreenY = screenY;
-
         const targetPlayerX = THREE.MathUtils.mapLinear(this.mouseScreenX, -1, 1, this.minX, this.maxX);
         this.mesh.position.x = THREE.MathUtils.lerp(this.mesh.position.x, targetPlayerX, 0.1); 
-
         this.racket.targetPosition.x = THREE.MathUtils.mapLinear(this.mouseScreenX, -1, 1, -0.35, 0.35); 
         this.racket.targetPosition.y = RACKET_DEFAULT_Y + THREE.MathUtils.mapLinear(this.mouseScreenY, -1, 1, -0.15, 0.35); 
         this.racket.targetPosition.z = this.side * -RACKET_OFFSET_Z; 
     }
     
     swing() {
+        // (Swing logic as refined in Turn 37 - visual cue and aiHitting flag)
         if (this.controlType === 'human') {
             console.log("Human Player swings!");
             this.racket.targetPosition.z += this.side * -0.25; 
@@ -88,7 +69,7 @@ export class Player {
                  this.racket.targetPosition.z = this.side * -RACKET_OFFSET_Z;
             }, 120); 
         } else if (this.controlType === 'ai') {
-            console.log("AI Player swings!");
+            console.log("AI Player swings for return!"); // Changed log slightly
             this.aiHitting = true; 
             this.racket.targetPosition.z += this.side * -0.25; 
             setTimeout(() => { 
@@ -97,37 +78,57 @@ export class Player {
             }, 150); 
         }
     }
-    
+
     updateAI(ball) {
-        if (!ball || !this.mesh || ball.status < 0) return; 
+        if (!ball || !this.mesh || ball.status < 0) return;
 
-        const targetPlayerX = THREE.MathUtils.clamp(ball.position.x, this.minX, this.maxX); 
-        this.mesh.position.x = THREE.MathUtils.lerp(this.mesh.position.x, targetPlayerX, 0.07); 
+        // --- AI Player Body Movement: Track ball's X, slightly predictive ---
+        // Predict ball's X position when it crosses the net or reaches AI's hitting zone
+        let predictedBallX = ball.position.x;
+        if ((this.side === -1 && ball.velocity.z > 0) || (this.side === 1 && ball.velocity.z < 0)) { // If ball is coming towards AI
+            const timeToNet = Math.abs((NET_POS_Z - ball.position.z) / ball.velocity.z);
+            // Predict further to AI's hitting zone (approx RACKET_OFFSET_Z from player)
+            const timeToHitZone = Math.abs(((this.position.z + this.side * -RACKET_OFFSET_Z) - ball.position.z) / ball.velocity.z);
+            const predictionTime = Math.min(timeToNet, timeToHitZone, 0.5); // Cap prediction time
+            if (predictionTime > 0 && isFinite(ball.velocity.z) && ball.velocity.z !== 0) { // Ensure velocity.z is not zero and finite
+                 predictedBallX = ball.position.x + ball.velocity.x * predictionTime;
+            }
+        }
+        const targetPlayerX = THREE.MathUtils.clamp(predictedBallX, this.minX, this.maxX);
+        this.mesh.position.x = THREE.MathUtils.lerp(this.mesh.position.x, targetPlayerX, 0.08); // Slightly faster AI body reaction
 
-        let desiredRacketX = ball.position.x - this.mesh.position.x; 
-        // Use the defined BALL_RADIUS constant here
-        let desiredRacketY = RACKET_DEFAULT_Y + (ball.position.y - (TABLE_HEIGHT + BALL_RADIUS)); 
+        // --- AI Racket Positioning Logic ---
+        let desiredRacketX = ball.position.x - this.mesh.position.x;
+        let desiredRacketY = RACKET_DEFAULT_Y + (ball.position.y - (TABLE_HEIGHT + BALL_RADIUS));
         
-        desiredRacketX = THREE.MathUtils.clamp(desiredRacketX, -0.4, 0.4); 
-        desiredRacketY = THREE.MathUtils.clamp(desiredRacketY, 0.0, 0.5);   
-        
+        desiredRacketX = THREE.MathUtils.clamp(desiredRacketX, -0.45, 0.45); // Slightly wider racket range for AI
+        desiredRacketY = THREE.MathUtils.clamp(desiredRacketY, 0.05, 0.55);  // Adjusted Y range
+
         this.racket.targetPosition.x = desiredRacketX;
         this.racket.targetPosition.y = desiredRacketY;
-        this.racket.targetPosition.z = this.side * -RACKET_OFFSET_Z; 
+        this.racket.targetPosition.z = this.side * -RACKET_OFFSET_Z;
 
-        const ballComingTowardsAI = (this.side === -1 && ball.velocity.z > 0.1) || 
-                                  (this.side === 1 && ball.velocity.z < -0.1);   
-
-        // Use the defined NET_POS_Z constant here
-        const ballOnAISideOfNet = (this.side === -1 && ball.position.z < (NET_POS_Z + 0.2)) || 
-                                  (this.side === 1 && ball.position.z > (NET_POS_Z - 0.2));
+        // --- AI Swing Decision Logic ---
+        const ballIsComingTowardsAI = (this.side === -1 && ball.velocity.z > 0.2) || // P2 is AI, ball has decent +Z velocity
+                                    (this.side === 1 && ball.velocity.z < -0.2);   // P1 is AI, ball has decent -Z velocity
         
+        // Ball on AI's side of net (or very close to crossing towards AI)
+        const ballNearAISideOfNet = (this.side === -1 && ball.position.z < (NET_POS_Z + 0.3)) || 
+                                    (this.side === 1 && ball.position.z > (NET_POS_Z - 0.3));
+        
+        // Z-distance from racket's default resting plane to the ball.
         const distZToBall = Math.abs(ball.position.z - (this.mesh.position.z + this.racket.targetPosition.z));
+        const idealHitZ = 0.15; // Ideal Z distance to initiate swing
 
-        // Use TABLE_HEIGHT for vertical hittable window check
-        if (ballComingTowardsAI && ballOnAISideOfNet && distZToBall < 0.25 && 
-            ball.position.y < TABLE_HEIGHT + 0.3 && ball.position.y > TABLE_HEIGHT - 0.1) { 
-            if (!this.aiHitting) { 
+        // Ball status check:
+        // If AI is P2 (side -1), it should hit when ball.status is 1 (coming from P1)
+        // If AI is P1 (side  1), it should hit when ball.status is 3 (coming from P2)
+        const isAIsTurnToHit = (this.side === -1 && ball.status === 1) || (this.side === 1 && ball.status === 3);
+
+        if (isAIsTurnToHit && ballIsComingTowardsAI && ballNearAISideOfNet && 
+            distZToBall < idealHitZ && // Ball is close enough in Z
+            ball.position.y < TABLE_HEIGHT + 0.4 && ball.position.y > TABLE_HEIGHT - 0.15) { // Hittable Y window
+            if (!this.aiHitting) {
                 this.swing();
             }
         }
