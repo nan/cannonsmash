@@ -23,6 +23,7 @@ let currentGameState = GameState.AWAITING_SERVE_TOSS; // Initial game state
 let servingPlayer = 1;                          
 let score = { player1: 0, player2: 0 };     
 const TABLE_LENGTH = 2.74; 
+const TABLE_WIDTH = 1.525; 
 const TABLE_HEIGHT = 0.76; 
 const NET_POS_Z = 0;   
 
@@ -62,6 +63,7 @@ function init() {
     const ballMaterial = new THREE.MeshStandardMaterial({ color: 0xffa500, roughness: 0.5, metalness: 0.1 }); 
     const p1Material = new THREE.MeshStandardMaterial({ color: 0x0000dd, roughness: 0.6 }); 
     const p2Material = new THREE.MeshStandardMaterial({ color: 0x00dd00, roughness: 0.6 }); 
+    const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
     const tableTopGeometry = new THREE.BoxGeometry(1.525, 0.03, 2.74); 
     table = new THREE.Mesh(tableTopGeometry, tableMaterial);
     table.position.set(0, TABLE_HEIGHT - 0.03 / 2, 0); 
@@ -70,6 +72,47 @@ function init() {
     net = new THREE.Mesh(netGeometry, netMaterial);
     net.position.set(0, TABLE_HEIGHT + 0.1525 / 2, 0); 
     scene.add(net);
+    // Create Center Line
+    const centerLinePoints = [];
+    centerLinePoints.push(new THREE.Vector3(0, TABLE_HEIGHT + 0.001, -TABLE_LENGTH / 2));
+    centerLinePoints.push(new THREE.Vector3(0, TABLE_HEIGHT + 0.001, TABLE_LENGTH / 2));
+    const centerLineGeometry = new THREE.BufferGeometry().setFromPoints(centerLinePoints);
+    const centerLine = new THREE.Line(centerLineGeometry, lineMaterial);
+    scene.add(centerLine);
+
+    // Create Side Lines
+    // Side Line 1
+    const sideLine1Points = [];
+    sideLine1Points.push(new THREE.Vector3(-TABLE_WIDTH / 2, TABLE_HEIGHT + 0.001, -TABLE_LENGTH / 2));
+    sideLine1Points.push(new THREE.Vector3(-TABLE_WIDTH / 2, TABLE_HEIGHT + 0.001, TABLE_LENGTH / 2));
+    const sideLine1Geometry = new THREE.BufferGeometry().setFromPoints(sideLine1Points);
+    const sideLine1 = new THREE.Line(sideLine1Geometry, lineMaterial);
+    scene.add(sideLine1);
+
+    // Side Line 2
+    const sideLine2Points = [];
+    sideLine2Points.push(new THREE.Vector3(TABLE_WIDTH / 2, TABLE_HEIGHT + 0.001, -TABLE_LENGTH / 2));
+    sideLine2Points.push(new THREE.Vector3(TABLE_WIDTH / 2, TABLE_HEIGHT + 0.001, TABLE_LENGTH / 2));
+    const sideLine2Geometry = new THREE.BufferGeometry().setFromPoints(sideLine2Points);
+    const sideLine2 = new THREE.Line(sideLine2Geometry, lineMaterial);
+    scene.add(sideLine2);
+
+    // Create End Lines
+    // End Line 1 (nearer end)
+    const endLine1Points = [];
+    endLine1Points.push(new THREE.Vector3(-TABLE_WIDTH / 2, TABLE_HEIGHT + 0.001, TABLE_LENGTH / 2));
+    endLine1Points.push(new THREE.Vector3(TABLE_WIDTH / 2, TABLE_HEIGHT + 0.001, TABLE_LENGTH / 2));
+    const endLine1Geometry = new THREE.BufferGeometry().setFromPoints(endLine1Points);
+    const endLine1 = new THREE.Line(endLine1Geometry, lineMaterial);
+    scene.add(endLine1);
+
+    // End Line 2 (farther end)
+    const endLine2Points = [];
+    endLine2Points.push(new THREE.Vector3(-TABLE_WIDTH / 2, TABLE_HEIGHT + 0.001, -TABLE_LENGTH / 2));
+    endLine2Points.push(new THREE.Vector3(TABLE_WIDTH / 2, TABLE_HEIGHT + 0.001, -TABLE_LENGTH / 2));
+    const endLine2Geometry = new THREE.BufferGeometry().setFromPoints(endLine2Points);
+    const endLine2 = new THREE.Line(endLine2Geometry, lineMaterial);
+    scene.add(endLine2);
     const floorGeometry = new THREE.PlaneGeometry(10, 10); 
     floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.rotation.x = -Math.PI / 2; 
