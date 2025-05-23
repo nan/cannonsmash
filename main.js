@@ -1,5 +1,5 @@
 // main.js 
-// ... (imports and other global variables as before) ...
+// ... (imports and other global variables, GameState as before - from Turn 47/49) ...
 import * as THREE from 'three';     
 import { Ball } from './Ball.js';     
 import { Player } from './Player.js'; 
@@ -9,35 +9,31 @@ let table, net, floor;
 let gameBall;                           
 let player1, player2;                   
 let player1ScoreElement, player2ScoreElement;
-
-// Updated Game State Management
 const GameState = {
-    AWAITING_SERVE_TOSS: 'AWAITING_SERVE_TOSS', // Ready for the server to initiate the toss
-    BALL_TOSSED: 'BALL_TOSSED',             // Ball has been tossed, awaiting server to hit it
-    SERVE_IN_MOTION: 'SERVE_IN_MOTION',     // Serve has been hit, ball is in flight, serve rules apply
-    RALLY: 'RALLY',                         // Ball is in play after a valid serve/return
-    POINT_SCORED: 'POINT_SCORED',           // A point has just been scored
-    GAME_OVER: 'GAME_OVER'                  // (Future Use)
+    AWAITING_SERVE_TOSS: 'AWAITING_SERVE_TOSS', 
+    BALL_TOSSED: 'BALL_TOSSED',             
+    SERVE_IN_MOTION: 'SERVE_IN_MOTION',     
+    RALLY: 'RALLY',                         
+    POINT_SCORED: 'POINT_SCORED',           
+    GAME_OVER: 'GAME_OVER'                  
 };
-let currentGameState = GameState.AWAITING_SERVE_TOSS; // Initial game state
+let currentGameState = GameState.AWAITING_SERVE_TOSS; 
 let servingPlayer = 1;                          
 let score = { player1: 0, player2: 0 };     
 const TABLE_LENGTH = 2.74; 
-const TABLE_WIDTH = 1.525; 
 const TABLE_HEIGHT = 0.76; 
 const NET_POS_Z = 0;   
 
 // --- Initialization Function (`init`) ---
+// ... (init() function as in Turn 47/49 - no changes here) ...
 function init() {
-    // ... (Scoreboard UI, Scene, Camera, Renderer, Lighting, Materials, Environment Objects as before) ...
     player1ScoreElement = document.getElementById('player1Score');
     player2ScoreElement = document.getElementById('player2Score');
     updateScoreDisplay(); 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xaaaaaa); 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 2.0, 3.0); 
-    camera.lookAt(0, 0.5, 0);         
+    camera.position.set(0, 2.0, 3.0); camera.lookAt(0, 0.5, 0);         
     try {
         renderer = new THREE.WebGLRenderer({ antialias: true }); 
         renderer.setSize(window.innerWidth, window.innerHeight); 
@@ -48,113 +44,52 @@ function init() {
         if (initMessageElement) {
             initMessageElement.textContent = "Error: Could not initialize WebGL. Please use a modern browser with WebGL enabled, and ensure hardware acceleration is active.";
             initMessageElement.style.color = 'red';
-        }
-        throw e; 
+        } throw e; 
     }
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); 
-    scene.add(ambientLight);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); scene.add(ambientLight);
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); 
-    directionalLight.position.set(-4, 6, 4); 
-    directionalLight.lookAt(0,0,0);          
-    scene.add(directionalLight);
+    directionalLight.position.set(-4, 6, 4); directionalLight.lookAt(0,0,0); scene.add(directionalLight);
     const tableMaterial = new THREE.MeshStandardMaterial({ color: 0x006400, roughness: 0.8, metalness: 0.2 }); 
     const netMaterial = new THREE.MeshStandardMaterial({ color: 0x333333, transparent: true, opacity: 0.8, roughness: 0.9 }); 
     const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x808080, roughness: 0.9 }); 
     const ballMaterial = new THREE.MeshStandardMaterial({ color: 0xffa500, roughness: 0.5, metalness: 0.1 }); 
     const p1Material = new THREE.MeshStandardMaterial({ color: 0x0000dd, roughness: 0.6 }); 
     const p2Material = new THREE.MeshStandardMaterial({ color: 0x00dd00, roughness: 0.6 }); 
-    const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
     const tableTopGeometry = new THREE.BoxGeometry(1.525, 0.03, 2.74); 
     table = new THREE.Mesh(tableTopGeometry, tableMaterial);
-    table.position.set(0, TABLE_HEIGHT - 0.03 / 2, 0); 
-    scene.add(table);
+    table.position.set(0, TABLE_HEIGHT - 0.03 / 2, 0); scene.add(table);
     const netGeometry = new THREE.BoxGeometry(1.83, 0.1525, 0.01); 
     net = new THREE.Mesh(netGeometry, netMaterial);
-    net.position.set(0, TABLE_HEIGHT + 0.1525 / 2, 0); 
-    scene.add(net);
-    // Create Center Line
-    const centerLinePoints = [];
-    centerLinePoints.push(new THREE.Vector3(0, TABLE_HEIGHT + 0.001, -TABLE_LENGTH / 2));
-    centerLinePoints.push(new THREE.Vector3(0, TABLE_HEIGHT + 0.001, TABLE_LENGTH / 2));
-    const centerLineGeometry = new THREE.BufferGeometry().setFromPoints(centerLinePoints);
-    const centerLine = new THREE.Line(centerLineGeometry, lineMaterial);
-    scene.add(centerLine);
-
-    // Create Side Lines
-    // Side Line 1
-    const sideLine1Points = [];
-    sideLine1Points.push(new THREE.Vector3(-TABLE_WIDTH / 2, TABLE_HEIGHT + 0.001, -TABLE_LENGTH / 2));
-    sideLine1Points.push(new THREE.Vector3(-TABLE_WIDTH / 2, TABLE_HEIGHT + 0.001, TABLE_LENGTH / 2));
-    const sideLine1Geometry = new THREE.BufferGeometry().setFromPoints(sideLine1Points);
-    const sideLine1 = new THREE.Line(sideLine1Geometry, lineMaterial);
-    scene.add(sideLine1);
-
-    // Side Line 2
-    const sideLine2Points = [];
-    sideLine2Points.push(new THREE.Vector3(TABLE_WIDTH / 2, TABLE_HEIGHT + 0.001, -TABLE_LENGTH / 2));
-    sideLine2Points.push(new THREE.Vector3(TABLE_WIDTH / 2, TABLE_HEIGHT + 0.001, TABLE_LENGTH / 2));
-    const sideLine2Geometry = new THREE.BufferGeometry().setFromPoints(sideLine2Points);
-    const sideLine2 = new THREE.Line(sideLine2Geometry, lineMaterial);
-    scene.add(sideLine2);
-
-    // Create End Lines
-    // End Line 1 (nearer end)
-    const endLine1Points = [];
-    endLine1Points.push(new THREE.Vector3(-TABLE_WIDTH / 2, TABLE_HEIGHT + 0.001, TABLE_LENGTH / 2));
-    endLine1Points.push(new THREE.Vector3(TABLE_WIDTH / 2, TABLE_HEIGHT + 0.001, TABLE_LENGTH / 2));
-    const endLine1Geometry = new THREE.BufferGeometry().setFromPoints(endLine1Points);
-    const endLine1 = new THREE.Line(endLine1Geometry, lineMaterial);
-    scene.add(endLine1);
-
-    // End Line 2 (farther end)
-    const endLine2Points = [];
-    endLine2Points.push(new THREE.Vector3(-TABLE_WIDTH / 2, TABLE_HEIGHT + 0.001, -TABLE_LENGTH / 2));
-    endLine2Points.push(new THREE.Vector3(TABLE_WIDTH / 2, TABLE_HEIGHT + 0.001, -TABLE_LENGTH / 2));
-    const endLine2Geometry = new THREE.BufferGeometry().setFromPoints(endLine2Points);
-    const endLine2 = new THREE.Line(endLine2Geometry, lineMaterial);
-    scene.add(endLine2);
+    net.position.set(0, TABLE_HEIGHT + 0.1525 / 2, 0); scene.add(net);
     const floorGeometry = new THREE.PlaneGeometry(10, 10); 
     floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.rotation.x = -Math.PI / 2; 
-    floor.position.y = 0;            
-    scene.add(floor);
-
-    // Game Object Instantiation
+    floor.rotation.x = -Math.PI / 2; floor.position.y = 0; scene.add(floor);
     gameBall = new Ball(); 
     const ballGeometry = new THREE.SphereGeometry(gameBall.radius, 16, 12); 
     const ballMesh = new THREE.Mesh(ballGeometry, ballMaterial);
-    gameBall.mesh = ballMesh; 
-    scene.add(ballMesh);      
-
+    gameBall.mesh = ballMesh; scene.add(ballMesh);      
     player1 = new Player(1, scene, 'human'); 
     const player1Geometry = new THREE.CapsuleGeometry(0.2, 0.8, 4, 16); 
     player1.mesh = new THREE.Mesh(player1Geometry, p1Material);
-    player1.mesh.position.copy(player1.position); 
-    scene.add(player1.mesh);
+    player1.mesh.position.copy(player1.position); scene.add(player1.mesh);
     player1.mesh.add(player1.racket.mesh); 
-
     player2 = new Player(-1, scene, 'ai'); 
     const player2Geometry = new THREE.CapsuleGeometry(0.2, 0.8, 4, 16);
     player2.mesh = new THREE.Mesh(player2Geometry, p2Material);
-    player2.mesh.position.copy(player2.position);
-    scene.add(player2.mesh);
+    player2.mesh.position.copy(player2.position); scene.add(player2.mesh);
     player2.mesh.add(player2.racket.mesh);
-
-    resetForServe(); // Initial setup for the first serve
-
+    resetForServe(); 
     window.addEventListener('resize', onWindowResize, false);   
     window.addEventListener('mousemove', onMouseMove, false); 
     window.addEventListener('click', onMouseClick, false);    
-
     const initMessageElement = document.getElementById('initializationMessage');
-    if (initMessageElement) {
-        initMessageElement.style.display = 'none';
-    }
+    if (initMessageElement) { initMessageElement.style.display = 'none'; }
     animate();
 }
 
+
 // --- UI Functions ---
-// ... (updateScoreDisplay as before) ...
+// ... (updateScoreDisplay as in Turn 47/49) ...
 function updateScoreDisplay() {
     if (player1ScoreElement && player2ScoreElement) { 
         player1ScoreElement.textContent = score.player1;
@@ -163,10 +98,9 @@ function updateScoreDisplay() {
 }
 
 // --- Event Handlers ---
-// ... (onWindowResize, onMouseMove as before) ...
+// ... (onWindowResize, onMouseMove as in Turn 47/49) ...
 function onWindowResize() { 
-    camera.aspect = window.innerWidth / window.innerHeight; 
-    camera.updateProjectionMatrix(); 
+    camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); 
     renderer.setSize(window.innerWidth, window.innerHeight); 
 }
 function onMouseMove(event) { 
@@ -176,29 +110,21 @@ function onMouseMove(event) {
         player1.handleMouseMove(screenX, screenY); 
     }
 }
-
-/**
- * Handles mouse click events for player actions (serve toss, serve hit, rally swing).
- */
 function onMouseClick(event) {
     if (player1 && player1.controlType === 'human') {
         if (currentGameState === GameState.AWAITING_SERVE_TOSS && servingPlayer === 1) {
-            player1.serveToss(gameBall); // Player calls its own toss method
+            player1.serveToss(gameBall); 
             currentGameState = GameState.BALL_TOSSED;
             console.log("Player 1 tossed the ball. Click again to hit.");
         } else if (currentGameState === GameState.BALL_TOSSED && servingPlayer === 1 && player1.isServing) {
-            player1.swing(gameBall); // This will call serveHit internally due to isServing flag
-            // Ball status (1 for P1 hit) and player1.isServing will be updated by Player/Ball methods.
-            // Transition to SERVE_IN_MOTION happens if hit was successful (ball status becomes 1)
-            if (gameBall.status === 1) { // Check if hit was registered
+            if (player1.swing(gameBall)) { // swing now returns true if serveHit was successful
                  currentGameState = GameState.SERVE_IN_MOTION;
                  console.log("Player 1 hit the serve!");
             } else {
-                // Optional: Handle missed toss hit (ball drops) - rules will eventually award point.
-                console.log("Player 1 attempted serve hit on tossed ball.");
+                console.log("Player 1 missed or failed to hit the tossed ball properly.");
+                // Game rule for dropped toss will eventually award point to P2 if ball status becomes < 0
             }
         } else if (currentGameState === GameState.RALLY && gameBall.lastHitBy !== 1) {
-            // Standard rally swing
             if (gameBall.status === 0 || (gameBall.status === 3 && gameBall.position.z > NET_POS_Z - 0.5) ) {
                  player1.swing(gameBall); 
             }
@@ -209,41 +135,50 @@ function onMouseClick(event) {
 // --- Game Logic Functions ---
 /**
  * Resets the ball and game state for a new serve.
+ * Now also calls player-specific ball positioning.
  */
 function resetForServe() {
-    gameBall.reset(servingPlayer); // Ball positioned, status 8 (P1) or 9 (P2)
+    gameBall.reset(servingPlayer); // Ball status 8 (P1) or 9 (P2), neutral position
     currentGameState = GameState.AWAITING_SERVE_TOSS;
-    if (player1 && servingPlayer === 1) player1.isServing = false; // Reset serving state for player
-    if (player2 && servingPlayer === 2) player2.isServing = false;
+    
+    if (player1 && servingPlayer === 1) {
+        player1.isServing = false; // Ensure flag is reset before positioning
+        player1.positionBallForServeStart(gameBall); // Position ball near P1's hand
+    }
+    if (player2 && servingPlayer === 2) {
+        player2.isServing = false; // Ensure flag is reset
+        // AI will position ball then toss then hit in its sequence
+    }
 
-    console.log(`Ready for Player ${servingPlayer} to serve. Click to toss.`);
+    console.log(`Ready for Player ${servingPlayer} to serve. Click to toss (P1) or AI will serve.`);
 
     if (servingPlayer === 2 && player2) { 
-        console.log("AI (Player 2) is preparing to serve (toss)...");
+        console.log("AI (Player 2) is preparing to serve (position & toss)...");
         setTimeout(() => {
             if (currentGameState === GameState.AWAITING_SERVE_TOSS && servingPlayer === 2) {
-                player2.serveToss(gameBall); // AI calls its toss method
+                player2.positionBallForServeStart(gameBall); // AI positions the ball
+                player2.serveToss(gameBall);                 // AI calls its toss method
                 currentGameState = GameState.BALL_TOSSED;
                 console.log("AI (Player 2) tossed the ball. Will hit shortly.");
                 
-                // Schedule AI's serve hit after a delay (simulating toss peak and hit)
                 setTimeout(() => {
                     if (currentGameState === GameState.BALL_TOSSED && servingPlayer === 2 && player2.isServing) {
-                        player2.swing(gameBall); // This will call serveHit
-                        if (gameBall.status === 3) { // Check if hit was registered
+                        if (player2.swing(gameBall)) { // swing calls serveHit
                             currentGameState = GameState.SERVE_IN_MOTION;
                             console.log("Player 2 (AI) hit the serve!");
+                        } else {
+                             console.log("AI (Player 2) missed or failed to hit the tossed ball.");
+                             // Game rules will handle the dropped ball.
                         }
                     }
-                }, 600 + Math.random() * 200); // Delay for AI to "hit" the tossed ball (0.6-0.8s)
+                }, 600 + Math.random() * 200); 
             }
         }, 1000 + Math.random() * 500); 
     }
 }
 
-// ... (awardPointTo and checkGameRules as in Turn 41, with minor console log adjustments if needed) ...
+// ... (awardPointTo as in Turn 47/49) ...
 function awardPointTo(winnerID) { 
-    // (No changes from Turn 41, ensure it's complete)
     if (winnerID === 1) score.player1++; else score.player2++;
     updateScoreDisplay(); 
     console.log(`Point for Player ${winnerID}! Score: P1: ${score.player1} - P2: ${score.player2}`);
@@ -251,24 +186,22 @@ function awardPointTo(winnerID) {
     servingPlayer = (servingPlayer === 1) ? 2 : 1; 
     setTimeout(resetForServe, 1500); 
 } 
-
 function checkGameRules() { 
-    if (currentGameState === GameState.POINT_SCORED || currentGameState === GameState.AWAITING_SERVE_TOSS || currentGameState === GameState.BALL_TOSSED) {
-        // If ball is tossed (status 6 or 7) and hits floor before racket hit, it's a fault.
+    // (Logic from Turn 47/49, with slight adjustment for BALL_TOSSED state)
+    if (currentGameState === GameState.POINT_SCORED || currentGameState === GameState.AWAITING_SERVE_TOSS || 
+        (currentGameState === GameState.BALL_TOSSED && gameBall.status >=6) // Allow tossed ball (status 6 or 7) to fly
+       ) {
+        // Specifically check if a tossed ball (status 6 or 7) hits the floor (status -2)
         if (currentGameState === GameState.BALL_TOSSED && gameBall.status === -2) {
             console.log("Rule Check: Tossed ball hit floor before being hit.");
-            awardPointTo(servingPlayer === 1 ? 2 : 1); // Point to opponent
+            awardPointTo(servingPlayer === 1 ? 2 : 1); // Point to opponent of the player who was serving
         }
-        return;
+        return; // Skip other rule checks if not in active play or if just handling tossed ball drop
     }
-
-    // Rule Check 1: Ball hit the net structure and is now "dead" (status -1).
+    // (The rest of checkGameRules logic for net, floor, out, serve validation, rally progression as in Turn 47/49)
     if (gameBall.status === -1) { 
         console.log("Rule Check: Ball hit net structure during play.");
-        awardPointTo(gameBall.lastHitBy === 1 ? 2 : 1); 
-        return; 
-    }
-    // Rule Check 2: Ball hit the floor (status -2).
+        awardPointTo(gameBall.lastHitBy === 1 ? 2 : 1); return; }
     if (gameBall.status === -2) { 
         console.log("Rule Check: Ball hit floor.");
         if (gameBall.lastHitBy === 1) { 
@@ -277,72 +210,46 @@ function checkGameRules() {
         } else if (gameBall.lastHitBy === 2) { 
             if (gameBall.position.z > NET_POS_Z && gameBall.bouncedOnServerSide) awardPointTo(2);
             else awardPointTo(1); 
-        } else { // Ball hit floor without a valid last hit (e.g., during a faulty toss that wasn't hit)
-             awardPointTo(servingPlayer === 1 ? 2 : 1); // Point to opponent of current server
-        }
+        } else { awardPointTo(servingPlayer === 1 ? 2 : 1); } // If no last hit, fault by server
         return; 
     }
-    // Rule Check 3: Ball out of bounds (sideways or long; statuses -3, -4, -5).
     if (gameBall.status === -3 || gameBall.status === -4 || gameBall.status === -5) { 
         console.log(`Rule Check: Ball out of bounds (status ${gameBall.status}). Last hit by ${gameBall.lastHitBy}`);
-        awardPointTo(gameBall.lastHitBy === 1 ? 2 : 1); 
-        return; 
-    }
+        awardPointTo(gameBall.lastHitBy === 1 ? 2 : 1); return; }
 
-    // --- Serve and Rally State Progression Logic ---
     if (currentGameState === GameState.SERVE_IN_MOTION) {
-        // (Logic from Turn 41, ensure gameBall.status is 1 or 3 after hit)
         if (gameBall.lastHitBy === servingPlayer) {
-            // Player 1 serving (ball status should be 1 after hit)
             if (servingPlayer === 1 && gameBall.status === 1) { 
                 if (gameBall.bouncedOnServerSide && gameBall.bouncedOnReceiverSide) { 
                     console.log("Serve by P1 is IN. Rally begins (P2 to hit).");
-                    currentGameState = GameState.RALLY; 
-                    gameBall.status = 2; // P2's turn
+                    currentGameState = GameState.RALLY; gameBall.status = 2; 
                     gameBall.bouncedOnServerSide = false; gameBall.bouncedOnReceiverSide = false; 
                 } else if (gameBall.bouncedOnReceiverSide && !gameBall.bouncedOnServerSide) { 
-                    console.log("Serve Fault (P1): Hit opponent's side first.");
-                    awardPointTo(2); 
-                } 
-                // Check for serve bounce on own side then out/net (fault)
-                else if (gameBall.bouncedOnServerSide && !gameBall.bouncedOnReceiverSide && gameBall.status < 0){
-                     console.log("Serve Fault (P1): Bounced on own side then out/net.");
-                     awardPointTo(2);
+                    console.log("Serve Fault (P1): Hit opponent's side first."); awardPointTo(2); 
+                } else if (gameBall.bouncedOnServerSide && !gameBall.bouncedOnReceiverSide && gameBall.status < 0){ // Hit own side then out/net
+                     console.log("Serve Fault (P1): Bounced on own side then out/net."); awardPointTo(2);
                 }
-            } 
-            // Player 2 (AI) serving (ball status should be 3 after hit)
-            else if (servingPlayer === 2 && gameBall.status === 3) { 
-                if (gameBall.bouncedOnReceiverSide && gameBall.bouncedOnServerSide) { // P2's side is receiver, P1's side is server for flag check
+            } else if (servingPlayer === 2 && gameBall.status === 3) { 
+                if (gameBall.bouncedOnReceiverSide && gameBall.bouncedOnServerSide) { 
                     console.log("Serve by P2 is IN. Rally begins (P1 to hit).");
-                    currentGameState = GameState.RALLY;
-                    gameBall.status = 0; // P1's turn
+                    currentGameState = GameState.RALLY; gameBall.status = 0; 
                     gameBall.bouncedOnServerSide = false; gameBall.bouncedOnReceiverSide = false;
                 } else if (gameBall.bouncedOnServerSide && !gameBall.bouncedOnReceiverSide) { 
-                    console.log("Serve Fault (P2): Hit opponent's side first.");
-                    awardPointTo(1); 
-                }
-                 // Check for serve bounce on own side then out/net (fault)
-                else if (gameBall.bouncedOnReceiverSide && !gameBall.bouncedOnServerSide && gameBall.status < 0){
-                     console.log("Serve Fault (P2): Bounced on own side then out/net.");
-                     awardPointTo(1);
+                    console.log("Serve Fault (P2): Hit opponent's side first."); awardPointTo(1); 
+                } else if (gameBall.bouncedOnReceiverSide && !gameBall.bouncedOnServerSide && gameBall.status < 0){ // Hit own side then out/net
+                     console.log("Serve Fault (P2): Bounced on own side then out/net."); awardPointTo(1);
                 }
             }
         }
     } else if (currentGameState === GameState.RALLY) {
-        // (Logic from Turn 41)
         if (gameBall.lastHitBy === 1 && gameBall.status === 1) { 
             if (gameBall.bouncedOnReceiverSide) { 
-                console.log("P1's rally shot is IN. P2 to play.");
-                gameBall.status = 2; 
-                gameBall.bouncedOnServerSide = false; gameBall.bouncedOnReceiverSide = false; 
-            }
-        }
-        else if (gameBall.lastHitBy === 2 && gameBall.status === 3) { 
+                console.log("P1's rally shot is IN. P2 to play."); gameBall.status = 2; 
+                gameBall.bouncedOnServerSide = false; gameBall.bouncedOnReceiverSide = false; }
+        } else if (gameBall.lastHitBy === 2 && gameBall.status === 3) { 
             if (gameBall.bouncedOnServerSide) { 
-                console.log("P2's rally shot is IN. P1 to play.");
-                gameBall.status = 0; 
-                gameBall.bouncedOnReceiverSide = false; gameBall.bouncedOnServerSide = false; 
-            }
+                console.log("P2's rally shot is IN. P1 to play."); gameBall.status = 0; 
+                gameBall.bouncedOnReceiverSide = false; gameBall.bouncedOnServerSide = false; }
         }
     }
 }
@@ -361,11 +268,11 @@ function animate() {
 }
 
 // --- Entry Point ---
+// ... (try/catch for init as before) ...
 try {
     init(); 
-    console.log("Three.js CannonSmash: Serve sequence updated.");
+    console.log("Three.js CannonSmash: Initial ball positioning updated.");
 } catch (error) {
-    // ... (error handling as before) ...
     console.error("Critical error during game initialization:", error);
     const initMessageElement = document.getElementById('initializationMessage');
     if (initMessageElement) {
