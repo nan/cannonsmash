@@ -37,6 +37,11 @@ const FENCE_WIDTH = 1.8;
 const TUBE_DIAMETER = 0.025;
 const TUBE_RADIUS = TUBE_DIAMETER / 2;
 const LEG_VERTICAL_HEIGHT = 0.15; // Height of the vertical part of an L-leg
+const LEG_DIAMETER = 0.05;
+const LEG_RADIUS = LEG_DIAMETER / 2;
+const TABLE_TOP_THICKNESS = 0.03; // Assuming this is known from tableTopGeometry.height
+const LEG_HEIGHT = TABLE_HEIGHT - TABLE_TOP_THICKNESS; // Height from underside of table to floor
+const LEG_INSET = 0.1; // Common inset from table edges
 const LEG_HORIZONTAL_DEPTH = 0.3;  // Depth/length of the horizontal foot part of an L-leg
 const FABRIC_WIDTH = FENCE_WIDTH - TUBE_DIAMETER;
 const FABRIC_HEIGHT = FENCE_HEIGHT - TUBE_DIAMETER;
@@ -126,11 +131,50 @@ function init() {
       roughness: 0.8   // Matte finish
     });
 
+    const tableLegMaterial = new THREE.MeshStandardMaterial({
+        color: 0x555555, // Metallic grey
+        roughness: 0.7,
+        metalness: 0.5 // Added for a more metallic look
+    });
+
     // 7. Environment Object Creation
-    const tableTopGeometry = new THREE.BoxGeometry(1.525, 0.03, 2.74); 
+    const tableTopGeometry = new THREE.BoxGeometry(TABLE_WIDTH, TABLE_TOP_THICKNESS, TABLE_LENGTH); 
     table = new THREE.Mesh(tableTopGeometry, tableMaterial);
-    table.position.set(0, TABLE_HEIGHT - 0.03 / 2, 0); 
+    table.position.set(0, TABLE_HEIGHT - TABLE_TOP_THICKNESS / 2, 0); 
+    table.castShadow = true; // Table top casts shadow
+    table.receiveShadow = true; // Table top can receive shadows (e.g., from ball)
     scene.add(table);
+
+    // Table Legs
+    const tableLegGeometry = new THREE.CylinderGeometry(LEG_RADIUS, LEG_RADIUS, LEG_HEIGHT, 12);
+    const legXPos = TABLE_WIDTH / 2 - LEG_INSET - LEG_RADIUS;
+    const legZPos = TABLE_LENGTH / 2 - LEG_INSET - LEG_RADIUS;
+    const legYPos = LEG_HEIGHT / 2; // Center of the leg, so it rests on Y=0
+
+    // Create and position the four table legs
+    const leg1 = new THREE.Mesh(tableLegGeometry, tableLegMaterial);
+    leg1.position.set(legXPos, legYPos, legZPos);
+    leg1.castShadow = true;
+    leg1.receiveShadow = true;
+    scene.add(leg1);
+
+    const leg2 = new THREE.Mesh(tableLegGeometry, tableLegMaterial);
+    leg2.position.set(-legXPos, legYPos, legZPos);
+    leg2.castShadow = true;
+    leg2.receiveShadow = true;
+    scene.add(leg2);
+
+    const leg3 = new THREE.Mesh(tableLegGeometry, tableLegMaterial);
+    leg3.position.set(legXPos, legYPos, -legZPos);
+    leg3.castShadow = true;
+    leg3.receiveShadow = true;
+    scene.add(leg3);
+
+    const leg4 = new THREE.Mesh(tableLegGeometry, tableLegMaterial);
+    leg4.position.set(-legXPos, legYPos, -legZPos);
+    leg4.castShadow = true;
+    leg4.receiveShadow = true;
+    scene.add(leg4);
 
     const netGeometry = new THREE.BoxGeometry(1.83, 0.1525, 0.01); 
     net = new THREE.Mesh(netGeometry, netMaterial);
