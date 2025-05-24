@@ -337,7 +337,7 @@ function init() {
     ballFence.position.set(
         0,
         0, // Bottom of the fence (specifically, bottom of vertical leg parts) will be at Y=0
-        TABLE_LENGTH / 2 + 0.5 // Positioned behind Player 1's side of the table
+        TABLE_LENGTH / 2 + 3 // Adjusted Z position
     );
     // If the leg's horizontal parts were defined to extend in -Z, then this Z might need to be adjusted,
     // or the group rotated, or legs re-positioned relative to group.
@@ -348,6 +348,64 @@ function init() {
     ballFence.rotation.y = Math.PI; // Rotate so fabric faces towards table, legs point away from table.
 
     scene.add(ballFence);
+
+    // Fence at the opposite end (Player 2's side)
+    const fencePlayer2End = ballFence.clone(); // Clone the original fence group
+
+    fencePlayer2End.position.set(
+        0,
+        0,
+        -(TABLE_LENGTH / 2 + 3) // Position 3m away from the other table end
+    );
+    fencePlayer2End.rotation.y = 0; // Rotated to face the table (legs point away from table, into -Z)
+
+    scene.add(fencePlayer2End);
+
+    // Fences along the table side (Player 1's right / Player 2's left - positive X side)
+    const sideFenceXPos = TABLE_WIDTH / 2 + 3;
+
+    // Fence 1 for side 1 (closer to Player 2's end)
+    const fenceSide1_1 = ballFence.clone();
+    fenceSide1_1.position.set(
+        sideFenceXPos,
+        0,
+        -(TABLE_LENGTH / 4) 
+    );
+    fenceSide1_1.rotation.y = -Math.PI / 2; // Fabric faces table (towards -X), legs point away (+X)
+    scene.add(fenceSide1_1);
+
+    // Fence 2 for side 1 (closer to Player 1's end)
+    const fenceSide1_2 = ballFence.clone();
+    fenceSide1_2.position.set(
+        sideFenceXPos,
+        0,
+        TABLE_LENGTH / 4
+    );
+    fenceSide1_2.rotation.y = -Math.PI / 2; // Fabric faces table (towards -X), legs point away (+X)
+    scene.add(fenceSide1_2);
+
+    // Fences along the table side (Player 1's left / Player 2's right - negative X side)
+    const sideFenceXNegPos = -(TABLE_WIDTH / 2 + 3);
+
+    // Fence 1 for side 2 (closer to Player 2's end)
+    const fenceSide2_1 = ballFence.clone();
+    fenceSide2_1.position.set(
+        sideFenceXNegPos,
+        0,
+        -(TABLE_LENGTH / 4)
+    );
+    fenceSide2_1.rotation.y = Math.PI / 2; // Fabric faces table (towards +X), legs point away (-X)
+    scene.add(fenceSide2_1);
+
+    // Fence 2 for side 2 (closer to Player 1's end)
+    const fenceSide2_2 = ballFence.clone();
+    fenceSide2_2.position.set(
+        sideFenceXNegPos,
+        0,
+        TABLE_LENGTH / 4
+    );
+    fenceSide2_2.rotation.y = Math.PI / 2; // Fabric faces table (towards +X), legs point away (-X)
+    scene.add(fenceSide2_2);
 
     // 8. Game Object Instantiation
     gameBall = new Ball(); 
