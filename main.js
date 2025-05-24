@@ -92,12 +92,12 @@ function init() {
     const backWallTexture = textureLoader.load('csmash/images/Back.jpg');
     backWallTexture.wrapS = THREE.RepeatWrapping;
     backWallTexture.wrapT = THREE.RepeatWrapping;
-    backWallTexture.repeat.set(2, 1); 
+    backWallTexture.repeat.set(1, 1); 
 
     const frontWallTexture = textureLoader.load('csmash/images/Front.jpg');
     frontWallTexture.wrapS = THREE.RepeatWrapping;
     frontWallTexture.wrapT = THREE.RepeatWrapping;
-    frontWallTexture.repeat.set(2, 1); 
+    frontWallTexture.repeat.set(1, 1); 
 
     const floorMaterial = new THREE.MeshStandardMaterial({ map: floorTexture, roughness: 0.9 }); 
     const backAndFrontWallMaterial = new THREE.MeshStandardMaterial({ map: backWallTexture, roughness: 0.9, side: THREE.DoubleSide });
