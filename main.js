@@ -1,14 +1,14 @@
-// main.js 
-// ... (imports and other global variables, GameState, init, UI functions, event handlers, resetForServe, awardPointTo as before - from Turn 55) ...
+// main.js - Reverted to state post-Turn 55 (multi-stage serve implemented, pre-ball-follow bug)
 import * as THREE from 'three';     
-import { Ball } from './Ball.js';     
-import { Player } from './Player.js'; 
+import { Ball } from './Ball.js';     // Assumes Ball.js is from Turn 51 (neutral reset, has toss method)
+import { Player } from './Player.js'; // Assumes Player.js is from Turn 53 (has serveToss, serveHit, positionBallForServeStart)
 
 let scene, camera, renderer;            
 let table, net, floor;                  
 let gameBall;                           
 let player1, player2;                   
 let player1ScoreElement, player2ScoreElement;
+
 const GameState = {
     AWAITING_SERVE_TOSS: 'AWAITING_SERVE_TOSS', 
     BALL_TOSSED: 'BALL_TOSSED',             
@@ -25,7 +25,6 @@ const TABLE_HEIGHT = 0.76;
 const NET_POS_Z = 0;   
 
 function init() {
-    // (init function as in Turn 55 - no changes here for this subtask)
     player1ScoreElement = document.getElementById('player1Score');
     player2ScoreElement = document.getElementById('player2Score');
     updateScoreDisplay(); 
@@ -86,24 +85,27 @@ function init() {
     animate();
 }
 
-function updateScoreDisplay() { /* ... as in Turn 55 ... */ 
+function updateScoreDisplay() {
     if (player1ScoreElement && player2ScoreElement) { 
         player1ScoreElement.textContent = score.player1;
         player2ScoreElement.textContent = score.player2;
     }
 }
-function onWindowResize() { /* ... as in Turn 55 ... */ 
+
+function onWindowResize() { 
     camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); 
     renderer.setSize(window.innerWidth, window.innerHeight); 
 }
-function onMouseMove(event) { /* ... as in Turn 55 ... */ 
+
+function onMouseMove(event) { 
     if (player1 && player1.controlType === 'human') { 
         const screenX = (event.clientX / window.innerWidth) * 2 - 1;
         const screenY = -(event.clientY / window.innerHeight) * 2 + 1; 
         player1.handleMouseMove(screenX, screenY); 
     }
 }
-function onMouseClick(event) { /* ... as in Turn 55 ... */ 
+
+function onMouseClick(event) {
     if (player1 && player1.controlType === 'human') {
         if (currentGameState === GameState.AWAITING_SERVE_TOSS && servingPlayer === 1) {
             player1.serveToss(gameBall); 
@@ -123,26 +125,30 @@ function onMouseClick(event) { /* ... as in Turn 55 ... */
         }
     }
 }
-function resetForServe() { /* ... as in Turn 55 ... */ 
+
+function resetForServe() {
     gameBall.reset(servingPlayer); 
     currentGameState = GameState.AWAITING_SERVE_TOSS;
+    
     if (player1 && servingPlayer === 1) {
         player1.isServing = false; 
-        // player1.positionBallForServeStart(gameBall); // Called in animate now
+        player1.positionBallForServeStart(gameBall); 
     }
     if (player2 && servingPlayer === 2) {
         player2.isServing = false; 
-        // player2.positionBallForServeStart(gameBall); // Called in AI serve timeout or animate
     }
+
     console.log(`Ready for Player ${servingPlayer} to serve. P1 Click to toss. AI will auto-serve.`);
+
     if (servingPlayer === 2 && player2) { 
         console.log("AI (Player 2) is preparing to serve (position & toss)...");
         setTimeout(() => {
             if (currentGameState === GameState.AWAITING_SERVE_TOSS && servingPlayer === 2) {
-                player2.positionBallForServeStart(gameBall); // Position ball once before toss
+                player2.positionBallForServeStart(gameBall); 
                 player2.serveToss(gameBall);                 
                 currentGameState = GameState.BALL_TOSSED;
                 console.log("AI (Player 2) tossed the ball. Will hit shortly.");
+                
                 setTimeout(() => {
                     if (currentGameState === GameState.BALL_TOSSED && servingPlayer === 2 && player2.isServing) {
                         if (player2.swing(gameBall)) { 
@@ -157,7 +163,8 @@ function resetForServe() { /* ... as in Turn 55 ... */
         }, 1000 + Math.random() * 500); 
     }
 }
-function awardPointTo(winnerID) { /* ... as in Turn 55 ... */ 
+
+function awardPointTo(winnerID) { 
     if (winnerID === 1) score.player1++; else score.player2++;
     updateScoreDisplay(); 
     console.log(`Point for Player ${winnerID}! Score: P1: ${score.player1} - P2: ${score.player2}`);
@@ -165,7 +172,8 @@ function awardPointTo(winnerID) { /* ... as in Turn 55 ... */
     servingPlayer = (servingPlayer === 1) ? 2 : 1; 
     setTimeout(resetForServe, 1500); 
 } 
-function checkGameRules() { /* ... as in Turn 55 ... */ 
+
+function checkGameRules() { 
     if (currentGameState === GameState.POINT_SCORED || currentGameState === GameState.AWAITING_SERVE_TOSS || 
         (currentGameState === GameState.BALL_TOSSED && gameBall.status >=6) 
        ) {
@@ -231,32 +239,18 @@ function checkGameRules() { /* ... as in Turn 55 ... */
 }
 
 // --- Main Animation Loop (`animate`) ---
+// THIS IS THE KEY DIFFERENCE FROM THE FAULTY VERSION (Turn 67).
+// The continuous ball positioning for AWAITING_SERVE_TOSS is NOT present here.
+// The gameBall.update() is also not conditional on ball status 8/9.
 function animate() {
     requestAnimationFrame(animate); 
     
     if (player1) player1.update(gameBall); 
     if (player2) player2.update(gameBall); 
 
-    // ADDED: Continuous ball positioning during AWAITING_SERVE_TOSS for the serving player
-    if (currentGameState === GameState.AWAITING_SERVE_TOSS && gameBall) {
-        if (servingPlayer === 1 && player1) {
-            player1.positionBallForServeStart(gameBall);
-        } else if (servingPlayer === 2 && player2) {
-            // AI's positionBallForServeStart is already called once in its setTimeout in resetForServe.
-            // Calling it again here ensures the ball tracks the AI if the AI's body were to move pre-toss
-            // (currently AI body is static until it's its turn to hit in rally or after serve).
-            player2.positionBallForServeStart(gameBall);
-        }
-    }
-
+    // Original gameBall.update from Turn 55
     if (gameBall) {
-        // Ensure ball physics (like falling due to gravity) are only updated if it's not being held.
-        // Ball status 8/9 means it's "held" by server, status 6/7 means tossed.
-        if (gameBall.status !== 8 && gameBall.status !== 9) {
-            gameBall.update(player1.racket.mesh, player2 ? player2.racket.mesh : null); 
-        } else if (gameBall.mesh) { // If held, just sync mesh to position set by positionBallForServeStart
-             gameBall.mesh.position.copy(gameBall.position);
-        }
+        gameBall.update(player1.racket.mesh, player2 ? player2.racket.mesh : null); 
     }
     
     checkGameRules(); 
@@ -266,10 +260,9 @@ function animate() {
 // --- Entry Point ---
 try {
     init(); 
-    // Console log updated to reflect this specific change
-    console.log("Three.js CannonSmash: Implemented ball follow pre-toss.");
+    // Updated console log for this revert action
+    console.log("Three.js CannonSmash: main.js reverted to pre-ball-follow state (Turn 55 version).");
 } catch (error) {
-    // ... (error handling as before) ...
     console.error("Critical error during game initialization:", error);
     const initMessageElement = document.getElementById('initializationMessage');
     if (initMessageElement) {
