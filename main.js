@@ -9,6 +9,10 @@ import { Player } from './Player.js';
 let scene, camera, renderer;            
 let table, net, floor;                  
 let backWall, frontWall, leftWall, rightWall; 
+let frameTopRail, frameBottomRail, frameLeftUpright, frameRightUpright; 
+let legLeftVertical, legLeftHorizontal, legRightVertical, legRightHorizontal;
+let fabricPanel;
+let ballFence;
 let gameBall;                           
 let player1, player2;                   
 let player1ScoreElement, player2ScoreElement;
@@ -28,10 +32,14 @@ const TABLE_HEIGHT = 0.76;
 const NET_POS_Z = 0;   
 const WALL_HEIGHT = 4;
 const FLOOR_SIZE = 10; 
-const FENCE_POST_SIZE = { width: 0.1, height: 1.0, depth: 0.1 };
-const FENCE_RAIL_SIZE = { width: 0, height: 0.05, depth: 0.05 }; // Width determined by post spacing
-const FENCE_Z_POSITION = TABLE_LENGTH / 2 + 0.5;
-const FENCE_WIDTH = TABLE_WIDTH + 1.0;
+const FENCE_HEIGHT = 0.75;
+const FENCE_WIDTH = 1.8;
+const TUBE_DIAMETER = 0.025;
+const TUBE_RADIUS = TUBE_DIAMETER / 2;
+const LEG_VERTICAL_HEIGHT = 0.15; // Height of the vertical part of an L-leg
+const LEG_HORIZONTAL_DEPTH = 0.3;  // Depth/length of the horizontal foot part of an L-leg
+const FABRIC_WIDTH = FENCE_WIDTH - TUBE_DIAMETER;
+const FABRIC_HEIGHT = FENCE_HEIGHT - TUBE_DIAMETER;
 
 
 // --- Initialization Function (`init`) ---
@@ -106,7 +114,17 @@ function init() {
     const p1Material = new THREE.MeshStandardMaterial({ color: 0x0000dd, roughness: 0.6 }); 
     const p2Material = new THREE.MeshStandardMaterial({ color: 0x00dd00, roughness: 0.6 }); 
     const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff }); 
-    const fenceMaterial = new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.8 });
+
+    const tubeMaterial = new THREE.MeshStandardMaterial({
+      color: 0x2e2e2e, // Dark grey/black for frame
+      roughness: 0.8   // Matte finish
+    });
+
+    const fabricMaterial = new THREE.MeshStandardMaterial({
+      color: 0x1f4e79, // Dark blue for fabric
+      side: THREE.DoubleSide,
+      roughness: 0.8   // Matte finish
+    });
 
     // 7. Environment Object Creation
     const tableTopGeometry = new THREE.BoxGeometry(1.525, 0.03, 2.74); 
@@ -201,44 +219,135 @@ function init() {
     scene.add(rightWall);
 
     // --- Protective Fence ---
-    // Posts for back fence
-    const postGeometry = new THREE.BoxGeometry(FENCE_POST_SIZE.width, FENCE_POST_SIZE.height, FENCE_POST_SIZE.depth);
-    
-    const post1 = new THREE.Mesh(postGeometry, fenceMaterial);
-    post1.position.set(-FENCE_WIDTH / 2, FENCE_POST_SIZE.height / 2, FENCE_Z_POSITION);
-    scene.add(post1);
+    // (Old fence code removed)
 
-    const post2 = new THREE.Mesh(postGeometry, fenceMaterial);
-    post2.position.set(0, FENCE_POST_SIZE.height / 2, FENCE_Z_POSITION);
-    scene.add(post2);
+    // --- Detailed Ball Fence Elements ---
+    // (Materials tubeMaterial and fabricMaterial are assumed to be defined already)
 
-    const post3 = new THREE.Mesh(postGeometry, fenceMaterial);
-    post3.position.set(FENCE_WIDTH / 2, FENCE_POST_SIZE.height / 2, FENCE_Z_POSITION);
-    scene.add(post3);
-    
-    // Rails for back fence
-    const railLength = FENCE_WIDTH / 2 - FENCE_POST_SIZE.width / 2; // Approximate length between post centers minus half post
-    const railGeometry1 = new THREE.BoxGeometry(railLength, FENCE_RAIL_SIZE.height, FENCE_RAIL_SIZE.depth);
-    
-    // Rail 1 (left segment, lower)
-    const rail1_1 = new THREE.Mesh(railGeometry1, fenceMaterial);
-    rail1_1.position.set(-FENCE_WIDTH / 4 - FENCE_POST_SIZE.width / 4, 0.3, FENCE_Z_POSITION);
-    scene.add(rail1_1);
+    // Frame Geometries
+    const uprightGeometry = new THREE.CylinderGeometry(TUBE_RADIUS, TUBE_RADIUS, FENCE_HEIGHT, 8); // 8 segments for cylinder
+    const railGeometry = new THREE.CylinderGeometry(TUBE_RADIUS, TUBE_RADIUS, FENCE_WIDTH, 8);
 
-    // Rail 2 (right segment, lower)
-    const rail1_2 = new THREE.Mesh(railGeometry1, fenceMaterial);
-    rail1_2.position.set(FENCE_WIDTH / 4 + FENCE_POST_SIZE.width / 4, 0.3, FENCE_Z_POSITION);
-    scene.add(rail1_2);
+    // Create Meshes (positions are relative to the future group center)
 
-    // Rail 3 (left segment, upper)
-    const rail2_1 = new THREE.Mesh(railGeometry1, fenceMaterial);
-    rail2_1.position.set(-FENCE_WIDTH / 4 - FENCE_POST_SIZE.width / 4, 0.8, FENCE_Z_POSITION);
-    scene.add(rail2_1);
+    // Bottom Rail
+    frameBottomRail = new THREE.Mesh(railGeometry, tubeMaterial);
+    frameBottomRail.rotation.z = Math.PI / 2; // Rotate to be horizontal
+    frameBottomRail.position.y = TUBE_RADIUS; // Sits on the ground
+    frameBottomRail.castShadow = true;
+    frameBottomRail.receiveShadow = true;
 
-    // Rail 4 (right segment, upper)
-    const rail2_2 = new THREE.Mesh(railGeometry1, fenceMaterial);
-    rail2_2.position.set(FENCE_WIDTH / 4 + FENCE_POST_SIZE.width / 4, 0.8, FENCE_Z_POSITION);
-    scene.add(rail2_2);
+    // Top Rail
+    frameTopRail = new THREE.Mesh(railGeometry, tubeMaterial);
+    frameTopRail.rotation.z = Math.PI / 2; // Rotate to be horizontal
+    frameTopRail.position.y = FENCE_HEIGHT - TUBE_RADIUS;
+    frameTopRail.castShadow = true;
+    frameTopRail.receiveShadow = true;
+
+    // Left Upright
+    frameLeftUpright = new THREE.Mesh(uprightGeometry, tubeMaterial);
+    frameLeftUpright.position.x = -FENCE_WIDTH / 2 + TUBE_RADIUS;
+    frameLeftUpright.position.y = FENCE_HEIGHT / 2;
+    frameLeftUpright.castShadow = true;
+    frameLeftUpright.receiveShadow = true;
+
+    // Right Upright
+    frameRightUpright = new THREE.Mesh(uprightGeometry, tubeMaterial);
+    frameRightUpright.position.x = FENCE_WIDTH / 2 - TUBE_RADIUS;
+    frameRightUpright.position.y = FENCE_HEIGHT / 2;
+    frameRightUpright.castShadow = true;
+    frameRightUpright.receiveShadow = true;
+
+    // Leg Geometries
+    const legVerticalGeometry = new THREE.CylinderGeometry(TUBE_RADIUS, TUBE_RADIUS, LEG_VERTICAL_HEIGHT, 8);
+    const legHorizontalGeometry = new THREE.CylinderGeometry(TUBE_RADIUS, TUBE_RADIUS, LEG_HORIZONTAL_DEPTH, 8);
+
+    // Left Leg
+    legLeftVertical = new THREE.Mesh(legVerticalGeometry, tubeMaterial);
+    legLeftVertical.position.set(
+        -FENCE_WIDTH / 2 + TUBE_RADIUS,
+        LEG_VERTICAL_HEIGHT / 2,
+        0 // Aligned with the frame plane initially
+    );
+    legLeftVertical.castShadow = true;
+    legLeftVertical.receiveShadow = true;
+
+    legLeftHorizontal = new THREE.Mesh(legHorizontalGeometry, tubeMaterial);
+    legLeftHorizontal.rotation.x = Math.PI / 2; // Rotate to lay flat along Z-axis
+    legLeftHorizontal.position.set(
+        -FENCE_WIDTH / 2 + TUBE_RADIUS,
+        TUBE_RADIUS, // Sits on the floor
+        LEG_HORIZONTAL_DEPTH / 2 - TUBE_RADIUS // Extends forward from the vertical leg part
+                                                // Adjusted so the back of horizontal part meets front of vertical part
+    );
+    legLeftHorizontal.castShadow = true;
+    legLeftHorizontal.receiveShadow = true;
+
+    // Right Leg
+    legRightVertical = new THREE.Mesh(legVerticalGeometry, tubeMaterial);
+    legRightVertical.position.set(
+        FENCE_WIDTH / 2 - TUBE_RADIUS,
+        LEG_VERTICAL_HEIGHT / 2,
+        0
+    );
+    legRightVertical.castShadow = true;
+    legRightVertical.receiveShadow = true;
+
+    legRightHorizontal = new THREE.Mesh(legHorizontalGeometry, tubeMaterial);
+    legRightHorizontal.rotation.x = Math.PI / 2; // Rotate to lay flat along Z-axis
+    legRightHorizontal.position.set(
+        FENCE_WIDTH / 2 - TUBE_RADIUS,
+        TUBE_RADIUS,
+        LEG_HORIZONTAL_DEPTH / 2 - TUBE_RADIUS
+    );
+    legRightHorizontal.castShadow = true;
+    legRightHorizontal.receiveShadow = true;
+
+    // Fabric Panel
+    const fabricGeometry = new THREE.PlaneGeometry(FABRIC_WIDTH, FABRIC_HEIGHT);
+    fabricPanel = new THREE.Mesh(fabricGeometry, fabricMaterial);
+    fabricPanel.position.set(
+        0, // Centered in X
+        FENCE_HEIGHT / 2, // Centered vertically
+        0  // Centered in Z (in the plane of the frame)
+    );
+    fabricPanel.castShadow = true; // Or false if fabric shouldn't cast strong shadows
+    fabricPanel.receiveShadow = true;
+
+    // --- Assemble Ball Fence ---
+    ballFence = new THREE.Group();
+
+    // Add frame elements
+    ballFence.add(frameTopRail);
+    ballFence.add(frameBottomRail);
+    ballFence.add(frameLeftUpright);
+    ballFence.add(frameRightUpright);
+
+    // Add leg elements
+    ballFence.add(legLeftVertical);
+    ballFence.add(legLeftHorizontal);
+    ballFence.add(legRightVertical);
+    ballFence.add(legRightHorizontal);
+
+    // Add fabric panel
+    ballFence.add(fabricPanel);
+
+    // Position the entire fence group in the scene
+    // The Z position is similar to the old fence, Y is at ground level.
+    ballFence.position.set(
+        0,
+        0, // Bottom of the fence (specifically, bottom of vertical leg parts) will be at Y=0
+        TABLE_LENGTH / 2 + 0.5 // Positioned behind Player 1's side of the table
+    );
+    // If the leg's horizontal parts were defined to extend in -Z, then this Z might need to be adjusted,
+    // or the group rotated, or legs re-positioned relative to group.
+    // Current leg horizontal part: z_pos = LEG_HORIZONTAL_DEPTH / 2 - TUBE_RADIUS, extending +Z from vertical leg.
+    // If fence faces player (player is at +Z from table center), then fence itself might need rotation.
+    // For now, let's assume the fence's "front" (where fabric is, and legs point from) faces -Z.
+    // So, if player is at +Z, fence needs to be rotated.
+    ballFence.rotation.y = Math.PI; // Rotate so fabric faces towards table, legs point away from table.
+
+    scene.add(ballFence);
 
     // 8. Game Object Instantiation
     gameBall = new Ball(); 
