@@ -355,7 +355,19 @@ function init() {
     // --- Place Perimeter Fences ---
     const NUM_FENCES_FRONT_BACK = 4;
     const FRONT_BACK_LINE_LENGTH = NUM_FENCES_FRONT_BACK * FENCE_WIDTH;
-    const Z_POS_FRONT = TABLE_LENGTH / 2 + 3;
+    // const Z_POS_FRONT = TABLE_LENGTH / 2 + 3; // Old definition
+    
+    // Side Fences (Positive X Side) - These need to be defined first to calculate Z_POS_FRONT/BACK
+    const NUM_FENCES_SIDES = 5;
+    const SIDE_LINE_LENGTH = NUM_FENCES_SIDES * FENCE_WIDTH;
+
+    // Adjusted Z position for front/back fence lines for corner alignment
+    const Z_POS_FRONT = (SIDE_LINE_LENGTH / 2) - TUBE_RADIUS; 
+    const Z_POS_BACK = -((SIDE_LINE_LENGTH / 2) - TUBE_RADIUS); 
+
+    // Adjusted X position for side fence lines for corner alignment
+    const X_POS_SIDE_POSITIVE = (FRONT_BACK_LINE_LENGTH / 2) - TUBE_RADIUS; 
+    const X_POS_SIDE_NEGATIVE = -((FRONT_BACK_LINE_LENGTH / 2) - TUBE_RADIUS); 
 
     placeFenceLine(
         NUM_FENCES_FRONT_BACK,
@@ -370,7 +382,7 @@ function init() {
     );
 
     // Back Fences (Player 2's End)
-    const Z_POS_BACK = -(TABLE_LENGTH / 2 + 3);
+    // const Z_POS_BACK = -(TABLE_LENGTH / 2 + 3); // Old definition
 
     placeFenceLine(
         NUM_FENCES_FRONT_BACK, // Same number of fences as front
@@ -385,9 +397,9 @@ function init() {
     );
 
     // Side Fences (Positive X Side)
-    const NUM_FENCES_SIDES = 5;
-    const SIDE_LINE_LENGTH = NUM_FENCES_SIDES * FENCE_WIDTH;
-    const X_POS_SIDE_POSITIVE = TABLE_WIDTH / 2 + 3;
+    // const NUM_FENCES_SIDES = 5; // Now defined earlier
+    // const SIDE_LINE_LENGTH = NUM_FENCES_SIDES * FENCE_WIDTH; // Now defined earlier
+    // const X_POS_SIDE_POSITIVE = TABLE_WIDTH / 2 + 3; // Old definition
 
     placeFenceLine(
         NUM_FENCES_SIDES,
@@ -402,7 +414,7 @@ function init() {
     );
 
     // Side Fences (Negative X Side)
-    const X_POS_SIDE_NEGATIVE = -(TABLE_WIDTH / 2 + 3);
+    // const X_POS_SIDE_NEGATIVE = -(TABLE_WIDTH / 2 + 3); // Old definition
 
     placeFenceLine(
         NUM_FENCES_SIDES, // Same number as other side
