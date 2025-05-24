@@ -8,6 +8,7 @@ import { Player } from './Player.js';
 // ... (all other global variables and GameState as before) ...
 let scene, camera, renderer;            
 let table, net, floor;                  
+let backWall, frontWall, leftWall, rightWall; 
 let gameBall;                           
 let player1, player2;                   
 let player1ScoreElement, player2ScoreElement;
@@ -25,6 +26,12 @@ const TABLE_LENGTH = 2.74;
 const TABLE_WIDTH = 1.525; 
 const TABLE_HEIGHT = 0.76; 
 const NET_POS_Z = 0;   
+const WALL_HEIGHT = 4;
+const FLOOR_SIZE = 10; 
+const FENCE_POST_SIZE = { width: 0.1, height: 1.0, depth: 0.1 };
+const FENCE_RAIL_SIZE = { width: 0, height: 0.05, depth: 0.05 }; // Width determined by post spacing
+const FENCE_Z_POSITION = TABLE_LENGTH / 2 + 0.5;
+const FENCE_WIDTH = TABLE_WIDTH + 1.0;
 
 
 // --- Initialization Function (`init`) ---
@@ -37,6 +44,7 @@ function init() {
     // 2. Three.js Scene Creation
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xaaaaaa); 
+    const textureLoader = new THREE.TextureLoader();
 
     // 3. Camera Setup
     camera = new THREE.PerspectiveCamera(
@@ -76,11 +84,29 @@ function init() {
     // 6. Material Definitions
     const tableMaterial = new THREE.MeshStandardMaterial({ color: 0x006400, roughness: 0.8, metalness: 0.2 }); 
     const netMaterial = new THREE.MeshStandardMaterial({ color: 0x333333, transparent: true, opacity: 0.8, roughness: 0.9 }); 
-    const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x808080, roughness: 0.9 }); 
+    const floorTexture = textureLoader.load('csmash/images/Floor.jpg');
+    floorTexture.wrapS = THREE.RepeatWrapping;
+    floorTexture.wrapT = THREE.RepeatWrapping;
+    floorTexture.repeat.set(4, 4); // Adjust x and y if needed for good appearance on a 10x10 floor
+    
+    const backWallTexture = textureLoader.load('csmash/images/Back.jpg');
+    backWallTexture.wrapS = THREE.RepeatWrapping;
+    backWallTexture.wrapT = THREE.RepeatWrapping;
+    backWallTexture.repeat.set(2, 1); 
+
+    const frontWallTexture = textureLoader.load('csmash/images/Front.jpg');
+    frontWallTexture.wrapS = THREE.RepeatWrapping;
+    frontWallTexture.wrapT = THREE.RepeatWrapping;
+    frontWallTexture.repeat.set(2, 1); 
+
+    const floorMaterial = new THREE.MeshStandardMaterial({ map: floorTexture, roughness: 0.9 }); 
+    const backAndFrontWallMaterial = new THREE.MeshStandardMaterial({ map: backWallTexture, roughness: 0.9, side: THREE.DoubleSide });
+    const leftAndRightWallMaterial = new THREE.MeshStandardMaterial({ map: frontWallTexture, roughness: 0.9, side: THREE.DoubleSide });
     const ballMaterial = new THREE.MeshStandardMaterial({ color: 0xffa500, roughness: 0.5, metalness: 0.1 }); 
     const p1Material = new THREE.MeshStandardMaterial({ color: 0x0000dd, roughness: 0.6 }); 
     const p2Material = new THREE.MeshStandardMaterial({ color: 0x00dd00, roughness: 0.6 }); 
     const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff }); 
+    const fenceMaterial = new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.8 });
 
     // 7. Environment Object Creation
     const tableTopGeometry = new THREE.BoxGeometry(1.525, 0.03, 2.74); 
@@ -140,6 +166,79 @@ function init() {
     floor.rotation.x = -Math.PI / 2; 
     floor.position.y = 0;            
     scene.add(floor);
+
+    // Wall Geometries (assuming Y-up positive)
+    // Walls will be PlaneGeometry so they are single-sided by default.
+    // We'll need to ensure they face inwards or use DoubleSide material if needed.
+    // For now, let's assume they face inwards.
+
+    // Back Wall (at Z = -FLOOR_SIZE / 2)
+    const backWallGeometry = new THREE.PlaneGeometry(FLOOR_SIZE, WALL_HEIGHT);
+    backWall = new THREE.Mesh(backWallGeometry, backAndFrontWallMaterial); 
+    backWall.position.set(0, WALL_HEIGHT / 2, -FLOOR_SIZE / 2);
+    // backWall.rotation.y = Math.PI; // No rotation needed if texture is symmetric or side: DoubleSide handles it
+    scene.add(backWall);
+
+    // Front Wall (at Z = +FLOOR_SIZE / 2)
+    const frontWallGeometry = new THREE.PlaneGeometry(FLOOR_SIZE, WALL_HEIGHT);
+    frontWall = new THREE.Mesh(frontWallGeometry, backAndFrontWallMaterial); 
+    frontWall.position.set(0, WALL_HEIGHT / 2, FLOOR_SIZE / 2);
+    frontWall.rotation.y = Math.PI; // Face inwards (or ensure texture is correct for this orientation)
+    scene.add(frontWall);
+
+    // Left Wall (at X = -FLOOR_SIZE / 2)
+    const leftWallGeometry = new THREE.PlaneGeometry(FLOOR_SIZE, WALL_HEIGHT);
+    leftWall = new THREE.Mesh(leftWallGeometry, leftAndRightWallMaterial); 
+    leftWall.position.set(-FLOOR_SIZE / 2, WALL_HEIGHT / 2, 0);
+    leftWall.rotation.y = Math.PI / 2; // Face inwards
+    scene.add(leftWall);
+
+    // Right Wall (at X = +FLOOR_SIZE / 2)
+    const rightWallGeometry = new THREE.PlaneGeometry(FLOOR_SIZE, WALL_HEIGHT);
+    rightWall = new THREE.Mesh(rightWallGeometry, leftAndRightWallMaterial); 
+    rightWall.position.set(FLOOR_SIZE / 2, WALL_HEIGHT / 2, 0);
+    rightWall.rotation.y = -Math.PI / 2; // Face inwards
+    scene.add(rightWall);
+
+    // --- Protective Fence ---
+    // Posts for back fence
+    const postGeometry = new THREE.BoxGeometry(FENCE_POST_SIZE.width, FENCE_POST_SIZE.height, FENCE_POST_SIZE.depth);
+    
+    const post1 = new THREE.Mesh(postGeometry, fenceMaterial);
+    post1.position.set(-FENCE_WIDTH / 2, FENCE_POST_SIZE.height / 2, FENCE_Z_POSITION);
+    scene.add(post1);
+
+    const post2 = new THREE.Mesh(postGeometry, fenceMaterial);
+    post2.position.set(0, FENCE_POST_SIZE.height / 2, FENCE_Z_POSITION);
+    scene.add(post2);
+
+    const post3 = new THREE.Mesh(postGeometry, fenceMaterial);
+    post3.position.set(FENCE_WIDTH / 2, FENCE_POST_SIZE.height / 2, FENCE_Z_POSITION);
+    scene.add(post3);
+    
+    // Rails for back fence
+    const railLength = FENCE_WIDTH / 2 - FENCE_POST_SIZE.width / 2; // Approximate length between post centers minus half post
+    const railGeometry1 = new THREE.BoxGeometry(railLength, FENCE_RAIL_SIZE.height, FENCE_RAIL_SIZE.depth);
+    
+    // Rail 1 (left segment, lower)
+    const rail1_1 = new THREE.Mesh(railGeometry1, fenceMaterial);
+    rail1_1.position.set(-FENCE_WIDTH / 4 - FENCE_POST_SIZE.width / 4, 0.3, FENCE_Z_POSITION);
+    scene.add(rail1_1);
+
+    // Rail 2 (right segment, lower)
+    const rail1_2 = new THREE.Mesh(railGeometry1, fenceMaterial);
+    rail1_2.position.set(FENCE_WIDTH / 4 + FENCE_POST_SIZE.width / 4, 0.3, FENCE_Z_POSITION);
+    scene.add(rail1_2);
+
+    // Rail 3 (left segment, upper)
+    const rail2_1 = new THREE.Mesh(railGeometry1, fenceMaterial);
+    rail2_1.position.set(-FENCE_WIDTH / 4 - FENCE_POST_SIZE.width / 4, 0.8, FENCE_Z_POSITION);
+    scene.add(rail2_1);
+
+    // Rail 4 (right segment, upper)
+    const rail2_2 = new THREE.Mesh(railGeometry1, fenceMaterial);
+    rail2_2.position.set(FENCE_WIDTH / 4 + FENCE_POST_SIZE.width / 4, 0.8, FENCE_Z_POSITION);
+    scene.add(rail2_2);
 
     // 8. Game Object Instantiation
     gameBall = new Ball(); 
