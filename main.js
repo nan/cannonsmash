@@ -334,78 +334,87 @@ function init() {
 
     // Position the entire fence group in the scene
     // The Z position is similar to the old fence, Y is at ground level.
-    ballFence.position.set(
-        0,
-        0, // Bottom of the fence (specifically, bottom of vertical leg parts) will be at Y=0
-        TABLE_LENGTH / 2 + 3 // Adjusted Z position
-    );
+    // ballFence.position.set(
+    //     0,
+    //     0, // Bottom of the fence (specifically, bottom of vertical leg parts) will be at Y=0
+    //     TABLE_LENGTH / 2 + 3 // Adjusted Z position
+    // );
     // If the leg's horizontal parts were defined to extend in -Z, then this Z might need to be adjusted,
     // or the group rotated, or legs re-positioned relative to group.
     // Current leg horizontal part: z_pos = LEG_HORIZONTAL_DEPTH / 2 - TUBE_RADIUS, extending +Z from vertical leg.
     // If fence faces player (player is at +Z from table center), then fence itself might need rotation.
     // For now, let's assume the fence's "front" (where fabric is, and legs point from) faces -Z.
     // So, if player is at +Z, fence needs to be rotated.
-    ballFence.rotation.y = Math.PI; // Rotate so fabric faces towards table, legs point away from table.
+    // ballFence.rotation.y = Math.PI; // Rotate so fabric faces towards table, legs point away from table.
 
-    scene.add(ballFence);
+    // scene.add(ballFence);
 
-    // Fence at the opposite end (Player 2's side)
-    const fencePlayer2End = ballFence.clone(); // Clone the original fence group
+    // Cloned fences and their scene additions removed as per subtask.
+    // Constants sideFenceXPos and sideFenceXNegPos also removed.
 
-    fencePlayer2End.position.set(
-        0,
-        0,
-        -(TABLE_LENGTH / 2 + 3) // Position 3m away from the other table end
+    // --- Place Perimeter Fences ---
+    const NUM_FENCES_FRONT_BACK = 4;
+    const FRONT_BACK_LINE_LENGTH = NUM_FENCES_FRONT_BACK * FENCE_WIDTH;
+    const Z_POS_FRONT = TABLE_LENGTH / 2 + 3;
+
+    placeFenceLine(
+        NUM_FENCES_FRONT_BACK,
+        FENCE_WIDTH,
+        FRONT_BACK_LINE_LENGTH,
+        'z', // fixedAxis
+        Z_POS_FRONT, // fixedValue
+        'x', // placementAxis
+        Math.PI, // rotationY (fabric faces table, legs point +Z world)
+        scene,
+        ballFence // templateFence
     );
-    fencePlayer2End.rotation.y = 0; // Rotated to face the table (legs point away from table, into -Z)
 
-    scene.add(fencePlayer2End);
+    // Back Fences (Player 2's End)
+    const Z_POS_BACK = -(TABLE_LENGTH / 2 + 3);
 
-    // Fences along the table side (Player 1's right / Player 2's left - positive X side)
-    const sideFenceXPos = TABLE_WIDTH / 2 + 3;
-
-    // Fence 1 for side 1 (closer to Player 2's end)
-    const fenceSide1_1 = ballFence.clone();
-    fenceSide1_1.position.set(
-        sideFenceXPos,
-        0,
-        -(TABLE_LENGTH / 4) 
+    placeFenceLine(
+        NUM_FENCES_FRONT_BACK, // Same number of fences as front
+        FENCE_WIDTH,
+        FRONT_BACK_LINE_LENGTH, // Same total length as front
+        'z', // fixedAxis
+        Z_POS_BACK, // fixedValue
+        'x', // placementAxis
+        0, // rotationY (fabric faces table, legs point -Z world)
+        scene,
+        ballFence // templateFence
     );
-    fenceSide1_1.rotation.y = -Math.PI / 2; // Fabric faces table (towards -X), legs point away (+X)
-    scene.add(fenceSide1_1);
 
-    // Fence 2 for side 1 (closer to Player 1's end)
-    const fenceSide1_2 = ballFence.clone();
-    fenceSide1_2.position.set(
-        sideFenceXPos,
-        0,
-        TABLE_LENGTH / 4
+    // Side Fences (Positive X Side)
+    const NUM_FENCES_SIDES = 5;
+    const SIDE_LINE_LENGTH = NUM_FENCES_SIDES * FENCE_WIDTH;
+    const X_POS_SIDE_POSITIVE = TABLE_WIDTH / 2 + 3;
+
+    placeFenceLine(
+        NUM_FENCES_SIDES,
+        FENCE_WIDTH,
+        SIDE_LINE_LENGTH,
+        'x', // fixedAxis
+        X_POS_SIDE_POSITIVE, // fixedValue
+        'z', // placementAxis
+        -Math.PI / 2, // rotationY (fabric faces table, legs point +X world)
+        scene,
+        ballFence // templateFence
     );
-    fenceSide1_2.rotation.y = -Math.PI / 2; // Fabric faces table (towards -X), legs point away (+X)
-    scene.add(fenceSide1_2);
 
-    // Fences along the table side (Player 1's left / Player 2's right - negative X side)
-    const sideFenceXNegPos = -(TABLE_WIDTH / 2 + 3);
+    // Side Fences (Negative X Side)
+    const X_POS_SIDE_NEGATIVE = -(TABLE_WIDTH / 2 + 3);
 
-    // Fence 1 for side 2 (closer to Player 2's end)
-    const fenceSide2_1 = ballFence.clone();
-    fenceSide2_1.position.set(
-        sideFenceXNegPos,
-        0,
-        -(TABLE_LENGTH / 4)
+    placeFenceLine(
+        NUM_FENCES_SIDES, // Same number as other side
+        FENCE_WIDTH,
+        SIDE_LINE_LENGTH, // Same total length as other side
+        'x', // fixedAxis
+        X_POS_SIDE_NEGATIVE, // fixedValue
+        'z', // placementAxis
+        Math.PI / 2, // rotationY (fabric faces table, legs point -X world)
+        scene,
+        ballFence // templateFence
     );
-    fenceSide2_1.rotation.y = Math.PI / 2; // Fabric faces table (towards +X), legs point away (-X)
-    scene.add(fenceSide2_1);
-
-    // Fence 2 for side 2 (closer to Player 1's end)
-    const fenceSide2_2 = ballFence.clone();
-    fenceSide2_2.position.set(
-        sideFenceXNegPos,
-        0,
-        TABLE_LENGTH / 4
-    );
-    fenceSide2_2.rotation.y = Math.PI / 2; // Fabric faces table (towards +X), legs point away (-X)
-    scene.add(fenceSide2_2);
 
     // 8. Game Object Instantiation
     gameBall = new Ball(); 
@@ -444,6 +453,34 @@ function init() {
 
     // 11. Start Animation Loop
     animate();
+}
+
+// --- Helper Functions ---
+function placeFenceLine(numFences, individualFenceWidth, lineLength, fixedAxis, fixedValue, placementAxis, rotationY, scene, templateFence) {
+    const startOffset = -(lineLength / 2) + (individualFenceWidth / 2);
+
+    for (let i = 0; i < numFences; i++) {
+        const fence = templateFence.clone();
+        let xPos = 0, yPos = 0, zPos = 0;
+
+        if (placementAxis === 'x') {
+            xPos = startOffset + i * individualFenceWidth;
+        } else if (placementAxis === 'z') {
+            zPos = startOffset + i * individualFenceWidth;
+        }
+
+        if (fixedAxis === 'x') {
+            xPos = fixedValue;
+        } else if (fixedAxis === 'z') {
+            zPos = fixedValue;
+        }
+        // Y position is always at ground level for the group
+        yPos = 0; 
+
+        fence.position.set(xPos, yPos, zPos);
+        fence.rotation.y = rotationY;
+        scene.add(fence);
+    }
 }
 
 // --- UI Functions ---
