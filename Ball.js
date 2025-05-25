@@ -1,7 +1,7 @@
-// Ball.js
+// Ball.js - Added X, Z checks for table bounce
 import * as THREE from 'three';
 
-// (Constants as in Turn 99)
+// (Constants as in Turn 105)
 const TABLE_HEIGHT = 0.76;         
 const BALL_RADIUS = 0.02;          
 const GRAVITY = 9.82;              
@@ -18,7 +18,7 @@ const NET_HEIGHT = 0.1525;
 const NET_POS_Z = 0;                
 
 export class Ball {
-    // (constructor, updatePhysics, checkRacketCollision, update, toss, reset, hit methods as in Turn 99)
+    // (constructor as in Turn 105)
     constructor(initialPosition = new THREE.Vector3(0, TABLE_HEIGHT + BALL_RADIUS + 0.2, 0)) {
         this.position = initialPosition.clone(); 
         this.velocity = new THREE.Vector3(0, 0, -2);   
@@ -36,6 +36,8 @@ export class Ball {
         this.velocity.multiplyScalar(1 - AIR_RESISTANCE_FACTOR * TICK); 
         this.spin.multiplyScalar(1 - SPIN_DECAY_FACTOR * TICK); 
         this.position.addScaledVector(this.velocity, TICK);
+
+        // Net collision (as in Turn 105)
         if (this.position.y > TABLE_HEIGHT && 
             this.position.y < TABLE_HEIGHT + NET_HEIGHT + this.radius &&
             Math.abs(this.position.z - NET_POS_Z) < this.radius + 0.01) { 
@@ -47,7 +49,12 @@ export class Ball {
                 this.position.z += Math.sign(this.velocity.z) * this.radius * 0.2; this.status = -1;        
             }
         }
-        if (this.position.y < TABLE_HEIGHT + this.radius && this.velocity.y < 0) {
+
+        // MODIFIED Table collision condition
+        const ballOnTableX = Math.abs(this.position.x) <= TABLE_WIDTH / 2 + this.radius;
+        const ballOnTableZ = Math.abs(this.position.z) <= TABLE_LENGTH / 2 + this.radius;
+
+        if (this.position.y < TABLE_HEIGHT + this.radius && this.velocity.y < 0 && ballOnTableX && ballOnTableZ) {
             this.position.y = TABLE_HEIGHT + this.radius; 
             const preBounceVelocityY = this.velocity.y; 
             this.velocity.y *= -BOUNCE_ENERGY_LOSS;     
@@ -56,21 +63,37 @@ export class Ball {
             this.velocity.x += this.spin.x * SPIN_EFFECT_ON_BOUNCE_X; 
             this.spin.y *= 0.6; this.spin.x *= 0.7;
             console.log(`Ball bounced on table. Z: ${this.position.z.toFixed(2)}, Side: ${this.position.z >= NET_POS_Z ? "P1_Side(Pos-Z)" : "P2_Side(Neg-Z)"}`);
-            if (this.position.z >= NET_POS_Z) { this.bouncedOnServerSide = true; } 
-            else { this.bouncedOnReceiverSide = true; }
+            if (this.position.z >= NET_POS_Z) { 
+                this.bouncedOnServerSide = true; 
+            } else { 
+                this.bouncedOnReceiverSide = true;
+            }
         }
+
+        // Floor collision (as in Turn 105)
         if (this.position.y < this.radius && this.velocity.y < 0) { 
             console.log("Ball hit floor"); this.status = -2; }
+        // Out of bounds: Sideways (as in Turn 105)
         if (Math.abs(this.position.x) > TABLE_WIDTH / 2 + this.radius) {
-            console.log("Ball out of table width (sideways)"); this.status = -3; }
+            // This condition might now be redundant if a floor hit is detected first,
+            // but it's okay as a fallback or if ball is still above floor height but outside X.
+            console.log("Ball out of table width (sideways)"); this.status = -3; 
+        }
+        // Out of bounds: Long (as in Turn 105, with slight refinement from prompt)
         if (this.position.z > (TABLE_LENGTH / 2 + this.radius * 2) && this.velocity.z > 0) { 
-            if (!this.bouncedOnServerSide) this.status = -4; }
+            if (!this.bouncedOnServerSide && !(ballOnTableX && this.position.y <= TABLE_HEIGHT + this.radius)) this.status = -4; 
+        }
         if (this.position.z < -(TABLE_LENGTH / 2 + this.radius * 2) && this.velocity.z < 0) { 
-             if (!this.bouncedOnReceiverSide) this.status = -5; }
+             if (!this.bouncedOnReceiverSide && !(ballOnTableX && this.position.y <= TABLE_HEIGHT + this.radius)) this.status = -5; 
+        }
+        
+        // Racket Collision (as in Turn 105)
         if (player1RacketMesh && this.checkRacketCollision(player1RacketMesh, 1)) {}
         if (player2RacketMesh && this.checkRacketCollision(player2RacketMesh, 2)) {}
     }
+    
     checkRacketCollision(racketMesh, hittingPlayerID) {
+        // (Full logic as in Turn 105)
         if (!racketMesh || !this.mesh || this.lastHitBy === hittingPlayerID) return false;
         const ballBox = new THREE.Box3().setFromObject(this.mesh);
         const racketBox = new THREE.Box3().setFromObject(racketMesh);
@@ -87,7 +110,9 @@ export class Ball {
             this.hit(newVelocity, newSpin, hittingPlayerID); return true; 
         } return false; 
     }
+
     update(player1RacketMesh, player2RacketMesh) {
+        // (Full logic as in Turn 105)
         if (this.status >= 0) { 
             this.updatePhysics(player1RacketMesh, player2RacketMesh);
         }
@@ -95,7 +120,9 @@ export class Ball {
             this.mesh.position.copy(this.position); 
         }
     }
+
     reset(forPlayerID = 1) { 
+        // (Full logic as in Turn 105)
         this.lastHitBy = 0; 
         this.bouncedOnServerSide = false;   
         this.bouncedOnReceiverSide = false;
@@ -105,7 +132,9 @@ export class Ball {
         if (forPlayerID === 1) { this.status = 8; } 
         else { this.status = 9; }
     }
+
     toss(tossPower, servingPlayerID) {
+        // (Full logic as in Turn 105)
         this.velocity.set(0, tossPower, 0); 
         this.spin.set(0, 0);                
         this.lastHitBy = 0;                 
@@ -118,7 +147,9 @@ export class Ball {
         }
         console.log(`Ball tossed by Player ${servingPlayerID} with power ${tossPower}. Status: ${this.status}`);
     }
+
     hit(newVelocity, newSpin, hittingPlayerID) {
+        // (Full logic as in Turn 105)
         this.velocity.copy(newVelocity);
         if (newSpin) { this.spin.copy(newSpin); }
         this.lastHitBy = hittingPlayerID;
@@ -129,40 +160,24 @@ export class Ball {
         console.log(`Ball hit by Player ${hittingPlayerID}! Status: ${this.status}, Vel:(${this.velocity.x.toFixed(1)},${this.velocity.y.toFixed(1)},${this.velocity.z.toFixed(1)})`);
     }
 
-    /**
-     * ADDED: Calculates an initial velocity for a serve.
-     * Placeholder / Highly Simplified Version for now.
-     * Aims for a serve that bounces on server's side, then opponent's center.
-     * @param {THREE.Vector3} hitPosition - World position where the ball is hit.
-     * @param {number} serverSide - Player ID of the server (1 for +Z side, -1 for -Z side).
-     * @returns {THREE.Vector3} Calculated initial velocity for the serve.
-     */
     calculatePerfectServeVelocity(hitPosition, serverSide) {
+        // (Full logic as in Turn 105)
         console.log("Calculating 'perfect' serve velocity...");
         let targetVelocity = new THREE.Vector3();
-
-        // Target opponent's center (X=0)
-        const opponentCenterZ = serverSide * - (TABLE_LENGTH / 4); // Mid-point of opponent's half
-        
-        const targetPoint = new THREE.Vector3(0, TABLE_HEIGHT + 0.1, opponentCenterZ); // Aim slightly above table
-        
-        targetVelocity.subVectors(targetPoint, hitPosition); // Vector from hit to target
-        
+        const opponentCenterZ = serverSide * - (TABLE_LENGTH / 4); 
+        const targetPoint = new THREE.Vector3(0, TABLE_HEIGHT + 0.1, opponentCenterZ); 
+        targetVelocity.subVectors(targetPoint, hitPosition); 
         const distanceZ = Math.abs(targetPoint.z - hitPosition.z);
         let timeToTarget = 0.4; 
-
         if (Math.abs(targetVelocity.z) > 0.01) { 
              timeToTarget = Math.max(0.2, distanceZ / (Math.abs(targetVelocity.z / (targetVelocity.length() || 1)) * 5) ); 
         }
         timeToTarget = Math.min(timeToTarget, 0.6); 
-
         targetVelocity.x = (targetPoint.x - hitPosition.x) / timeToTarget;
         targetVelocity.z = (targetPoint.z - hitPosition.z) / timeToTarget;
         targetVelocity.y = 1.5 + Math.random() * 0.5; 
-
         const serveSpeed = 3.5; 
         targetVelocity.normalize().multiplyScalar(serveSpeed);
-
         console.log("Calculated Serve Velocity:", targetVelocity);
         return targetVelocity;
     }

@@ -68,9 +68,9 @@ export class Player {
         // THIS LINE IS NOW REMOVED: if (this.controlType === 'human') { this.mesh.position.x = THREE.MathUtils.lerp(this.mesh.position.x, 0, 0.1); }
         
         const ballRelativePos = new THREE.Vector3(
-            this.side * 0.30,  
-            0.4,               
-            0.0
+            this.side * 0.20,  
+            0.1,               
+            this.side * -0.20  
         );
         gameBall.position.copy(this.mesh.localToWorld(ballRelativePos.clone()));
         // Console log removed for tidiness during frame-by-frame calls
