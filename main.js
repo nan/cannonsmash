@@ -1,14 +1,14 @@
-// main.js - Corrected version for stable revert (compatible with Player.js from Turn 75)
+// main.js - Adjust P1 initial serve ball position
 import * as THREE from 'three';     
-import { Ball } from './Ball.js';     // Assumes Ball.js is from Turn 61 (neutral reset, no toss method)
-import { Player } from './Player.js'; // Assumes Player.js is from Turn 75 (speed fix, no toss/serveHit methods)
+import { Ball } from './Ball.js';     
+import { Player } from './Player.js'; 
 
-// ... (Global variables, GameState enum as in Turn 69) ...
 let scene, camera, renderer;            
 let table, net, floor;                  
 let gameBall;                           
 let player1, player2;                   
 let player1ScoreElement, player2ScoreElement;
+
 const GameState = {
     PRE_SERVE: 'PRE_SERVE', 
     SERVE_IN_MOTION: 'SERVE_IN_MOTION', 
@@ -19,13 +19,13 @@ const GameState = {
 let currentGameState = GameState.PRE_SERVE; 
 let servingPlayer = 1;                      
 let score = { player1: 0, player2: 0 };     
+
 const TABLE_LENGTH = 2.74; 
 const TABLE_HEIGHT = 0.76; 
 const NET_POS_Z = 0;   
-const RACKET_OFFSET_Z = 0.3; // Player.js constant, useful for AI serve positioning
+const RACKET_OFFSET_Z = 0.3; // From Player.js, used for AI serve ball pos & P1 racket align
 
 function init() {
-    // ... (Setup code as in Turn 69, down to player instantiation) ...
     player1ScoreElement = document.getElementById('player1Score');
     player2ScoreElement = document.getElementById('player2Score');
     updateScoreDisplay(); 
@@ -37,7 +37,7 @@ function init() {
         renderer = new THREE.WebGLRenderer({ antialias: true }); 
         renderer.setSize(window.innerWidth, window.innerHeight); 
         document.body.appendChild(renderer.domElement); 
-    } catch (e) { /* ... error handling ... */ 
+    } catch (e) { 
         console.error("Three.js renderer initialization failed:", e);
         const initMessageElement = document.getElementById('initializationMessage');
         if (initMessageElement) {
@@ -88,35 +88,60 @@ function init() {
     animate();
 }
 
-function updateScoreDisplay() { /* ... as in Turn 69 ... */ 
+function updateScoreDisplay() { 
     if (player1ScoreElement && player2ScoreElement) { 
         player1ScoreElement.textContent = score.player1;
         player2ScoreElement.textContent = score.player2;
     }
 }
-function onWindowResize() { /* ... as in Turn 69 ... */ 
+function onWindowResize() { 
     camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); 
     renderer.setSize(window.innerWidth, window.innerHeight); 
 }
-function onMouseMove(event) { /* ... as in Turn 69 ... */ 
+function onMouseMove(event) { 
     if (player1 && player1.controlType === 'human') { 
         const screenX = (event.clientX / window.innerWidth) * 2 - 1;
         const screenY = -(event.clientY / window.innerHeight) * 2 + 1; 
         player1.handleMouseMove(screenX, screenY); 
     }
 }
-function onMouseClick(event) { /* ... as in Turn 69 ... */ 
+
+function onMouseClick(event) {
     if (player1 && currentGameState === GameState.PRE_SERVE && servingPlayer === 1) {
-        const racketWorldPos = new THREE.Vector3();
-        player1.racket.mesh.getWorldPosition(racketWorldPos); 
-        const ballServeRelativePos = new THREE.Vector3(0, gameBall.radius + 0.02, (player1.side * -0.15) );
-        const ballServePosition = player1.racket.mesh.localToWorld(ballServeRelativePos.clone());
+        // Position ball relative to Player 1's body (mesh), to their right.
+        const ballServeRelativePos = new THREE.Vector3(
+            player1.side * 0.20,  // To Player 1's right (player1.side is 1)
+            0.1,                  // Relative Y to player mesh origin (player mesh Y is 0.4, so ball world Y is 0.5)
+            player1.side * -0.20  // Slightly in front of player's center
+        );
+        const ballServePosition = player1.mesh.localToWorld(ballServeRelativePos.clone());
         gameBall.position.copy(ballServePosition);
-        let serveVelocity = new THREE.Vector3((Math.random() - 0.5) * 0.5, 0.9 + (Math.random() * 0.2), -3.0 - (Math.random() * 0.3));
-        let serveSpin = new THREE.Vector2((Math.random() - 0.5) * 1.0, 2.5); 
+        
+        // Make racket target this ball position initially for the visual
+        // Racket position is relative to player mesh.
+        const racketTargetLocal = player1.mesh.worldToLocal(ballServePosition.clone()); // Convert ball's world pos to player's local
+        racketTargetLocal.z += player1.side * -RACKET_OFFSET_Z * 0.5; // Racket slightly behind ball's center
+        racketTargetLocal.y -= 0.05; // Racket slightly below ball's center to "cup" it
+        player1.racket.targetPosition.copy(racketTargetLocal);
+        player1.racket.currentPosition.copy(racketTargetLocal); // Snap racket to this position for serve setup
+        if(player1.racket.mesh) player1.racket.mesh.position.copy(player1.racket.currentPosition);
+
+
+        // Consistent serve velocity and spin (logic from Turn 79 is fine)
+        let serveVelocity = new THREE.Vector3(
+            (Math.random() - 0.5) * 0.5,  
+            0.9 + (Math.random() * 0.2),  
+            -3.0 - (Math.random() * 0.3)  
+        );
+        let serveSpin = new THREE.Vector2(
+            (Math.random() - 0.5) * 1.0, 
+            2.5 
+        ); 
+        
         gameBall.hit(serveVelocity, serveSpin, 1); 
         currentGameState = GameState.SERVE_IN_MOTION; 
-        console.log("Player 1 serves (restored consistent mechanics)!");
+        console.log("Player 1 serves (ball positioned to player's right)!");
+
     } else if (player1 && currentGameState === GameState.RALLY && gameBall.lastHitBy !== 1) {
         if (gameBall.status === 0 || (gameBall.status === 3 && gameBall.position.z > NET_POS_Z - 0.5) ) {
              player1.swing(gameBall); 
@@ -128,9 +153,10 @@ function resetForServe() {
     gameBall.reset(servingPlayer); 
     currentGameState = GameState.PRE_SERVE;
     
-    // Player.isServing flag does not exist in this Player.js version, so calls are removed.
-    // Ball positioning for P1 is handled in onMouseClick.
-    // Ball positioning for P2 is handled in its AI serve logic below.
+    // Note: Ball positioning for P1 is now done on the click in PRE_SERVE state.
+    // Ball positioning for P2 is done in its AI serve logic.
+    if (player1 && servingPlayer === 1) { /* player1.isServing = false; */ } // isServing not in this Player.js
+    if (player2 && servingPlayer === 2) { /* player2.isServing = false; */ }
 
     console.log(`Ready for Player ${servingPlayer} to serve. P1 Click to serve. AI will auto-serve.`);
 
@@ -138,28 +164,40 @@ function resetForServe() {
         console.log("AI (Player 2) is preparing to serve...");
         setTimeout(() => {
             if (currentGameState === GameState.PRE_SERVE && servingPlayer === 2) {
-                // AI simple serve: position ball and hit directly
-                const aiServeX = (Math.random() - 0.5) * 0.5; 
-                // Ball is positioned near AI player before hit
-                // Using RACKET_OFFSET_Z constant for consistent positioning logic
-                gameBall.position.set(aiServeX, TABLE_HEIGHT + BALL_RADIUS + 0.2, player2.position.z + player2.side * (RACKET_OFFSET_Z + 0.05) );
+                // Position ball relative to AI player body, slightly to its forehand (AI is side -1, so its right is -X)
+                const ballServeRelativePosAI = new THREE.Vector3(
+                    player2.side * 0.20, // To AI's "right" (AI's perspective, side is -1, so -0.20 is to its right)
+                    0.1,                 // Relative Y to player mesh origin
+                    player2.side * -0.20 // Slightly in front
+                );
+                const ballServePositionAI = player2.mesh.localToWorld(ballServeRelativePosAI.clone());
+                gameBall.position.copy(ballServePositionAI);
+
+                // Snap AI racket to near the ball as well
+                const racketTargetLocalAI = player2.mesh.worldToLocal(ballServePositionAI.clone());
+                racketTargetLocalAI.z += player2.side * -RACKET_OFFSET_Z * 0.5; 
+                racketTargetLocalAI.y -= 0.05; 
+                player2.racket.targetPosition.copy(racketTargetLocalAI);
+                player2.racket.currentPosition.copy(racketTargetLocalAI);
+                if(player2.racket.mesh) player2.racket.mesh.position.copy(player2.racket.currentPosition);
+
 
                 let serveVelocity = new THREE.Vector3(
                     (Math.random() - 0.5) * 1.5,
                     0.8 + (Math.random() * 0.4),
-                    player2.side * (-3.0 - (Math.random() * 0.5)) // Serve towards P1
+                    player2.side * (-3.0 - (Math.random() * 0.5)) 
                 );
                 let serveSpin = new THREE.Vector2((Math.random() - 0.5) * 3, 1.5 + Math.random() * 3);
                 
                 gameBall.hit(serveVelocity, serveSpin, 2); 
                 currentGameState = GameState.SERVE_IN_MOTION; 
-                console.log("Player 2 (AI) serves (direct hit mechanics)!");
+                console.log("Player 2 (AI) serves (ball positioned to AI's right)!");
             }
         }, 1000 + Math.random() * 500); 
     }
 }
 
-function awardPointTo(winnerID) { /* ... as in Turn 69 ... */ 
+function awardPointTo(winnerID) { 
     if (winnerID === 1) score.player1++; else score.player2++;
     updateScoreDisplay(); 
     console.log(`Point for Player ${winnerID}! Score: P1: ${score.player1} - P2: ${score.player2}`);
@@ -167,7 +205,7 @@ function awardPointTo(winnerID) { /* ... as in Turn 69 ... */
     servingPlayer = (servingPlayer === 1) ? 2 : 1; 
     setTimeout(resetForServe, 1500); 
 } 
-function checkGameRules() { /* ... as in Turn 69 ... */ 
+function checkGameRules() { 
     if (currentGameState === GameState.POINT_SCORED || currentGameState === GameState.PRE_SERVE) {
         return; 
     }
@@ -220,8 +258,7 @@ function checkGameRules() { /* ... as in Turn 69 ... */
         }
     }
 }
-
-function animate() {
+function animate() { 
     requestAnimationFrame(animate); 
     if (player1) player1.update(gameBall); 
     if (player2) player2.update(gameBall); 
@@ -234,8 +271,8 @@ function animate() {
 
 try {
     init(); 
-    console.log("Three.js CannonSmash: Reverted main.js to be compatible with simpler Player.js, player speed fix applied.");
-} catch (error) { /* ... error handling ... */ 
+    console.log("Three.js CannonSmash: Adjusted P1 initial serve ball position.");
+} catch (error) { 
     console.error("Critical error during game initialization:", error);
     const initMessageElement = document.getElementById('initializationMessage');
     if (initMessageElement) {
