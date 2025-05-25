@@ -95,7 +95,7 @@ function init() {
     scene.add(directionalLight);
 
     // 6. Material Definitions
-    const tableMaterial = new THREE.MeshStandardMaterial({ color: 0x0000B2, transparent: true, opacity: 0.3, roughness: 0.8, metalness: 0.2 }); 
+    const tableMaterial = new THREE.MeshStandardMaterial({ color: 0x003DB2, transparent: true, opacity: 0.9, roughness: 1.0, metalness: 0.2 }); 
     
     const mainNetMaterial = new THREE.MeshStandardMaterial({
         color: 0x00FF00, // Green (R=0, G=1.0, B=0)
