@@ -1,7 +1,7 @@
-// main.js - Correctly implement ball follow pre-serve-hit
+// main.js - Implement Single-Click Auto-Serve
 import * as THREE from 'three';     
-import { Ball } from './Ball.js';     // Assumes Ball.js is from Turn 61 (neutral reset, no toss method)
-import { Player } from './Player.js'; // Assumes Player.js is from Turn 90 (has positionBallRelativeToHand, no player X lerp inside it)
+import { Ball } from './Ball.js';     
+import { Player } from './Player.js'; 
 
 let scene, camera, renderer;            
 let table, net, floor;                  
@@ -10,23 +10,26 @@ let player1, player2;
 let player1ScoreElement, player2ScoreElement;
 
 const GameState = {
-    PRE_SERVE: 'PRE_SERVE', 
-    SERVE_IN_MOTION: 'SERVE_IN_MOTION', 
-    RALLY: 'RALLY',                    
-    POINT_SCORED: 'POINT_SCORED',      
-    GAME_OVER: 'GAME_OVER'             
+    AWAITING_SERVE_TOSS: 'AWAITING_SERVE_TOSS', 
+    BALL_TOSSED: 'BALL_TOSSED',             
+    SERVE_IN_MOTION: 'SERVE_IN_MOTION',     
+    RALLY: 'RALLY',                         
+    POINT_SCORED: 'POINT_SCORED',           
+    GAME_OVER: 'GAME_OVER'                  
 };
-let currentGameState = GameState.PRE_SERVE; 
-let servingPlayer = 1;                      
+let currentGameState = GameState.AWAITING_SERVE_TOSS; 
+let servingPlayer = 1;                          
 let score = { player1: 0, player2: 0 };     
 
 const TABLE_LENGTH = 2.74; 
 const TABLE_HEIGHT = 0.76; 
 const NET_POS_Z = 0;   
-const RACKET_OFFSET_Z = 0.3; 
+const RACKET_OFFSET_Z = 0.3; // From Player.js
+const BALL_RADIUS = 0.02;    // From Ball.js
+const RACKET_DEFAULT_Y = 0.2; // From Player.js, player's local racket Y
 
 function init() {
-    // (init function as in Turn 83 - which is Turn 71 for main.js)
+    // (Setup code as in Turn 83)
     player1ScoreElement = document.getElementById('player1Score');
     player2ScoreElement = document.getElementById('player2Score');
     updateScoreDisplay(); 
@@ -45,7 +48,7 @@ function init() {
             initMessageElement.textContent = "Error: Could not initialize WebGL. Please use a modern browser with WebGL enabled, and ensure hardware acceleration is active.";
             initMessageElement.style.color = 'red';
         } throw e;
-    }
+     }
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); scene.add(ambientLight);
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); 
     directionalLight.position.set(-4, 6, 4); directionalLight.lookAt(0,0,0); scene.add(directionalLight);
@@ -89,8 +92,6 @@ function init() {
     animate();
 }
 
-// Functions updateScoreDisplay, onWindowResize, onMouseMove, onMouseClick, 
-// resetForServe, awardPointTo, checkGameRules are identical to Turn 71 (Turn 83 content)
 function updateScoreDisplay() { 
     if (player1ScoreElement && player2ScoreElement) { 
         player1ScoreElement.textContent = score.player1;
@@ -108,54 +109,55 @@ function onMouseMove(event) {
         player1.handleMouseMove(screenX, screenY); 
     }
 }
+
+// MODIFIED: onMouseClick for single-click toss
 function onMouseClick(event) {
-    if (player1 && currentGameState === GameState.PRE_SERVE && servingPlayer === 1) {
-        const ballServeRelativePos = new THREE.Vector3(player1.side * 0.20, 0.1, player1.side * -0.20);
-        const ballServePosition = player1.mesh.localToWorld(ballServeRelativePos.clone());
-        gameBall.position.copy(ballServePosition);
-        const racketTargetLocal = player1.mesh.worldToLocal(ballServePosition.clone()); 
-        racketTargetLocal.z += player1.side * -RACKET_OFFSET_Z * 0.5; 
-        racketTargetLocal.y -= 0.05; 
-        player1.racket.targetPosition.copy(racketTargetLocal);
-        player1.racket.currentPosition.copy(racketTargetLocal); 
-        if(player1.racket.mesh) player1.racket.mesh.position.copy(player1.racket.currentPosition);
-        let serveVelocity = new THREE.Vector3((Math.random() - 0.5) * 0.5, 0.9 + (Math.random() * 0.2), -3.0 - (Math.random() * 0.3));
-        let serveSpin = new THREE.Vector2((Math.random() - 0.5) * 1.0, 2.5); 
-        gameBall.hit(serveVelocity, serveSpin, 1); 
-        currentGameState = GameState.SERVE_IN_MOTION; 
-        console.log("Player 1 serves (ball positioned to player's right)!");
-    } else if (player1 && currentGameState === GameState.RALLY && gameBall.lastHitBy !== 1) {
-        if (gameBall.status === 0 || (gameBall.status === 3 && gameBall.position.z > NET_POS_Z - 0.5) ) {
-             player1.swing(gameBall); 
+    if (player1 && player1.controlType === 'human') {
+        if (currentGameState === GameState.AWAITING_SERVE_TOSS && servingPlayer === 1) {
+            player1.serveToss(gameBall); // Player calls its own toss method
+            currentGameState = GameState.BALL_TOSSED;
+            console.log("Player 1 tossed the ball. Auto-hit will occur.");
+        } 
+        // Second click logic for hitting is REMOVED. Auto-hit is in animate().
+        // Rally swing:
+        else if (currentGameState === GameState.RALLY && gameBall.lastHitBy !== 1) {
+            if (gameBall.status === 0 || (gameBall.status === 3 && gameBall.position.z > NET_POS_Z - 0.5) ) {
+                 player1.swing(gameBall); 
+            }
         }
     }
 }
+
+// MODIFIED: resetForServe for new AI serve sequence (auto-hit in animate)
 function resetForServe() {
     gameBall.reset(servingPlayer); 
-    currentGameState = GameState.PRE_SERVE;
-    console.log(`Ready for Player ${servingPlayer} to serve. P1 Click to serve. AI will auto-serve.`);
+    currentGameState = GameState.AWAITING_SERVE_TOSS;
+    
+    if (player1 && servingPlayer === 1) {
+        player1.isServing = false; 
+        // Ball positioning for P1 is handled by animate() loop via positionBallRelativeToHand
+    }
+    if (player2 && servingPlayer === 2) {
+        player2.isServing = false; 
+        // Ball positioning for AI will be handled by animate() loop too if needed, or once before toss
+    }
+
+    console.log(`Ready for Player ${servingPlayer} to serve. P1 Click to toss. AI will auto-serve.`);
+
     if (servingPlayer === 2 && player2) { 
-        console.log("AI (Player 2) is preparing to serve...");
+        console.log("AI (Player 2) is preparing to serve (position & toss)...");
         setTimeout(() => {
-            if (currentGameState === GameState.PRE_SERVE && servingPlayer === 2) {
-                const ballServeRelativePosAI = new THREE.Vector3(player2.side * 0.20, 0.1, player2.side * -0.20);
-                const ballServePositionAI = player2.mesh.localToWorld(ballServeRelativePosAI.clone());
-                gameBall.position.copy(ballServePositionAI);
-                const racketTargetLocalAI = player2.mesh.worldToLocal(ballServePositionAI.clone());
-                racketTargetLocalAI.z += player2.side * -RACKET_OFFSET_Z * 0.5; 
-                racketTargetLocalAI.y -= 0.05; 
-                player2.racket.targetPosition.copy(racketTargetLocalAI);
-                player2.racket.currentPosition.copy(racketTargetLocalAI);
-                if(player2.racket.mesh) player2.racket.mesh.position.copy(player2.racket.currentPosition);
-                let serveVelocity = new THREE.Vector3((Math.random() - 0.5) * 1.5, 0.8 + (Math.random() * 0.4), player2.side * (-3.0 - (Math.random() * 0.5)));
-                let serveSpin = new THREE.Vector2((Math.random() - 0.5) * 3, 1.5 + Math.random() * 3);
-                gameBall.hit(serveVelocity, serveSpin, 2); 
-                currentGameState = GameState.SERVE_IN_MOTION; 
-                console.log("Player 2 (AI) serves (ball positioned to AI's right)!");
+            if (currentGameState === GameState.AWAITING_SERVE_TOSS && servingPlayer === 2) {
+                player2.positionBallRelativeToHand(gameBall); // Position ball once before toss
+                player2.serveToss(gameBall);                 
+                currentGameState = GameState.BALL_TOSSED; // AI has tossed
+                console.log("AI (Player 2) tossed the ball. Auto-hit will occur.");
+                // The second timeout for AI's hit is REMOVED. Auto-hit is in animate().
             }
         }, 1000 + Math.random() * 500); 
     }
 }
+
 function awardPointTo(winnerID) { 
     if (winnerID === 1) score.player1++; else score.player2++;
     updateScoreDisplay(); 
@@ -164,9 +166,19 @@ function awardPointTo(winnerID) {
     servingPlayer = (servingPlayer === 1) ? 2 : 1; 
     setTimeout(resetForServe, 1500); 
 } 
+
 function checkGameRules() { 
-    if (currentGameState === GameState.POINT_SCORED || currentGameState === GameState.PRE_SERVE) {
+    // (Identical to Turn 83 / 65 version - includes BALL_TOSSED logic for dropped toss)
+    if (currentGameState === GameState.POINT_SCORED || currentGameState === GameState.AWAITING_SERVE_TOSS) {
         return; 
+    }
+    if (currentGameState === GameState.BALL_TOSSED && gameBall.status === -2) {
+        console.log("Rule Check: Tossed ball hit floor before being hit by server.");
+        awardPointTo(servingPlayer === 1 ? 2 : 1); 
+        return;
+    }
+    if (currentGameState === GameState.BALL_TOSSED && (gameBall.status === 6 || gameBall.status === 7)) {
+        return;
     }
     if (gameBall.status === -1) { 
         awardPointTo(gameBall.lastHitBy === 1 ? 2 : 1); return; }
@@ -218,29 +230,56 @@ function checkGameRules() {
     }
 }
 
-
-// --- Main Animation Loop (`animate`) ---
+// MODIFIED: animate() loop for auto-hit logic
 function animate() {
     requestAnimationFrame(animate); 
     
-    if (player1) player1.update(gameBall); // Updates player mesh position from mouse
-    if (player2) player2.update(gameBall); // Updates AI player
+    if (player1) player1.update(gameBall); 
+    if (player2) player2.update(gameBall); 
 
-    // ADDED: Continuous ball positioning during PRE_SERVE for the human player
-    if (currentGameState === GameState.PRE_SERVE && servingPlayer === 1 && player1 && gameBall) {
-        player1.positionBallRelativeToHand(gameBall); // Make ball follow human player's hand
+    // Ball follow pre-toss logic (from Turn 93)
+    if (currentGameState === GameState.AWAITING_SERVE_TOSS && gameBall) {
+        if (servingPlayer === 1 && player1) {
+            player1.positionBallRelativeToHand(gameBall); 
+        } else if (servingPlayer === 2 && player2) {
+            player2.positionBallRelativeToHand(gameBall); 
+        }
     }
-    // Note: AI's ball positioning for serve is handled once in resetForServe's setTimeout.
-    // If AI had pre-toss movement, similar continuous positioning would be needed for player2 here.
+
+    // NEW: Auto-hit logic for tossed ball
+    if (currentGameState === GameState.BALL_TOSSED && gameBall && (gameBall.status === 6 || gameBall.status === 7)) {
+        const server = (gameBall.status === 6) ? player1 : player2; // Determine server from ball status
+        if (server && server.isServing) {
+            // Optimal hit height: Racket's default Y pos + player's base Y pos + small offset
+            const optimalHitWorldY = server.mesh.position.y + RACKET_DEFAULT_Y + 0.05; 
+
+            if (gameBall.velocity.y < 0 && // Ball is falling
+                Math.abs(gameBall.position.y - optimalHitWorldY) < 0.05) { // Ball is near optimal hit height
+
+                let hitPosition = gameBall.position.clone(); 
+                // Define target points for the placeholder calculatePerfectServeVelocity
+                let targetOpponentBounceZ = (server.side === 1) ? -TABLE_LENGTH / 4 : TABLE_LENGTH / 4;
+                let firstBounceServerZ = (server.side === 1) ? TABLE_LENGTH / 4 / 2 : -TABLE_LENGTH / 4 / 2;
+                const targetOpponentBouncePos = new THREE.Vector3(0, TABLE_HEIGHT + BALL_RADIUS, targetOpponentBounceZ);
+                const defaultServeSpin = new THREE.Vector2(0, 2.5);
+
+                // Call the (placeholder) calculation method
+                const calculatedVelocity = gameBall.calculatePerfectServeVelocity(hitPosition, server.side, firstBounceServerZ, targetOpponentBouncePos, defaultServeSpin);
+                
+                if (server.swing(gameBall, calculatedVelocity, defaultServeSpin)) { // swing calls serveHit
+                    currentGameState = GameState.SERVE_IN_MOTION;
+                    console.log(`Player ${servingPlayer} auto-hit the serve!`);
+                } else {
+                    console.log(`Player ${servingPlayer} auto-serve hit missed/failed.`);
+                }
+            }
+        }
+    }
 
     if (gameBall) {
-        // Ensure ball physics (like falling due to gravity) are only updated if it's not being "held" by server.
-        // Status 8 (P1 ready) or 9 (P2 ready) indicates ball is held / pre-serve.
-        if (gameBall.status !== 8 && gameBall.status !== 9) {
+        if (gameBall.status !== 8 && gameBall.status !== 9) { 
             gameBall.update(player1.racket.mesh, player2 ? player2.racket.mesh : null); 
         } else if (gameBall.mesh) { 
-            // If "held" (status 8 or 9), just sync mesh to position set by positionBallRelativeToHand or AI's setup.
-            // The ball's physics (velocity, spin) are zeroed out in Ball.js's reset() for status 8/9.
             gameBall.mesh.position.copy(gameBall.position);
         }
     }
@@ -249,10 +288,9 @@ function animate() {
     renderer.render(scene, camera); 
 }
 
-// --- Entry Point ---
 try {
     init(); 
-    console.log("Three.js CannonSmash: Re-implementing ball follow pre-serve hit.");
+    console.log("Three.js CannonSmash: Implemented single-click auto-hit serve.");
 } catch (error) { 
     console.error("Critical error during game initialization:", error);
     const initMessageElement = document.getElementById('initializationMessage');
