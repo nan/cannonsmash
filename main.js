@@ -95,8 +95,21 @@ function init() {
     scene.add(directionalLight);
 
     // 6. Material Definitions
-    const tableMaterial = new THREE.MeshStandardMaterial({ color: 0x006400, roughness: 0.8, metalness: 0.2 }); 
-    const netMaterial = new THREE.MeshStandardMaterial({ color: 0x333333, transparent: true, opacity: 0.8, roughness: 0.9 }); 
+    const tableMaterial = new THREE.MeshStandardMaterial({ color: 0x003300, transparent: true, opacity: 0.3, roughness: 0.8, metalness: 0.2 }); 
+    
+    const mainNetMaterial = new THREE.MeshStandardMaterial({
+        color: 0x00FF00, // Green (R=0, G=1.0, B=0)
+        transparent: true,
+        opacity: 0.4,
+        side: THREE.DoubleSide // Ensure visible from both sides if it's a thin plane
+    });
+
+    const netTapeMaterial = new THREE.MeshStandardMaterial({
+        color: 0xFFFFFF, // White
+        transparent: false, // Opaque
+        side: THREE.DoubleSide
+    });
+    // const netMaterial = new THREE.MeshStandardMaterial({ color: 0x333333, transparent: true, opacity: 0.8, roughness: 0.9 }); 
     const floorTexture = textureLoader.load('csmash/images/Floor.jpg');
     floorTexture.wrapS = THREE.RepeatWrapping;
     floorTexture.wrapT = THREE.RepeatWrapping;
@@ -176,9 +189,38 @@ function init() {
     leg4.receiveShadow = true;
     scene.add(leg4);
 
-    const netGeometry = new THREE.BoxGeometry(1.83, 0.1525, 0.01); 
-    net = new THREE.Mesh(netGeometry, netMaterial);
-    net.position.set(0, TABLE_HEIGHT + 0.1525 / 2, 0); 
+    // const netGeometry = new THREE.BoxGeometry(1.83, 0.1525, 0.01); 
+    // net = new THREE.Mesh(netGeometry, netMaterial);
+    // net.position.set(0, TABLE_HEIGHT + 0.1525 / 2, 0); 
+    // scene.add(net);
+    
+    // Net constants (derived from existing JS net and C++ logic)
+    const NET_WIDTH = 1.83; // Existing JS net width
+    const NET_TOTAL_HEIGHT_EQUIVALENT = 0.1525; // Equivalent to C++ NETHEIGHT based on current JS net
+    const NET_TAPE_HEIGHT = 0.01; // As per C++ (0.01F)
+    const NET_BODY_HEIGHT = NET_TOTAL_HEIGHT_EQUIVALENT - NET_TAPE_HEIGHT; // = 0.1425
+    const NET_THICKNESS = 0.01; // Existing JS net thickness
+
+    // Create the main net body
+    const netBodyGeometry = new THREE.BoxGeometry(NET_WIDTH, NET_BODY_HEIGHT, NET_THICKNESS);
+    const netBodyMesh = new THREE.Mesh(netBodyGeometry, mainNetMaterial);
+    // Position its center: Y is TABLE_HEIGHT + half of its own height
+    netBodyMesh.position.set(0, TABLE_HEIGHT + NET_BODY_HEIGHT / 2, 0);
+
+    // Create the net tape
+    const netTapeGeometry = new THREE.BoxGeometry(NET_WIDTH, NET_TAPE_HEIGHT, NET_THICKNESS);
+    const netTapeMesh = new THREE.Mesh(netTapeGeometry, netTapeMaterial);
+    // Position its center: Y is TABLE_HEIGHT + height of net body + half of tape's height
+    netTapeMesh.position.set(0, TABLE_HEIGHT + NET_BODY_HEIGHT + NET_TAPE_HEIGHT / 2, 0);
+
+    // Create a group for the net
+    net = new THREE.Group(); // Ensure 'net' is declared (it was globally)
+    net.add(netBodyMesh);
+    net.add(netTapeMesh);
+    
+    // The group itself can be positioned at Z=0, Y=0 if parts are absolutely positioned,
+    // or if parts are relative, the group's Y might be TABLE_HEIGHT.
+    // Given the individual part positioning above, the group's base position is fine at origin.
     scene.add(net);
 
     // Create Center Line
