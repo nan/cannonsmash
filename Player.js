@@ -1,4 +1,4 @@
-// Player.js - Corrected positionBallRelativeToHand
+// Player.js - Applying user's ballRelativePos changes
 import * as THREE from 'three';
 
 const TABLE_LENGTH = 2.74;      
@@ -40,21 +40,18 @@ export class Player {
     }
 
     handleMouseMove(screenX, screenY) {
+        // From Turn 109/85/87
         if (this.controlType !== 'human' || !this.mesh) return; 
         if (this.isServing) { 
              this.mouseScreenX = screenX; 
              this.mouseScreenY = screenY;
-             // Player body X still follows mouse even if isServing, for pre-toss positioning
              const targetPlayerX = THREE.MathUtils.mapLinear(this.mouseScreenX, -1, 1, this.minX, this.maxX);
              this.mesh.position.x = THREE.MathUtils.lerp(this.mesh.position.x, targetPlayerX, 0.2);
-             // Racket aiming by mouse during isServing was removed in Turn 85 for automated serve.
-             // If manual aiming were to be re-added, it would be here. For now, racket follows player.
              this.racket.targetPosition.x = THREE.MathUtils.mapLinear(this.mouseScreenX, -1, 1, -0.35, 0.35); 
              this.racket.targetPosition.y = RACKET_DEFAULT_Y + THREE.MathUtils.mapLinear(this.mouseScreenY, -1, 1, -0.15, 0.35); 
              this.racket.targetPosition.z = this.side * -RACKET_OFFSET_Z;
             return; 
         }
-        // Standard rally mouse movement
         this.mouseScreenX = screenX; this.mouseScreenY = screenY;
         const targetPlayerX = THREE.MathUtils.mapLinear(this.mouseScreenX, -1, 1, this.minX, this.maxX);
         this.mesh.position.x = THREE.MathUtils.lerp(this.mesh.position.x, targetPlayerX, 0.2); 
@@ -65,18 +62,17 @@ export class Player {
     
     positionBallRelativeToHand(gameBall) { 
         if (!this.mesh) return;
-        // THIS LINE IS NOW REMOVED: if (this.controlType === 'human') { this.mesh.position.x = THREE.MathUtils.lerp(this.mesh.position.x, 0, 0.1); }
         
         const ballRelativePos = new THREE.Vector3(
-            this.side * 0.20,  
-            0.1,               
-            this.side * -0.20  
+            this.side * 0.30,  // User's change
+            0.4,               // User's change
+            0.0                // User's change
         );
         gameBall.position.copy(this.mesh.localToWorld(ballRelativePos.clone()));
-        // Console log removed for tidiness during frame-by-frame calls
     }
     
     serveToss(gameBall) {
+        // From Turn 109/85/87
         if (!this.mesh) return; 
         console.log(`Player ${this.side === 1 ? 1 : 2} executes toss action. Ball at world: ${gameBall.position.x.toFixed(2)}`);
         gameBall.toss(TOSS_POWER, this.side === 1 ? 1 : 2);
@@ -84,6 +80,7 @@ export class Player {
     }
     
     serveHit(gameBall, calculatedVelocity, calculatedSpin) {
+        // From Turn 109/85/87
         if (!this.mesh || !this.racket.mesh) return false; 
         const expectedBallStatus = this.side === 1 ? 6 : 7; 
         if (gameBall.status !== expectedBallStatus) {
@@ -109,6 +106,7 @@ export class Player {
     }
 
     swing(gameBall, calculatedServeVelocity = null, calculatedServeSpin = null) { 
+        // From Turn 109/85/87
         if (this.isServing) { 
             if (calculatedServeVelocity && calculatedServeSpin) {
                 return this.serveHit(gameBall, calculatedServeVelocity, calculatedServeSpin);
@@ -118,26 +116,20 @@ export class Player {
                 return this.serveHit(gameBall, faultVel, new THREE.Vector2(0,0));
             }
         }
-        // Rally swing logic
         if (this.controlType === 'human') {
             console.log("Human Player rally swing!");
             this.racket.targetPosition.z += this.side * -0.25; 
-            setTimeout(() => {
-                 this.racket.targetPosition.z = this.side * -RACKET_OFFSET_Z;
-            }, 120); 
+            setTimeout(() => { this.racket.targetPosition.z = this.side * -RACKET_OFFSET_Z; }, 120); 
         } else if (this.controlType === 'ai') {
-            console.log("AI Player rally swing!"); 
-            this.aiHitting = true; 
+            console.log("AI Player rally swing!"); this.aiHitting = true; 
             this.racket.targetPosition.z += this.side * -0.25; 
-            setTimeout(() => { 
-                this.aiHitting = false; 
-                this.racket.targetPosition.z = this.side * -RACKET_OFFSET_Z; 
-            }, 150); 
+            setTimeout(() => { this.aiHitting = false; this.racket.targetPosition.z = this.side * -RACKET_OFFSET_Z; }, 150); 
         }
         return true; 
     }
     
-    updateAI(ball) { 
+    updateAI(ball) {
+        // From Turn 109/85/87
         if (!ball || !this.mesh || ball.status < 0) return;
         if (this.isServing) return; 
         let predictedBallX = ball.position.x;
@@ -172,30 +164,18 @@ export class Player {
         }
     }
 
-    update(ball) { 
+    update(ball) {
+        // From Turn 109/85/87
         if (this.controlType === 'ai') {
-            if (!this.isServing) { // AI doesn't run its rally updateAI if it's serving
+            if (!this.isServing) { 
                  this.updateAI(ball);
             }
         }
-        // Racket lerping logic
         if (this.racket.mesh) {
-            // If human player is serving, racket position is directly controlled by handleMouseMove for aiming (or fixed if aiming removed)
-            // If AI is serving, its racket might be set to a default pose or animated.
-            // For rally, racket lerps to target.
-            if (!this.isServing) { 
+            if (!(this.controlType === 'human' && this.isServing)) {
                 this.racket.currentPosition.lerp(this.racket.targetPosition, this.racket.lerpFactor);
                 this.racket.mesh.position.copy(this.racket.currentPosition);
-            } else if (this.controlType === 'ai' && this.isServing) {
-                // For AI serve, ensure its racket is at a reasonable "ready to hit toss" position
-                // This could be a fixed pose or a slight animation.
-                // For now, let's make it follow its targetPosition (which AI doesn't set during its own serve currently)
-                // Or better, set it to a default "serve ready" pose:
-                this.racket.targetPosition.set(0, RACKET_DEFAULT_Y + 0.1, this.side * -RACKET_OFFSET_Z - 0.05);
-                this.racket.currentPosition.lerp(this.racket.targetPosition, 0.1); // Smoothly move to ready pose
-                this.racket.mesh.position.copy(this.racket.currentPosition);
             }
-            // Human player racket during serve is handled by handleMouseMove (direct set)
         }
     }
 }
