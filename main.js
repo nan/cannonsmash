@@ -30,6 +30,21 @@ const TABLE_LENGTH = 2.74;
 const TABLE_WIDTH = 1.525; 
 const TABLE_HEIGHT = 0.76; 
 const NET_POS_Z = 0;   
+
+// Camera control constants
+const CAMERA_EYE_OFFSET_X = 0.0;
+const CAMERA_EYE_OFFSET_Y = 0.6; // Y is up
+const CAMERA_EYE_OFFSET_Z = 1.2; // Towards player's back
+
+const CAMERA_Z_FOLLOW_THRESHOLD = 1.0; // How far player can move along Z before fixed offset applies
+const CAMERA_Z_FOLLOW_RATIO = 0.25;   // How much camera Z follows player Z within threshold
+const CAMERA_Z_SIDE_OFFSET = 0.5;     // Fixed Z offset when player is beyond threshold
+
+const CAMERA_LOOKAT_DEFAULT_X = 0.0;
+const CAMERA_LOOKAT_DEFAULT_Y_FACTOR = 0.8; // e.g., 0.8 * TABLE_HEIGHT
+const CAMERA_LOOKAT_DEFAULT_Z_FACTOR = -0.5; // e.g., -0.5 * TABLE_LENGTH (opponent's baseline)
+const CAMERA_MAX_VIEW_ANGLE_RAD = THREE.MathUtils.degToRad(15);
+
 const WALL_HEIGHT = 4;
 const FLOOR_SIZE = 10; 
 const FENCE_HEIGHT = 0.75;
@@ -66,8 +81,8 @@ function init() {
         0.1,                                    
         1000                                    
     );
-    camera.position.set(0, 2.0, 3.0); 
-    camera.lookAt(0, 0.5, 0);         
+    // camera.position.set(0, 2.0, 3.0); 
+    // camera.lookAt(0, 0.5, 0);         
 
     // 4. WebGL Renderer Setup
     // Wrap renderer creation in a try-catch to handle potential WebGL context issues
@@ -553,6 +568,71 @@ function init() {
     animate();
 }
 
+// --- Camera Update Function ---
+function updateCamera() {
+    if (!player1 || !player1.mesh || !gameBall || !gameBall.mesh) {
+        // Set a default static camera if player/ball not ready
+        camera.position.set(0, 2.0, 3.0);
+        camera.lookAt(0, 0.5, 0);
+        return;
+    }
+
+    // --- Calculate Camera Position ---
+    const eyeOffset = new THREE.Vector3(
+        CAMERA_EYE_OFFSET_X,
+        CAMERA_EYE_OFFSET_Y,
+        CAMERA_EYE_OFFSET_Z * player1.side // Correctly behind the player
+    );
+    camera.position.copy(player1.mesh.position).add(eyeOffset);
+
+    // Z-axis adjustment (following player's side-to-side movement on their side of table)
+    // player1.position.x is the relevant player movement axis here (C++ Y-axis)
+    const player_x_from_center = player1.mesh.position.x; 
+
+    if (Math.abs(player_x_from_center) < CAMERA_Z_FOLLOW_THRESHOLD) { // Note: This was Z in design, but player X is side-to-side in JS
+        camera.position.x += player_x_from_center * CAMERA_Z_FOLLOW_RATIO;
+    } else {
+        // If player1.side is 1 (e.g. right side of X=0), offset is positive.
+        // If player1.side is -1 (e.g. left side of X=0), offset is negative.
+        // This might need adjustment based on how player1.side is defined if it's not just for Z.
+        // For now, assume player1.side is for Z positioning and use player_x_from_center sign.
+        camera.position.x += (player_x_from_center > 0 ? 1 : -1) * CAMERA_Z_SIDE_OFFSET;
+    }
+
+
+    // --- Calculate Look-At Target ---
+    const defaultTargetPos = new THREE.Vector3(
+        CAMERA_LOOKAT_DEFAULT_X,
+        TABLE_HEIGHT * CAMERA_LOOKAT_DEFAULT_Y_FACTOR,
+        TABLE_LENGTH * CAMERA_LOOKAT_DEFAULT_Z_FACTOR * player1.side // Opponent's baseline
+    );
+
+    let actualLookAt = defaultTargetPos.clone();
+
+    const camToDefaultDir = defaultTargetPos.clone().sub(camera.position).normalize();
+    const camToBallDir = gameBall.mesh.position.clone().sub(camera.position);
+    const ballDistance = camToBallDir.length(); // Store distance to ball
+    camToBallDir.normalize();
+
+    const angleToBall = camToDefaultDir.angleTo(camToBallDir);
+
+    // Check if ball is generally in front of player/camera before adjusting lookAt
+    // (player1.side * gameBall.mesh.position.z) < (player1.side * camera.position.z)
+    // Simplified: if player1 on +Z, ball must be at smaller Z than camera.
+    const ballIsInFront = (player1.side === 1 && gameBall.mesh.position.z < camera.position.z - 0.5) || 
+                          (player1.side === -1 && gameBall.mesh.position.z > camera.position.z + 0.5);
+
+
+    if (ballIsInFront && angleToBall > CAMERA_MAX_VIEW_ANGLE_RAD) {
+        const rotationAxis = new THREE.Vector3().crossVectors(camToDefaultDir, camToBallDir).normalize();
+        const targetDir = camToDefaultDir.clone().applyAxisAngle(rotationAxis, CAMERA_MAX_VIEW_ANGLE_RAD);
+        actualLookAt.copy(camera.position).add(targetDir.multiplyScalar(ballDistance)); // Look towards ball direction but maintain roughly ball's distance
+    }
+    
+    camera.lookAt(actualLookAt);
+}
+
+
 // --- Helper Functions ---
 function placeFenceLine(numFences, individualFenceWidth, lineLength, fixedAxis, fixedValue, placementAxis, rotationY, scene, templateFence) {
     const startOffset = -(lineLength / 2) + (individualFenceWidth / 2);
@@ -765,6 +845,7 @@ function animate() {
     if (gameBall) {
         gameBall.update(player1.racket.mesh, player2 ? player2.racket.mesh : null); 
     }
+    updateCamera(); // Add this line
     checkGameRules(); 
     renderer.render(scene, camera); 
 }
