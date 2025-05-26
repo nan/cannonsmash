@@ -1,4 +1,4 @@
-// main.js - Implement Single-Click Auto-Serve
+// main.js - Make player bodies transparent
 import * as THREE from 'three';     
 import { Ball } from './Ball.js';     
 import { Player } from './Player.js'; 
@@ -24,12 +24,11 @@ let score = { player1: 0, player2: 0 };
 const TABLE_LENGTH = 2.74; 
 const TABLE_HEIGHT = 0.76; 
 const NET_POS_Z = 0;   
-const RACKET_OFFSET_Z = 0.3; // From Player.js
-const BALL_RADIUS = 0.02;    // From Ball.js
-const RACKET_DEFAULT_Y = 0.2; // From Player.js, player's local racket Y
+const RACKET_OFFSET_Z = 0.3; 
+const BALL_RADIUS = 0.02;    
+const RACKET_DEFAULT_Y = 0.2; 
 
 function init() {
-    // (Setup code as in Turn 83)
     player1ScoreElement = document.getElementById('player1Score');
     player2ScoreElement = document.getElementById('player2Score');
     updateScoreDisplay(); 
@@ -48,16 +47,20 @@ function init() {
             initMessageElement.textContent = "Error: Could not initialize WebGL. Please use a modern browser with WebGL enabled, and ensure hardware acceleration is active.";
             initMessageElement.style.color = 'red';
         } throw e;
-     }
+    }
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); scene.add(ambientLight);
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); 
     directionalLight.position.set(-4, 6, 4); directionalLight.lookAt(0,0,0); scene.add(directionalLight);
+    
     const tableMaterial = new THREE.MeshStandardMaterial({ color: 0x006400, roughness: 0.8, metalness: 0.2 }); 
     const netMaterial = new THREE.MeshStandardMaterial({ color: 0x333333, transparent: true, opacity: 0.8, roughness: 0.9 }); 
     const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x808080, roughness: 0.9 }); 
     const ballMaterial = new THREE.MeshStandardMaterial({ color: 0xffa500, roughness: 0.5, metalness: 0.1 }); 
-    const p1Material = new THREE.MeshStandardMaterial({ color: 0x0000dd, roughness: 0.6 }); 
-    const p2Material = new THREE.MeshStandardMaterial({ color: 0x00dd00, roughness: 0.6 }); 
+    
+    // MODIFIED Player Materials:
+    const p1Material = new THREE.MeshStandardMaterial({ color: 0x0000dd, roughness: 0.6, transparent: true, opacity: 0.5 }); 
+    const p2Material = new THREE.MeshStandardMaterial({ color: 0x00dd00, roughness: 0.6, transparent: true, opacity: 0.5 }); 
+
     const tableTopGeometry = new THREE.BoxGeometry(1.525, 0.03, 2.74); 
     table = new THREE.Mesh(tableTopGeometry, tableMaterial);
     table.position.set(0, TABLE_HEIGHT - 0.03 / 2, 0); scene.add(table);
@@ -73,12 +76,12 @@ function init() {
     gameBall.mesh = ballMesh; scene.add(ballMesh);      
     player1 = new Player(1, scene, 'human'); 
     const player1Geometry = new THREE.CapsuleGeometry(0.2, 0.8, 4, 16); 
-    player1.mesh = new THREE.Mesh(player1Geometry, p1Material);
+    player1.mesh = new THREE.Mesh(player1Geometry, p1Material); 
     player1.mesh.position.copy(player1.position); scene.add(player1.mesh);
     player1.mesh.add(player1.racket.mesh); 
     player2 = new Player(-1, scene, 'ai'); 
     const player2Geometry = new THREE.CapsuleGeometry(0.2, 0.8, 4, 16);
-    player2.mesh = new THREE.Mesh(player2Geometry, p2Material);
+    player2.mesh = new THREE.Mesh(player2Geometry, p2Material); 
     player2.mesh.position.copy(player2.position); scene.add(player2.mesh);
     player2.mesh.add(player2.racket.mesh);
     
@@ -109,17 +112,13 @@ function onMouseMove(event) {
         player1.handleMouseMove(screenX, screenY); 
     }
 }
-
-// MODIFIED: onMouseClick for single-click toss
 function onMouseClick(event) {
     if (player1 && player1.controlType === 'human') {
         if (currentGameState === GameState.AWAITING_SERVE_TOSS && servingPlayer === 1) {
-            player1.serveToss(gameBall); // Player calls its own toss method
+            player1.serveToss(gameBall); 
             currentGameState = GameState.BALL_TOSSED;
             console.log("Player 1 tossed the ball. Auto-hit will occur.");
         } 
-        // Second click logic for hitting is REMOVED. Auto-hit is in animate().
-        // Rally swing:
         else if (currentGameState === GameState.RALLY && gameBall.lastHitBy !== 1) {
             if (gameBall.status === 0 || (gameBall.status === 3 && gameBall.position.z > NET_POS_Z - 0.5) ) {
                  player1.swing(gameBall); 
@@ -127,37 +126,24 @@ function onMouseClick(event) {
         }
     }
 }
-
-// MODIFIED: resetForServe for new AI serve sequence (auto-hit in animate)
 function resetForServe() {
     gameBall.reset(servingPlayer); 
     currentGameState = GameState.AWAITING_SERVE_TOSS;
-    
-    if (player1 && servingPlayer === 1) {
-        player1.isServing = false; 
-        // Ball positioning for P1 is handled by animate() loop via positionBallRelativeToHand
-    }
-    if (player2 && servingPlayer === 2) {
-        player2.isServing = false; 
-        // Ball positioning for AI will be handled by animate() loop too if needed, or once before toss
-    }
-
+    if (player1 && servingPlayer === 1) { player1.isServing = false; }
+    if (player2 && servingPlayer === 2) { player2.isServing = false; }
     console.log(`Ready for Player ${servingPlayer} to serve. P1 Click to toss. AI will auto-serve.`);
-
     if (servingPlayer === 2 && player2) { 
         console.log("AI (Player 2) is preparing to serve (position & toss)...");
         setTimeout(() => {
             if (currentGameState === GameState.AWAITING_SERVE_TOSS && servingPlayer === 2) {
-                player2.positionBallRelativeToHand(gameBall); // Position ball once before toss
+                player2.positionBallRelativeToHand(gameBall); 
                 player2.serveToss(gameBall);                 
-                currentGameState = GameState.BALL_TOSSED; // AI has tossed
+                currentGameState = GameState.BALL_TOSSED; 
                 console.log("AI (Player 2) tossed the ball. Auto-hit will occur.");
-                // The second timeout for AI's hit is REMOVED. Auto-hit is in animate().
             }
         }, 1000 + Math.random() * 500); 
     }
 }
-
 function awardPointTo(winnerID) { 
     if (winnerID === 1) score.player1++; else score.player2++;
     updateScoreDisplay(); 
@@ -166,9 +152,7 @@ function awardPointTo(winnerID) {
     servingPlayer = (servingPlayer === 1) ? 2 : 1; 
     setTimeout(resetForServe, 1500); 
 } 
-
 function checkGameRules() { 
-    // (Identical to Turn 83 / 65 version - includes BALL_TOSSED logic for dropped toss)
     if (currentGameState === GameState.POINT_SCORED || currentGameState === GameState.AWAITING_SERVE_TOSS) {
         return; 
     }
@@ -229,44 +213,29 @@ function checkGameRules() {
         }
     }
 }
-
-// MODIFIED: animate() loop for auto-hit logic
 function animate() {
     requestAnimationFrame(animate); 
-    
     if (player1) player1.update(gameBall); 
     if (player2) player2.update(gameBall); 
-
-    // Ball follow pre-toss logic (from Turn 93)
     if (currentGameState === GameState.AWAITING_SERVE_TOSS && gameBall) {
         if (servingPlayer === 1 && player1) {
             player1.positionBallRelativeToHand(gameBall); 
         } else if (servingPlayer === 2 && player2) {
-            player2.positionBallRelativeToHand(gameBall); 
+            player2.positionBallRelativeToHand(gameBall);
         }
     }
-
-    // NEW: Auto-hit logic for tossed ball
     if (currentGameState === GameState.BALL_TOSSED && gameBall && (gameBall.status === 6 || gameBall.status === 7)) {
-        const server = (gameBall.status === 6) ? player1 : player2; // Determine server from ball status
+        const server = (gameBall.status === 6) ? player1 : player2; 
         if (server && server.isServing) {
-            // Optimal hit height: Racket's default Y pos + player's base Y pos + small offset
             const optimalHitWorldY = server.mesh.position.y + RACKET_DEFAULT_Y + 0.05; 
-
-            if (gameBall.velocity.y < 0 && // Ball is falling
-                Math.abs(gameBall.position.y - optimalHitWorldY) < 0.05) { // Ball is near optimal hit height
-
+            if (gameBall.velocity.y < 0 && Math.abs(gameBall.position.y - optimalHitWorldY) < 0.05) { 
                 let hitPosition = gameBall.position.clone(); 
-                // Define target points for the placeholder calculatePerfectServeVelocity
                 let targetOpponentBounceZ = (server.side === 1) ? -TABLE_LENGTH / 4 : TABLE_LENGTH / 4;
                 let firstBounceServerZ = (server.side === 1) ? TABLE_LENGTH / 4 / 2 : -TABLE_LENGTH / 4 / 2;
                 const targetOpponentBouncePos = new THREE.Vector3(0, TABLE_HEIGHT + BALL_RADIUS, targetOpponentBounceZ);
                 const defaultServeSpin = new THREE.Vector2(0, 2.5);
-
-                // Call the (placeholder) calculation method
                 const calculatedVelocity = gameBall.calculatePerfectServeVelocity(hitPosition, server.side, firstBounceServerZ, targetOpponentBouncePos, defaultServeSpin);
-                
-                if (server.swing(gameBall, calculatedVelocity, defaultServeSpin)) { // swing calls serveHit
+                if (server.swing(gameBall, calculatedVelocity, defaultServeSpin)) { 
                     currentGameState = GameState.SERVE_IN_MOTION;
                     console.log(`Player ${servingPlayer} auto-hit the serve!`);
                 } else {
@@ -275,7 +244,6 @@ function animate() {
             }
         }
     }
-
     if (gameBall) {
         if (gameBall.status !== 8 && gameBall.status !== 9) { 
             gameBall.update(player1.racket.mesh, player2 ? player2.racket.mesh : null); 
@@ -283,15 +251,14 @@ function animate() {
             gameBall.mesh.position.copy(gameBall.position);
         }
     }
-    
     checkGameRules(); 
     renderer.render(scene, camera); 
 }
-
-try {
+try { 
     init(); 
-    console.log("Three.js CannonSmash: Implemented single-click auto-hit serve.");
-} catch (error) { 
+    console.log("Three.js CannonSmash: Player materials made transparent."); 
+}
+catch (error) { 
     console.error("Critical error during game initialization:", error);
     const initMessageElement = document.getElementById('initializationMessage');
     if (initMessageElement) {
