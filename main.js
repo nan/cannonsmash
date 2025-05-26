@@ -1,13 +1,13 @@
-// main.js - Make player bodies transparent
+// main.js - Correct auto-serve hit height
 import * as THREE from 'three';     
 import { Ball } from './Ball.js';     
 import { Player } from './Player.js'; 
 
 let scene, camera, renderer;            
+let player1ScoreElement, player2ScoreElement; // Moved up for clarity
 let table, net, floor;                  
 let gameBall;                           
 let player1, player2;                   
-let player1ScoreElement, player2ScoreElement;
 
 const GameState = {
     AWAITING_SERVE_TOSS: 'AWAITING_SERVE_TOSS', 
@@ -24,15 +24,15 @@ let score = { player1: 0, player2: 0 };
 const TABLE_LENGTH = 2.74; 
 const TABLE_HEIGHT = 0.76; 
 const NET_POS_Z = 0;   
-const RACKET_OFFSET_Z = 0.3; 
-const BALL_RADIUS = 0.02;    
-const RACKET_DEFAULT_Y = 0.2; 
+const RACKET_OFFSET_Z = 0.3; // From Player.js
+const BALL_RADIUS = 0.02;    // From Ball.js
+// RACKET_DEFAULT_Y from Player.js is relative to player, not used for world Y hit calc.
 
 function init() {
     player1ScoreElement = document.getElementById('player1Score');
     player2ScoreElement = document.getElementById('player2Score');
     updateScoreDisplay(); 
-    scene = new THREE.Scene();
+    scene = new THREE.Scene(); 
     scene.background = new THREE.Color(0xaaaaaa); 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, 2.0, 3.0); camera.lookAt(0, 0.5, 0);         
@@ -51,16 +51,12 @@ function init() {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); scene.add(ambientLight);
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); 
     directionalLight.position.set(-4, 6, 4); directionalLight.lookAt(0,0,0); scene.add(directionalLight);
-    
     const tableMaterial = new THREE.MeshStandardMaterial({ color: 0x006400, roughness: 0.8, metalness: 0.2 }); 
     const netMaterial = new THREE.MeshStandardMaterial({ color: 0x333333, transparent: true, opacity: 0.8, roughness: 0.9 }); 
     const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x808080, roughness: 0.9 }); 
     const ballMaterial = new THREE.MeshStandardMaterial({ color: 0xffa500, roughness: 0.5, metalness: 0.1 }); 
-    
-    // MODIFIED Player Materials:
     const p1Material = new THREE.MeshStandardMaterial({ color: 0x0000dd, roughness: 0.6, transparent: true, opacity: 0.5 }); 
     const p2Material = new THREE.MeshStandardMaterial({ color: 0x00dd00, roughness: 0.6, transparent: true, opacity: 0.5 }); 
-
     const tableTopGeometry = new THREE.BoxGeometry(1.525, 0.03, 2.74); 
     table = new THREE.Mesh(tableTopGeometry, tableMaterial);
     table.position.set(0, TABLE_HEIGHT - 0.03 / 2, 0); scene.add(table);
@@ -84,9 +80,7 @@ function init() {
     player2.mesh = new THREE.Mesh(player2Geometry, p2Material); 
     player2.mesh.position.copy(player2.position); scene.add(player2.mesh);
     player2.mesh.add(player2.racket.mesh);
-    
     resetForServe(); 
-
     window.addEventListener('resize', onWindowResize, false);   
     window.addEventListener('mousemove', onMouseMove, false); 
     window.addEventListener('click', onMouseClick, false);    
@@ -113,6 +107,7 @@ function onMouseMove(event) {
     }
 }
 function onMouseClick(event) {
+    // From Turn 176 (based on Turn 111/113)
     if (player1 && player1.controlType === 'human') {
         if (currentGameState === GameState.AWAITING_SERVE_TOSS && servingPlayer === 1) {
             player1.serveToss(gameBall); 
@@ -127,6 +122,7 @@ function onMouseClick(event) {
     }
 }
 function resetForServe() {
+    // From Turn 176 (based on Turn 111/113)
     gameBall.reset(servingPlayer); 
     currentGameState = GameState.AWAITING_SERVE_TOSS;
     if (player1 && servingPlayer === 1) { player1.isServing = false; }
@@ -145,6 +141,7 @@ function resetForServe() {
     }
 }
 function awardPointTo(winnerID) { 
+    // From Turn 176 (based on Turn 111/113)
     if (winnerID === 1) score.player1++; else score.player2++;
     updateScoreDisplay(); 
     console.log(`Point for Player ${winnerID}! Score: P1: ${score.player1} - P2: ${score.player2}`);
@@ -153,6 +150,7 @@ function awardPointTo(winnerID) {
     setTimeout(resetForServe, 1500); 
 } 
 function checkGameRules() { 
+    // From Turn 176 (based on Turn 111/113)
     if (currentGameState === GameState.POINT_SCORED || currentGameState === GameState.AWAITING_SERVE_TOSS) {
         return; 
     }
@@ -213,10 +211,14 @@ function checkGameRules() {
         }
     }
 }
+
+// MODIFIED: animate() loop for corrected auto-hit height
 function animate() {
     requestAnimationFrame(animate); 
+    
     if (player1) player1.update(gameBall); 
     if (player2) player2.update(gameBall); 
+
     if (currentGameState === GameState.AWAITING_SERVE_TOSS && gameBall) {
         if (servingPlayer === 1 && player1) {
             player1.positionBallRelativeToHand(gameBall); 
@@ -224,26 +226,35 @@ function animate() {
             player2.positionBallRelativeToHand(gameBall);
         }
     }
+
+    // Auto-hit logic for tossed ball
     if (currentGameState === GameState.BALL_TOSSED && gameBall && (gameBall.status === 6 || gameBall.status === 7)) {
         const server = (gameBall.status === 6) ? player1 : player2; 
         if (server && server.isServing) {
-            const optimalHitWorldY = server.mesh.position.y + RACKET_DEFAULT_Y + 0.05; 
-            if (gameBall.velocity.y < 0 && Math.abs(gameBall.position.y - optimalHitWorldY) < 0.05) { 
+            // Corrected optimalHitWorldY to use fixed RACKET_WORLD_Y (0.9)
+            const RACKET_WORLD_Y_FOR_HIT = 0.9; // Racket's actual fixed world Y (from Player.js constructor logic)
+
+            if (gameBall.velocity.y < 0 && // Ball is falling
+                Math.abs(gameBall.position.y - RACKET_WORLD_Y_FOR_HIT) < 0.05) { // Ball is near racket's actual fixed height
+
                 let hitPosition = gameBall.position.clone(); 
                 let targetOpponentBounceZ = (server.side === 1) ? -TABLE_LENGTH / 4 : TABLE_LENGTH / 4;
-                let firstBounceServerZ = (server.side === 1) ? TABLE_LENGTH / 4 / 2 : -TABLE_LENGTH / 4 / 2;
+                let firstBounceServerZ = (server.side === 1) ? TABLE_LENGTH / 4 / 2 : -TABLE_LENGTH / 4 / 2; // Simplified first bounce target
                 const targetOpponentBouncePos = new THREE.Vector3(0, TABLE_HEIGHT + BALL_RADIUS, targetOpponentBounceZ);
                 const defaultServeSpin = new THREE.Vector2(0, 2.5);
+
                 const calculatedVelocity = gameBall.calculatePerfectServeVelocity(hitPosition, server.side, firstBounceServerZ, targetOpponentBouncePos, defaultServeSpin);
+                
                 if (server.swing(gameBall, calculatedVelocity, defaultServeSpin)) { 
                     currentGameState = GameState.SERVE_IN_MOTION;
-                    console.log(`Player ${servingPlayer} auto-hit the serve!`);
+                    console.log(`Player ${servingPlayer} auto-hit the serve at correct height!`); // Updated log
                 } else {
-                    console.log(`Player ${servingPlayer} auto-serve hit missed/failed.`);
+                    console.log(`Player ${servingPlayer} auto-serve hit missed/failed at correct height.`);
                 }
             }
         }
     }
+
     if (gameBall) {
         if (gameBall.status !== 8 && gameBall.status !== 9) { 
             gameBall.update(player1.racket.mesh, player2 ? player2.racket.mesh : null); 
@@ -251,14 +262,15 @@ function animate() {
             gameBall.mesh.position.copy(gameBall.position);
         }
     }
+    
     checkGameRules(); 
     renderer.render(scene, camera); 
 }
-try { 
+
+try {
     init(); 
-    console.log("Three.js CannonSmash: Player materials made transparent."); 
-}
-catch (error) { 
+    console.log("Three.js CannonSmash: Corrected auto-serve hit height.");
+} catch (error) { 
     console.error("Critical error during game initialization:", error);
     const initMessageElement = document.getElementById('initializationMessage');
     if (initMessageElement) {
