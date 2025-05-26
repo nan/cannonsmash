@@ -33,7 +33,7 @@ const NET_POS_Z = 0;
 
 // Camera control constants
 const CAMERA_EYE_OFFSET_X = 0.0;
-const CAMERA_EYE_OFFSET_Y = 0.6; // Y is up
+const CAMERA_EYE_OFFSET_Y = 1.4; // Y is up
 const CAMERA_EYE_OFFSET_Z = 1.2; // Towards player's back
 
 const CAMERA_Z_FOLLOW_THRESHOLD = 1.0; // How far player can move along Z before fixed offset applies
