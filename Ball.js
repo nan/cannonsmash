@@ -1,7 +1,7 @@
-// Ball.js - Added X, Z checks for table bounce
+// Ball.js - Added serve exclusivity to checkRacketCollision
 import * as THREE from 'three';
 
-// (Constants as in Turn 105)
+// (Constants as in Turn 137/91)
 const TABLE_HEIGHT = 0.76;         
 const BALL_RADIUS = 0.02;          
 const GRAVITY = 9.82;              
@@ -18,7 +18,7 @@ const NET_HEIGHT = 0.1525;
 const NET_POS_Z = 0;                
 
 export class Ball {
-    // (constructor as in Turn 105)
+    // (constructor as in Turn 137/91)
     constructor(initialPosition = new THREE.Vector3(0, TABLE_HEIGHT + BALL_RADIUS + 0.2, 0)) {
         this.position = initialPosition.clone(); 
         this.velocity = new THREE.Vector3(0, 0, -2);   
@@ -32,12 +32,11 @@ export class Ball {
     }
 
     updatePhysics(player1RacketMesh, player2RacketMesh) { 
+        // (As in Turn 137/91 - with corrected table bounce)
         this.velocity.y -= GRAVITY * TICK; 
         this.velocity.multiplyScalar(1 - AIR_RESISTANCE_FACTOR * TICK); 
         this.spin.multiplyScalar(1 - SPIN_DECAY_FACTOR * TICK); 
         this.position.addScaledVector(this.velocity, TICK);
-
-        // Net collision (as in Turn 105)
         if (this.position.y > TABLE_HEIGHT && 
             this.position.y < TABLE_HEIGHT + NET_HEIGHT + this.radius &&
             Math.abs(this.position.z - NET_POS_Z) < this.radius + 0.01) { 
@@ -49,11 +48,8 @@ export class Ball {
                 this.position.z += Math.sign(this.velocity.z) * this.radius * 0.2; this.status = -1;        
             }
         }
-
-        // MODIFIED Table collision condition
         const ballOnTableX = Math.abs(this.position.x) <= TABLE_WIDTH / 2 + this.radius;
         const ballOnTableZ = Math.abs(this.position.z) <= TABLE_LENGTH / 2 + this.radius;
-
         if (this.position.y < TABLE_HEIGHT + this.radius && this.velocity.y < 0 && ballOnTableX && ballOnTableZ) {
             this.position.y = TABLE_HEIGHT + this.radius; 
             const preBounceVelocityY = this.velocity.y; 
@@ -63,42 +59,33 @@ export class Ball {
             this.velocity.x += this.spin.x * SPIN_EFFECT_ON_BOUNCE_X; 
             this.spin.y *= 0.6; this.spin.x *= 0.7;
             console.log(`Ball bounced on table. Z: ${this.position.z.toFixed(2)}, Side: ${this.position.z >= NET_POS_Z ? "P1_Side(Pos-Z)" : "P2_Side(Neg-Z)"}`);
-            if (this.position.z >= NET_POS_Z) { 
-                this.bouncedOnServerSide = true; 
-            } else { 
-                this.bouncedOnReceiverSide = true;
-            }
+            if (this.position.z >= NET_POS_Z) { this.bouncedOnServerSide = true; } 
+            else { this.bouncedOnReceiverSide = true; }
         }
-
-        // Floor collision (as in Turn 105)
         if (this.position.y < this.radius && this.velocity.y < 0) { 
             console.log("Ball hit floor"); this.status = -2; }
-        // Out of bounds: Sideways (as in Turn 105)
         if (Math.abs(this.position.x) > TABLE_WIDTH / 2 + this.radius) {
-            // This condition might now be redundant if a floor hit is detected first,
-            // but it's okay as a fallback or if ball is still above floor height but outside X.
-            console.log("Ball out of table width (sideways)"); this.status = -3; 
-        }
-        // Out of bounds: Long (as in Turn 105, with slight refinement from prompt)
+            console.log("Ball out of table width (sideways)"); this.status = -3; }
         if (this.position.z > (TABLE_LENGTH / 2 + this.radius * 2) && this.velocity.z > 0) { 
-            if (!this.bouncedOnServerSide && !(ballOnTableX && this.position.y <= TABLE_HEIGHT + this.radius)) this.status = -4; 
-        }
+            if (!this.bouncedOnServerSide && !(ballOnTableX && this.position.y <= TABLE_HEIGHT + this.radius)) this.status = -4; }
         if (this.position.z < -(TABLE_LENGTH / 2 + this.radius * 2) && this.velocity.z < 0) { 
-             if (!this.bouncedOnReceiverSide && !(ballOnTableX && this.position.y <= TABLE_HEIGHT + this.radius)) this.status = -5; 
-        }
-        
-        // Racket Collision (as in Turn 105)
+             if (!this.bouncedOnReceiverSide && !(ballOnTableX && this.position.y <= TABLE_HEIGHT + this.radius)) this.status = -5; }
         if (player1RacketMesh && this.checkRacketCollision(player1RacketMesh, 1)) {}
         if (player2RacketMesh && this.checkRacketCollision(player2RacketMesh, 2)) {}
     }
     
     checkRacketCollision(racketMesh, hittingPlayerID) {
-        // (Full logic as in Turn 105)
+        // ADDED: Prevent general collision check from interfering with serve hits on tossed balls
+        if (this.status === 6 || this.status === 7) { // Ball is in a tossed state, awaiting specific serve hit
+            return false; 
+        }
+
         if (!racketMesh || !this.mesh || this.lastHitBy === hittingPlayerID) return false;
+        
         const ballBox = new THREE.Box3().setFromObject(this.mesh);
         const racketBox = new THREE.Box3().setFromObject(racketMesh);
         if (ballBox.intersectsBox(racketBox)) {
-            console.log(`Ball collided with racket of player ${hittingPlayerID}`);
+            console.log(`Ball collided with racket of player ${hittingPlayerID} (rally hit)`); // Clarified log
             let newVelocity = new THREE.Vector3(); const racketWorldPos = new THREE.Vector3();
             racketMesh.getWorldPosition(racketWorldPos); 
             const impactOffset = this.position.clone().sub(racketWorldPos); 
@@ -108,11 +95,12 @@ export class Ball {
             newVelocity.x = impactOffset.x * (hittingPlayerID === 1 ? -5.0 : 5.0) + (Math.random() - 0.5);
             let newSpin = new THREE.Vector2(newVelocity.x * 0.5, 2 + Math.random() * 3); 
             this.hit(newVelocity, newSpin, hittingPlayerID); return true; 
-        } return false; 
+        } 
+        return false; 
     }
 
     update(player1RacketMesh, player2RacketMesh) {
-        // (Full logic as in Turn 105)
+        // (Full logic as in Turn 137/91)
         if (this.status >= 0) { 
             this.updatePhysics(player1RacketMesh, player2RacketMesh);
         }
@@ -122,7 +110,7 @@ export class Ball {
     }
 
     reset(forPlayerID = 1) { 
-        // (Full logic as in Turn 105)
+        // (Full logic as in Turn 137/91)
         this.lastHitBy = 0; 
         this.bouncedOnServerSide = false;   
         this.bouncedOnReceiverSide = false;
@@ -134,7 +122,7 @@ export class Ball {
     }
 
     toss(tossPower, servingPlayerID) {
-        // (Full logic as in Turn 105)
+        // (Full logic as in Turn 137/91)
         this.velocity.set(0, tossPower, 0); 
         this.spin.set(0, 0);                
         this.lastHitBy = 0;                 
@@ -149,7 +137,7 @@ export class Ball {
     }
 
     hit(newVelocity, newSpin, hittingPlayerID) {
-        // (Full logic as in Turn 105)
+        // (Full logic as in Turn 137/91)
         this.velocity.copy(newVelocity);
         if (newSpin) { this.spin.copy(newSpin); }
         this.lastHitBy = hittingPlayerID;
@@ -161,7 +149,7 @@ export class Ball {
     }
 
     calculatePerfectServeVelocity(hitPosition, serverSide) {
-        // (Full logic as in Turn 105)
+        // (Full logic as in Turn 137/91)
         console.log("Calculating 'perfect' serve velocity...");
         let targetVelocity = new THREE.Vector3();
         const opponentCenterZ = serverSide * - (TABLE_LENGTH / 4); 
