@@ -1,4 +1,4 @@
-// Player.js - Applying user's ballRelativePos changes
+// Player.js - Ball follows racket pre-toss
 import * as THREE from 'three';
 
 const TABLE_LENGTH = 2.74;      
@@ -15,6 +15,7 @@ const RACKET_WIDTH_Z = 0.16;
 
 export class Player {
     constructor(side = 1, scene, controlType = 'human') { 
+        // (Constructor as in Turn 127/147)
         this.side = side; this.scene = scene; this.controlType = controlType; 
         this.position = new THREE.Vector3(0, 0.4, (TABLE_LENGTH / 2 + PLAYER_Z_OFFSET) * this.side );
         this.mesh = null; 
@@ -31,6 +32,7 @@ export class Player {
     }
 
     createRacketMesh() {
+        // (As in Turn 127/147)
         const racketGeometry = new THREE.BoxGeometry(0.02, RACKET_HEIGHT, RACKET_WIDTH_Z); 
         const racketMaterial = new THREE.MeshStandardMaterial({ 
             color: this.controlType === 'human' ? 0xcc0000 : 0x00cc00, roughness: 0.7, metalness: 0.3  
@@ -40,7 +42,7 @@ export class Player {
     }
 
     handleMouseMove(screenX, screenY) {
-        // From Turn 109/85/87
+        // (As in Turn 127/147)
         if (this.controlType !== 'human' || !this.mesh) return; 
         if (this.isServing) { 
              this.mouseScreenX = screenX; 
@@ -60,19 +62,22 @@ export class Player {
         this.racket.targetPosition.z = this.side * -RACKET_OFFSET_Z; 
     }
     
+    // MODIFIED: positionBallRelativeToHand - now relative to racket
     positionBallRelativeToHand(gameBall) { 
-        if (!this.mesh) return;
+        if (!this.racket.mesh) return; // Guard clause: ensure racket mesh exists
         
+        // Define ball position relative to the racket's local origin.
+        // Racket origin is its center. RACKET_HEIGHT is 0.22. BALL_RADIUS is 0.02.
         const ballRelativePos = new THREE.Vector3(
-            this.side * 0.30,  // User's change
-            0.4,               // User's change
-            0.0                // User's change
+            0,                                         // Centered on the racket's X-axis (width of face)
+            RACKET_HEIGHT / 2 + BALL_RADIUS + 0.01,    // Slightly above the top edge of the racket face
+            0.03                                       // Slightly in front of the racket face center (local Z)
         );
-        gameBall.position.copy(this.mesh.localToWorld(ballRelativePos.clone()));
+        gameBall.position.copy(this.racket.mesh.localToWorld(ballRelativePos.clone()));
     }
     
     serveToss(gameBall) {
-        // From Turn 109/85/87
+        // (As in Turn 127/147)
         if (!this.mesh) return; 
         console.log(`Player ${this.side === 1 ? 1 : 2} executes toss action. Ball at world: ${gameBall.position.x.toFixed(2)}`);
         gameBall.toss(TOSS_POWER, this.side === 1 ? 1 : 2);
@@ -80,7 +85,7 @@ export class Player {
     }
     
     serveHit(gameBall, calculatedVelocity, calculatedSpin) {
-        // From Turn 109/85/87
+        // (As in Turn 127/147)
         if (!this.mesh || !this.racket.mesh) return false; 
         const expectedBallStatus = this.side === 1 ? 6 : 7; 
         if (gameBall.status !== expectedBallStatus) {
@@ -106,7 +111,7 @@ export class Player {
     }
 
     swing(gameBall, calculatedServeVelocity = null, calculatedServeSpin = null) { 
-        // From Turn 109/85/87
+        // (As in Turn 127/147)
         if (this.isServing) { 
             if (calculatedServeVelocity && calculatedServeSpin) {
                 return this.serveHit(gameBall, calculatedServeVelocity, calculatedServeSpin);
@@ -129,7 +134,7 @@ export class Player {
     }
     
     updateAI(ball) {
-        // From Turn 109/85/87
+        // (As in Turn 127/147)
         if (!ball || !this.mesh || ball.status < 0) return;
         if (this.isServing) return; 
         let predictedBallX = ball.position.x;
@@ -165,7 +170,7 @@ export class Player {
     }
 
     update(ball) {
-        // From Turn 109/85/87
+        // (As in Turn 127/147)
         if (this.controlType === 'ai') {
             if (!this.isServing) { 
                  this.updateAI(ball);
