@@ -1,38 +1,61 @@
-// Player.js - Ball follows racket pre-toss
+// Player.js - Z-axis movement and fixed racket pose
 import * as THREE from 'three';
 
+// (Constants as in Turn 171)
 const TABLE_LENGTH = 2.74;      
 const TABLE_WIDTH = 1.525;      
-const PLAYER_Z_OFFSET = 0.2;    
-const RACKET_OFFSET_Z = 0.3;    
-const RACKET_DEFAULT_Y = 0.2;   
+const PLAYER_Z_OFFSET = 0.2; 
+const RACKET_OFFSET_Z = 0.3; // This might become effectively 0 for racket relative Z
+const RACKET_DEFAULT_Y = 0.2; // This will change for fixed world Y
 const TABLE_HEIGHT = 0.76;      
 const NET_POS_Z = 0;            
 const BALL_RADIUS = 0.02;       
 const TOSS_POWER = 2.5; 
 const RACKET_HEIGHT = 0.22;     
 const RACKET_WIDTH_Z = 0.16;    
+const PLAYER_Z_RANGE_MIN_FROM_NET = TABLE_LENGTH / 2 + 0.05; 
+const PLAYER_Z_RANGE_MAX_FROM_NET = TABLE_LENGTH / 2 + PLAYER_Z_OFFSET + 0.5;
+
+// New fixed racket Y position in world coordinates
+const RACKET_WORLD_Y = 0.9;
 
 export class Player {
     constructor(side = 1, scene, controlType = 'human') { 
-        // (Constructor as in Turn 127/147)
         this.side = side; this.scene = scene; this.controlType = controlType; 
-        this.position = new THREE.Vector3(0, 0.4, (TABLE_LENGTH / 2 + PLAYER_Z_OFFSET) * this.side );
+        let initialX = (controlType === 'human') ? this.side * 0.15 : 0;
+        this.position = new THREE.Vector3(initialX, 0.4, this.side * ((PLAYER_Z_RANGE_MIN_FROM_NET + PLAYER_Z_RANGE_MAX_FROM_NET) / 2));
         this.mesh = null; 
+        
+        // Racket's new fixed relative position
+        const relativeRacketX = this.side * 0.30; // To player's forehand side
+        // Racket world Y is RACKET_WORLD_Y (0.9). Player mesh world Y is this.position.y (0.4).
+        // So, racket relative Y to player mesh origin is RACKET_WORLD_Y - this.position.y
+        const relativeRacketY = RACKET_WORLD_Y - this.position.y; // Should be 0.5 if player Y is 0.4
+        const relativeRacketZ = 0.0; // Racket Z is aligned with player's Z (no forward offset)
+
         this.racket = {
-            mesh: null, targetPosition: new THREE.Vector3(0, RACKET_DEFAULT_Y, this.side * -RACKET_OFFSET_Z), 
-            currentPosition: new THREE.Vector3(0, RACKET_DEFAULT_Y, this.side * -RACKET_OFFSET_Z),
-            lerpFactor: this.controlType === 'human' ? 0.2 : 0.15 
+            mesh: null,         
+            targetPosition: new THREE.Vector3(relativeRacketX, relativeRacketY, relativeRacketZ), 
+            currentPosition: new THREE.Vector3(relativeRacketX, relativeRacketY, relativeRacketZ),
+            lerpFactor: this.controlType === 'human' ? 0.2 : 0.1 // Racket lerp can be faster as it's fixed to body
         };
         this.createRacketMesh();
         this.mouseScreenX = 0; this.mouseScreenY = 0;  
         const xRangeMultiplier = this.controlType === 'human' ? 0.9 : 0.8;
-        this.minX = -TABLE_WIDTH / 2 * xRangeMultiplier; this.maxX =  TABLE_WIDTH / 2 * xRangeMultiplier;
+        this.minX = -TABLE_WIDTH / 2 * xRangeMultiplier;
+        this.maxX =  TABLE_WIDTH / 2 * xRangeMultiplier;
+        if (this.side === 1) { // Player 1 on positive Z side
+            this.minZ = PLAYER_Z_RANGE_MIN_FROM_NET;
+            this.maxZ = PLAYER_Z_RANGE_MAX_FROM_NET;
+        } else { // Player 2 on negative Z side
+            this.minZ = -PLAYER_Z_RANGE_MAX_FROM_NET;
+            this.maxZ = -PLAYER_Z_RANGE_MIN_FROM_NET;
+        }
         this.aiHitting = false; this.isServing = false; 
     }
 
     createRacketMesh() {
-        // (As in Turn 127/147)
+        // As in Turn 147/101
         const racketGeometry = new THREE.BoxGeometry(0.02, RACKET_HEIGHT, RACKET_WIDTH_Z); 
         const racketMaterial = new THREE.MeshStandardMaterial({ 
             color: this.controlType === 'human' ? 0xcc0000 : 0x00cc00, roughness: 0.7, metalness: 0.3  
@@ -42,42 +65,39 @@ export class Player {
     }
 
     handleMouseMove(screenX, screenY) {
-        // (As in Turn 127/147)
         if (this.controlType !== 'human' || !this.mesh) return; 
-        if (this.isServing) { 
-             this.mouseScreenX = screenX; 
-             this.mouseScreenY = screenY;
-             const targetPlayerX = THREE.MathUtils.mapLinear(this.mouseScreenX, -1, 1, this.minX, this.maxX);
-             this.mesh.position.x = THREE.MathUtils.lerp(this.mesh.position.x, targetPlayerX, 0.2);
-             this.racket.targetPosition.x = THREE.MathUtils.mapLinear(this.mouseScreenX, -1, 1, -0.35, 0.35); 
-             this.racket.targetPosition.y = RACKET_DEFAULT_Y + THREE.MathUtils.mapLinear(this.mouseScreenY, -1, 1, -0.15, 0.35); 
-             this.racket.targetPosition.z = this.side * -RACKET_OFFSET_Z;
-            return; 
-        }
-        this.mouseScreenX = screenX; this.mouseScreenY = screenY;
+
+        this.mouseScreenX = screenX;
+        this.mouseScreenY = screenY;
+
+        // X-axis movement for player body (remains controlled by screenX)
         const targetPlayerX = THREE.MathUtils.mapLinear(this.mouseScreenX, -1, 1, this.minX, this.maxX);
-        this.mesh.position.x = THREE.MathUtils.lerp(this.mesh.position.x, targetPlayerX, 0.2); 
-        this.racket.targetPosition.x = THREE.MathUtils.mapLinear(this.mouseScreenX, -1, 1, -0.35, 0.35); 
-        this.racket.targetPosition.y = RACKET_DEFAULT_Y + THREE.MathUtils.mapLinear(this.mouseScreenY, -1, 1, -0.15, 0.35); 
-        this.racket.targetPosition.z = this.side * -RACKET_OFFSET_Z; 
+        this.mesh.position.x = THREE.MathUtils.lerp(this.mesh.position.x, targetPlayerX, 0.2);
+
+        // Z-axis movement for player body (now controlled by screenY)
+        // Map screenY (-1 to 1, inverted so +1 is "forward" towards net) to player's Z range.
+        let targetPlayerZ;
+        if (this.side === 1) { // Player 1, positive Z side
+            targetPlayerZ = THREE.MathUtils.mapLinear(this.mouseScreenY, -1, 1, this.maxZ, this.minZ); // mouse Y up -> closer to net
+        } else { // Player 2, negative Z side
+            targetPlayerZ = THREE.MathUtils.mapLinear(this.mouseScreenY, -1, 1, this.minZ, this.maxZ); // mouse Y up -> closer to net
+        }
+        this.mesh.position.z = THREE.MathUtils.lerp(this.mesh.position.z, targetPlayerZ, 0.15); // Z lerp factor
+
+        // Racket's targetPosition is fixed relative to the player body and set in the constructor.
+        // It does not change based on mouse movement anymore.
+        // The 'isServing' block that modified racket aiming is removed.
     }
     
-    // MODIFIED: positionBallRelativeToHand - now relative to racket
     positionBallRelativeToHand(gameBall) { 
-        if (!this.racket.mesh) return; // Guard clause: ensure racket mesh exists
-        
-        // Define ball position relative to the racket's local origin.
-        // Racket origin is its center. RACKET_HEIGHT is 0.22. BALL_RADIUS is 0.02.
-        const ballRelativePos = new THREE.Vector3(
-            0,                                         // Centered on the racket's X-axis (width of face)
-            RACKET_HEIGHT / 2 + BALL_RADIUS + 0.01,    // Slightly above the top edge of the racket face
-            0.03                                       // Slightly in front of the racket face center (local Z)
-        );
+        // As in Turn 147/101 (which is Turn 97 for this specific method's content)
+        if (!this.racket.mesh) return; 
+        const ballRelativePos = new THREE.Vector3(0, RACKET_HEIGHT / 2 + BALL_RADIUS + 0.01, 0.03);
         gameBall.position.copy(this.racket.mesh.localToWorld(ballRelativePos.clone()));
     }
     
     serveToss(gameBall) {
-        // (As in Turn 127/147)
+        // As in Turn 147/101
         if (!this.mesh) return; 
         console.log(`Player ${this.side === 1 ? 1 : 2} executes toss action. Ball at world: ${gameBall.position.x.toFixed(2)}`);
         gameBall.toss(TOSS_POWER, this.side === 1 ? 1 : 2);
@@ -85,7 +105,7 @@ export class Player {
     }
     
     serveHit(gameBall, calculatedVelocity, calculatedSpin) {
-        // (As in Turn 127/147)
+        // As in Turn 147/101
         if (!this.mesh || !this.racket.mesh) return false; 
         const expectedBallStatus = this.side === 1 ? 6 : 7; 
         if (gameBall.status !== expectedBallStatus) {
@@ -111,7 +131,7 @@ export class Player {
     }
 
     swing(gameBall, calculatedServeVelocity = null, calculatedServeSpin = null) { 
-        // (As in Turn 127/147)
+        // As in Turn 147/101
         if (this.isServing) { 
             if (calculatedServeVelocity && calculatedServeSpin) {
                 return this.serveHit(gameBall, calculatedServeVelocity, calculatedServeSpin);
@@ -123,24 +143,31 @@ export class Player {
         }
         if (this.controlType === 'human') {
             console.log("Human Player rally swing!");
-            this.racket.targetPosition.z += this.side * -0.25; 
-            setTimeout(() => { this.racket.targetPosition.z = this.side * -RACKET_OFFSET_Z; }, 120); 
+            this.racket.targetPosition.z += this.side * -0.25; // Simple visual swing
+            setTimeout(() => { this.racket.targetPosition.z = this.racket.currentPosition.z; }, 120); // Return to fixed Z
         } else if (this.controlType === 'ai') {
             console.log("AI Player rally swing!"); this.aiHitting = true; 
             this.racket.targetPosition.z += this.side * -0.25; 
-            setTimeout(() => { this.aiHitting = false; this.racket.targetPosition.z = this.side * -RACKET_OFFSET_Z; }, 150); 
+            setTimeout(() => { this.aiHitting = false; this.racket.targetPosition.z = this.racket.currentPosition.z; }, 150); 
         }
         return true; 
     }
     
     updateAI(ball) {
-        // (As in Turn 127/147)
+        // As in Turn 147/101
         if (!ball || !this.mesh || ball.status < 0) return;
         if (this.isServing) return; 
+        // AI Player Body Z Movement (Simplified: try to stay in middle of its Z range)
+        let targetPlayerZ;
+        if (this.side === 1) { targetPlayerZ = (this.minZ + this.maxZ) / 2; }
+        else { targetPlayerZ = (this.minZ + this.maxZ) / 2; }
+        this.mesh.position.z = THREE.MathUtils.lerp(this.mesh.position.z, targetPlayerZ, 0.03);
+
+        // AI Player Body X Movement (tracks ball predictively)
         let predictedBallX = ball.position.x;
         if ((this.side === -1 && ball.velocity.z > 0) || (this.side === 1 && ball.velocity.z < 0)) {
             const timeToNet = (ball.velocity.z !== 0) ? Math.abs((NET_POS_Z - ball.position.z) / ball.velocity.z) : 0.1;
-            const timeToHitZone = (ball.velocity.z !==0) ? Math.abs(((this.position.z + this.side * -RACKET_OFFSET_Z) - ball.position.z) / ball.velocity.z) : 0.1;
+            const timeToHitZone = (ball.velocity.z !==0) ? Math.abs(((this.position.z + this.racket.targetPosition.z) - ball.position.z) / ball.velocity.z) : 0.1; // Racket Z is 0 relative
             const predictionTime = Math.min(timeToNet, timeToHitZone, 0.5); 
             if (predictionTime > 0 && isFinite(ball.velocity.z) && ball.velocity.z !== 0) {
                  predictedBallX = ball.position.x + ball.velocity.x * predictionTime;
@@ -148,20 +175,16 @@ export class Player {
         }
         const targetPlayerX = THREE.MathUtils.clamp(predictedBallX, this.minX, this.maxX);
         this.mesh.position.x = THREE.MathUtils.lerp(this.mesh.position.x, targetPlayerX, 0.08); 
-        let desiredRacketX = ball.position.x - this.mesh.position.x;
-        let desiredRacketY = RACKET_DEFAULT_Y + (ball.position.y - (TABLE_HEIGHT + BALL_RADIUS));
-        desiredRacketX = THREE.MathUtils.clamp(desiredRacketX, -0.45, 0.45); 
-        desiredRacketY = THREE.MathUtils.clamp(desiredRacketY, 0.05, 0.55);  
-        this.racket.targetPosition.x = desiredRacketX;
-        this.racket.targetPosition.y = desiredRacketY;
-        this.racket.targetPosition.z = this.side * -RACKET_OFFSET_Z;
-        const ballIsComingTowardsAI = (this.side === -1 && ball.velocity.z > 0.2) || 
-                                    (this.side === 1 && ball.velocity.z < -0.2);   
-        const ballNearAISideOfNet = (this.side === -1 && ball.position.z < (NET_POS_Z + 0.3)) || 
-                                  (this.side === 1 && ball.position.z > (NET_POS_Z - 0.3));
-        const distZToBall = Math.abs(ball.position.z - (this.mesh.position.z + this.racket.targetPosition.z));
+        
+        // Racket is fixed relative to body, so no specific racket positioning logic needed here for AI rally.
+        // AI Swing Decision Logic (as in Turn 147/101)
+        const ballIsComingTowardsAI = (this.side === -1 && ball.velocity.z > 0.2) || (this.side === 1 && ball.velocity.z < -0.2);   
+        const ballNearAISideOfNet = (this.side === -1 && ball.position.z < (NET_POS_Z + 0.3)) || (this.side === 1 && ball.position.z > (NET_POS_Z - 0.3));
+        // distZToBall now considers racket's fixed Z (0 relative to player)
+        const distZToBall = Math.abs(ball.position.z - this.mesh.position.z); 
         const idealHitZ = 0.15; 
         const isAIsTurnToHit = (this.side === -1 && ball.status === 1) || (this.side === 1 && ball.status === 3);
+
         if (isAIsTurnToHit && ballIsComingTowardsAI && ballNearAISideOfNet && 
             distZToBall < idealHitZ && 
             ball.position.y < TABLE_HEIGHT + 0.4 && ball.position.y > TABLE_HEIGHT - 0.15) { 
@@ -170,17 +193,16 @@ export class Player {
     }
 
     update(ball) {
-        // (As in Turn 127/147)
         if (this.controlType === 'ai') {
             if (!this.isServing) { 
                  this.updateAI(ball);
             }
         }
+        // Racket always lerps to its fixed targetPosition relative to the player.
+        // targetPosition itself doesn't change after constructor for fixed racket pose.
         if (this.racket.mesh) {
-            if (!(this.controlType === 'human' && this.isServing)) {
-                this.racket.currentPosition.lerp(this.racket.targetPosition, this.racket.lerpFactor);
-                this.racket.mesh.position.copy(this.racket.currentPosition);
-            }
+            this.racket.currentPosition.lerp(this.racket.targetPosition, this.racket.lerpFactor);
+            this.racket.mesh.position.copy(this.racket.currentPosition);
         }
     }
 }
