@@ -162,14 +162,14 @@ export class Ball {
 
         // Iterate on t1_guess with a wider range and finer step
         for (let t1_guess = 0.08; t1_guess <= 0.50; t1_guess += 0.0025) { 
-            if (t1_guess < 0.02) continue; // Should not be needed with loop start > 0.02
+            // if (t1_guess < 0.02) continue; // Should not be needed with loop start > 0.02
 
             const Vy1_current = (deltaY1 / t1_guess) + (0.5 * GRAVITY * t1_guess);
             const Vx1_current = deltaX1 / t1_guess;
             const Vz1_current = deltaZ1 / t1_guess;
 
             // Heuristics to prune unlikely trajectories early
-            if (Vy1_current < 0 && deltaY1 > 0.05) continue; // Avoid launching downwards if target is up
+            // if (Vy1_current < 0 && deltaY1 > 0.05) continue; // Avoid launching downwards if target is up
             // if (Vy1_current < 0.2 && deltaY1 > 0.01 && Math.abs(deltaZ1) > 0.3) continue; // Ensure some upward for typical toss hit
 
             // Simulate first bounce
@@ -184,15 +184,27 @@ export class Ball {
             const deltaY2 = targetOpponentBouncePos.y - firstBouncePosServerCourt.y; // Should be 0
             const deltaZ2 = targetOpponentBouncePos.z - firstBouncePosServerCourt.z;
 
-            let t2_estimated = 0.2; 
-            if (Math.abs(Vz_afterBounce1) > 0.1) { // Prefer Z for time estimation if possible
-                t2_estimated = deltaZ2 / Vz_afterBounce1;
-            } else if (Math.abs(Vx_afterBounce1) > 0.1) { 
-                t2_estimated = deltaX2 / Vx_afterBounce1;
+            let t2_estimated;
+            if (Vy_afterBounce1 > 0 && GRAVITY > 0) { // Check GRAVITY > 0 to prevent division by zero if it were configurable
+                t2_estimated = (2 * Vy_afterBounce1) / GRAVITY;
+            } else {
+                if (Math.abs(Vz_afterBounce1) > 0.1) {
+                    t2_estimated = deltaZ2 / Vz_afterBounce1;
+                } else if (Math.abs(Vx_afterBounce1) > 0.1) {
+                    t2_estimated = deltaX2 / Vx_afterBounce1;
+                } else {
+                    t2_estimated = 0.2; // Default fallback if other estimations aren't possible
+                }
             }
-            t2_estimated = Math.max(0.05, Math.min(t2_estimated, 0.6)); // Clamp t2 to avoid extreme values
 
-            if (t2_estimated <= 0.049) continue; // If t2 is still too small, skip
+            // Ensure t2_estimated is positive after calculation (e.g. if deltaZ2 and Vz_afterBounce1 had opposite signs)
+            if (t2_estimated <= 0) {
+                t2_estimated = 0.2; // Default to a sensible positive value
+            }
+
+            t2_estimated = Math.max(0.05, Math.min(t2_estimated, 0.8)); // Clamp t2
+
+            // if (t2_estimated <= 0.049) continue; // If t2 is still too small, skip
 
             const Vy2_required_at_bounce1 = (deltaY2 / t2_estimated) + (0.5 * GRAVITY * t2_estimated);
 
