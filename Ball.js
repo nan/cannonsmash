@@ -161,7 +161,7 @@ export class Ball {
         let optimalT1 = -1;
 
         // Iterate on t1_guess with a wider range and finer step
-        for (let t1_guess = 0.10; t1_guess <= 0.40; t1_guess += 0.005) { 
+        for (let t1_guess = 0.08; t1_guess <= 0.50; t1_guess += 0.0025) { 
             if (t1_guess < 0.02) continue; // Should not be needed with loop start > 0.02
 
             const Vy1_current = (deltaY1 / t1_guess) + (0.5 * GRAVITY * t1_guess);
@@ -170,7 +170,7 @@ export class Ball {
 
             // Heuristics to prune unlikely trajectories early
             if (Vy1_current < 0 && deltaY1 > 0.05) continue; // Avoid launching downwards if target is up
-            if (Vy1_current < 0.2 && deltaY1 > 0.01 && Math.abs(deltaZ1) > 0.3) continue; // Ensure some upward for typical toss hit
+            // if (Vy1_current < 0.2 && deltaY1 > 0.01 && Math.abs(deltaZ1) > 0.3) continue; // Ensure some upward for typical toss hit
 
             // Simulate first bounce
             let Vy_afterBounce1 = -Vy1_current * BOUNCE_ENERGY_LOSS;
@@ -227,7 +227,7 @@ export class Ball {
 
             const diff = Math.abs(Vy_afterBounce1 - Vy2_required_at_bounce1);
 
-            if (ballY_at_net > NET_TOP_Y + 0.005) { // Slightly reduced net clearance margin
+            if (ballY_at_net > NET_TOP_Y + 0.002) { // Slightly reduced net clearance margin
                 if (diff < minDiff) {
                     minDiff = diff;
                     bestVy1 = Vy1_current; 
