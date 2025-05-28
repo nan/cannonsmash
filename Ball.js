@@ -129,138 +129,139 @@ export class Ball {
     }
 
     calculatePerfectServeVelocity(hitPosition, serverSide, firstBounceServerZ, targetOpponentBouncePos, desiredSpin) {
-        console.log("Calculating serve velocity (Iterative Refinement - Fix Attempt)...");
-        
-        const targetY = TABLE_HEIGHT + BALL_RADIUS;
-        const NET_TOP_Y = TABLE_HEIGHT + NET_HEIGHT + BALL_RADIUS;
+        console.log("Calculating serve velocity (Iterative Search)...");
 
-        // Corrected X Interpolation for firstBouncePosServerCourt
-        const dZ_total_path = targetOpponentBouncePos.z - hitPosition.z;
-        const dZ_segment1_abs = Math.abs(firstBounceServerZ - hitPosition.z);
-        const dZ_total_path_abs = Math.abs(dZ_total_path);
-        
-        let firstBounceX;
-        if (dZ_total_path_abs > 0.01) { // Avoid division by zero if total path Z is negligible
-            firstBounceX = hitPosition.x + (targetOpponentBouncePos.x - hitPosition.x) * (dZ_segment1_abs / dZ_total_path_abs);
-        } else {
-            firstBounceX = hitPosition.x; 
-        }
+        const NET_TOP_Y = TABLE_HEIGHT + NET_HEIGHT + BALL_RADIUS; // Global const
+        const SIMULATION_TICK = TICK; // Global const
+        const MAX_SIMULATION_TICKS = 300;
+        const FIRST_BOUNCE_Z_TOLERANCE = 0.10;
+        const NET_CLEARANCE_MIN = 0.002;
+        const TARGET_BOUNCE_DISTANCE_TOLERANCE = 0.15;
+        const TABLE_SURFACE_Y = TABLE_HEIGHT + BALL_RADIUS; // Global const
 
-        const firstBouncePosServerCourt = new THREE.Vector3(
-            firstBounceX,
-            targetY,
-            firstBounceServerZ
-        );
+        for (let Vy_initial_loop = 1.0; Vy_initial_loop <= 5.0; Vy_initial_loop += 0.5) {
+            for (let Vz_initial_abs_loop = 2.0; Vz_initial_abs_loop <= 7.0; Vz_initial_abs_loop += 0.5) {
+                for (let Vx_initial_loop = -3.0; Vx_initial_loop <= 3.0; Vx_initial_loop += 0.5) {
+                    
+                    const currentInitialVelocity = new THREE.Vector3(
+                        Vx_initial_loop,
+                        Vy_initial_loop,
+                        serverSide * -Vz_initial_abs_loop
+                    );
 
-        const deltaX1 = firstBouncePosServerCourt.x - hitPosition.x;
-        const deltaY1 = firstBouncePosServerCourt.y - hitPosition.y;
-        const deltaZ1 = firstBouncePosServerCourt.z - hitPosition.z;
+                    let simBallPosition = hitPosition.clone();
+                    let simBallVelocity = currentInitialVelocity.clone();
+                    let simBallSpin = desiredSpin.clone(); // Spin's effect on air drag not simulated here
 
-        let bestVy1 = null;
-        let minDiff = Infinity;
-        let optimalT1 = -1;
+                    let hasBouncedOnServerSide = false;
+                    let hasClearedNet = false;
+                    let hasBouncedOnOpponentSide = false;
+                    // let netCrossedInThisSegment = false; // Declared inside loop
 
-        // Iterate on t1_guess with a wider range and finer step
-        for (let t1_guess = 0.08; t1_guess <= 0.50; t1_guess += 0.0025) { 
-            // if (t1_guess < 0.02) continue; // Should not be needed with loop start > 0.02
+                    for (let tick_num = 0; tick_num < MAX_SIMULATION_TICKS; tick_num++) {
+                        let prevSimBallPosition = simBallPosition.clone();
 
-            const Vy1_current = (deltaY1 / t1_guess) + (0.5 * GRAVITY * t1_guess);
-            const Vx1_current = deltaX1 / t1_guess;
-            const Vz1_current = deltaZ1 / t1_guess;
+                        simBallVelocity.y -= GRAVITY * SIMULATION_TICK;
+                        // No air resistance for this internal simulation yet
+                        simBallPosition.addScaledVector(simBallVelocity, SIMULATION_TICK);
 
-            // Heuristics to prune unlikely trajectories early
-            // if (Vy1_current < 0 && deltaY1 > 0.05) continue; // Avoid launching downwards if target is up
-            // if (Vy1_current < 0.2 && deltaY1 > 0.01 && Math.abs(deltaZ1) > 0.3) continue; // Ensure some upward for typical toss hit
+                        // Check for Net Crossing (Z-axis)
+                        // serverSide is 1 for player 1 (positive Z is server side), -1 for player 2 (negative Z is server side)
+                        // Net is at NET_POS_Z (0)
+                        // If serverSide is 1: crossing from Z > 0 to Z <= 0
+                        // If serverSide is -1: crossing from Z < 0 to Z >= 0
+                        let netCrossedInThisSegment = false;
+                        if (serverSide === 1) {
+                            netCrossedInThisSegment = (prevSimBallPosition.z > NET_POS_Z && simBallPosition.z <= NET_POS_Z);
+                        } else { // serverSide === -1
+                            netCrossedInThisSegment = (prevSimBallPosition.z < NET_POS_Z && simBallPosition.z >= NET_POS_Z);
+                        }
+                        
+                        if (netCrossedInThisSegment) {
+                            let yAtNet = NET_TOP_Y + 1.0; // Default to cleared if interpolation fails
+                            if (Math.abs(simBallPosition.z - prevSimBallPosition.z) > 1e-6) { // Avoid division by zero
+                                const alpha = (NET_POS_Z - prevSimBallPosition.z) / (simBallPosition.z - prevSimBallPosition.z);
+                                yAtNet = prevSimBallPosition.y + (simBallPosition.y - prevSimBallPosition.y) * alpha;
+                            }
 
-            // Simulate first bounce
-            let Vy_afterBounce1 = -Vy1_current * BOUNCE_ENERGY_LOSS;
-            Vy_afterBounce1 += desiredSpin.y * SPIN_EFFECT_ON_BOUNCE_Y * Math.abs(Vy1_current);
-            // Apply energy loss to horizontal components as well, then spin effect
-            let Vx_afterBounce1 = Vx1_current * BOUNCE_ENERGY_LOSS + (desiredSpin.x * SPIN_EFFECT_ON_BOUNCE_X);
-            let Vz_afterBounce1 = Vz1_current * BOUNCE_ENERGY_LOSS - (desiredSpin.y * SPIN_EFFECT_ON_BOUNCE_Z);
+                            if (yAtNet > NET_TOP_Y + NET_CLEARANCE_MIN) {
+                                hasClearedNet = true;
+                            } else {
+                                // console.log(`Failed net clearance: Vy=${Vy_initial_loop}, VzAbs=${Vz_initial_abs_loop}, Vx=${Vx_initial_loop}, yAtNet=${yAtNet.toFixed(3)}`);
+                                break; // Failed net clearance, try next velocity
+                            }
+                        }
 
-            // Trajectory for second segment
-            const deltaX2 = targetOpponentBouncePos.x - firstBouncePosServerCourt.x;
-            const deltaY2 = targetOpponentBouncePos.y - firstBouncePosServerCourt.y; // Should be 0
-            const deltaZ2 = targetOpponentBouncePos.z - firstBouncePosServerCourt.z;
+                        // Check for Bounce
+                        if (simBallVelocity.y < 0 && simBallPosition.y <= TABLE_SURFACE_Y) {
+                            simBallPosition.y = TABLE_SURFACE_Y; // Correct position to table surface
 
-            let t2_estimated;
-            if (Vy_afterBounce1 > 0 && GRAVITY > 0) { // Check GRAVITY > 0 to prevent division by zero if it were configurable
-                t2_estimated = (2 * Vy_afterBounce1) / GRAVITY;
-            } else {
-                if (Math.abs(Vz_afterBounce1) > 0.1) {
-                    t2_estimated = deltaZ2 / Vz_afterBounce1;
-                } else if (Math.abs(Vx_afterBounce1) > 0.1) {
-                    t2_estimated = deltaX2 / Vx_afterBounce1;
-                } else {
-                    t2_estimated = 0.2; // Default fallback if other estimations aren't possible
-                }
-            }
+                            // Server Side Bounce Check
+                            // Server side for P1 is Z > 0, for P2 is Z < 0
+                            const isOnServerHalf = (serverSide === 1) ? (simBallPosition.z > NET_POS_Z) : (simBallPosition.z < NET_POS_Z);
 
-            // Ensure t2_estimated is positive after calculation (e.g. if deltaZ2 and Vz_afterBounce1 had opposite signs)
-            if (t2_estimated <= 0) {
-                t2_estimated = 0.2; // Default to a sensible positive value
-            }
+                            if (!hasBouncedOnServerSide && isOnServerHalf) {
+                                if (Math.abs(simBallPosition.x) <= TABLE_WIDTH / 2 && // Within table width
+                                    Math.abs(simBallPosition.z - firstBounceServerZ) < FIRST_BOUNCE_Z_TOLERANCE) {
+                                    
+                                    hasBouncedOnServerSide = true;
+                                    const preBounceVy = simBallVelocity.y; // Store for spin calculation
+                                    simBallVelocity.y *= -BOUNCE_ENERGY_LOSS;
+                                    // Ensure preBounceVy is negative for spin calculation consistency
+                                    simBallVelocity.y += simBallSpin.y * SPIN_EFFECT_ON_BOUNCE_Y * Math.abs(preBounceVy); 
+                                    simBallVelocity.x += simBallSpin.x * SPIN_EFFECT_ON_BOUNCE_X;
+                                    simBallVelocity.z -= simBallSpin.y * SPIN_EFFECT_ON_BOUNCE_Z;
+                                } else {
+                                    // console.log(`Missed first bounce: Vy=${Vy_initial_loop}, VzAbs=${Vz_initial_abs_loop}, Vx=${Vx_initial_loop}, bounceZ=${simBallPosition.z.toFixed(2)} vs ${firstBounceServerZ.toFixed(2)}`);
+                                    break; // Missed first bounce target
+                                }
+                            } 
+                            // Opponent Side Bounce Check
+                            // Opponent side for P1 is Z < 0, for P2 is Z > 0
+                            else if (hasBouncedOnServerSide && !isOnServerHalf) { // on opponent's half
+                                if (Math.abs(simBallPosition.x) <= TABLE_WIDTH / 2) { // Within table width
+                                    hasBouncedOnOpponentSide = true;
+                                    const targetDist = Math.sqrt(
+                                        Math.pow(simBallPosition.x - targetOpponentBouncePos.x, 2) +
+                                        Math.pow(simBallPosition.z - targetOpponentBouncePos.z, 2)
+                                    );
 
-            t2_estimated = Math.max(0.05, Math.min(t2_estimated, 0.8)); // Clamp t2
+                                    if (targetDist < TARGET_BOUNCE_DISTANCE_TOLERANCE && hasClearedNet) {
+                                        console.log("Optimal Serve Found (Iterative): ", currentInitialVelocity, ` TargetDist: ${targetDist.toFixed(3)}`);
+                                        return currentInitialVelocity;
+                                    } else {
+                                        // console.log(`Missed target/net: Vy=${Vy_initial_loop}, VzAbs=${Vz_initial_abs_loop}, Vx=${Vx_initial_loop}, targetDist=${targetDist.toFixed(3)}, clearedNet=${hasClearedNet}`);
+                                        break; // Missed target or didn't clear net
+                                    }
+                                } else {
+                                    // console.log(`Out of bounds X on opponent side: Vy=${Vy_initial_loop}, VzAbs=${Vz_initial_abs_loop}, Vx=${Vx_initial_loop}`);
+                                    break; // Out of bounds X on opponent side
+                                }
+                            } else {
+                                // console.log(`Invalid bounce state: Vy=${Vy_initial_loop}, VzAbs=${Vz_initial_abs_loop}, Vx=${Vx_initial_loop}, hasBouncedServer=${hasBouncedOnServerSide}, isOnServerHalf=${isOnServerHalf}`);
+                                break; // Bounced twice on server side, or bounced on floor before conditions met, or other invalid state
+                            }
+                        }
 
-            // if (t2_estimated <= 0.049) continue; // If t2 is still too small, skip
+                        // Check for Out of Bounds / Floor Hit
+                        if (simBallPosition.y < 0) { // Below floor (generous check, TABLE_SURFACE_Y is positive)
+                            // console.log(`Hit floor: Vy=${Vy_initial_loop}, VzAbs=${Vz_initial_abs_loop}, Vx=${Vx_initial_loop}`);
+                            break;
+                        }
+                        if (Math.abs(simBallPosition.x) > TABLE_WIDTH / 2 + 0.2 || Math.abs(simBallPosition.z) > TABLE_LENGTH / 2 + 0.2) {
+                            // console.log(`Out of table bounds: Vy=${Vy_initial_loop}, VzAbs=${Vz_initial_abs_loop}, Vx=${Vx_initial_loop}`);
+                            break; // Went too far out
+                        }
+                    } // End of Simulation Loop
+                } // End of Vx loop
+            } // End of Vz loop
+        } // End of Vy loop
 
-            const Vy2_required_at_bounce1 = (deltaY2 / t2_estimated) + (0.5 * GRAVITY * t2_estimated);
-
-            // Robust Net Clearance Check
-            let ballY_at_net = -Infinity;
-            let time_to_net_from_bounce1 = -1;
-            // Check if the ball is moving towards the net plane from the first bounce to the second target
-            const movingTowardsNetAfterBounce = 
-                (Vz_afterBounce1 > 0 && firstBouncePosServerCourt.z < NET_POS_Z && targetOpponentBouncePos.z > NET_POS_Z) ||
-                (Vz_afterBounce1 < 0 && firstBouncePosServerCourt.z > NET_POS_Z && targetOpponentBouncePos.z < NET_POS_Z);
-
-            if (movingTowardsNetAfterBounce && Math.abs(Vz_afterBounce1) > 0.01) {
-                time_to_net_from_bounce1 = (NET_POS_Z - firstBouncePosServerCourt.z) / Vz_afterBounce1;
-                // Ensure the time to net is within the segment duration t2_estimated
-                if (time_to_net_from_bounce1 > 0.001 && time_to_net_from_bounce1 < t2_estimated) {
-                    ballY_at_net = firstBouncePosServerCourt.y + Vy_afterBounce1 * time_to_net_from_bounce1 - 0.5 * GRAVITY * time_to_net_from_bounce1 * time_to_net_from_bounce1;
-                } else {
-                    // Ball path does not cross net Z plane within this segment time, but target is on other side.
-                    // This implies it must have cleared (or will clear if path continued).
-                    ballY_at_net = NET_TOP_Y + 0.1; 
-                }
-            } else if ( (serverSide * targetOpponentBouncePos.z < serverSide * NET_POS_Z) && // Target is beyond net
-                        (serverSide * firstBouncePosServerCourt.z < serverSide * NET_POS_Z) && // First bounce is also "beyond" net (for its side)
-                        (Math.sign(Vz_afterBounce1) === Math.sign(targetOpponentBouncePos.z - firstBouncePosServerCourt.z)) // Moving towards target
-                      ) {
-                // This case means the first bounce is already on the opponent's side of the net (relative to server's perspective of "over the net")
-                // OR the path from first bounce to second bounce doesn't cross net plane because both are on receiver's side.
-                // If the target is on the other side of the net from where the server is standing, assume it clears.
-                ballY_at_net = NET_TOP_Y + 0.1; 
-            }
-
-
-            const diff = Math.abs(Vy_afterBounce1 - Vy2_required_at_bounce1);
-
-            if (ballY_at_net > NET_TOP_Y + 0.002) { // Slightly reduced net clearance margin
-                if (diff < minDiff) {
-                    minDiff = diff;
-                    bestVy1 = Vy1_current; 
-                    optimalT1 = t1_guess; 
-                }
-            }
-        } 
-
-        if (bestVy1 !== null && optimalT1 > 0) {
-            // Use optimalT1 directly as recalculating from bestVy1 with quadratic can be tricky
-            const finalVx1 = deltaX1 / optimalT1;
-            const finalVz1 = deltaZ1 / optimalT1;
-            console.log(`Optimal Serve Found: t1=${optimalT1.toFixed(3)}, Vx1=${finalVx1.toFixed(2)}, Vy1=${bestVy1.toFixed(2)}, Vz1=${finalVz1.toFixed(2)}, MinDiff: ${minDiff.toFixed(4)}`);
-            return new THREE.Vector3(finalVx1, bestVy1, finalVz1);
-        }
-
-        console.warn("Could not find an optimal serve trajectory satisfying net clearance and Vy match, using fallback serve.");
-        let fallbackVx = (targetOpponentBouncePos.x - hitPosition.x) / 0.4; 
+        console.warn("Could not find an optimal serve trajectory (Iterative Search), using fallback serve.");
+        let fallbackVx = (targetOpponentBouncePos.x - hitPosition.x) / 0.4;
         let fallbackVz = (targetOpponentBouncePos.z - hitPosition.z) / 0.4;
-        if (Math.abs(fallbackVz) < 2.0) fallbackVz = serverSide * -3.0; 
+        if (Math.abs(fallbackVz) < 2.0) fallbackVz = serverSide * -3.0;
         fallbackVx = THREE.MathUtils.clamp(fallbackVx, -1.5, 1.5);
-        return new THREE.Vector3(fallbackVx, 1.8, fallbackVz); 
+        return new THREE.Vector3(fallbackVx, 1.8, fallbackVz);
     }
 }
