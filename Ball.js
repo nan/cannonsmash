@@ -211,6 +211,7 @@ export class Ball {
                                         Math.pow(simBallPosition.z - targetOpponentBouncePos.z, 2)
                                     );
 
+                                    console.log("Debug Serve Target: targetDist =", targetDist, "simBallPosition (x,y,z) =", simBallPosition.x.toFixed(3), simBallPosition.y.toFixed(3), simBallPosition.z.toFixed(3));
                                     if (targetDist < TARGET_BOUNCE_DISTANCE_TOLERANCE && hasClearedNet) {
                                         console.log("Optimal Serve Found (Iterative - Modified First Bounce): ", currentInitialVelocity, ` TargetDist: ${targetDist.toFixed(3)}`);
                                         return currentInitialVelocity;
