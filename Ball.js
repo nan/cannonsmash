@@ -158,6 +158,10 @@ export class Ball {
                     let hasClearedNet = false;
                     // let hasBouncedOnOpponentSide = false; // Not strictly needed as success is returned directly
 
+                    if (Vx_initial_loop === -3.0 && Vy_initial_loop === -5.0 && Vz_initial_abs_loop === 1.0) { // Log only for one of the earliest attempts
+                        console.log("Debug Serve: Starting simulation with initial Vel (Vx,Vy,VzAbs):", Vx_initial_loop.toFixed(1), Vy_initial_loop.toFixed(1), Vz_initial_abs_loop.toFixed(1));
+                    }
+
                     for (let tick_num = 0; tick_num < MAX_SIMULATION_TICKS; tick_num++) {
                         let prevSimBallPosition = simBallPosition.clone();
 
@@ -181,6 +185,7 @@ export class Ball {
                             if (yAtNet > NET_TOP_Y + NET_CLEARANCE_MIN) {
                                 hasClearedNet = true;
                             } else {
+                                console.log("Debug Serve: Net Fail. yAtNet:", yAtNet.toFixed(3), "Vel (x,y,z):", currentInitialVelocity.x.toFixed(1), currentInitialVelocity.y.toFixed(1), currentInitialVelocity.z.toFixed(1));
                                 break; 
                             }
                         }
@@ -200,6 +205,7 @@ export class Ball {
                                     simBallVelocity.x += simBallSpin.x * SPIN_EFFECT_ON_BOUNCE_X;
                                     simBallVelocity.z -= simBallSpin.y * SPIN_EFFECT_ON_BOUNCE_Z;
                                 } else {
+                                    console.log("Debug Serve: First Bounce Out X. simX:", simBallPosition.x.toFixed(3), "Vel (x,y,z):", currentInitialVelocity.x.toFixed(1), currentInitialVelocity.y.toFixed(1), currentInitialVelocity.z.toFixed(1));
                                     break; 
                                 }
                             } 
@@ -211,26 +217,34 @@ export class Ball {
                                         Math.pow(simBallPosition.z - targetOpponentBouncePos.z, 2)
                                     );
 
-                                    console.log("Debug Serve Target: targetDist =", targetDist, "simBallPosition (x,y,z) =", simBallPosition.x.toFixed(3), simBallPosition.y.toFixed(3), simBallPosition.z.toFixed(3));
+                                    // console.log("Debug Serve Target: targetDist =", targetDist, "simBallPosition (x,y,z) =", simBallPosition.x.toFixed(3), simBallPosition.y.toFixed(3), simBallPosition.z.toFixed(3)); // Original log
                                     if (targetDist < TARGET_BOUNCE_DISTANCE_TOLERANCE && hasClearedNet) {
                                         console.log("Optimal Serve Found (Iterative - Modified First Bounce): ", currentInitialVelocity, ` TargetDist: ${targetDist.toFixed(3)}`);
                                         return currentInitialVelocity;
                                     } else {
+                                        console.log("Debug Serve: Target Miss or Net Not Cleared. targetDist:", targetDist.toFixed(3), "hasClearedNet:", hasClearedNet, "Vel (x,y,z):", currentInitialVelocity.x.toFixed(1), currentInitialVelocity.y.toFixed(1), currentInitialVelocity.z.toFixed(1));
                                         break; 
                                     }
                                 } else {
+                                    console.log("Debug Serve: Opponent Bounce Out X. simX:", simBallPosition.x.toFixed(3), "Vel (x,y,z):", currentInitialVelocity.x.toFixed(1), currentInitialVelocity.y.toFixed(1), currentInitialVelocity.z.toFixed(1));
                                     break; 
                                 }
                             } else {
+                                console.log("Debug Serve: Invalid Bounce State. hasBouncedServer:", hasBouncedOnServerSide, "isOnServerHalf:", isOnServerHalf, "Vel (x,y,z):", currentInitialVelocity.x.toFixed(1), currentInitialVelocity.y.toFixed(1), currentInitialVelocity.z.toFixed(1));
                                 break; 
                             }
                         }
 
                         if (simBallPosition.y < 0) { 
+                            console.log("Debug Serve: Floor Hit. simY:", simBallPosition.y.toFixed(3), "Vel (x,y,z):", currentInitialVelocity.x.toFixed(1), currentInitialVelocity.y.toFixed(1), currentInitialVelocity.z.toFixed(1));
                             break;
                         }
                         if (Math.abs(simBallPosition.x) > TABLE_WIDTH / 2 + 0.2 || Math.abs(simBallPosition.z) > TABLE_LENGTH / 2 + 0.2) {
+                            console.log("Debug Serve: Table Area Out of Bounds. simX:", simBallPosition.x.toFixed(3), "simZ:", simBallPosition.z.toFixed(3), "Vel (x,y,z):", currentInitialVelocity.x.toFixed(1), currentInitialVelocity.y.toFixed(1), currentInitialVelocity.z.toFixed(1));
                             break; 
+                        }
+                        if (tick_num === MAX_SIMULATION_TICKS - 1) {
+                            console.log("Debug Serve: MAX_TICKS reached for Vel (x,y,z):", currentInitialVelocity.x.toFixed(1), currentInitialVelocity.y.toFixed(1), currentInitialVelocity.z.toFixed(1));
                         }
                     } 
                 } 
