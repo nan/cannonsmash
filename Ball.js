@@ -140,9 +140,9 @@ export class Ball {
         const TARGET_BOUNCE_DISTANCE_TOLERANCE = 0.15;
         const TABLE_SURFACE_Y = TABLE_HEIGHT + BALL_RADIUS; 
 
-        for (let Vy_initial_loop = 1.0; Vy_initial_loop <= 5.0; Vy_initial_loop += 0.5) {
-            for (let Vz_initial_abs_loop = 2.0; Vz_initial_abs_loop <= 7.0; Vz_initial_abs_loop += 0.5) {
-                for (let Vx_initial_loop = -3.0; Vx_initial_loop <= 3.0; Vx_initial_loop += 0.5) {
+        for (let Vy_initial_loop = -5.0; Vy_initial_loop <= 5.0; Vy_initial_loop += 0.1) {
+            for (let Vz_initial_abs_loop = 1.0; Vz_initial_abs_loop <= 7.0; Vz_initial_abs_loop += 0.1) {
+                for (let Vx_initial_loop = -3.0; Vx_initial_loop <= 3.0; Vx_initial_loop += 0.1) {
                     
                     const currentInitialVelocity = new THREE.Vector3(
                         Vx_initial_loop,
