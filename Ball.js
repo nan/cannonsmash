@@ -176,6 +176,7 @@ export class Ball {
                         let prevSimBallPosition = simBallPosition.clone();
 
                         simBallVelocity.y -= GRAVITY * SIMULATION_TICK;
+                        simBallVelocity.multiplyScalar(1 - AIR_RESISTANCE_FACTOR * SIMULATION_TICK);
                         simBallPosition.addScaledVector(simBallVelocity, SIMULATION_TICK);
 
                         let netCrossedInThisSegment = false;
