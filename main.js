@@ -238,6 +238,14 @@ function animate() {
                 Math.abs(gameBall.position.y - RACKET_WORLD_Y_FOR_HIT) < 0.05) { // Ball is near racket's actual fixed height
 
                 let hitPosition = gameBall.position.clone(); 
+                // Adjust hitPosition.z to be the player's closest allowed Z to the net for serve calculation
+                if (server.side === 1) { // Player 1 serves from positive Z side
+                    hitPosition.z = server.minZ; // player.minZ is TABLE_LENGTH / 2 + 0.05
+                    console.log(`Adjusted hitPosition.z for Player 1 serve calculation to: ${hitPosition.z.toFixed(3)} (player.minZ)`);
+                } else { // Player 2 serves from negative Z side
+                    hitPosition.z = server.maxZ; // player.maxZ is -(TABLE_LENGTH / 2 + 0.05)
+                    console.log(`Adjusted hitPosition.z for Player 2 serve calculation to: ${hitPosition.z.toFixed(3)} (player.maxZ)`);
+                }
                 let targetOpponentBounceZ = (server.side === 1) ? -TABLE_LENGTH / 4 : TABLE_LENGTH / 4;
                 let firstBounceServerZ = (server.side === 1) ? TABLE_LENGTH / 4 / 2 : -TABLE_LENGTH / 4 / 2; // Simplified first bounce target
                 const targetOpponentBouncePos = new THREE.Vector3(0, TABLE_HEIGHT + BALL_RADIUS, targetOpponentBounceZ);
