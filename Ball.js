@@ -586,19 +586,5 @@ export class Ball {
     }
 }
 
-        // Check if a valid serve was found
-        if (bestInitialVelocity.x > -Infinity) { // Compares with the initial sentinel value
-            console.log("Best Optimal Serve Velocity selected:", bestInitialVelocity);
-            return bestInitialVelocity;
-        }
-
-        // Fallback if no optimal serve is found
-        console.warn("Could not find an optimal serve trajectory (Iterative Search), using fallback serve.");
-        let fallbackVx = (targetOpponentBouncePos.x - hitPosition.x) / 0.4; // Simple heuristic
-        let fallbackVz = (targetOpponentBouncePos.z - hitPosition.z) / 0.4; // Simple heuristic
-        // Ensure minimum speed for fallback
-        if (Math.abs(fallbackVz) < 2.0) fallbackVz = serverSide * -3.0;
-        fallbackVx = THREE.MathUtils.clamp(fallbackVx, -1.5, 1.5); // Clamp Vx to reasonable values
-        return new THREE.Vector3(fallbackVx, 1.8, fallbackVz); // Default moderate Vy
-    }
-}
+    } // This is the closing brace for calculatePerfectServeVelocity
+} // This is the closing brace for the Ball class
