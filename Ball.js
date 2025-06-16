@@ -56,7 +56,7 @@ export class Ball {
             this.velocity.z -= this.spin.y * SPIN_EFFECT_ON_BOUNCE_Z; 
             this.velocity.x += this.spin.x * SPIN_EFFECT_ON_BOUNCE_X; 
             this.spin.y *= 0.6; this.spin.x *= 0.7;
-            console.log(`Ball bounced on table. Z: ${this.position.z.toFixed(2)}, Side: ${this.position.z >= NET_POS_Z ? "P1_Side(Pos-Z)" : "P2_Side(Neg-Z)"}`);
+            console.log(`Ball bounced on table. X: ${this.position.x.toFixed(2)}, Z: ${this.position.z.toFixed(2)}, Side: ${this.position.z >= NET_POS_Z ? "P1_Side(Pos-Z)" : "P2_Side(Neg-Z)"}`);
             if (this.position.z >= NET_POS_Z) { this.bouncedOnServerSide = true; } 
             else { this.bouncedOnReceiverSide = true; }
         }
@@ -125,32 +125,29 @@ export class Ball {
         this.bouncedOnReceiverSide = false;
         if (hittingPlayerID === 1) { this.status = 1; } 
         else { this.status = 3; } 
-        console.log(`Ball hit by Player ${hittingPlayerID}! Status: ${this.status}, Vel:(${this.velocity.x.toFixed(1)},${this.velocity.y.toFixed(1)},${this.velocity.z.toFixed(1)})`);
+        console.log(`Ball hit by Player ${hittingPlayerID}! Status: ${this.status}, Vel:(${this.velocity.x.toFixed(1)},${this.velocity.y.toFixed(1)},${this.velocity.z.toFixed(1)}), Pos:(${this.position.x.toFixed(1)},${this.position.y.toFixed(1)},${this.position.z.toFixed(1)})`);
     }
 
     calculatePerfectServeVelocity(hitPosition, serverSide, firstBounceServerZ, targetOpponentBouncePos, desiredSpin) {
-        // firstBounceServerZ is intentionally not used to constrain the first bounce Z position.
-        console.log("Debug Serve Init: hitPosition (x,y,z) =", hitPosition.x.toFixed(3), hitPosition.y.toFixed(3), hitPosition.z.toFixed(3), "serverSide =", serverSide, "targetOpponentBouncePos (x,y,z) =", targetOpponentBouncePos.x.toFixed(3), targetOpponentBouncePos.y.toFixed(3), targetOpponentBouncePos.z.toFixed(3));
-        console.log("Calculating serve velocity (Iterative Search - Modified First Bounce)...");
+        console.log("Calculating serve velocity (Iterative Search)...");
 
-        const NET_TOP_Y = TABLE_HEIGHT + NET_HEIGHT + BALL_RADIUS;
-        const SIMULATION_TICK = TICK;
+        const NET_TOP_Y = TABLE_HEIGHT + NET_HEIGHT + BALL_RADIUS; // Global const
+        const SIMULATION_TICK = TICK; // Global const
         const MAX_SIMULATION_TICKS = 300;
-        // const FIRST_BOUNCE_Z_TOLERANCE = 0.10; // No longer used for Z check
+        const FIRST_BOUNCE_Z_TOLERANCE = 0.10;
         const NET_CLEARANCE_MIN = 0.002;
-        const TARGET_BOUNCE_DISTANCE_TOLERANCE = 0.15;
-        const TABLE_SURFACE_Y = TABLE_HEIGHT + BALL_RADIUS;
+        const TARGET_BOUNCE_DISTANCE_TOLERANCE = 0.05;
+        const TABLE_SURFACE_Y = TABLE_HEIGHT + BALL_RADIUS; // Global const
 
-        let detailed_Y_Trace_Enabled = false;
+        let bestInitialVelocity = new THREE.Vector3(
+            -3.0,
+            -5.0,
+            serverSide * -2.0
+        );
         for (let Vy_initial_loop = -5.0; Vy_initial_loop <= 5.0; Vy_initial_loop += 0.1) {
             for (let Vz_initial_abs_loop = 1.0; Vz_initial_abs_loop <= 7.0; Vz_initial_abs_loop += 0.1) {
                 for (let Vx_initial_loop = -3.0; Vx_initial_loop <= 3.0; Vx_initial_loop += 0.1) {
-
-                    if (Math.abs(Vx_initial_loop - 0.0) < 0.05 && Math.abs(Vy_initial_loop - 4.0) < 0.05 && Math.abs(Vz_initial_abs_loop - 4.0) < 0.05) {
-                        detailed_Y_Trace_Enabled = true;
-                    } else {
-                        detailed_Y_Trace_Enabled = false;
-                    }
+                    
                     const currentInitialVelocity = new THREE.Vector3(
                         Vx_initial_loop,
                         Vy_initial_loop,
@@ -163,16 +160,9 @@ export class Ball {
 
                     let hasBouncedOnServerSide = false;
                     let hasClearedNet = false;
-                    // let hasBouncedOnOpponentSide = false; // Not strictly needed as success is returned directly
-
-                    if (Vx_initial_loop === -3.0 && Vy_initial_loop === -5.0 && Vz_initial_abs_loop === 1.0) { // Log only for one of the earliest attempts
-                        console.log("Debug Serve: Starting simulation with initial Vel (Vx,Vy,VzAbs):", Vx_initial_loop.toFixed(1), Vy_initial_loop.toFixed(1), Vz_initial_abs_loop.toFixed(1));
-                    }
+                    let hasBouncedOnOpponentSide = false;
 
                     for (let tick_num = 0; tick_num < MAX_SIMULATION_TICKS; tick_num++) {
-                        if (detailed_Y_Trace_Enabled) {
-                            console.log("Tick:", tick_num, "simY:", simBallPosition.y.toFixed(3), "simVy:", simBallVelocity.y.toFixed(3), "currentInitialVel (x,y,z):", currentInitialVelocity.x.toFixed(1), currentInitialVelocity.y.toFixed(1), currentInitialVelocity.z.toFixed(1));
-                        }
                         let prevSimBallPosition = simBallPosition.clone();
 
                         simBallVelocity.y -= GRAVITY * SIMULATION_TICK;
@@ -185,7 +175,7 @@ export class Ball {
                         } else {
                             netCrossedInThisSegment = (prevSimBallPosition.z < NET_POS_Z && simBallPosition.z >= NET_POS_Z);
                         }
-
+                        
                         if (netCrossedInThisSegment) {
                             let yAtNet = NET_TOP_Y + 1.0;
                             if (Math.abs(simBallPosition.z - prevSimBallPosition.z) > 1e-6) {
@@ -196,7 +186,7 @@ export class Ball {
                             if (yAtNet > NET_TOP_Y + NET_CLEARANCE_MIN) {
                                 hasClearedNet = true;
                             } else {
-                                console.log("Debug Serve: Net Fail. yAtNet:", yAtNet.toFixed(3), "Vel (x,y,z):", currentInitialVelocity.x.toFixed(1), currentInitialVelocity.y.toFixed(1), currentInitialVelocity.z.toFixed(1));
+                                // console.log(`Failed net clearance: Vy=${Vy_initial_loop}, VzAbs=${Vz_initial_abs_loop}, Vx=${Vx_initial_loop}, yAtNet=${yAtNet.toFixed(3)}`);
                                 break;
                             }
                         }
@@ -207,70 +197,63 @@ export class Ball {
                             const isOnServerHalf = (serverSide === 1) ? (simBallPosition.z > NET_POS_Z) : (simBallPosition.z < NET_POS_Z);
 
                             if (!hasBouncedOnServerSide && isOnServerHalf) {
-                                // MODIFIED: Only check X bounds, not Z against firstBounceServerZ
                                 if (Math.abs(simBallPosition.x) <= TABLE_WIDTH / 2) {
                                     hasBouncedOnServerSide = true;
                                     const preBounceVy = simBallVelocity.y;
                                     simBallVelocity.y *= -BOUNCE_ENERGY_LOSS;
-                                    simBallVelocity.y += simBallSpin.y * SPIN_EFFECT_ON_BOUNCE_Y * Math.abs(preBounceVy);
+                                    simBallVelocity.y += simBallSpin.y * SPIN_EFFECT_ON_BOUNCE_Y * Math.abs(preBounceVy); 
                                     simBallVelocity.x += simBallSpin.x * SPIN_EFFECT_ON_BOUNCE_X;
                                     simBallVelocity.z -= simBallSpin.y * SPIN_EFFECT_ON_BOUNCE_Z;
                                 } else {
-                                    console.log("Debug Serve: First Bounce Out X. simX:", simBallPosition.x.toFixed(3), "Vel (x,y,z):", currentInitialVelocity.x.toFixed(1), currentInitialVelocity.y.toFixed(1), currentInitialVelocity.z.toFixed(1));
+                                    // console.log(`Missed first bounce: Vy=${Vy_initial_loop}, VzAbs=${Vz_initial_abs_loop}, Vx=${Vx_initial_loop}, bounceZ=${simBallPosition.z.toFixed(2)} vs ${firstBounceServerZ.toFixed(2)}`);
                                     break;
                                 }
-                            }
+                            } 
                             else if (hasBouncedOnServerSide && !isOnServerHalf) {
                                 if (Math.abs(simBallPosition.x) <= TABLE_WIDTH / 2) {
-                                    // hasBouncedOnOpponentSide = true; // Not strictly needed
+                                    hasBouncedOnOpponentSide = true;
                                     const targetDist = Math.sqrt(
                                         Math.pow(simBallPosition.x - targetOpponentBouncePos.x, 2) +
                                         Math.pow(simBallPosition.z - targetOpponentBouncePos.z, 2)
                                     );
 
-                                    // console.log("Debug Serve Target: targetDist =", targetDist, "simBallPosition (x,y,z) =", simBallPosition.x.toFixed(3), simBallPosition.y.toFixed(3), simBallPosition.z.toFixed(3)); // Original log
                                     if (targetDist < TARGET_BOUNCE_DISTANCE_TOLERANCE && hasClearedNet) {
-                                        console.log("Optimal Serve Found (Iterative - Modified First Bounce): ", currentInitialVelocity, ` TargetDist: ${targetDist.toFixed(3)}`);
-                                        if(detailed_Y_Trace_Enabled) console.log("SUCCESS with this detailed trace.");
-                                        return currentInitialVelocity;
+                                        console.log("Optimal Serve Found (Iterative): ", currentInitialVelocity, ` TargetDist: ${targetDist.toFixed(3)}`);
+                                        if (Math.abs(bestInitialVelocity.z) < Math.abs(currentInitialVelocity.z)) {
+                                            bestInitialVelocity = currentInitialVelocity;
+                                        }
                                     } else {
-                                        if(detailed_Y_Trace_Enabled) console.log("Debug Serve (Detailed Trace): Target Miss or Net Not Cleared. targetDist:", targetDist.toFixed(3), "hasClearedNet:", hasClearedNet);
-                                        console.log("Debug Serve: Target Miss or Net Not Cleared. targetDist:", targetDist.toFixed(3), "hasClearedNet:", hasClearedNet, "Vel (x,y,z):", currentInitialVelocity.x.toFixed(1), currentInitialVelocity.y.toFixed(1), currentInitialVelocity.z.toFixed(1));
-                                        break;
+                                        // console.log(`Missed target/net: Vy=${Vy_initial_loop}, VzAbs=${Vz_initial_abs_loop}, Vx=${Vx_initial_loop}, targetDist=${targetDist.toFixed(3)}, clearedNet=${hasClearedNet}`);
+                                        break; // Missed target or didn't clear net
                                     }
                                 } else {
-                                    if(detailed_Y_Trace_Enabled) console.log("Debug Serve (Detailed Trace): Opponent Bounce Out X. simX:", simBallPosition.x.toFixed(3));
-                                    console.log("Debug Serve: Opponent Bounce Out X. simX:", simBallPosition.x.toFixed(3), "Vel (x,y,z):", currentInitialVelocity.x.toFixed(1), currentInitialVelocity.y.toFixed(1), currentInitialVelocity.z.toFixed(1));
-                                    break;
+                                    // console.log(`Out of bounds X on opponent side: Vy=${Vy_initial_loop}, VzAbs=${Vz_initial_abs_loop}, Vx=${Vx_initial_loop}`);
+                                    break; // Out of bounds X on opponent side
                                 }
                             } else {
-                                if(detailed_Y_Trace_Enabled) console.log("Debug Serve (Detailed Trace): Invalid Bounce State. hasBouncedServer:", hasBouncedOnServerSide, "isOnServerHalf:", isOnServerHalf);
-                                console.log("Debug Serve: Invalid Bounce State. hasBouncedServer:", hasBouncedOnServerSide, "isOnServerHalf:", isOnServerHalf, "Vel (x,y,z):", currentInitialVelocity.x.toFixed(1), currentInitialVelocity.y.toFixed(1), currentInitialVelocity.z.toFixed(1));
-                                break;
+                                // console.log(`Invalid bounce state: Vy=${Vy_initial_loop}, VzAbs=${Vz_initial_abs_loop}, Vx=${Vx_initial_loop}, hasBouncedServer=${hasBouncedOnServerSide}, isOnServerHalf=${isOnServerHalf}`);
+                                break; // Bounced twice on server side, or bounced on floor before conditions met, or other invalid state
                             }
                         }
 
-                        if (simBallPosition.y < 0) {
-                            if(detailed_Y_Trace_Enabled) console.log("Debug Serve (Detailed Trace): Floor Hit. simY:", simBallPosition.y.toFixed(3));
-                            console.log("Debug Serve: Floor Hit. simY:", simBallPosition.y.toFixed(3), "Vel (x,y,z):", currentInitialVelocity.x.toFixed(1), currentInitialVelocity.y.toFixed(1), currentInitialVelocity.z.toFixed(1));
+                        // Check for Out of Bounds / Floor Hit
+                        if (simBallPosition.y < 0) { // Below floor (generous check, TABLE_SURFACE_Y is positive)
+                            console.log(`Hit floor: Vy=${Vy_initial_loop}, VzAbs=${Vz_initial_abs_loop}, Vx=${Vx_initial_loop}`);
                             break;
                         }
-                        if (Math.abs(simBallPosition.x) > TABLE_WIDTH / 2 + 0.2 || Math.abs(simBallPosition.z) > TABLE_LENGTH / 2 + 0.2) {
-                            if(detailed_Y_Trace_Enabled) console.log("Debug Serve (Detailed Trace): Table Area Out of Bounds. simX:", simBallPosition.x.toFixed(3), "simZ:", simBallPosition.z.toFixed(3));
-                            console.log("Debug Serve: Table Area Out of Bounds. simX:", simBallPosition.x.toFixed(3), "simZ:", simBallPosition.z.toFixed(3), "Vel (x,y,z):", currentInitialVelocity.x.toFixed(1), currentInitialVelocity.y.toFixed(1), currentInitialVelocity.z.toFixed(1));
-                            break;
-                        }
-                        if (tick_num === MAX_SIMULATION_TICKS - 1) {
-                            if(detailed_Y_Trace_Enabled) console.log("Debug Serve (Detailed Trace): MAX_TICKS reached.");
-                            console.log("Debug Serve: MAX_TICKS reached for Vel (x,y,z):", currentInitialVelocity.x.toFixed(1), currentInitialVelocity.y.toFixed(1), currentInitialVelocity.z.toFixed(1));
-                        }
-                    }
-                    if (detailed_Y_Trace_Enabled) detailed_Y_Trace_Enabled = false; // Reset flag after the simulation for this specific initial velocity.
-                }
-            }
+                        // if (Math.abs(simBallPosition.x) > TABLE_WIDTH / 2 + 0.2 || Math.abs(simBallPosition.z) > TABLE_LENGTH / 2 + 0.2) {
+                        //     console.log(`Out of table bounds: Vy=${Vy_initial_loop}, VzAbs=${Vz_initial_abs_loop}, Vx=${Vx_initial_loop}`);
+                        //     break; // Went too far out
+                        // }
+                    } // End of Simulation Loop
+                } // End of Vx loop
+            } // End of Vz loop
+        } // End of Vy loop
+        if (bestInitialVelocity.x > -3.0) {
+            return bestInitialVelocity;
         }
 
-        console.warn("Could not find an optimal serve trajectory (Iterative Search - Modified First Bounce), using fallback serve.");
+        console.warn("Could not find an optimal serve trajectory (Iterative Search), using fallback serve.");
         let fallbackVx = (targetOpponentBouncePos.x - hitPosition.x) / 0.4;
         let fallbackVz = (targetOpponentBouncePos.z - hitPosition.z) / 0.4;
         if (Math.abs(fallbackVz) < 2.0) fallbackVz = serverSide * -3.0;
