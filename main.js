@@ -163,7 +163,18 @@ function checkGameRules() {
         return;
     }
     if (gameBall.status === -1) { 
-        awardPointTo(gameBall.lastHitBy === 1 ? 2 : 1); return; }
+    { // Start of new block for status -1
+        let scorer = (gameBall.lastHitBy === 1) ? 2 : 1; // Default: opponent of last hitter scores.
+        // If the game is in RALLY state, and the last player to hit the ball (`gameBall.lastHitBy`)
+        // is the same as the `servingPlayer`, it implies the receiver failed to make contact
+        // with a successfully served/returned ball. In this case, the `servingPlayer` scores.
+        if (currentGameState === GameState.RALLY && gameBall.lastHitBy === servingPlayer) {
+            scorer = servingPlayer;
+        }
+        awardPointTo(scorer);
+        return;
+    } // End of new block for status -1
+    }
     if (gameBall.status === -2) { 
         if (gameBall.lastHitBy === 1) { 
             if (gameBall.position.z < NET_POS_Z && gameBall.bouncedOnReceiverSide) awardPointTo(1); 
@@ -175,7 +186,18 @@ function checkGameRules() {
         return; 
     }
     if (gameBall.status === -3 || gameBall.status === -4 || gameBall.status === -5) { 
-        awardPointTo(gameBall.lastHitBy === 1 ? 2 : 1); return; }
+    { // Start of new block for status -3, -4, -5
+        let scorer = (gameBall.lastHitBy === 1) ? 2 : 1; // Default: opponent of last hitter scores.
+        // If the game is in RALLY state, and the last player to hit the ball (`gameBall.lastHitBy`)
+        // is the same as the `servingPlayer`, it implies the receiver failed to make contact
+        // with a successfully served/returned ball. In this case, the `servingPlayer` scores.
+        if (currentGameState === GameState.RALLY && gameBall.lastHitBy === servingPlayer) {
+            scorer = servingPlayer;
+        }
+        awardPointTo(scorer);
+        return;
+    } // End of new block for status -3, -4, -5
+    }
 
     if (currentGameState === GameState.SERVE_IN_MOTION) {
         if (gameBall.lastHitBy === servingPlayer) {

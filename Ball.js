@@ -587,3 +587,5 @@ export class Ball {
     }
 }
 
+    } // This is the closing brace for calculatePerfectServeVelocity
+} // This is the closing brace for the Ball class
