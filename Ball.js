@@ -18,6 +18,7 @@ const TABLE_LENGTH = 2.74;
 const TABLE_WIDTH = 1.525;          
 const NET_HEIGHT = 0.1525;          
 const NET_POS_Z = 0;                
+const TARGET_BOUNCE_DISTANCE_TOLERANCE = 0.05; // Max distance from target for opponent bounce
 
 export class Ball {
     // (constructor, updatePhysics, checkRacketCollision, update, toss, reset, hit as in Turn 191)
@@ -295,7 +296,7 @@ export class Ball {
         const MAX_SIMULATION_TICKS = 300;
         // Use configured net clearance
         const CURRENT_NET_CLEARANCE_MIN = config.targetNetClearance;
-        const TARGET_BOUNCE_DISTANCE_TOLERANCE = 0.05;
+        // const TARGET_BOUNCE_DISTANCE_TOLERANCE = 0.05; // Now a global constant
         const TABLE_SURFACE_Y = TABLE_HEIGHT + BALL_RADIUS;
 
         // Calculate actual target Z based on depth percentage
