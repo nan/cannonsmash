@@ -92,6 +92,11 @@ export class Ball {
                 this.bouncedOnServerSide = true;
             } else { // Receiver's side (negative Z for player 2)
                 this.bouncedOnReceiverSide = true;
+                // Check if this is likely the second bounce of a serve
+                // (bounced on server, now on receiver, and was hit by a player recently)
+                if (this.bouncedOnServerSide && (this.status === 1 || this.status === 3 || this.status === 6 || this.status === 7)) { // Status 1 or 3 for ball in play after hit, could be a serve's first hit. 6/7 for active serve.
+                    console.log(`[Test Log] Actual second bounce Z: ${this.position.z.toFixed(4)} at Y: ${this.position.y.toFixed(4)}`);
+                }
             }
         }
     }
@@ -260,7 +265,7 @@ export class Ball {
             // Apply basic physics (gravity and air resistance)
             simBallVelocity.y -= GRAVITY * TICK;
             simBallVelocity.multiplyScalar(1 - AIR_RESISTANCE_FACTOR * TICK); // Air resistance affects velocity
-            // Spin decay is not simulated here for simplicity, focusing on trajectory for serve calculation
+            simBallSpin.multiplyScalar(1 - SPIN_DECAY_FACTOR * TICK);
             simBallPosition.addScaledVector(simBallVelocity, TICK);
 
             // Check if the ball is crossing the net in this tick
@@ -405,6 +410,7 @@ export class Ball {
                         // Log found optimal serve and its characteristics
                         console.log("Optimal Serve Found (Iterative): ", currentInitialVelocity, simulationResult.finalSimPosition, 
                                     ` TargetDist: ${Math.sqrt(Math.pow(simulationResult.finalSimPosition.x - targetOpponentBouncePos.x, 2) + Math.pow(simulationResult.finalSimPosition.z - targetOpponentBouncePos.z, 2)).toFixed(3)}`);
+                        console.log(`[Test Log] Simulated second bounce Z: ${simulationResult.finalSimPosition.z.toFixed(4)}`);
                         
                         // If this is the first optimal serve found, or if this serve is "stronger" (higher absolute Vz),
                         // update the bestInitialVelocity. This prioritizes faster serves if multiple solutions are found.
