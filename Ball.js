@@ -403,7 +403,7 @@ export class Ball {
                     // If the simulation resulted in a successful serve
                     if (simulationResult.success) {
                         // Log found optimal serve and its characteristics
-                        console.log("Optimal Serve Found (Iterative): ", currentInitialVelocity,
+                        console.log("Optimal Serve Found (Iterative): ", currentInitialVelocity, simulationResult.finalSimPosition, 
                                     ` TargetDist: ${Math.sqrt(Math.pow(simulationResult.finalSimPosition.x - targetOpponentBouncePos.x, 2) + Math.pow(simulationResult.finalSimPosition.z - targetOpponentBouncePos.z, 2)).toFixed(3)}`);
                         
                         // If this is the first optimal serve found, or if this serve is "stronger" (higher absolute Vz),
