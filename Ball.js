@@ -110,39 +110,10 @@ export class Ball {
             return; // No further out-of-bounds checks needed if it hit the floor
         }
 
-        // Check for out of table width (sideways)
-        const outOfTableX = Math.abs(this.position.x) > TABLE_WIDTH / 2 + this.radius;
-        if (outOfTableX) {
-            console.log("Ball out of table width (sideways)");
-            this.status = -3; // Status for out of table (width)
-            return;
-        }
-
         // These variables are also used in _handleTableBounce, consider passing as params if DRY principle is paramount
         // For now, re-declaring for clarity within this specific context of "long" or "wide" after potential bounce.
         const ballCurrentlyOnTableX = Math.abs(this.position.x) <= TABLE_WIDTH / 2 + this.radius;
         const ballCurrentlyAtTableSurface = this.position.y <= TABLE_HEIGHT + this.radius;
-
-
-        // Check for out of table length (long) - Player 1's side (positive Z)
-        const outOfTableZPositive = this.position.z > (TABLE_LENGTH / 2 + this.radius * 2) && this.velocity.z > 0;
-        if (outOfTableZPositive) {
-            // If it went long on P1's side, it's a fault if it hasn't bounced on P1's side yet,
-            // unless it's currently on the table surface (e.g. rolling)
-            if (!this.bouncedOnServerSide && !(ballCurrentlyOnTableX && ballCurrentlyAtTableSurface)) {
-                 this.status = -4; // Status for out of table (length on server side)
-            }
-        }
-
-        // Check for out of table length (long) - Player 2's side (negative Z)
-        const outOfTableZNegative = this.position.z < -(TABLE_LENGTH / 2 + this.radius * 2) && this.velocity.z < 0;
-        if (outOfTableZNegative) {
-            // If it went long on P2's side, it's a fault if it hasn't bounced on P2's side yet,
-            // unless it's currently on the table surface.
-             if (!this.bouncedOnReceiverSide && !(ballCurrentlyOnTableX && ballCurrentlyAtTableSurface)) {
-                 this.status = -5; // Status for out of table (length on receiver side)
-             }
-        }
     }
 
     updatePhysics(player1RacketMesh, player2RacketMesh) {
