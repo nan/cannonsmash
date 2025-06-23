@@ -259,15 +259,20 @@ function animate() {
             if (gameBall.velocity.y < 0 && // Ball is falling
                 Math.abs(gameBall.position.y - RACKET_WORLD_Y_FOR_HIT) < 0.05) { // Ball is near racket's actual fixed height
 
-                let hitPosition = gameBall.position.clone(); 
-                // Adjust hitPosition.z to be the player's closest allowed Z to the net for serve calculation
-                if (server.side === 1) { // Player 1 serves from positive Z side
-                    hitPosition.z = server.minZ; // player.minZ is TABLE_LENGTH / 2 + 0.05
-                    console.log(`Adjusted hitPosition.z for Player 1 serve calculation to: ${hitPosition.z.toFixed(3)} (player.minZ)`);
-                } else { // Player 2 serves from negative Z side
-                    hitPosition.z = server.maxZ; // player.maxZ is -(TABLE_LENGTH / 2 + 0.05)
-                    console.log(`Adjusted hitPosition.z for Player 2 serve calculation to: ${hitPosition.z.toFixed(3)} (player.maxZ)`);
-                }
+                // let hitPosition = gameBall.position.clone();
+                // The ball's current X and Y are suitable for the hitPosition.
+                // For Z, we need the racket's actual world Z.
+
+                const racketWorldPosition = new THREE.Vector3();
+                server.racket.mesh.getWorldPosition(racketWorldPosition);
+
+                let hitPosition = new THREE.Vector3(
+                    gameBall.position.x,        // Current ball x
+                    RACKET_WORLD_Y_FOR_HIT,     // Fixed racket world Y, already confirmed by the if condition
+                    racketWorldPosition.z       // Actual racket world Z
+                );
+                console.log(`Using actual racket Z for serve calculation: ${hitPosition.z.toFixed(3)}`);
+
                 let targetOpponentBounceZ = (server.side === 1) ? -TABLE_LENGTH / 4 : TABLE_LENGTH / 4;
                 let firstBounceServerZ = (server.side === 1) ? TABLE_LENGTH / 4 / 2 : -TABLE_LENGTH / 4 / 2; // Simplified first bounce target
                 const targetOpponentBouncePos = new THREE.Vector3(0, TABLE_HEIGHT + BALL_RADIUS, targetOpponentBounceZ);
