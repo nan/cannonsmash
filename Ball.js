@@ -248,7 +248,7 @@ export class Ball {
     //   MAX_SIMULATION_TICKS: number - Maximum physics steps for the simulation.
     //   NET_CLEARANCE_MIN: number - Minimum height the ball must clear the net by.
     //   TARGET_BOUNCE_DISTANCE_TOLERANCE: number - Allowed distance from the target bounce position.
-    // Returns an object: { success: boolean, reason?: string, finalSimPosition: THREE.Vector3, clearedNet: boolean, bouncedOnServer: boolean, bouncedOnOpponent: boolean }
+    // Returns an object: { success: boolean, reason?: string, finalSimPosition: THREE.Vector3, clearedNet: boolean, bouncedOnServer: boolean, bouncedOnOpponent: boolean, distanceToTarget?: number, netClearanceHeight?: number, firstBouncePosition?: THREE.Vector3 }
     _simulateServeTrajectory(initialVelocity, hitPosition, desiredSpin, serverSide, targetOpponentBouncePos, MAX_SIMULATION_TICKS, NET_CLEARANCE_MIN, TARGET_BOUNCE_DISTANCE_TOLERANCE) {
         let simBallPosition = hitPosition.clone();
         let simBallVelocity = initialVelocity.clone();
@@ -257,6 +257,19 @@ export class Ball {
         let hasBouncedOnServerSide = false;
         let hasClearedNet = false;
         let hasBouncedOnOpponentSide = false;
+
+        // Initialize detailed result fields
+        let result = {
+            success: false,
+            reason: "unknown",
+            finalSimPosition: simBallPosition.clone(),
+            clearedNet: false,
+            bouncedOnServer: false,
+            bouncedOnOpponent: false,
+            distanceToTarget: Infinity,
+            netClearanceHeight: -Infinity, // Negative means it didn't clear or hit net
+            firstBouncePosition: null
+        };
 
         // Simulate physics tick by tick
         for (let tick_num = 0; tick_num < MAX_SIMULATION_TICKS; tick_num++) {
@@ -280,12 +293,20 @@ export class Ball {
                     const interpolationFactor = (NET_POS_Z - prevSimBallPosition.z) / (simBallPosition.z - prevSimBallPosition.z);
                     yAtNet = prevSimBallPosition.y + (simBallPosition.y - prevSimBallPosition.y) * interpolationFactor;
                 }
+                result.netClearanceHeight = yAtNet - NET_TOP_Y;
 
-                if (yAtNet > NET_TOP_Y + NET_CLEARANCE_MIN) {
+                if (result.netClearanceHeight > NET_CLEARANCE_MIN) {
                     hasClearedNet = true;
+                    result.clearedNet = true;
                 } else {
                     // Failed to clear the net
-                    return { success: false, reason: "did not clear net", finalSimPosition: simBallPosition.clone(), clearedNet: false, bouncedOnServer: hasBouncedOnServerSide, bouncedOnOpponent: hasBouncedOnOpponentSide };
+                    result.success = false;
+                    result.reason = "did not clear net";
+                    result.finalSimPosition = simBallPosition.clone();
+                    // result.clearedNet is already false
+                    result.bouncedOnServer = hasBouncedOnServerSide;
+                    result.bouncedOnOpponent = hasBouncedOnOpponentSide;
+                    return result;
                 }
             }
 
@@ -302,6 +323,8 @@ export class Ball {
                 if (!hasBouncedOnServerSide && isOnServerHalf) { // First bounce, should be on server's side
                     if (isWithinTableWidth) {
                         hasBouncedOnServerSide = true;
+                        result.bouncedOnServer = true;
+                        result.firstBouncePosition = simBallPosition.clone();
                         // Apply simplified bounce physics (energy loss and spin effects)
                         const preBounceVy = simBallVelocity.y;
                         simBallVelocity.y *= -BOUNCE_ENERGY_LOSS; // Vertical velocity reverses and loses energy
@@ -311,128 +334,278 @@ export class Ball {
                         simBallVelocity.z -= simBallSpin.y * SPIN_EFFECT_ON_BOUNCE_Z;
                     } else {
                         // Missed the table width on the first bounce
-                        return { success: false, reason: "missed first bounce (out of width)", finalSimPosition: simBallPosition.clone(), clearedNet: hasClearedNet, bouncedOnServer: false, bouncedOnOpponent: hasBouncedOnOpponentSide };
+                        result.success = false;
+                        result.reason = "missed first bounce (out of width)";
+                        result.finalSimPosition = simBallPosition.clone();
+                        // result.bouncedOnServer is already false
+                        result.bouncedOnOpponent = hasBouncedOnOpponentSide; // keep current state
+                        return result;
                     }
                 }
                 else if (hasBouncedOnServerSide && !isOnServerHalf) { // Second bounce, should be on opponent's side
                     if (isWithinTableWidth) {
                         hasBouncedOnOpponentSide = true;
-                        // Check if the bounce is close enough to the target position
-                        const targetDist = Math.sqrt(
+                        result.bouncedOnOpponent = true;
+                        result.finalSimPosition = simBallPosition.clone(); // Update final position for distance calc
+
+                        result.distanceToTarget = Math.sqrt(
                             Math.pow(simBallPosition.x - targetOpponentBouncePos.x, 2) +
                             Math.pow(simBallPosition.z - targetOpponentBouncePos.z, 2)
                         );
 
-                        if (!(targetDist < TARGET_BOUNCE_DISTANCE_TOLERANCE && hasClearedNet)) {
+                        if (!(result.distanceToTarget < TARGET_BOUNCE_DISTANCE_TOLERANCE && hasClearedNet)) {
                             // Bounced on opponent side but missed target or hadn't cleared net properly
-                            return { success: false, reason: "missed target or net after first bounce", finalSimPosition: simBallPosition.clone(), clearedNet: hasClearedNet, bouncedOnServer: true, bouncedOnOpponent: true };
+                            result.success = false;
+                            result.reason = "missed target or net after first bounce";
+                            // result.bouncedOnServer is true
+                            // result.bouncedOnOpponent is true
+                            return result;
                         }
-                        // If conditions met, we don't return immediately; success is checked at the end of the loop or after MAX_SIMULATION_TICKS.
+                        // If conditions met, success is checked later.
                     } else {
                         // Out of table width on the opponent's side
-                        return { success: false, reason: "out of bounds X on opponent side", finalSimPosition: simBallPosition.clone(), clearedNet: hasClearedNet, bouncedOnServer: true, bouncedOnOpponent: false };
+                        result.success = false;
+                        result.reason = "out of bounds X on opponent side";
+                        result.finalSimPosition = simBallPosition.clone();
+                        // result.bouncedOnServer is true
+                        result.bouncedOnOpponent = false;
+                        return result;
                     }
                 } else {
                     // Invalid bounce state (e.g., bounced twice on server side, or bounced on receiver side first without server bounce)
-                    return { success: false, reason: "invalid bounce state", finalSimPosition: simBallPosition.clone(), clearedNet: hasClearedNet, bouncedOnServer: hasBouncedOnServerSide, bouncedOnOpponent: hasBouncedOnOpponentSide };
+                    result.success = false;
+                    result.reason = "invalid bounce state";
+                    result.finalSimPosition = simBallPosition.clone();
+                    // result.bouncedOnServer and result.bouncedOnOpponent reflect current state
+                    return result;
                 }
             }
 
             // Check for hitting the floor (ball Y position is below zero)
             if (simBallPosition.y < 0) {
-                return { success: false, reason: "hit floor", finalSimPosition: simBallPosition.clone(), clearedNet: hasClearedNet, bouncedOnServer: hasBouncedOnServerSide, bouncedOnOpponent: hasBouncedOnOpponentSide };
+                result.success = false;
+                result.reason = "hit floor";
+                result.finalSimPosition = simBallPosition.clone();
+                return result;
             }
 
             // Check for successful serve conditions only if all stages have been passed in order
             if (hasBouncedOnServerSide && hasClearedNet && hasBouncedOnOpponentSide) {
-                 const targetDist = Math.sqrt(
-                    Math.pow(simBallPosition.x - targetOpponentBouncePos.x, 2) +
-                    Math.pow(simBallPosition.z - targetOpponentBouncePos.z, 2)
-                );
-                // This success condition is checked *after* the bounce has been processed.
-                // If the ball has bounced on server, cleared net, and bounced on opponent side near target, it's a success.
-                if (targetDist < TARGET_BOUNCE_DISTANCE_TOLERANCE) {
-                    return { success: true, clearedNet: true, bouncedOnServer: true, bouncedOnOpponent: true, finalSimPosition: simBallPosition.clone() };
+                 // distanceToTarget would have been calculated when hasBouncedOnOpponentSide became true
+                if (result.distanceToTarget < TARGET_BOUNCE_DISTANCE_TOLERANCE) {
+                    result.success = true;
+                    result.reason = "successful serve";
+                    result.finalSimPosition = simBallPosition.clone(); // Ensure final position is updated
+                    return result;
                 }
-                // If it bounced on opponent side but rolled away from target, the previous check "missed target or net after first bounce" would have caught it.
+                // If it bounced on opponent side but rolled away from target,
+                // the "missed target or net after first bounce" check would have caught it if it was over tolerance initially.
+                // Or, it could be that it was within tolerance, but the loop continued and it rolled out.
+                // For now, we rely on the check when the bounce first happens.
             }
         }
-        // If loop finishes, it means MAX_SIMULATION_TICKS reached without a conclusive success or definitive failure (like hitting floor/net).
-        // This trajectory is considered unsuccessful.
-        return { success: false, reason: "max simulation ticks reached", finalSimPosition: simBallPosition.clone(), clearedNet: hasClearedNet, bouncedOnServer: hasBouncedOnServerSide, bouncedOnOpponent: hasBouncedOnOpponentSide };
+        // If loop finishes, it means MAX_SIMULATION_TICKS reached.
+        result.success = false;
+        result.reason = "max simulation ticks reached";
+        result.finalSimPosition = simBallPosition.clone();
+        // bouncedOnServer, bouncedOnOpponent, clearedNet, netClearanceHeight, firstBouncePosition, distanceToTarget will have their latest values.
+        return result;
     }
 
     calculatePerfectServeVelocity(hitPosition, serverSide, firstBounceServerZ_UNUSED, targetOpponentBouncePos, desiredSpin) {
-        console.log("Calculating serve velocity (Iterative Search)...");
+        console.log("Calculating serve velocity (Hill Climbing)...");
 
-        const MAX_SIMULATION_TICKS = 300;
-        // const FIRST_BOUNCE_Z_TOLERANCE = 0.10; // This was unused, confirming removal
-        const NET_CLEARANCE_MIN = 0.002;
-        const TARGET_BOUNCE_DISTANCE_TOLERANCE = 0.05;
+        const MAX_SIMULATION_TICKS = 300; // From original
+        const NET_CLEARANCE_MIN = 0.002; // From original
+        const TARGET_BOUNCE_DISTANCE_TOLERANCE = 0.05; // From original
 
-        let bestInitialVelocity = new THREE.Vector3(
-            -3.0, // Default Vx
-            -5.0, // Default Vy
-            serverSide * -2.0 // Default Vz, ensures it moves towards opponent
+        // Hill Climbing Parameters
+        const maxIterations = 100; // Max attempts to find a better solution
+        let initialStepSize = 0.5;   // Initial adjustment to velocity components
+        const minStepSize = 0.01;    // Smallest step size before giving up on a path
+        const stepSizeDecay = 0.95;  // Factor to reduce step size by
+        const noImprovementThreshold = 5; // Iterations without improvement before reducing step size
+
+        // Initial guess for velocity (using the old fallback as a starting point)
+        let currentBestVelocity = new THREE.Vector3(
+            THREE.MathUtils.clamp((targetOpponentBouncePos.x - hitPosition.x) / 0.4, -1.5, 1.5),
+            1.8, // A reasonable initial Vy
+            serverSide * -3.0 // Initial Vz, ensuring minimum speed and correct direction
         );
-        let foundOptimalServe = false;
+        if (Math.abs(currentBestVelocity.z) < 2.0) { // from old fallback
+             currentBestVelocity.z = serverSide * -3.0;
+        }
 
-        // Iterate through a range of possible initial velocities (Vy, Vz, Vx)
-        // Vy: Vertical velocity component
-        // VzAbs: Absolute depth velocity component (sign determined by serverSide)
-        // Vx: Sideways velocity component
-        for (let initialVy = -5.0; initialVy <= 5.0; initialVy += 0.1) { // Renamed from Vy_initial_loop
-            for (let initialVzAbs = 1.0; initialVzAbs <= 7.0; initialVzAbs += 0.1) { // Renamed from Vz_initial_abs_loop
-                for (let initialVx = -3.0; initialVx <= 3.0; initialVx += 0.1) { // Renamed from Vx_initial_loop
-                    
-                    const currentInitialVelocity = new THREE.Vector3(
-                        initialVx,
-                        initialVy,
-                        serverSide * -initialVzAbs // Adjust Vz direction based on server side
-                    );
 
-                    // Simulate the trajectory with the current initial velocity
-                    const simulationResult = this._simulateServeTrajectory(
-                        currentInitialVelocity,
-                        hitPosition,
-                        desiredSpin,
-                        serverSide,
-                        // firstBounceServerZ_UNUSED, // Parameter removed
-                        targetOpponentBouncePos,
-                        MAX_SIMULATION_TICKS,
-                        // FIRST_BOUNCE_Z_TOLERANCE, // Parameter removed
-                        NET_CLEARANCE_MIN,
-                        TARGET_BOUNCE_DISTANCE_TOLERANCE
-                    );
+        let initialSimResult = this._simulateServeTrajectory(currentBestVelocity, hitPosition, desiredSpin, serverSide, targetOpponentBouncePos, MAX_SIMULATION_TICKS, NET_CLEARANCE_MIN, TARGET_BOUNCE_DISTANCE_TOLERANCE);
+        let currentBestScore = this._evaluateServeTrajectory(initialSimResult, NET_CLEARANCE_MIN);
 
-                    // If the simulation resulted in a successful serve
-                    if (simulationResult.success) {
-                        // Log found optimal serve and its characteristics
-                        console.log("Optimal Serve Found (Iterative): ", currentInitialVelocity, simulationResult.finalSimPosition, 
-                                    ` TargetDist: ${Math.sqrt(Math.pow(simulationResult.finalSimPosition.x - targetOpponentBouncePos.x, 2) + Math.pow(simulationResult.finalSimPosition.z - targetOpponentBouncePos.z, 2)).toFixed(3)}`);
-                        console.log(`[Test Log] Simulated second bounce Z: ${simulationResult.finalSimPosition.z.toFixed(4)}`);
-                        
-                        // If this is the first optimal serve found, or if this serve is "stronger" (higher absolute Vz),
-                        // update the bestInitialVelocity. This prioritizes faster serves if multiple solutions are found.
-                        if (!foundOptimalServe || Math.abs(bestInitialVelocity.z) < Math.abs(currentInitialVelocity.z)) {
-                            bestInitialVelocity.copy(currentInitialVelocity);
-                            foundOptimalServe = true;
+        let overallBestSuccessfulVelocity = null;
+        if (initialSimResult.success) {
+            overallBestSuccessfulVelocity = currentBestVelocity.clone();
+        }
+
+        let noImprovementStreak = 0;
+        let stepSize = initialStepSize;
+
+        for (let i = 0; i < maxIterations; i++) {
+            let improvementFoundThisIteration = false;
+            let candidateVelocity = null; // To hold the best neighbor of this iteration
+
+            // Explore neighbors (6 directions: +/- stepSize for each component Vx, Vy, Vz)
+            for (let j = 0; j < 3; j++) { // Iterate through components (0:x, 1:y, 2:z)
+                for (let k = -1; k <= 1; k += 2) { // Iterate through directions (-1, 1)
+                    let neighborVelocity = currentBestVelocity.clone();
+                    if (j === 0) neighborVelocity.x += k * stepSize;
+                    else if (j === 1) neighborVelocity.y += k * stepSize;
+                    else neighborVelocity.z += k * stepSize;
+
+                    // Ensure Vz maintains correct general direction for the server
+                    if (serverSide * neighborVelocity.z > 0 && serverSide * currentBestVelocity.z < 0) {
+                        // Allow Vz to cross zero if current is also near zero, but not flip from strong positive to negative
+                        if (Math.abs(currentBestVelocity.z) > 0.5) continue;
+                    }
+                     // Prevent Vz from becoming too slow or going backwards if it's meant to be strong
+                    if (serverSide === 1 && neighborVelocity.z > -0.5) neighborVelocity.z = -0.5; // P1 serves towards -Z
+                    if (serverSide === -1 && neighborVelocity.z < 0.5) neighborVelocity.z = 0.5;   // P2 serves towards +Z
+
+
+                    const simResult = this._simulateServeTrajectory(neighborVelocity, hitPosition, desiredSpin, serverSide, targetOpponentBouncePos, MAX_SIMULATION_TICKS, NET_CLEARANCE_MIN, TARGET_BOUNCE_DISTANCE_TOLERANCE);
+                    const neighborScore = this._evaluateServeTrajectory(simResult, NET_CLEARANCE_MIN);
+
+                    if (neighborScore < currentBestScore) {
+                        currentBestScore = neighborScore;
+                        candidateVelocity = neighborVelocity.clone(); // Store this promising neighbor
+                        improvementFoundThisIteration = true;
+
+                        if (simResult.success) {
+                            if (!overallBestSuccessfulVelocity ||
+                                (overallBestSuccessfulVelocity && Math.abs(neighborVelocity.z) > Math.abs(overallBestSuccessfulVelocity.z))) {
+                                // Prioritize successful serves, and among them, faster ones (like original logic)
+                                overallBestSuccessfulVelocity = neighborVelocity.clone();
+                                console.log(`New best successful serve found: V=(${neighborVelocity.x.toFixed(2)}, ${neighborVelocity.y.toFixed(2)}, ${neighborVelocity.z.toFixed(2)}), Score=${neighborScore.toFixed(0)}, TargetDist=${simResult.distanceToTarget.toFixed(3)}`);
+                            }
                         }
                     }
                 }
             }
+
+            if (improvementFoundThisIteration && candidateVelocity) {
+                currentBestVelocity.copy(candidateVelocity); // Move to the best neighbor found
+                noImprovementStreak = 0; // Reset streak
+            } else {
+                noImprovementStreak++;
+                if (noImprovementStreak >= noImprovementThreshold) {
+                    stepSize *= stepSizeDecay; // Reduce step size
+                    noImprovementStreak = 0;   // Reset streak for new step size
+                    if (stepSize < minStepSize) {
+                        console.log("Hill climbing converged or stuck (min step size reached).");
+                        break; // Stop if step size is too small
+                    }
+                }
+            }
+            if (i % 10 === 0) { // Log progress occasionally
+                 console.log(`Iter ${i}: Best score so far: ${currentBestScore.toFixed(0)}, Step: ${stepSize.toFixed(3)}, Current V: (${currentBestVelocity.x.toFixed(2)},${currentBestVelocity.y.toFixed(2)},${currentBestVelocity.z.toFixed(2)})`);
+            }
         }
 
-        if (foundOptimalServe) {
-            return bestInitialVelocity; // Return the best velocity found
+        if (overallBestSuccessfulVelocity) {
+            console.log("Optimal Serve Found (Hill Climbing): ", overallBestSuccessfulVelocity);
+            return overallBestSuccessfulVelocity;
         }
 
-        // Fallback if no optimal trajectory is found after checking all combinations
-        console.warn("Could not find an optimal serve trajectory (Iterative Search), using fallback serve.");
-        let fallbackVx = (targetOpponentBouncePos.x - hitPosition.x) / 0.4; // Heuristic for Vx
-        let fallbackVz = (targetOpponentBouncePos.z - hitPosition.z) / 0.4; // Heuristic for Vz
-        if (Math.abs(fallbackVz) < 2.0) fallbackVz = serverSide * -3.0; // Ensure minimum speed for Vz
-        fallbackVx = THREE.MathUtils.clamp(fallbackVx, -1.5, 1.5); // Clamp Vx to reasonable limits
-        return new THREE.Vector3(fallbackVx, 1.8, fallbackVz); // Return a default fallback velocity
+        // Fallback if no successful trajectory is found by hill climbing
+        console.warn("Could not find an optimal serve trajectory (Hill Climbing), using fallback serve.");
+        let fallbackVx = (targetOpponentBouncePos.x - hitPosition.x) / 0.4;
+        let fallbackVz = (targetOpponentBouncePos.z - hitPosition.z) / 0.4;
+        if (Math.abs(fallbackVz) < 2.0) fallbackVz = serverSide * -3.0;
+        fallbackVx = THREE.MathUtils.clamp(fallbackVx, -1.5, 1.5);
+        return new THREE.Vector3(fallbackVx, 1.8, fallbackVz);
+    }
+
+    // Scoring function for serve trajectory evaluation
+    _evaluateServeTrajectory(simulationResult, NET_CLEARANCE_MIN) {
+        let score = 0;
+        const PENALTY_BASE_FAILURE = 1000;
+        const PENALTY_NO_SERVER_BOUNCE = 5000;
+        const PENALTY_NO_NET_CLEARANCE = 2000;
+        const PENALTY_HIT_FLOOR = 600;
+        const PENALTY_OUT_OF_BOUNDS = 400;
+        const PENALTY_INVALID_BOUNCE_STATE = 500;
+        const PENALTY_MAX_TICKS = 200;
+        const PENALTY_MISSED_TARGET_AREA = 300; // For "missed target or net after first bounce"
+
+        // Fundamental requirement: bounced on server side
+        if (!simulationResult.bouncedOnServer) {
+            score += PENALTY_NO_SERVER_BOUNCE;
+        }
+
+        // Fundamental requirement: cleared net (unless already penalized by specific reason)
+        if (!simulationResult.clearedNet && simulationResult.reason !== "did not clear net") {
+            score += PENALTY_NO_NET_CLEARANCE;
+        }
+
+        if (simulationResult.success) {
+            // Primary score component for successful serves
+            score += simulationResult.distanceToTarget * 100; // Scale factor for distance
+
+            // Net clearance preference: encourage clearing by a bit more than MIN, but not too much
+            const idealNetClearance = NET_CLEARANCE_MIN + 0.03; // e.g., clear by 3cm + min
+            const clearanceDeviation = Math.abs(simulationResult.netClearanceHeight - idealNetClearance);
+            score += clearanceDeviation * 500; // Penalty for deviating from ideal clearance
+
+            // Bonus for being a success (negative score indicates better)
+            score -= PENALTY_BASE_FAILURE; // Counteract base failure penalty if it were to be added later
+        } else {
+            score += PENALTY_BASE_FAILURE;
+
+            switch (simulationResult.reason) {
+                case "did not clear net":
+                    // Penalty proportional to how much it missed by, plus a base
+                    score += PENALTY_NO_NET_CLEARANCE; // Already a strong penalty
+                    score += Math.abs(simulationResult.netClearanceHeight) * 10000; // Heavy penalty for missing net
+                    if (simulationResult.netClearanceHeight < -0.05) { // Hit well below net top
+                        score += 500; // Extra penalty for very low hit
+                    }
+                    break;
+                case "missed first bounce (out of width)":
+                    score += PENALTY_OUT_OF_BOUNDS * 1.5; // Higher than generic out of bounds
+                    break;
+                case "out of bounds X on opponent side":
+                    score += PENALTY_OUT_OF_BOUNDS;
+                    // Could add penalty proportional to distance out of bounds if available
+                    break;
+                case "hit floor":
+                    score += PENALTY_HIT_FLOOR;
+                    // Add penalty based on where it hit the floor relative to the table
+                    if (simulationResult.finalSimPosition) {
+                        const distFromTableCenter = simulationResult.finalSimPosition.length(); // Simplified
+                        score += distFromTableCenter * 10;
+                    }
+                    break;
+                case "invalid bounce state":
+                    score += PENALTY_INVALID_BOUNCE_STATE;
+                    break;
+                case "max simulation ticks reached":
+                    score += PENALTY_MAX_TICKS;
+                    // This case might still have useful info like distanceToTarget if it bounced on opponent side
+                    if (simulationResult.bouncedOnOpponent && simulationResult.distanceToTarget !== Infinity) {
+                        score += simulationResult.distanceToTarget * 150; // Higher factor than success due to uncertainty
+                    }
+                    break;
+                case "missed target or net after first bounce":
+                    score += PENALTY_MISSED_TARGET_AREA;
+                    if (simulationResult.distanceToTarget !== Infinity) {
+                        score += simulationResult.distanceToTarget * 120;
+                    }
+                    if (!simulationResult.clearedNet) { // Double check if net was an issue
+                        score += PENALTY_NO_NET_CLEARANCE / 2; // Add half, as it's a complex failure
+                    }
+                    break;
+                default:
+                    score += 100; // Small penalty for unknown failure reason
+            }
+        }
+        return score;
     }
 }
