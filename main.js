@@ -263,15 +263,11 @@ function animate() {
                 // The ball's current X and Y are suitable for the hitPosition.
                 // For Z, we need the racket's actual world Z.
 
-                const racketWorldPosition = new THREE.Vector3();
-                server.racket.mesh.getWorldPosition(racketWorldPosition);
-
-                let hitPosition = new THREE.Vector3(
-                    gameBall.position.x,        // Current ball x
-                    RACKET_WORLD_Y_FOR_HIT,     // Fixed racket world Y, already confirmed by the if condition
-                    racketWorldPosition.z       // Actual racket world Z
-                );
-                console.log(`Using actual racket Z for serve calculation: ${hitPosition.z.toFixed(3)}`);
+                // The ball's current position is where the hit should be calculated for.
+                // The RACKET_WORLD_Y_FOR_HIT (0.9) is confirmed by the if condition,
+                // and gameBall.position.y will be very close to it.
+                let hitPosition = gameBall.position.clone();
+                console.log(`Using current ball position for serve calculation: X:${hitPosition.x.toFixed(3)}, Y:${hitPosition.y.toFixed(3)}, Z:${hitPosition.z.toFixed(3)}`);
 
                 let targetOpponentBounceZ = (server.side === 1) ? -TABLE_LENGTH / 4 : TABLE_LENGTH / 4;
                 let firstBounceServerZ = (server.side === 1) ? TABLE_LENGTH / 4 / 2 : -TABLE_LENGTH / 4 / 2; // Simplified first bounce target
