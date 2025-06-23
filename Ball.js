@@ -370,6 +370,14 @@ export class Ball {
         const NET_CLEARANCE_MIN = 0.002;
         const TARGET_BOUNCE_DISTANCE_TOLERANCE = 0.05;
 
+        // Parameters for coarse-to-fine search
+        const VELOCITY_SEARCH_STEP_COARSE = 0.5; // Coarser step for initial pass
+        const VELOCITY_SEARCH_STEP_FINE = 0.1;   // Finer step for refinement
+        const VELOCITY_SEARCH_FINE_REGION = 0.4; // How far around a coarse hit to search finely (e.g., coarseVx +/- this value)
+                                                 // This should be less than VELOCITY_SEARCH_STEP_COARSE to avoid redundant fine searches
+                                                 // if multiple coarse steps are close. For e.g. if coarse is 0.5 and region is 0.4,
+                                                 // a coarse hit at X will fine search [X-0.4, X+0.4]. Next coarse hit at X+0.5 will fine search [X+0.1, X+0.9].
+
         let bestInitialVelocity = new THREE.Vector3(
             -3.0, // Default Vx
             -5.0, // Default Vy
@@ -377,62 +385,93 @@ export class Ball {
         );
         let foundOptimalServe = false;
 
-        // Iterate through a range of possible initial velocities (Vy, Vz, Vx)
-        // Vy: Vertical velocity component
-        // VzAbs: Absolute depth velocity component (sign determined by serverSide)
-        // Vx: Sideways velocity component
-        for (let initialVy = -5.0; initialVy <= 5.0; initialVy += 0.1) { // Renamed from Vy_initial_loop
-            for (let initialVzAbs = 1.0; initialVzAbs <= 7.0; initialVzAbs += 0.1) { // Renamed from Vz_initial_abs_loop
-                for (let initialVx = -3.0; initialVx <= 3.0; initialVx += 0.1) { // Renamed from Vx_initial_loop
+        // Coarse Search
+        // Iterate through a range of possible initial velocities (Vy, Vz, Vx) with coarse steps
+        for (let coarseVy = -5.0; coarseVy <= 5.0; coarseVy += VELOCITY_SEARCH_STEP_COARSE) {
+            for (let coarseVzAbs = 1.0; coarseVzAbs <= 7.0; coarseVzAbs += VELOCITY_SEARCH_STEP_COARSE) {
+                for (let coarseVx = -3.0; coarseVx <= 3.0; coarseVx += VELOCITY_SEARCH_STEP_COARSE) {
+                    if (foundOptimalServe) break; // If a fine search found a solution, no need to continue coarse search
                     
-                    const currentInitialVelocity = new THREE.Vector3(
-                        initialVx,
-                        initialVy,
-                        serverSide * -initialVzAbs // Adjust Vz direction based on server side
+                    const coarseInitialVelocity = new THREE.Vector3(
+                        coarseVx,
+                        coarseVy,
+                        serverSide * -coarseVzAbs
                     );
 
-                    // Simulate the trajectory with the current initial velocity
-                    const simulationResult = this._simulateServeTrajectory(
-                        currentInitialVelocity,
-                        hitPosition,
-                        desiredSpin,
-                        serverSide,
-                        // firstBounceServerZ_UNUSED, // Parameter removed
-                        targetOpponentBouncePos,
-                        MAX_SIMULATION_TICKS,
-                        // FIRST_BOUNCE_Z_TOLERANCE, // Parameter removed
-                        NET_CLEARANCE_MIN,
-                        TARGET_BOUNCE_DISTANCE_TOLERANCE
+                    // Simulate with coarse velocity
+                    const coarseSimResult = this._simulateServeTrajectory(
+                        coarseInitialVelocity, hitPosition, desiredSpin, serverSide,
+                        targetOpponentBouncePos, MAX_SIMULATION_TICKS,
+                        NET_CLEARANCE_MIN, TARGET_BOUNCE_DISTANCE_TOLERANCE
                     );
 
-                    // If the simulation resulted in a successful serve
-                    if (simulationResult.success) {
-                        // Log found optimal serve and its characteristics
-                        console.log("Optimal Serve Found (Iterative): ", currentInitialVelocity, simulationResult.finalSimPosition, 
-                                    ` TargetDist: ${Math.sqrt(Math.pow(simulationResult.finalSimPosition.x - targetOpponentBouncePos.x, 2) + Math.pow(simulationResult.finalSimPosition.z - targetOpponentBouncePos.z, 2)).toFixed(3)}`);
-                        console.log(`[Test Log] Simulated second bounce Z: ${simulationResult.finalSimPosition.z.toFixed(4)}`);
+                    if (coarseSimResult.success) {
+                        // console.log(`Coarse hit found: Vx=${coarseVx.toFixed(1)}, Vy=${coarseVy.toFixed(1)}, VzAbs=${coarseVzAbs.toFixed(1)}`);
+                        // Perform Fine Search around this successful coarse velocity
+                        const fineVyMin = coarseVy - VELOCITY_SEARCH_FINE_REGION;
+                        const fineVyMax = coarseVy + VELOCITY_SEARCH_FINE_REGION;
+                        const fineVzAbsMin = Math.max(1.0, coarseVzAbs - VELOCITY_SEARCH_FINE_REGION); // Ensure VzAbs doesn't go too low
+                        const fineVzAbsMax = coarseVzAbs + VELOCITY_SEARCH_FINE_REGION;
+                        const fineVxMin = coarseVx - VELOCITY_SEARCH_FINE_REGION;
+                        const fineVxMax = coarseVx + VELOCITY_SEARCH_FINE_REGION;
+
+                        for (let fineVy = fineVyMin; fineVy <= fineVyMax; fineVy += VELOCITY_SEARCH_STEP_FINE) {
+                            for (let fineVzAbs = fineVzAbsMin; fineVzAbs <= fineVzAbsMax; fineVzAbs += VELOCITY_SEARCH_STEP_FINE) {
+                                for (let fineVx = fineVxMin; fineVx <= fineVxMax; fineVx += VELOCITY_SEARCH_STEP_FINE) {
+                                    const currentFineVelocity = new THREE.Vector3(
+                                        fineVx,
+                                        fineVy,
+                                        serverSide * -fineVzAbs
+                                    );
+
+                                    const fineSimResult = this._simulateServeTrajectory(
+                                        currentFineVelocity, hitPosition, desiredSpin, serverSide,
+                                        targetOpponentBouncePos, MAX_SIMULATION_TICKS,
+                                        NET_CLEARANCE_MIN, TARGET_BOUNCE_DISTANCE_TOLERANCE
+                                    );
+
+                                    if (fineSimResult.success) {
+                                        // console.log("Optimal Serve Found (Fine Tuned): ", currentFineVelocity, fineSimResult.finalSimPosition,
+                                        //             ` TargetDist: ${Math.sqrt(Math.pow(fineSimResult.finalSimPosition.x - targetOpponentBouncePos.x, 2) + Math.pow(fineSimResult.finalSimPosition.z - targetOpponentBouncePos.z, 2)).toFixed(3)}`);
+                                        // console.log(`[Test Log] Simulated second bounce Z (Fine): ${fineSimResult.finalSimPosition.z.toFixed(4)}`);
+
+                                        if (!foundOptimalServe || Math.abs(bestInitialVelocity.z) < Math.abs(currentFineVelocity.z)) {
+                                            bestInitialVelocity.copy(currentFineVelocity);
+                                            foundOptimalServe = true;
+                                        }
+                                    }
+                                } // End fine Vx loop
+                                if (foundOptimalServe && Math.abs(bestInitialVelocity.x - coarseVx) > VELOCITY_SEARCH_FINE_REGION + VELOCITY_SEARCH_STEP_FINE) {
+                                    // If best Vx is already far from coarseVx center, further Vz/Vy changes for this coarseVx might not improve much for *this specific* Vx.
+                                    // This is an optional optimization to break inner fine loops a bit earlier.
+                                }
+                            } // End fine VzAbs loop
+                             if (foundOptimalServe && Math.abs(bestInitialVelocity.z) > coarseVzAbs + VELOCITY_SEARCH_FINE_REGION + VELOCITY_SEARCH_STEP_FINE) {
+                                // If best Vz is already far from coarseVz center for this coarseVy
+                             }
+                        } // End fine Vy loop
                         
-                        // If this is the first optimal serve found, or if this serve is "stronger" (higher absolute Vz),
-                        // update the bestInitialVelocity. This prioritizes faster serves if multiple solutions are found.
-                        if (!foundOptimalServe || Math.abs(bestInitialVelocity.z) < Math.abs(currentInitialVelocity.z)) {
-                            bestInitialVelocity.copy(currentInitialVelocity);
-                            foundOptimalServe = true;
-                        }
+                        // If a fine search yielded a solution, we can break from coarse search to return faster.
+                        // Remove this break if you want to explore all coarse regions for potentially even better (e.g. faster Vz) fine solutions.
+                        if (foundOptimalServe) break;
                     }
-                }
-            }
-        }
+                } // End coarse Vx loop
+                if (foundOptimalServe) break;
+            } // End coarse VzAbs loop
+            if (foundOptimalServe) break;
+        } // End coarse Vy loop
 
         if (foundOptimalServe) {
-            return bestInitialVelocity; // Return the best velocity found
+            console.log("Optimal Serve Found (Coarse-to-Fine): ", bestInitialVelocity);
+            return bestInitialVelocity;
         }
 
-        // Fallback if no optimal trajectory is found after checking all combinations
-        console.warn("Could not find an optimal serve trajectory (Iterative Search), using fallback serve.");
+        // Fallback if no optimal trajectory is found
+        console.warn("Could not find an optimal serve trajectory (Coarse-to-Fine Search), using fallback serve.");
         let fallbackVx = (targetOpponentBouncePos.x - hitPosition.x) / 0.4; // Heuristic for Vx
         let fallbackVz = (targetOpponentBouncePos.z - hitPosition.z) / 0.4; // Heuristic for Vz
         if (Math.abs(fallbackVz) < 2.0) fallbackVz = serverSide * -3.0; // Ensure minimum speed for Vz
         fallbackVx = THREE.MathUtils.clamp(fallbackVx, -1.5, 1.5); // Clamp Vx to reasonable limits
-        return new THREE.Vector3(fallbackVx, 1.8, fallbackVz); // Return a default fallback velocity
+        return new THREE.Vector3(fallbackVx, 1.8, fallbackVz);
     }
 }
