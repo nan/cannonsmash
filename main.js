@@ -267,7 +267,14 @@ function animate() {
                 // The RACKET_WORLD_Y_FOR_HIT (0.9) is confirmed by the if condition,
                 // and gameBall.position.y will be very close to it.
                 let hitPosition = gameBall.position.clone();
-                console.log(`Using current ball position for serve calculation: X:${hitPosition.x.toFixed(3)}, Y:${hitPosition.y.toFixed(3)}, Z:${hitPosition.z.toFixed(3)}`);
+
+                if (server.side === 1) {
+                    hitPosition.z = Math.min(hitPosition.z, player1.minZ);
+                    console.log(`Adjusted hitPosition.z for Player 1 serve calculation to: ${hitPosition.z.toFixed(3)} (player.minZ)`);
+                } else {
+                    hitPosition.z = Math.max(hitPosition.z, player2.maxZ);
+                    console.log(`Adjusted hitPosition.z for Player 2 serve calculation to: ${hitPosition.z.toFixed(3)} (player.maxZ)`);
+                }
 
                 let targetOpponentBounceZ = (server.side === 1) ? -TABLE_LENGTH / 4 : TABLE_LENGTH / 4;
                 let firstBounceServerZ = (server.side === 1) ? TABLE_LENGTH / 4 / 2 : -TABLE_LENGTH / 4 / 2; // Simplified first bounce target
